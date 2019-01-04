@@ -1,4 +1,3 @@
-#!/bin/bash
 # .bashrc
 source_if() { if [[ -f "$1" ]]; then . "$1"; fi }
 insert_path_if() { if [[ -d $1 ]]; then PATH="$1:$PATH"; fi }
@@ -93,10 +92,5 @@ if [ "$PS1" ]; then
     fi
 fi
 
-# =======
-# = FZF =
-# =======
 source_if "$HOME/.fzf.bash"
-
-
 source_if "$HOME/.bashrc.local"

@@ -1,11 +1,6 @@
 # Makefile
-SHELL = /bin/bash
-
-dotfiles = \
-	   .bashrc \
-	   .gnupg/gpg.conf \
-	   .tmux.conf
-
+SHELL        =  /bin/bash
+dotfiles     =  .bashrc .tmux.conf
 dotfiles     := $(patsubst .%,$(HOME)/.%,$(dotfiles))
 excludesfile =  $(HOME)/.gitignore
 
