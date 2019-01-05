@@ -18,18 +18,14 @@ export HISTSIZE=50000
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
 alias flush='sudo killall -HUP mDNSResponder'
-alias ll='ls -l'
-alias ls='ls -1A'
-
-# =======
-# = Git =
-# =======
 alias ga='git add'
 alias gba='git branch -a'
 alias gca='git commit -a -m'
 alias gd='git diff'
 alias gl="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset' --graph"
 alias gst='git status'
+alias ll='ls -l'
+alias ls='ls -1A'
 
 # ========
 # = Path =
@@ -41,11 +37,10 @@ insert_path_if "$HOME/.local/bin"
 # ==========
 # = Python =
 # ==========
-export PYTHONUSERBASE="$HOME/.python"
+export PYTHONUSERBASE="$HOME/.local/python"
 export PYENV_ROOT="$HOME/.pyenv"
 insert_path_if "$PYTHONUSERBASE/bin"
 insert_path_if "$PYENV_ROOT/bin"
-
 if command -v pyenv >/dev/null 2>&1; then
   eval "$(pyenv init -)"
   PYTHONHOME="$(python-config --prefix)"
