@@ -5,7 +5,7 @@ dotfiles     := $(patsubst .%,$(HOME)/.%,$(dotfiles))
 excludesfile =  $(HOME)/.gitignore
 
 .PHONY: dotfiles
-dotfiles: $(dotfiles) $(excludesfile) ## Links dotfiles
+dotfiles: $(dotfiles) $(excludesfile) ## Link dotfiles
 
 $(dotfiles): $(HOME)/.%: .%
 	ln -s $(realpath $<) $@
@@ -13,6 +13,10 @@ $(dotfiles): $(HOME)/.%: .%
 $(excludesfile): .gitignore
 	ln -s $(realpath $<) $@
 	git config --global core.excludesfile $@
+
+.PHONY: terminfo
+terminfo: ## Compile terminfo
+	for f in terminfo/*.terminfo; do tic -x -o ~/.terminfo "$$f"; done
 
 .PHONY: help
 help:  ## Prints help for targets with comments
