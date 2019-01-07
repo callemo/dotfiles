@@ -81,9 +81,9 @@ export PATH
 # ==========
 if [ "$PS1" ]; then
     if [ "$(command -v __git_ps1)" ]; then
-        export PS1="\[\e[34m\]\W\[\e[m\]\[\e[32m\]\`__git_ps1\`\[\e[m\] \\$ "
+        export PS1="\[\e[36m\]\W\[\e[m\]\[\e[31m\]\`__git_ps1\`\[\e[m\] \\$ "
     else
-        export PS1="\[\e[34m\]\W\[\e[m\] \\$ "
+        export PS1="\[\e[36m\]\W\[\e[m\] \\$ "
     fi
 fi
 
