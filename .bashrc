@@ -3,13 +3,13 @@ source_if() { if [[ -f "$1" ]]; then . "$1"; fi }
 insert_path_if() { if [[ -d $1 ]]; then PATH="$1:$PATH"; fi }
 
 source_if "$HOME/.bashrc.base"
-
 source_if /usr/local/etc/bash_completion
 
 # =============
 # = Variables =
 # =============
 export CLICOLOR=1
+export EDITOR=vim
 export HISTSIZE=50000
 
 # ===========
@@ -26,6 +26,7 @@ alias gl="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset'
 alias gst='git status'
 alias ll='ls -l'
 alias ls='ls -1A'
+alias tsp='tmux split'
 
 # ========
 # = Path =
