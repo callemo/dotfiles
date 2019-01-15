@@ -26,7 +26,8 @@ alias gl="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset'
 alias gst='git status'
 alias ll='ls -l'
 alias ls='ls -1A'
-alias tsp='tmux split'
+alias tnew='tmux new-window'
+alias tsplit='tmux split-window'
 
 # ========
 # = Path =
