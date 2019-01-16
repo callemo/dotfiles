@@ -27,7 +27,7 @@ alias gst='git status'
 alias ll='ls -l'
 alias ls='ls -1A'
 alias tnew='tmux new-window'
-alias tsplit='tmux split-window'
+alias tsplit='tmux split-window -c "$(pwd)"'
 
 # ========
 # = Path =
