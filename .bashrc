@@ -5,11 +5,6 @@ insert_path_if() { if [[ -d $1 ]]; then PATH="$1:$PATH"; fi }
 source_if "$HOME/.bashrc.base"
 source_if /usr/local/etc/bash_completion
 
-# =============
-# = Variables =
-# =============
-export CLICOLOR=1
-export EDITOR=vim
 export HISTSIZE=50000
 
 # ===========
@@ -17,17 +12,13 @@ export HISTSIZE=50000
 # ===========
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
-alias flush='sudo killall -HUP mDNSResponder'
 alias ga='git add'
 alias gba='git branch -a'
 alias gca='git commit -a -m'
 alias gd='git diff'
 alias gl="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset' --graph"
 alias gst='git status'
-alias ll='ls -l'
 alias ls='ls -1A'
-alias tnew='tmux new-window'
-alias tsplit='tmux split-window -c "$(pwd)"'
 
 # ========
 # = Path =
@@ -83,11 +74,10 @@ export PATH
 # ==========
 if [ "$PS1" ]; then
     if [ "$(command -v __git_ps1)" ]; then
-        export PS1="\[\e[36m\]\W\[\e[m\]\[\e[31m\]\`__git_ps1\`\[\e[m\] \\$ "
+        export PS1="\h \W\`__git_ps1\` \\$ "
     else
-        export PS1="\[\e[36m\]\W\[\e[m\] \\$ "
+        export PS1="\h \W \\$ "
     fi
 fi
 
-source_if "$HOME/.fzf.bash"
 source_if "$HOME/.bashrc.local"
