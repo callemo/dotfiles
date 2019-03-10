@@ -4,14 +4,14 @@
 GIT_PS1_SHOWDIRTYSTATE=1
 HISTSIZE=50000
 PYTHONUSERBASE="$HOME/.local/python"
-GOPATH=$HOME/go
+GOPATH="$HOME/go"
 PS1='\h:\W \\$ '
 # Exports:
 # > awk -F '=' 'BEGIN {printf("export")} {printf(" %s", $1)} END{printf("\n")}'
 export GIT_PS1_SHOWDIRTYSTATE HISTSIZE PYTHONUSERBASE GOPATH PS1
 
 # Functions:
-test_and_source() { if [[ -f "$1" ]]; then . "$1"; fi }
+test_and_source() { if [[ -r "$1" ]]; then . "$1"; fi }
 test_and_prepend_path() { if [[ -d "$1" ]]; then PATH="$1:$PATH"; fi }
 
 # Paths:
