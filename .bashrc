@@ -1,15 +1,62 @@
-# .bashrc
-source_if() { if [[ -f "$1" ]]; then . "$1"; fi }
-insert_path_if() { if [[ -d $1 ]]; then PATH="$1:$PATH"; fi }
+# Options:
 
-source_if "$HOME/.bashrc.base"
-source_if /usr/local/etc/bash_completion
+# Variables:
+GIT_PS1_SHOWDIRTYSTATE=1
+HISTSIZE=50000
+PYTHONUSERBASE="$HOME/.local/python"
+GOPATH=$HOME/go
+PS1='\h:\W \\$ '
+# Exports:
+# > awk -F '=' 'BEGIN {printf("export")} {printf(" %s", $1)} END{printf("\n")}'
+export GIT_PS1_SHOWDIRTYSTATE HISTSIZE PYTHONUSERBASE GOPATH PS1
 
-export HISTSIZE=50000
+# Functions:
+test_and_source() { if [[ -f "$1" ]]; then . "$1"; fi }
+test_and_prepend_path() { if [[ -d "$1" ]]; then PATH="$1:$PATH"; fi }
 
-# ===========
-# = Aliases =
-# ===========
+# Paths:
+test_and_prepend_path /usr/local/bin
+test_and_prepend_path /usr/local/sbin
+test_and_prepend_path "$PYTHONUSERBASE/bin"
+test_and_prepend_path "$HOME/.pyenv/bin"
+test_and_prepend_path "$HOME/.rbenv/bin"
+test_and_prepend_path "$GOPATH/bin"
+test_and_prepend_path "$HOME/.local/bin"
+test_and_prepend_path "$HOME/bin"
+export PATH
+
+# Git prompt support
+# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+if command -v __git_ps1 > /dev/null 2>&1; then
+     PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
+     export PROMPT_COMMAND
+fi
+
+# pyenv:
+if command -v pyenv >/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+  PYTHONHOME="$(python-config --prefix)"
+  export PYTHONHOME
+fi
+
+# nvm:
+if [[ -f "$HOME/.nvm/nvm.sh" ]]; then
+    test_and_source "$HOME/.nvm/nvm.sh"
+    test_and_source "$HOME/.nvm/bash_completion"
+fi
+
+# rbenv:
+if command -v rbenv >/dev/null 2>&1; then
+    eval "$(rbenv init -)"
+fi
+
+# Go:
+if command -v go > /dev/null 2>&1; then
+    GOROOT="$(go env GOROOT)"
+    export GOROOT
+fi
+
+# Aliases:
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
 alias ga='git add'
@@ -20,64 +67,4 @@ alias gl="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset'
 alias gst='git status'
 alias ls='ls -1A'
 
-# ========
-# = Path =
-# ========
-PATH="/usr/local/bin:/usr/local/sbin:$PATH"
-insert_path_if "$HOME/bin"
-insert_path_if "$HOME/.local/bin"
-
-# ==========
-# = Python =
-# ==========
-export PYTHONUSERBASE="$HOME/.local/python"
-export PYENV_ROOT="$HOME/.pyenv"
-insert_path_if "$PYTHONUSERBASE/bin"
-insert_path_if "$PYENV_ROOT/bin"
-if command -v pyenv >/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-  PYTHONHOME="$(python-config --prefix)"
-  export PYTHONHOME
-fi
-
-# ========
-# = Ruby =
-# ========
-insert_path_if "$HOME/.rbenv/bin"
-if command -v rbenv >/dev/null 2>&1; then
-    eval "$(rbenv init -)"
-fi
-
-# ===========
-# = Nodejs =
-# ===========
-if [[ -f "$HOME/.nvm/nvm.sh" ]]; then
-    export NVM_DIR="$HOME/.nvm"
-    source_if "$NVM_DIR/nvm.sh"
-    source_if "$NVM_DIR/bash_completion"
-fi
-
-# ======
-# = Go =
-# ======
-if command -v go > /dev/null 2>&1; then
-    GOROOT="$(go env GOROOT)"
-    export GOROOT
-    export GOPATH=$HOME/go
-    export PATH=$GOPATH/bin:$PATH
-fi
-
-export PATH
-
-# ==========
-# = Prompt =
-# ==========
-if [ "$PS1" ]; then
-    if [ "$(command -v __git_ps1)" ]; then
-        export PS1="\h \W\`__git_ps1\` \\$ "
-    else
-        export PS1="\h \W \\$ "
-    fi
-fi
-
-source_if "$HOME/.bashrc.local"
+test_and_source "$HOME/.bashrc.local"
