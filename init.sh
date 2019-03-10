@@ -1,4 +1,4 @@
-# Options:
+# dotfiles/init.sh
 
 # Variables:
 GIT_PS1_SHOWDIRTYSTATE=1
@@ -6,12 +6,17 @@ HISTSIZE=50000
 PYTHONUSERBASE="$HOME/.local/python"
 GOPATH="$HOME/go"
 PS1='\h:\W \\$ '
-# Exports:
-# > awk -F '=' 'BEGIN {printf("export")} {printf(" %s", $1)} END{printf("\n")}'
+# > awk -F '=' 'BEGIN { printf("export") } { printf(" %s", $1) } END { printf("\n") }'
 export GIT_PS1_SHOWDIRTYSTATE HISTSIZE PYTHONUSERBASE GOPATH PS1
 
 # Functions:
-test_and_source() { if [[ -r "$1" ]]; then . "$1"; fi }
+test_and_source() {
+    if [[ -r "$1" ]]; then
+        # shellcheck source=/dev/null
+        . "$1"
+    fi
+}
+
 test_and_prepend_path() { if [[ -d "$1" ]]; then PATH="$1:$PATH"; fi }
 
 # Paths:
@@ -25,11 +30,16 @@ test_and_prepend_path "$HOME/.local/bin"
 test_and_prepend_path "$HOME/bin"
 export PATH
 
+readonly scriptroot="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+test_and_source "$scriptroot/git-prompt.sh"
+
 # Git prompt support
-# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+#
 if command -v __git_ps1 > /dev/null 2>&1; then
-     PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
-     export PROMPT_COMMAND
+    PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
+    export PROMPT_COMMAND
+else
+    unset PROMPT_COMMAND
 fi
 
 # pyenv:
@@ -66,5 +76,3 @@ alias gd='git diff'
 alias gl="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset' --graph"
 alias gst='git status'
 alias ls='ls -1A'
-
-test_and_source "$HOME/.bashrc.local"
