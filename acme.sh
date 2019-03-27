@@ -5,3 +5,4 @@ home=$HOME
 user=$USER
 export EDITOR PAGER home user
 cd () { builtin cd "$1" && awd "$sysname"; }
+ls () { 9 ls "$@"; }
