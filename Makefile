@@ -1,6 +1,6 @@
 # Makefile
 SHELL        =  /bin/bash
-dotfiles     =  .tmux.conf
+dotfiles     =  .vimrc .tmux.conf
 dotfiles     := $(patsubst .%,$(HOME)/.%,$(dotfiles))
 excludesfile =  $(HOME)/.gitignore
 

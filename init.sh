@@ -33,8 +33,7 @@ export PATH
 test_and_source "$scriptroot/git-prompt.sh"
 if command -v __git_ps1 > /dev/null 2>&1; then
     PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
-    GIT_PS1_SHOWDIRTYSTATE=1
-    export PROMPT_COMMAND GIT_PS1_SHOWDIRTYSTATE
+    export PROMPT_COMMAND
 else
     unset PROMPT_COMMAND
 fi
