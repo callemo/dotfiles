@@ -1,8 +1,10 @@
 # dotfiles/acme.sh
 EDITOR=E
 PAGER=nobs
-home=$HOME
-user=$USER
+home="$HOME"
+user="$USER"
 export EDITOR PAGER home user
-cd () { builtin cd "$1" && awd "$sysname"; }
-ls () { 9 ls "$@"; }
+unalias cd 2>/dev/null
+cd () { builtin cd "$1" && awd "$sysname" ; }
+unalias ls 2>/dev/null
+ls () { 9 ls "$@" ; }
