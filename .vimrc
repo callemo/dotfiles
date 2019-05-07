@@ -85,6 +85,7 @@ nnoremap [b :bprevious<CR>
 nnoremap ]q :cnext<CR>
 nnoremap [q :cprevious<CR>
 
+nnoremap yoh :setlocal hlsearch!<CR>
 nnoremap yol :setlocal list!<CR>
 nnoremap yon :setlocal number!<CR>
 nnoremap yop :setlocal paste!<CR>
