@@ -63,10 +63,6 @@ function! PatchColors()
 	highlight! Search           	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
 	highlight! TabLine          	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
 	highlight! TabLineFill      	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-
-	if &background == 'light'
-		highlight! Normal guibg=#fdf6e3
-	endif
 endfunction
 
 command! Dump mksession! Session.vim
