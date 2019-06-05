@@ -12,7 +12,6 @@ set history=1000
 set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ 
-set mouse=a
 set nomodeline
 set path+=**
 set ruler
