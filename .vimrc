@@ -20,6 +20,7 @@ set scrolloff=1
 set secure
 set sidescrolloff=2
 set title
+set visualbell
 set wildmenu
 
 set notimeout
