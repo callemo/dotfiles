@@ -12,6 +12,7 @@ set history=1000
 set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ 
+set mouse=nic
 set nomodeline
 set path+=**
 set ruler
@@ -88,6 +89,8 @@ nnoremap yon :setlocal number!<CR>
 nnoremap yop :setlocal paste!<CR>
 nnoremap yos :setlocal spell!<CR>
 nnoremap yow :setlocal wrap!<CR>
+
+nnoremap <c-l> :nohlsearch<CR>
 
 nnoremap <leader>T :Ctags<CR>
 
