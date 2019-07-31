@@ -14,7 +14,6 @@ set lazyredraw
 set listchars=eol:$,tab:>\ 
 set mouse=nic
 set nomodeline
-set path+=**
 set ruler
 set scrolloff=1
 set secure
