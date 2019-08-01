@@ -8,9 +8,9 @@ fi
 url=$1
 name=${url##*/}
 name=${name%.*}
-mkdir -p "$plugin_home"
 dir="$plugin_home/$name"
 if [[ ! -e "$dir" ]]; then
+    mkdir -p "$plugin_home"
     git -C "$plugin_home" clone "$url"
     if [[ -d "$dir/doc" ]]; then
 	vim -u NONE -c "helptags $dir/doc" -c q
