@@ -5,9 +5,11 @@ readonly scriptroot="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Variables:
 HISTSIZE=50000
 PYTHONUSERBASE="$HOME/.local/python"
-PS1='\h:\W \\$ '
-# > awk -F '=' 'BEGIN { printf("export") } { printf(" %s", $1) } END { printf("\n") }'
-export HISTSIZE PYTHONUSERBASE PS1
+export HISTSIZE PYTHONUSERBASE
+if [[ "$BASH" ]]; then
+    PS1='\h:\W \\$ '
+    export PS1
+fi
 
 # Functions:
 test_and_source() {
@@ -24,6 +26,8 @@ test_and_prepend_path() {
 }
 
 # Paths:
+test_and_prepend_path "$HOME/.local/node/bin"
+test_and_prepend_path "$HOME/.local/yarn/bin"
 test_and_prepend_path "$PYTHONUSERBASE/bin"
 test_and_prepend_path "$HOME/.local/bin"
 test_and_prepend_path "$HOME/bin"
