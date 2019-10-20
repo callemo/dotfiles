@@ -1,11 +1,11 @@
 readonly scriptroot="$(cd "$(dirname "$0")" && pwd)"
 
-# Variables:
+# Variables
 HISTSIZE=50000
 PYTHONUSERBASE="$HOME/.local/python"
 export HISTSIZE PYTHONUSERBASE
 
-# Functions:
+# Functions
 test_and_source() {
     if [[ -r "$1" ]]; then
         # shellcheck source=/dev/null
@@ -19,7 +19,7 @@ test_and_prepend_path() {
     fi
 }
 
-# Paths:
+# Paths
 test_and_prepend_path "$HOME/.local/node/bin"
 test_and_prepend_path "$HOME/.local/yarn/bin"
 test_and_prepend_path "$PYTHONUSERBASE/bin"
@@ -27,7 +27,7 @@ test_and_prepend_path "$HOME/.local/bin"
 test_and_prepend_path "$HOME/bin"
 export PATH
 
-# Git prompt support
+# Prompt
 test_and_source "$scriptroot/git-prompt.sh"
 if command -v __git_ps1 > /dev/null 2>&1; then
     if [[ "$BASH_VERSION" ]]; then
@@ -37,16 +37,23 @@ if command -v __git_ps1 > /dev/null 2>&1; then
     if [[ "$ZSH_VERSION" ]]; then
         precmd () { __git_ps1 "%m:%1~" " %# "; }
     fi
+    GIT_PS1_SHOWDIRTYSTATE=1
+    GIT_PS1_SHOWSTASHSTATE=1
+    GIT_PS1_SHOWUNTRACKEDFILES=1
+    GIT_PS1_SHOWUPSTREAM="auto"
+    GIT_PS1_SHOWCOLORHINTS=1
 fi
 
-# Aliases:
+# Aliases
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
 alias ga='git add'
-alias gba='git branch -a'
-alias gca='git commit -a -m'
+alias gb='git branch'
+alias gc='git commit -v'
+alias gca='git commit -v -a'
+alias gcam='git commit -v -a -m'
 alias gd='git diff'
-alias gl="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset' --graph"
+alias glo="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset' --graph"
 alias gst='git status'
 
 [[ "$winid" ]] && test_and_source "$scriptroot/acme.sh"
