@@ -1,4 +1,8 @@
-readonly scriptroot="$(cd "$(dirname "$0")" && pwd)"
+if [[ "$BASH_VERSION" ]]; then
+    dir="$(cd "$(dirname "$BASH_SOURCE{0}")" && pwd)"
+elif [[ "$ZSH_VERSION" ]]; then
+    dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+fi
 
 # Variables
 HISTSIZE=50000
@@ -28,7 +32,7 @@ test_and_prepend_path "$HOME/bin"
 export PATH
 
 # Prompt
-test_and_source "$scriptroot/git-prompt.sh"
+test_and_source "$dir/git-prompt.sh"
 if command -v __git_ps1 > /dev/null 2>&1; then
     if [[ "$BASH_VERSION" ]]; then
         PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
@@ -56,4 +60,4 @@ alias gd='git diff'
 alias glo="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset' --graph"
 alias gst='git status'
 
-[[ "$winid" ]] && test_and_source "$scriptroot/acme.sh"
+[[ "$winid" ]] && test_and_source "$dir/acme.sh"
