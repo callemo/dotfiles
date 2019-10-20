@@ -1,15 +1,9 @@
-# dotfiles/init.sh
-
-readonly scriptroot="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly scriptroot="$(cd "$(dirname "$0")" && pwd)"
 
 # Variables:
 HISTSIZE=50000
 PYTHONUSERBASE="$HOME/.local/python"
 export HISTSIZE PYTHONUSERBASE
-if [[ "$BASH" ]]; then
-    PS1='\h:\W \\$ '
-    export PS1
-fi
 
 # Functions:
 test_and_source() {
@@ -36,10 +30,13 @@ export PATH
 # Git prompt support
 test_and_source "$scriptroot/git-prompt.sh"
 if command -v __git_ps1 > /dev/null 2>&1; then
-    PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
-    export PROMPT_COMMAND
-else
-    unset PROMPT_COMMAND
+    if [[ "$BASH_VERSION" ]]; then
+        PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
+        export PROMPT_COMMAND
+    fi
+    if [[ "$ZSH_VERSION" ]]; then
+        precmd () { __git_ps1 "%m:%1~" " %# "; }
+    fi
 fi
 
 # Aliases:
