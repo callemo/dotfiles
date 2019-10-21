@@ -1,9 +1,3 @@
-if [[ "$BASH_VERSION" ]]; then
-    dir="$(cd "$(dirname "$BASH_SOURCE{0}")" && pwd)"
-elif [[ "$ZSH_VERSION" ]]; then
-    dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
-fi
-
 # Variables
 HISTSIZE=50000
 PYTHONUSERBASE="$HOME/.local/python"
@@ -31,23 +25,6 @@ test_and_prepend_path "$HOME/.local/bin"
 test_and_prepend_path "$HOME/bin"
 export PATH
 
-# Prompt
-test_and_source "$dir/git-prompt.sh"
-if command -v __git_ps1 > /dev/null 2>&1; then
-    if [[ "$BASH_VERSION" ]]; then
-        PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
-        export PROMPT_COMMAND
-    fi
-    if [[ "$ZSH_VERSION" ]]; then
-        precmd () { __git_ps1 "%m:%1~" " %# "; }
-    fi
-    GIT_PS1_SHOWDIRTYSTATE=1
-    GIT_PS1_SHOWSTASHSTATE=1
-    GIT_PS1_SHOWUNTRACKEDFILES=1
-    GIT_PS1_SHOWUPSTREAM="auto"
-    GIT_PS1_SHOWCOLORHINTS=1
-fi
-
 # Aliases
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
@@ -70,4 +47,28 @@ alias gst='git status'
 alias gup='git pull --rebase'
 alias gupav='git pull --rebase --autostash -v'
 
+if [[ "$BASH_VERSION" ]]; then
+    dir="$(cd "$(dirname "$BASH_SOURCE{0}")" && pwd)"
+elif [[ "$ZSH_VERSION" ]]; then
+    dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+    test_and_source "$dir/zsh.sh"
+fi
+
+# Prompt
+test_and_source "$dir/git-prompt.sh"
+if command -v __git_ps1 > /dev/null 2>&1; then
+    if [[ "$BASH_VERSION" ]]; then
+        PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
+        export PROMPT_COMMAND
+    elif [[ "$ZSH_VERSION" ]]; then
+        precmd () { __git_ps1 "%m:%1~" " %# "; }
+    fi
+    GIT_PS1_SHOWDIRTYSTATE=1
+    GIT_PS1_SHOWSTASHSTATE=1
+    GIT_PS1_SHOWUNTRACKEDFILES=1
+    GIT_PS1_SHOWUPSTREAM="auto"
+    GIT_PS1_SHOWCOLORHINTS=1
+fi
+
 [[ "$winid" ]] && test_and_source "$dir/acme.sh"
+
