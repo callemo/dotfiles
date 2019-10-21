@@ -64,6 +64,10 @@ alias gdcw='git diff --cached --word-diff'
 alias glo='git log --oneline --decorate'
 alias glol="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
 alias glols="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --stat"
+alias glod="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset'"
+alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
 alias gst='git status'
+alias gup='git pull --rebase'
+alias gupav='git pull --rebase --autostash -v'
 
 [[ "$winid" ]] && test_and_source "$dir/acme.sh"

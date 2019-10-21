@@ -1,4 +1,3 @@
-# dotfiles/acme.sh
 EDITOR=E
 PAGER=nobs
 home="$HOME"
