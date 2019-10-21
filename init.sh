@@ -51,13 +51,19 @@ fi
 # Aliases
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
+
 alias ga='git add'
 alias gb='git branch'
 alias gc='git commit -v'
 alias gca='git commit -v -a'
 alias gcam='git commit -v -a -m'
 alias gd='git diff'
-alias glo="git log --pretty='format:%Cred%h%Creset [%ar] %an: %s%Cgreen%d%Creset' --graph"
+alias gdw='git diff --word-diff'
+alias gdca='git diff --cached'
+alias gdcw='git diff --cached --word-diff'
+alias glo='git log --oneline --decorate'
+alias glol="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
+alias glols="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --stat"
 alias gst='git status'
 
 [[ "$winid" ]] && test_and_source "$dir/acme.sh"

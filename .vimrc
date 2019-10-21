@@ -14,6 +14,7 @@ set lazyredraw
 set listchars=eol:$,tab:>\ 
 set mouse=nic
 set nomodeline
+set number
 set ruler
 set scrolloff=1
 set secure
@@ -96,7 +97,7 @@ nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
 syntax enable
-colorscheme default
+colorscheme desert
 call PatchColors()
 
 if filereadable(expand("~/.vimrc.local"))
