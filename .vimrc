@@ -9,7 +9,7 @@ set foldmethod=marker
 set guioptions=
 set hidden
 set history=1000
-set laststatus=2
+set hlsearch
 set lazyredraw
 set listchars=eol:$,tab:>\ 
 set mouse=nic
@@ -22,6 +22,10 @@ set sidescrolloff=2
 set title
 set visualbell
 set wildmenu
+
+set laststatus=2
+set showtabline=2
+set statusline=[%n]\ %<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 
 set notimeout
 set nottimeout
@@ -37,33 +41,6 @@ set textwidth=0
 
 let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
-
-function! PatchColors()
-	highlight! Comment term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! CursorLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Directory term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Identifier term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! LineNr term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! MatchParen term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! PreProc term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! QuickFixLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Search term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Special term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Statement term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! TabLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! TabLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! TabLineFill term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Title term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Type term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-
-	highlight! Comment          	ctermfg=008 guifg=#808080
-	highlight! helpHyperTextJump	ctermfg=004 guifg=#268bd2 term=underline cterm=underline gui=underline
-	highlight! LineNr           	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! QuickFixLine     	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! Search           	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! TabLine          	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! TabLineFill      	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-endfunction
 
 command! Dump mksession! Session.vim
 command! Load source Session.vim
@@ -97,8 +74,6 @@ nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
 syntax enable
-colorscheme desert
-call PatchColors()
 
 if filereadable(expand("~/.vimrc.local"))
 	source ~/.vimrc.local
