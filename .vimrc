@@ -5,15 +5,13 @@ set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set exrc
-set foldmethod=marker
 set guioptions=
 set hidden
 set history=1000
 set hlsearch
 set lazyredraw
 set listchars=eol:$,tab:>\ 
-set mouse=nic
-set nomodeline
+set mouse=a
 set number
 set ruler
 set scrolloff=1
@@ -36,7 +34,6 @@ set nowritebackup
 
 filetype plugin indent on
 set autoindent
-set shiftwidth=4
 set textwidth=0
 
 let g:netrw_banner = 0
@@ -55,9 +52,12 @@ cnoremap <c-p> <up>
 
 nnoremap ]b :bnext<CR>
 nnoremap [b :bprevious<CR>
-
+nnoremap ]l :lnext<CR>
+nnoremap [l :lprevious<CR>
 nnoremap ]q :cnext<CR>
 nnoremap [q :cprevious<CR>
+nnoremap ]t :tabnext<CR>
+nnoremap [t :tabprevious<CR>
 
 nnoremap yoh :setlocal hlsearch!<CR>
 nnoremap yol :setlocal list!<CR>
