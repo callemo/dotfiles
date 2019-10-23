@@ -16,9 +16,9 @@ $(excludesfile): .gitignore
 
 .PHONY: vim
 vim: ## Get vim plugins
-	./bin/vimget https://github.com/tpope/vim-surround.git
-	./bin/vimget https://github.com/sheerun/vim-polyglot.git
-	./bin/vimget https://github.com/tpope/vim-commentary.git
+	./vimget https://github.com/tpope/vim-surround.git
+	./vimget https://github.com/sheerun/vim-polyglot.git
+	./vimget https://github.com/tpope/vim-commentary.git
 
 .PHONY: tmux
 tmux: ## Get tmux plugins

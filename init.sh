@@ -18,9 +18,9 @@ test_and_prepend_path() {
 }
 
 # Paths
+test_and_prepend_path "$PYTHONUSERBASE/bin"
 test_and_prepend_path "$HOME/.local/node/bin"
 test_and_prepend_path "$HOME/.local/yarn/bin"
-test_and_prepend_path "$PYTHONUSERBASE/bin"
 test_and_prepend_path "$HOME/.local/bin"
 test_and_prepend_path "$HOME/bin"
 export PATH
