@@ -1,4 +1,5 @@
 autoload -U compaudit compinit
+compinit
 
 setopt auto_pushd pushd_ignore_dups pushdminus
 
@@ -24,6 +25,4 @@ HISTSIZE=50000
 SAVEHIST=10000
 setopt extended_history hist_expire_dups_first hist_ignore_dups \
 	hist_ignore_space hist_verify inc_append_history share_history
-
-compinit
 
