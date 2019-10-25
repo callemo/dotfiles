@@ -88,6 +88,7 @@ function! ResetSyntaxHighlight()
 endfunction
 
 syntax enable
+colorscheme ron
 call ResetSyntaxHighlight()
 
 if filereadable(expand('~/.vimrc.local'))
