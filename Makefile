@@ -16,7 +16,6 @@ $(excludesfile): .gitignore
 
 .PHONY: vim
 vim: ## Get vim plugins
-	./vimget https://github.com/morhetz/gruvbox.git
 	./vimget https://github.com/sheerun/vim-polyglot.git
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-surround.git
