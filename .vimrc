@@ -46,6 +46,8 @@ command! Ctags silent !ctags -R --languages=-vim,sql .
 let mapleader = ' '
 
 nnoremap - :Explore<CR>
+nnoremap <C-j> <C-w>w
+nnoremap <C-k> <C-w>W
 
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
@@ -69,6 +71,7 @@ nnoremap yow :setlocal wrap!<CR>
 nnoremap <c-l> :nohlsearch<CR>
 
 nnoremap <leader>T :Ctags<CR>
+nnoremap <leader>q :bwipeout<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
