@@ -88,7 +88,11 @@ function! ResetSyntaxHighlight()
 endfunction
 
 syntax enable
-colorscheme ron
+if &background == 'light'
+	colorscheme peachpuff
+else
+	colorscheme ron
+endif
 call ResetSyntaxHighlight()
 
 if filereadable(expand('~/.vimrc.local'))
