@@ -78,13 +78,15 @@ nnoremap m<Space> :make<Space>
 
 function! ResetSyntaxHighlight()
 	let l:highlight_groups = [
-				\'Constant', 'Delimiter', 'Function', 'Identifier',
-				\'PreProc', 'Special', 'Statement', 'String', 'Type'
+				\'Comment', 'Constant', 'Delimiter', 'Function',
+				\'Identifier', 'Special', 'Statement', 'Type'
 				\]
 	for i in highlight_groups
 		exe 'hi! ' . i . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
 	endfor
 	hi! Comment ctermfg=008 guifg=#808080
+	hi! Function ctermfg=37 guifg=#2aa198
+	hi! String ctermfg=33 guifg=#268bd2
 endfunction
 
 syntax enable
