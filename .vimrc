@@ -70,8 +70,10 @@ nnoremap yow :setlocal wrap!<CR>
 
 nnoremap <c-l> :nohlsearch<CR>
 
-nnoremap <leader>T :Ctags<CR>
+nnoremap <leader>D :Dump<CR>
+nnoremap <leader>L :Load<CR>
 nnoremap <leader>q :bwipeout<CR>
+nnoremap <leader>T :Ctags<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
