@@ -43,7 +43,7 @@ command! Ctags silent !ctags -R --languages=-vim,sql .
 command! Dump mksession! Session.vim
 command! Load source Session.vim
 command! Trim let _s=@/ | %s/\s\+$//e | let @/=_s | nohl | unlet _s
-command! Prettier !prettier --write % \| e
+command! Prettier up | !prettier --write % \| e
 
 let mapleader = ' '
 
