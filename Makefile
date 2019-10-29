@@ -18,6 +18,7 @@ $(excludesfile): .gitignore
 vim: ## Get vim plugins
 	./vimget https://github.com/sheerun/vim-polyglot.git
 	./vimget https://github.com/tpope/vim-commentary.git
+	./vimget https://github.com/tpope/vim-eunuch.git
 	./vimget https://github.com/tpope/vim-fugitive.git
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
