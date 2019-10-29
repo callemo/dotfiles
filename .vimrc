@@ -39,12 +39,6 @@ set textwidth=0
 let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
 
-command! Ctags silent !ctags -R --languages=-vim,sql .
-command! Dump mksession! Session.vim
-command! Load source Session.vim
-command! Trim let _s=@/ | %s/\s\+$//e | let @/=_s | nohl | unlet _s
-command! Prettier up | !prettier --write % \| e
-
 let mapleader = ' '
 
 nnoremap - :Explore<CR>
@@ -70,6 +64,9 @@ nnoremap yop :setlocal paste!<CR>
 nnoremap yos :setlocal spell!<CR>
 nnoremap yow :setlocal wrap!<CR>
 
+nnoremap m<CR> :make<CR>
+nnoremap m<Space> :make<Space>
+
 nnoremap <c-l> :nohlsearch<CR>
 
 nnoremap <leader>D :Dump<CR>
@@ -77,8 +74,11 @@ nnoremap <leader>L :Load<CR>
 nnoremap <leader>q :bwipeout<CR>
 nnoremap <leader>T :Ctags<CR>
 
-nnoremap m<CR> :make<CR>
-nnoremap m<Space> :make<Space>
+command! Ctags silent !ctags -R --languages=-vim,sql .
+command! Dump mksession! Session.vim
+command! Load source Session.vim
+command! Trim let _s=@/ | %s/\s\+$//e | let @/=_s | nohl | unlet _s
+command! Prettier up | !prettier --write % \| e
 
 function! PatchColors()
 	let l:highlight_groups = [
