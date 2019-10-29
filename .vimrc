@@ -78,7 +78,7 @@ nnoremap <leader>T :Ctags<CR>
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
-function! ResetSyntaxHighlight()
+function! PatchColors()
 	let l:highlight_groups = [
 				\'Comment', 'Constant', 'Delimiter', 'Function',
 				\'Identifier', 'Special', 'Statement', 'Type',
@@ -87,10 +87,14 @@ function! ResetSyntaxHighlight()
 	for i in highlight_groups
 		exe 'hi! ' . i . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
 	endfor
-	hi! Comment ctermfg=008 guifg=#808080
-	hi! Function ctermfg=37 guifg=#2aa198
-	hi! String ctermfg=33 guifg=#268bd2
-	hi! Visual cterm=reverse gui=reverse
+
+	hi! Comment	ctermfg=240			guifg=#586e75
+	hi! Function	ctermfg=37			guifg=#2aa198
+	hi! String	ctermfg=33			guifg=#268bd2
+	hi! Visual	ctermfg=240	ctermbg=234	guifg=#586e75	guibg=#002b36
+
+	hi! link StatusLineTerm StatusLine
+	hi! link StatusLineTermNC StatusLineNC
 endfunction
 
 syntax enable
@@ -99,7 +103,7 @@ if &background == 'light'
 else
 	colorscheme ron
 endif
-call ResetSyntaxHighlight()
+call PatchColors()
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
