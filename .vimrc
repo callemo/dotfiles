@@ -39,9 +39,10 @@ set textwidth=0
 let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
 
+command! Ctags silent !ctags -R --languages=-vim,sql .
 command! Dump mksession! Session.vim
 command! Load source Session.vim
-command! Ctags silent !ctags -R --languages=-vim,sql .
+command! Trim let _s=@/ | %s/\s\+$//e | let @/=_s | nohl | unlet _s
 
 let mapleader = ' '
 
