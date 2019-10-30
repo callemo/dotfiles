@@ -1,5 +1,7 @@
 .DS_Store
 .idea
 .netrwhist
+node_modules
 Session.vim
 tags
+.venv

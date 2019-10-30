@@ -1,18 +1,23 @@
 #!/bin/bash
 set -e
+
 readonly plugin_home="$HOME/.vim/pack/default/start"
+
 if [[ $# -lt 1 ]]; then
-    echo "usage: $0 <url>"
-    exit 1
+	echo "usage: $0 <url>"
+	exit 1
 fi
+
 url=$1
 name=${url##*/}
 name=${name%.*}
 dir="$plugin_home/$name"
 if [[ ! -e "$dir" ]]; then
-    mkdir -p "$plugin_home"
-    git -C "$plugin_home" clone "$url"
-    if [[ -d "$dir/doc" ]]; then
+	mkdir -p "$plugin_home"
+	git -C "$plugin_home" clone "$url"
+else
+	git -C "$dir" pull
+fi
+if [[ -d "$dir/doc" ]]; then
 	vim -u NONE -c "helptags $dir/doc" -c q
-    fi
 fi
