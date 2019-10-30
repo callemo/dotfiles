@@ -4,7 +4,6 @@ set autoread
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
-set exrc
 set guioptions=
 set hidden
 set history=1000
@@ -15,7 +14,6 @@ set mouse=a
 set number
 set ruler
 set scrolloff=1
-set secure
 set sidescrolloff=2
 set title
 set visualbell
@@ -35,6 +33,9 @@ set nowritebackup
 filetype plugin indent on
 set autoindent
 set textwidth=0
+
+autocmd FileType javascript,json set sw=2 et
+autocmd FileType python,yaml set sw=4 et
 
 let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
@@ -97,6 +98,7 @@ function! PatchColors()
 
 	hi! link StatusLineTerm StatusLine
 	hi! link StatusLineTermNC StatusLineNC
+	hi! link VertSplit Normal
 endfunction
 
 syntax enable
