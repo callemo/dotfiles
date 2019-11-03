@@ -34,8 +34,8 @@ filetype plugin indent on
 set autoindent
 set textwidth=0
 
-autocmd FileType javascript,json set sw=2 et
-autocmd FileType python,yaml set sw=4 et
+autocmd FileType javascript,json setlocal shiftwidth=2 expandtab
+autocmd FileType python,yaml setlocal shiftwidth=4 expandtab
 
 let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
