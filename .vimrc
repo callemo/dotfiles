@@ -84,16 +84,17 @@ command! Prettier up | !prettier --write % \| e
 function! PatchColors()
 	let l:highlight_groups = [
 				\'Comment', 'Constant', 'Delimiter', 'Function',
-				\'Identifier', 'Special', 'Statement', 'Type',
-				\'Visual'
+				\'Identifier', 'Special', 'Statement', 'Todo',
+				\'Type', 'Visual'
 				\]
 	for i in highlight_groups
 		exe 'hi! ' . i . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
 	endfor
 
 	hi! Comment	ctermfg=240			guifg=#586e75
-	hi! Function	ctermfg=37			guifg=#2aa198
-	hi! String	ctermfg=33			guifg=#268bd2
+	hi! Function	ctermfg=33			guifg=#268bd2
+	hi! String	ctermfg=37			guifg=#2aa198
+	hi! Todo	ctermfg=125			guifg=#d33682
 	hi! Visual	ctermfg=240	ctermbg=234	guifg=#586e75	guibg=#002b36
 
 	hi! link StatusLineTerm StatusLine
@@ -102,11 +103,7 @@ function! PatchColors()
 endfunction
 
 syntax enable
-if &background == 'light'
-	colorscheme peachpuff
-else
-	colorscheme ron
-endif
+colorscheme default
 call PatchColors()
 
 if filereadable(expand('~/.vimrc.local'))
