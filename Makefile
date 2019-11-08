@@ -17,6 +17,7 @@ $(excludesfile): .gitignore
 .PHONY: vim
 vim: ## Get vim plugins
 	./vimget https://github.com/sheerun/vim-polyglot.git
+	./vimget https://github.com/SirVer/ultisnips.git
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-eunuch.git
 	./vimget https://github.com/tpope/vim-fugitive.git
@@ -30,5 +31,7 @@ tmux: ## Get tmux plugins
 .PHONY: help
 help:  ## Prints help for targets with comments
 	@echo 'Makefile targets:'
-	@cat $(MAKEFILE_LIST) | perl -ne \
-		'printf " %-16s%s\n", $$1, $$2 if /^([^\.\$$]\S+):.+##\s+(.+)/'
+	@cat $(MAKEFILE_LIST) \
+		| egrep '^[a-zA-Z_-]+:.*?## .*$$' \
+		| awk 'BEGIN { FS = ":.*?## " }; { printf "%-24s %s\n", $$1, $$2 }'
+

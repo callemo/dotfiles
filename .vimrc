@@ -30,12 +30,11 @@ set nobackup
 set noswapfile
 set nowritebackup
 
+setglobal commentstring=#\ %s
+
 filetype plugin indent on
 set autoindent
 set textwidth=0
-
-autocmd FileType javascript,json setlocal shiftwidth=2 expandtab
-autocmd FileType python,yaml setlocal shiftwidth=4 expandtab
 
 let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
@@ -105,6 +104,12 @@ endfunction
 syntax enable
 colorscheme default
 call PatchColors()
+
+autocmd FileType javascript,json setlocal shiftwidth=2 expandtab
+autocmd FileType python,yaml setlocal shiftwidth=4 expandtab
+
+let g:UltiSnipsSnippetDirectories=[$HOME . '/dotfiles/snips']
+let g:UltiSnipsSnippetsDir = $HOME . '/dotfiles/snips'
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
