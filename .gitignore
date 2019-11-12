@@ -2,6 +2,8 @@
 .idea
 .netrwhist
 node_modules
+*.pyc
+__pycache__
 Session.vim
 tags
 .venv
