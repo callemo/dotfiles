@@ -117,9 +117,6 @@ autocmd FileType c,cpp setlocal path+=/usr/include
 autocmd FileType javascript,json setlocal shiftwidth=2 expandtab
 autocmd FileType python,yaml setlocal shiftwidth=4 expandtab
 
-let g:UltiSnipsSnippetDirectories=[$HOME . '/dotfiles/snips']
-let g:UltiSnipsSnippetsDir = $HOME . '/dotfiles/snips'
-
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
 endif

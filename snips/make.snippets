@@ -1,9 +1,0 @@
-snippet help "help target for Makefile" b
-.PHONY: help
-help:  ## Prints help for targets with comments
-	@echo 'Makefile targets:'
-	@cat $(MAKEFILE_LIST) \
-		| egrep '^[a-zA-Z_-]+:.*?## .*$$' \
-		| awk 'BEGIN { FS = ":.*?## " }; { printf "%-24s %s\n", $\$1, $\$2 }'
-
-endsnippet
