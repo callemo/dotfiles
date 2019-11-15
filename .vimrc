@@ -31,6 +31,7 @@ set noswapfile
 set nowritebackup
 
 setglobal commentstring=#\ %s
+setglobal path=.,,
 
 filetype plugin indent on
 set autoindent
@@ -78,8 +79,14 @@ command! Ctags silent !ctags -R --languages=-vim,sql .
 command! Dump mksession! Session.vim
 command! Load source Session.vim
 command! Trim let _s=@/ | %s/\s\+$//e | let @/=_s | nohl | unlet _s
-command! Prettier up<CR>!prettier --write %<CR>e
-command! Black up<CR>!black --quiet %<CR>e
+command! Prettier call Fmt('prettier --write')
+command! Black call Fmt('black')
+
+function! Fmt(cmd) abort
+	update
+	execute '!' . a:cmd . expand(' %')
+	edit
+endfunction
 
 function! PatchColors()
 	let l:highlight_groups = [
@@ -106,6 +113,7 @@ syntax enable
 colorscheme default
 call PatchColors()
 
+autocmd FileType c,cpp setlocal path+=/usr/include
 autocmd FileType javascript,json setlocal shiftwidth=2 expandtab
 autocmd FileType python,yaml setlocal shiftwidth=4 expandtab
 
