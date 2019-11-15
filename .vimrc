@@ -78,7 +78,8 @@ command! Ctags silent !ctags -R --languages=-vim,sql .
 command! Dump mksession! Session.vim
 command! Load source Session.vim
 command! Trim let _s=@/ | %s/\s\+$//e | let @/=_s | nohl | unlet _s
-command! Prettier up | !prettier --write % \| e
+command! Prettier up<CR>!prettier --write %<CR>e
+command! Black up<CR>!black --quiet %<CR>e
 
 function! PatchColors()
 	let l:highlight_groups = [
