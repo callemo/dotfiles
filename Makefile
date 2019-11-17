@@ -23,6 +23,13 @@ vim: ## Get vim plugins
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
 
+.PHONY: snippets
+snippets: ## Get vim snippets
+	./vimget https://github.com/MarcWeber/vim-addon-mw-utils.git
+	./vimget https://github.com/tomtom/tlib_vim.git
+	./vimget https://github.com/garbas/vim-snipmate.git
+	./vimget https://github.com/honza/vim-snippets.git
+
 .PHONY: tmux
 tmux: ## Get tmux plugins
 	git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect
