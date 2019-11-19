@@ -70,5 +70,3 @@ if command -v __git_ps1 > /dev/null 2>&1; then
     GIT_PS1_SHOWCOLORHINTS=1
 fi
 
-[[ "$winid" ]] && test_and_source "$dir/acme.sh"
-

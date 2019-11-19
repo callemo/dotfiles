@@ -17,17 +17,17 @@ $(excludesfile): .gitignore
 .PHONY: vim
 vim: ## Get vim plugins
 	./vimget https://github.com/sheerun/vim-polyglot.git
+
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-eunuch.git
 	./vimget https://github.com/tpope/vim-fugitive.git
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
 
-.PHONY: snippets
-snippets: ## Get vim snippets
 	./vimget https://github.com/MarcWeber/vim-addon-mw-utils.git
 	./vimget https://github.com/tomtom/tlib_vim.git
 	./vimget https://github.com/garbas/vim-snipmate.git
+
 	./vimget https://github.com/honza/vim-snippets.git
 
 .PHONY: tmux
