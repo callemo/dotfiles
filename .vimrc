@@ -91,8 +91,8 @@ endfunction
 function! PatchColors()
 	let l:highlight_groups = [
 				\'Comment', 'Constant', 'Delimiter', 'Function',
-				\'Identifier', 'Special', 'Statement', 'Todo',
-				\'Type', 'Visual'
+				\'Identifier', 'Special', 'Statement', 'MatchParen',
+				\'Todo', 'Type', 'Visual'
 				\]
 	for i in highlight_groups
 		exe 'hi! ' . i . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'

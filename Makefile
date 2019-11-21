@@ -23,6 +23,7 @@ vim: ## Get vim plugins
 	./vimget https://github.com/tpope/vim-fugitive.git
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
+	./vimget https://github.com/tpope/vim-tbone.git
 
 	./vimget https://github.com/MarcWeber/vim-addon-mw-utils.git
 	./vimget https://github.com/tomtom/tlib_vim.git
