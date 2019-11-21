@@ -35,6 +35,11 @@ vim: ## Get vim plugins
 tmux: ## Get tmux plugins
 	git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect
 
+.PHONY: fzf
+fzf: ## Installs fzf
+	git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+	~/.fzf/install
+
 .PHONY: help
 help:  ## Prints help for targets with comments
 	@echo 'Makefile targets:'
