@@ -21,7 +21,7 @@ set wildmenu
 
 set laststatus=2
 set showtabline=2
-set statusline=[%n]\ %<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
+set statusline=[%{winnr()}]\ %n:%<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 
 set notimeout
 set nottimeout
@@ -42,9 +42,11 @@ let g:netrw_list_hide = '^\./$,^\.\./$'
 
 let mapleader = ' '
 
+nnoremap <c-j> <c-w>w
+nnoremap <c-k> <c-w>W
+
 nnoremap - :Explore<CR>
-nnoremap <C-j> <C-w>w
-nnoremap <C-k> <C-w>W
+nnoremap <c-n> :25Lex<CR>
 
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
