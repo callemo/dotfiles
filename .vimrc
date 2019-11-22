@@ -47,6 +47,7 @@ nnoremap <c-k> <c-w>W
 
 nnoremap - :Explore<CR>
 nnoremap <c-n> :25Lex<CR>
+autocmd FileType netrw setlocal statusline=[%{winnr()}]\ %F
 
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
