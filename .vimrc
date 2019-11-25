@@ -21,7 +21,7 @@ set wildmenu
 
 set laststatus=2
 set showtabline=2
-set statusline=[%{winnr()}]\ %n:%<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
+set statusline=#%{winnr()}\ %<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 
 set notimeout
 set nottimeout
@@ -75,7 +75,7 @@ nnoremap <c-l> :nohlsearch<CR>
 
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>L :Load<CR>
-nnoremap <leader>q :bwipeout<CR>
+nnoremap <leader>d :bwipeout<CR>
 nnoremap <leader>T :Ctags<CR>
 
 command! Ctags silent !ctags -R --languages=-vim,sql .
@@ -93,9 +93,10 @@ endfunction
 
 function! PatchColors()
 	let l:highlight_groups = [
-				\'Comment', 'Constant', 'Delimiter', 'Function',
-				\'Identifier', 'Special', 'Statement', 'MatchParen',
-				\'Todo', 'Type', 'Visual'
+				\'Comment',	'Constant',	'Delimiter',	'Function',
+				\'Identifier',	'Special',	'Statement',	'MatchParen',
+				\'TabLine',	'TabLineFill',	'TabLineSel',	'Todo',
+				\'Type',	'Visual'
 				\]
 	for i in highlight_groups
 		exe 'hi! ' . i . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
@@ -104,6 +105,9 @@ function! PatchColors()
 	hi! Comment	ctermfg=240			guifg=#586e75
 	hi! Function	ctermfg=33			guifg=#268bd2
 	hi! String	ctermfg=37			guifg=#2aa198
+	hi! TabLine	ctermfg=016	ctermbg=195	guifg=#000000	guibg=#e9ffff
+	hi! TabLineFill	ctermfg=016	ctermbg=195	guifg=#000000	guibg=#e9ffff
+	hi! TabLineSel	ctermfg=016	ctermbg=159	guifg=#000000	guibg=#9ceeed
 	hi! Todo	ctermfg=125			guifg=#d33682
 	hi! Visual	ctermfg=240	ctermbg=234	guifg=#586e75	guibg=#002b36
 
