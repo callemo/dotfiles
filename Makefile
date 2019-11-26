@@ -37,8 +37,12 @@ tmux: ## Get tmux plugins
 
 .PHONY: fzf
 fzf: ## Installs fzf
-	git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-	~/.fzf/install
+	if [[ -d ~/.fzf ]]; then \
+		git -C ~/.fzf pull; \
+	else \
+		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; \
+	fi
+	~/.fzf/install --all
 
 .PHONY: help
 help:  ## Prints help for targets with comments
