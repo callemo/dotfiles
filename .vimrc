@@ -47,7 +47,7 @@ nnoremap <c-k> <c-w>W
 
 nnoremap - :Explore<CR>
 nnoremap <c-n> :25Lex<CR>
-autocmd FileType netrw setlocal statusline=[%{winnr()}]\ %F
+autocmd FileType netrw setlocal statusline=#%{winnr()}\ %F
 
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
@@ -91,28 +91,38 @@ function! Fmt(cmd) abort
 	edit
 endfunction
 
-function! PatchColors()
+function! PatchColors(background = 0)
 	let l:highlight_groups = [
 				\'Comment',	'Constant',	'Delimiter',	'Function',
-				\'Identifier',	'Special',	'Statement',	'MatchParen',
-				\'TabLine',	'TabLineFill',	'TabLineSel',	'Todo',
-				\'Type',	'Visual'
+				\'Identifier',	'Special',	'Statement',	'Search',
+				\'MatchParen',	'TabLine',	'TabLineFill',	'TabLineSel',
+				\'Todo',	'Type',		'Visual'
 				\]
-	for i in highlight_groups
-		exe 'hi! ' . i . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
+	for group in highlight_groups
+		exe 'hi! ' . group . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
 	endfor
+
+	if a:background
+		if &background == 'light'
+			hi! Normal ctermfg=016 guifg=#000000 ctermbg=230 guibg=#ffffe0
+		else
+			hi! Normal ctermfg=231 guifg=#f8f8f2 ctermbg=016 guibg=#272822
+		endif
+	endif
 
 	hi! Comment	ctermfg=240			guifg=#586e75
 	hi! Function	ctermfg=33			guifg=#268bd2
+	hi! Search	ctermfg=016	ctermbg=229	guifg=#000000	guibg=#ededa6
 	hi! String	ctermfg=37			guifg=#2aa198
 	hi! TabLine	ctermfg=016	ctermbg=195	guifg=#000000	guibg=#e9ffff
-	hi! TabLineFill	ctermfg=016	ctermbg=195	guifg=#000000	guibg=#e9ffff
-	hi! TabLineSel	ctermfg=016	ctermbg=159	guifg=#000000	guibg=#9ceeed
+	hi! TabLineSel	ctermfg=016	ctermbg=159	guifg=#000000	guibg=#9ceeed	cterm=bold	gui=bold
 	hi! Todo	ctermfg=125			guifg=#d33682
 	hi! Visual	ctermfg=240	ctermbg=234	guifg=#586e75	guibg=#002b36
+	hi! WildMenu	ctermfg=016	ctermbg=159	guifg=#000000	guibg=#9ceeed	cterm=bold	gui=bold
 
-	hi! link StatusLineTerm StatusLine
 	hi! link StatusLineTermNC StatusLineNC
+	hi! link StatusLineTerm StatusLine
+	hi! link TabLineFill TabLine
 	hi! link VertSplit Normal
 endfunction
 
