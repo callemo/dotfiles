@@ -75,7 +75,7 @@ nnoremap <c-l> :nohlsearch<CR>
 
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>L :Load<CR>
-nnoremap <leader>d :bwipeout<CR>
+nnoremap <leader>w :bwipeout<CR>
 nnoremap <leader>T :Ctags<CR>
 
 command! Ctags silent !ctags -R --languages=-vim,sql .
@@ -94,10 +94,12 @@ endfunction
 function! PatchColors()
 	let l:highlight_groups = [
 				\'Comment',	'Constant',	'Delimiter',	'Function',
+				\'DiffAdd',	'DiffChange',	'DiffDelete',	'DiffText',
 				\'Identifier',	'Special',	'Statement',	'Search',
 				\'MatchParen',	'TabLine',	'TabLineFill',	'TabLineSel',
 				\'Todo',	'Type',		'Visual'
 				\]
+
 	for group in highlight_groups
 		exe 'hi! ' . group . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
 	endfor
@@ -112,17 +114,10 @@ function! PatchColors()
 	hi! Visual	ctermfg=240	ctermbg=234	guifg=#586e75	guibg=#002b36
 	hi! WildMenu	ctermfg=016	ctermbg=159	guifg=#000000	guibg=#9ceeed	cterm=bold	gui=bold
 
-	if &background == 'light'
-		hi! DiffAdd	ctermfg=064	ctermbg=230	guifg=#859900	guibg=#fdf6e3
-		hi! DiffChange	ctermfg=241	ctermbg=230	guifg=#93a1a1	guibg=#fdf6e3
-		hi! DiffDelete	ctermfg=160	ctermbg=230	guifg=#dc322f	guibg=#fdf6e3
-		hi! DiffText	ctermfg=166	ctermbg=230	guifg=#cb4b16	guibg=#fdf6e3
-	else
-		hi! DiffAdd	ctermfg=064	ctermbg=235	guifg=#859900	guibg=#073642
-		hi! DiffChange	ctermfg=231	ctermbg=235	guifg=#f8f8f2	guibg=#073642
-		hi! DiffDelete	ctermfg=160	ctermbg=235	guifg=#dc322f	guibg=#073642
-		hi! DiffText	ctermfg=166	ctermbg=235	guifg=#cb4b16	guibg=#073642
-	endif
+	hi! DiffAdd	ctermfg=064	ctermbg=235	guifg=#859900	guibg=#073642	cterm=bold	gui=bold
+	hi! DiffChange	ctermfg=231	ctermbg=235	guifg=#f8f8f2	guibg=#073642	cterm=bold	gui=bold
+	hi! DiffDelete	ctermfg=160	ctermbg=235	guifg=#dc322f	guibg=#073642	cterm=bold	gui=bold
+	hi! DiffText	ctermfg=166	ctermbg=235	guifg=#cb4b16	guibg=#073642	cterm=bold	gui=bold
 
 	hi! link diffAdded DiffAdd
 	hi! link diffRemoved DiffDelete
