@@ -91,7 +91,7 @@ function! Fmt(cmd) abort
 	edit
 endfunction
 
-function! PatchColors(background = 0)
+function! PatchColors()
 	let l:highlight_groups = [
 				\'Comment',	'Constant',	'Delimiter',	'Function',
 				\'Identifier',	'Special',	'Statement',	'Search',
@@ -101,14 +101,6 @@ function! PatchColors(background = 0)
 	for group in highlight_groups
 		exe 'hi! ' . group . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
 	endfor
-
-	if a:background
-		if &background == 'light'
-			hi! Normal ctermfg=016 guifg=#000000 ctermbg=230 guibg=#ffffe0
-		else
-			hi! Normal ctermfg=231 guifg=#f8f8f2 ctermbg=016 guibg=#272822
-		endif
-	endif
 
 	hi! Comment	ctermfg=240			guifg=#586e75
 	hi! Function	ctermfg=33			guifg=#268bd2
@@ -120,6 +112,20 @@ function! PatchColors(background = 0)
 	hi! Visual	ctermfg=240	ctermbg=234	guifg=#586e75	guibg=#002b36
 	hi! WildMenu	ctermfg=016	ctermbg=159	guifg=#000000	guibg=#9ceeed	cterm=bold	gui=bold
 
+	if &background == 'light'
+		hi! DiffAdd	ctermfg=064	ctermbg=230	guifg=#859900	guibg=#fdf6e3
+		hi! DiffChange	ctermfg=241	ctermbg=230	guifg=#93a1a1	guibg=#fdf6e3
+		hi! DiffDelete	ctermfg=160	ctermbg=230	guifg=#dc322f	guibg=#fdf6e3
+		hi! DiffText	ctermfg=166	ctermbg=230	guifg=#cb4b16	guibg=#fdf6e3
+	else
+		hi! DiffAdd	ctermfg=064	ctermbg=235	guifg=#859900	guibg=#073642
+		hi! DiffChange	ctermfg=231	ctermbg=235	guifg=#f8f8f2	guibg=#073642
+		hi! DiffDelete	ctermfg=160	ctermbg=235	guifg=#dc322f	guibg=#073642
+		hi! DiffText	ctermfg=166	ctermbg=235	guifg=#cb4b16	guibg=#073642
+	endif
+
+	hi! link diffAdded DiffAdd
+	hi! link diffRemoved DiffDelete
 	hi! link StatusLineTermNC StatusLineNC
 	hi! link StatusLineTerm StatusLine
 	hi! link TabLineFill TabLine
