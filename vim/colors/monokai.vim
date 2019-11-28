@@ -162,9 +162,9 @@ exe 'hi! DiffChange' . s:yellow       . s:base02
 exe 'hi! DiffDelete' . s:red          . s:base02
 exe 'hi! DiffText'   . s:orange       . s:base02
 exe 'hi! Error'      . s:misspelling              . ' gui=bold cterm=bold'
+exe 'hi! Function'   . s:type
 exe 'hi! Number'     . s:number
-exe 'hi! PreProc'    . s:text
-exe 'hi! Special'    . s:activeGuide
+exe 'hi! PreProc'    . s:keyword
 exe 'hi! SpellBad'   . s:misspelling              . ' gui=undercurl cterm=undercurl'
 exe 'hi! SpellCap'                                . ' gui=undercurl cterm=undercurl'
 exe 'hi! SpellLocal'                              . ' gui=undercurl cterm=undercurl'
@@ -177,6 +177,7 @@ hi! link diffRemoved DiffDelete
 hi! link Todo Error
 if (g:monokai_syntax == 1)
   exe 'hi! Identifier' . s:identifier
+  exe 'hi! Special'    . s:activeGuide
   exe 'hi! Statement'  . s:keyword
   exe 'hi! Type'       . s:type
 endif
