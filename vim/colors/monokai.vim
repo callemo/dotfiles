@@ -147,9 +147,11 @@ exe 'hi! WildMenu'     . s:text                 . s:lineHighlight  . ' gui=rever
 hi! link ErrorMsg Error
 hi! link FoldColumn Folded
 hi! link ModeMsg WarningMsg
+hi! link NonText LineNr
 hi! link SignColumn LineNr
-hi! link StatusLineTerm StatusLine
+hi! link SpecialKey LineNr
 hi! link StatusLineTermNC StatusLineTerm
+hi! link StatusLineTerm StatusLine
 hi! link TabLineFill TabLine
 " }}}
 " Syntax: {{{

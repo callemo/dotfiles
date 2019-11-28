@@ -10,7 +10,7 @@ set history=1000
 set hlsearch
 set laststatus=2
 set lazyredraw
-set listchars=eol:$,tab:>\.
+set listchars=eol:$,tab:>\ ,space:.
 set mouse=a
 set nobackup
 set noswapfile
