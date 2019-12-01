@@ -13,7 +13,6 @@ set hlsearch
 set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
-set mouse=a
 set nobackup
 set nofoldenable
 set noswapfile
@@ -30,6 +29,11 @@ set statusline=#%{winnr()}\ %<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 set title
 set visualbell
 set wildmenu
+
+set mouse=a
+if has("mouse_sgr")
+	set ttymouse=sgr
+endif
 
 setglobal commentstring=#\ %s
 setglobal path=.,,
@@ -75,8 +79,7 @@ nnoremap m<Space> :make<Space>
 nnoremap <c-l> :nohlsearch<CR>
 
 nnoremap <leader>D :Dump<CR>
-nnoremap <leader>L :Load<CR>
-nnoremap <leader>w :bwipeout<CR>
+nnoremap <leader>W :bwipeout<CR>
 nnoremap <leader>T :Ctags<CR>
 
 command! Ctags silent !ctags -R --languages=-vim,sql .
