@@ -80,7 +80,7 @@ nnoremap <c-l> :nohlsearch<CR>
 if has('clipboard')
 	vnoremap <c-c> :y *<CR>
 else
-	if has('unix') && system('uname -s') == 'Darwin\n'
+	if has('unix') && system('uname -s') == "Darwin\n"
 		vnoremap <c-c> :write !pbcopy<CR><CR>
 	endif
 endif
