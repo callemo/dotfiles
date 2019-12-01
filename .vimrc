@@ -31,7 +31,7 @@ set visualbell
 set wildmenu
 
 set mouse=a
-if has("mouse_sgr")
+if has('mouse_sgr')
 	set ttymouse=sgr
 endif
 
@@ -77,10 +77,18 @@ nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
 nnoremap <c-l> :nohlsearch<CR>
+if has('clipboard')
+	vnoremap <c-c> :y *<CR>
+else
+	if has('unix') && system('uname -s') == 'Darwin\n'
+		vnoremap <c-c> :write !pbcopy<CR><CR>
+	endif
+endif
 
 nnoremap <leader>D :Dump<CR>
-nnoremap <leader>W :bwipeout<CR>
 nnoremap <leader>T :Ctags<CR>
+nnoremap <leader>W :bwipeout<CR>
+nnoremap <leader>w :write<CR>
 
 command! Ctags silent !ctags -R --languages=-vim,sql .
 command! Dump mksession! Session.vim
