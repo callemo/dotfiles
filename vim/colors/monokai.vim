@@ -10,26 +10,26 @@ set background=dark
 let g:colors_name = 'monokai'
 
 if !exists('g:monokai_syntax')
-  let g:monokai_syntax = 0
+	let g:monokai_syntax = 0
 endif
 
 " Formats: {{{
 let s:support_italics=['rxvt', 'gnome-terminal', 'iTerm.app']
 let s:has_italic=0
 for term in s:support_italics
-  if $TERM_PROGRAM =~ term
-    let s:has_italic=1
-    break
-  endif
+	if $TERM_PROGRAM =~ term
+		let s:has_italic=1
+		break
+	endif
 endfor
 
 if has('gui_running') || $COLORTERM == 'truecolor'
-  let s:has_italic=1
+	let s:has_italic=1
 endif
 
 let s:i= ''
 if s:has_italic == 1
-  let s:i= ',italic'
+	let s:i= ',italic'
 endif
 
 let s:italic = ' gui=NONE'.s:i.' cterm=NONE'.s:i
@@ -107,7 +107,7 @@ let s:cyan    = ' guifg=#2aa198 ctermfg=037'
 let s:green   = ' guifg=#859900 ctermfg=064'
 
 let s:activeGuide        = ' guifg=#9D550F ctermfg=130'
-let s:background         = ' guibg=#272822 ctermbg=016'
+let s:background         = ' guibg=#000000 ctermbg=016'
 let s:bracketsForeground = ' guifg=#f8f8f2 ctermfg=231'
 let s:findHighlight      = ' guibg=#ffe792 ctermbg=222'
 let s:findHighlightText  = ' guifg=#000000 ctermfg=016'
@@ -120,25 +120,26 @@ let s:number             = ' guifg=#ae81ff ctermfg=141'
 let s:selection          = ' guibg=#49483e ctermbg=059'
 let s:string             = ' guifg=#e6db74 ctermfg=186'
 let s:text               = ' guifg=#f8f8f2 ctermfg=231'
-let s:textComment        = ' guifg=#75715e ctermfg=095'
+let s:textBackground     = ' guibg=#272822 ctermbg=235'
+let s:textComment        = ' guifg=#75715e ctermfg=242'
 let s:type               = ' guifg=#66d9ef ctermfg=81'
 " }}}
 " Interface: {{{
 exe 'hi! CursorLine'   . s:text                 . s:lineHighlight
-exe 'hi! Folded'       . s:guide                . s:background     . s:italic
+exe 'hi! Folded'       . s:guide                . s:textBackground . s:italic
 exe 'hi! IncSearch'    . s:findHighlightText    . s:findHighlight
-exe 'hi! LineNr'       . s:guide                . s:background     . s:italic
-exe 'hi! MatchParen'   . s:bracketsForeground   . s:background     . ' gui=bold,underline cterm=bold,underline'
+exe 'hi! LineNr'       . s:guide                . s:textBackground . s:italic
+exe 'hi! MatchParen'   . s:bracketsForeground   . s:textBackground . ' gui=bold,underline cterm=bold,underline'
 exe 'hi! MoreMsg'                                                  . ' gui=bold cterm=bold'
-exe 'hi! Normal'       . s:text                 . s:background
+exe 'hi! Normal'       . s:text                 . s:textBackground
 exe 'hi! PmenuSbar'    . s:text                 . s:lineHighlight
 exe 'hi! PmenuSel'     . s:text                 . s:lineHighlight
 exe 'hi! Pmenu'        . s:guide                . s:background     . ' gui=reverse cterm=reverse'
 exe 'hi! PmenuThumb'   . s:guide                . s:background     . ' gui=reverse cterm=reverse'
 exe 'hi! Search'       . s:findHighlightText    . s:findHighlight
-exe 'hi! StatusLineNC' . s:text                 . s:lineHighlight
-exe 'hi! StatusLine'   . s:text                 . s:lineHighlight  . ' gui=bold cterm=bold'
-exe 'hi! TabLineSel'   . s:text                 . s:lineHighlight  . ' gui=bold cterm=bold'
+exe 'hi! StatusLineNC' . s:text                 . s:background
+exe 'hi! StatusLine'   . s:text                 . s:background     . ' gui=bold cterm=bold'
+exe 'hi! TabLineSel'   . s:text                 . s:textBackground . ' gui=bold cterm=bold'
 exe 'hi! TabLine'      . s:guide                . s:background
 exe 'hi! Visual'       . s:text                 . s:selection
 exe 'hi! WarningMsg'   . s:activeGuide                             . ' gui=bold cterm=bold'
@@ -176,10 +177,10 @@ hi! link diffAdded DiffAdd
 hi! link diffRemoved DiffDelete
 hi! link Todo Error
 if (g:monokai_syntax == 1)
-  exe 'hi! Identifier' . s:identifier
-  exe 'hi! Special'    . s:activeGuide
-  exe 'hi! Statement'  . s:keyword
-  exe 'hi! Type'       . s:type
+	exe 'hi! Identifier' . s:identifier
+	exe 'hi! Special'    . s:activeGuide
+	exe 'hi! Statement'  . s:keyword
+	exe 'hi! Type'       . s:type
 endif
 " }}}
 " Plugins: {{{

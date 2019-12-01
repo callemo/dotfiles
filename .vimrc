@@ -4,6 +4,8 @@ set autoread
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
+set foldmethod=indent
+set foldnestmax=3
 set guioptions=
 set hidden
 set history=1000
@@ -13,6 +15,7 @@ set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
 set mouse=a
 set nobackup
+set nofoldenable
 set noswapfile
 set notimeout
 set nottimeout
