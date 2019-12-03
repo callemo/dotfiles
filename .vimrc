@@ -26,6 +26,7 @@ set shortmess+=I
 set showtabline=2
 set sidescrolloff=2
 set statusline=#%{winnr()}\ %<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
+set tabline=%!TabLine()
 set title
 set visualbell
 set wildmenu
@@ -81,13 +82,13 @@ if has('clipboard')
 	vnoremap <c-c> :y *<CR>
 else
 	if has('unix') && system('uname -s') == "Darwin\n"
-		vnoremap <c-c> :write !pbcopy<CR><CR>
+		vnoremap <c-c> :write !pbcopy<CR>
 	endif
 endif
 
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>T :Ctags<CR>
-nnoremap <leader>W :bwipeout<CR>
+nnoremap <leader>c :bwipeout<CR>
 nnoremap <leader>w :write<CR>
 
 command! Ctags silent !ctags -R --languages=-vim,sql .
@@ -96,6 +97,41 @@ command! Load source Session.vim
 command! TrimTrailingSpaces call TrimTrailingSpaces()
 command! Prettier call Format('prettier --write')
 command! Black call Format('black')
+
+function TabLine()
+	let s = ''
+	for i in range(tabpagenr('$'))
+		if i + 1 == tabpagenr()
+			let s .= '%#TabLineSel#'
+		else
+			let s .= '%#TabLine#'
+		endif
+		let s .= '%' . (i + 1) . 'T'
+		let s .= ' %{TabLabel(' . (i + 1) . ')} '
+	endfor
+	let s .= '%#TabLineFill#%T'
+	return s
+endfunction
+
+function TabLabel(n)
+	let buflist = tabpagebuflist(a:n)
+	let winnr = tabpagewinnr(a:n)
+	let bufnr = buflist[winnr - 1]
+	let label = bufname(bufnr)
+	let buftype = getbufvar(bufnr, '&buftype')
+	if label == ''
+		if buftype == ''
+			return '[unnamed]'
+		endif
+		return '[' . buftype . ']'
+	endif
+	let label = fnamemodify(label, ':p:t')
+	let modified = getbufvar(bufnr, "&modified")
+	if modified
+		let label = label .'*'
+	endif
+	return label
+endfunction
 
 function! TrimTrailingSpaces() abort
 	let l:s=@/
