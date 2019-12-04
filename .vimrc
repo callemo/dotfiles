@@ -1,6 +1,5 @@
 set nocompatible
 
-set autoread
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
@@ -25,11 +24,15 @@ set scrolloff=1
 set shortmess+=I
 set showtabline=2
 set sidescrolloff=2
-set statusline=#%{winnr()}\ %<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
-set tabline=%!TabLine()
+set statusline=#%{winnr()}\ %{PasteMode()}%<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
+set switchbuf=useopen,usetab,newtab
 set title
 set visualbell
 set wildmenu
+set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
+
+set autoread
+autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * checktime
 
 set mouse=a
 if has('mouse_sgr')
@@ -52,7 +55,6 @@ nnoremap <c-j> <c-w>w
 nnoremap <c-k> <c-w>W
 
 nnoremap - :Explore<CR>
-nnoremap <c-n> :25Lex<CR>
 autocmd FileType netrw setlocal statusline=#%{winnr()}\ %F
 
 cnoremap <c-n> <down>
@@ -78,6 +80,10 @@ nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
 nnoremap <c-l> :nohlsearch<CR>
+
+vnoremap * :call SearchSelection()<CR>
+vnoremap # :call SearchSelection('backward')<CR>
+
 if has('clipboard')
 	vnoremap <c-c> :y *<CR>
 else
@@ -91,12 +97,19 @@ nnoremap <leader>T :Ctags<CR>
 nnoremap <leader>c :bwipeout<CR>
 nnoremap <leader>w :write<CR>
 
+command! Black call Format('black')
 command! Ctags silent !ctags -R --languages=-vim,sql .
 command! Dump mksession! Session.vim
 command! Load source Session.vim
-command! TrimTrailingSpaces call TrimTrailingSpaces()
 command! Prettier call Format('prettier --write')
-command! Black call Format('black')
+command! TrimTrailingSpaces call TrimTrailingSpaces()
+
+function! PasteMode()
+	if &paste
+		return '(PASTE) '
+	endif
+	return ''
+endfunction
 
 function TabLine()
 	let s = ''
@@ -133,17 +146,36 @@ function TabLabel(n)
 	return label
 endfunction
 
+set tabline=%!TabLine()
+
 function! TrimTrailingSpaces() abort
-	let l:s=@/
-	%s/\s\+$//e
-	let @/=s
-	nohlsearch
+	let cursor = getpos(".")
+	let last_search = @/
+	silent! %s/\s\+$//e
+	let @/ = last_search
+	call setpos('.', cursor)
 endfunction
+
+function! SearchSelection(direction = 'forward')
+	let reg = @"
+	execute 'normal! vgvy'
+	let pattern = escape(@", "\\/.*'$^~[]")
+	let pattern = substitute(pattern, "\n$", '', '')
+	let @/ = pattern
+	let @" = reg
+	if a:direction == 'backward'
+		execute 'normal! ?<CR>'
+	else
+		execute 'normal! /<CR>'
+	endif
+endfunction
+
+autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
 
 function! Format(command) abort
 	update
 	execute '!' . a:command . expand(' %')
-	edit
+	checktime
 endfunction
 
 if isdirectory(expand('~/dotfiles/vim'))
@@ -159,8 +191,8 @@ syntax enable
 colorscheme monokai
 
 autocmd FileType c,cpp setlocal path+=/usr/include
-autocmd FileType javascript,json setlocal shiftwidth=2 expandtab
-autocmd FileType python,yaml setlocal shiftwidth=4 expandtab
+autocmd FileType javascript,json setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
