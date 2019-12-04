@@ -81,8 +81,8 @@ nnoremap m<Space> :make<Space>
 
 nnoremap <c-l> :nohlsearch<CR>
 
-vnoremap * :call SearchSelection()<CR>
-vnoremap # :call SearchSelection('backward')<CR>
+vnoremap * :call SetVisualSearch()<CR>/<CR>
+vnoremap # :call SetVisualSearch()<CR>?<CR>
 
 if has('clipboard')
 	vnoremap <c-c> :y *<CR>
@@ -156,18 +156,13 @@ function! TrimTrailingSpaces() abort
 	call setpos('.', cursor)
 endfunction
 
-function! SearchSelection(direction = 'forward')
+function! SetVisualSearch()
 	let reg = @"
 	execute 'normal! vgvy'
 	let pattern = escape(@", "\\/.*'$^~[]")
 	let pattern = substitute(pattern, "\n$", '', '')
 	let @/ = pattern
 	let @" = reg
-	if a:direction == 'backward'
-		execute 'normal! ?<CR>'
-	else
-		execute 'normal! /<CR>'
-	endif
 endfunction
 
 autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
