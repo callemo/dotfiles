@@ -15,25 +15,26 @@ $(excludesfile): .gitignore
 	git config --global core.excludesfile $@
 
 .PHONY: vim
-vim: ## Get vim plugins
+vim: ## Install vim plugins
 	./vimget https://github.com/sheerun/vim-polyglot.git
-
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-eunuch.git
 	./vimget https://github.com/tpope/vim-fugitive.git
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
 	./vimget https://github.com/tpope/vim-tbone.git
-
 	./vimget https://github.com/MarcWeber/vim-addon-mw-utils.git
-	./vimget https://github.com/tomtom/tlib_vim.git
 	./vimget https://github.com/garbas/vim-snipmate.git
-
+	./vimget https://github.com/tomtom/tlib_vim.git
 	./vimget https://github.com/honza/vim-snippets.git
 
 .PHONY: tmux
-tmux: ## Get tmux plugins
-	git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect
+tmux: ## Install tmux plugins
+	if [[ -d ~/.tmux/plugins/resurrect ]]; then \
+		git -C ~/.tmux/plugins/resurrect pull; \
+	else \
+		git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect; \
+	fi
 
 .PHONY: fzf
 fzf: ## Installs fzf

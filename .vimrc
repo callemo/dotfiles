@@ -1,4 +1,3 @@
-" .vimrc
 set nocompatible
 
 set backspace=indent,eol,start
@@ -22,10 +21,8 @@ set nottimeout
 set nowritebackup
 set number
 set ruler
-set scrolloff=1
 set shortmess+=I
 set showtabline=2
-set sidescrolloff=2
 set statusline=#%{winnr()}\ %{PasteMode()}%<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
 set title
@@ -53,9 +50,6 @@ let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
 
 let mapleader = ' '
-
-nnoremap <c-j> <c-w>w
-nnoremap <c-k> <c-w>W
 
 nnoremap - :Explore<CR>
 autocmd FileType netrw setlocal statusline=#%{winnr()}\ %F
@@ -88,7 +82,7 @@ vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap # :call SetVisualSearch()<CR>?<CR>
 
 if has('clipboard')
-	vnoremap <c-c> :y *<CR>
+	vnoremap <c-c> "*y
 else
 	if has('unix') && system('uname -s') == "Darwin\n"
 		vnoremap <c-c> :write !pbcopy<CR>
@@ -168,13 +162,17 @@ function! SetVisualSearch()
 	let @" = reg
 endfunction
 
-autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
-
 function! Format(command) abort
 	update
 	execute '!' . a:command . expand(' %')
 	checktime
 endfunction
+
+autocmd BufReadPost * exe "normal! g'\""
+autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
+autocmd FileType c,cpp setlocal path+=/usr/include
+autocmd FileType javascript,json setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
 
 if isdirectory(expand('~/dotfiles/vim'))
 	set rtp+=~/dotfiles/vim
@@ -187,10 +185,6 @@ endif
 
 syntax enable
 colorscheme monokai
-
-autocmd FileType c,cpp setlocal path+=/usr/include
-autocmd FileType javascript,json setlocal expandtab shiftwidth=2 softtabstop=2
-autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
