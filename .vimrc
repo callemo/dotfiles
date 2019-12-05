@@ -32,7 +32,7 @@ set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 
 set autoread
-autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * checktime
+autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 
 set mouse=a
 if has('mouse_sgr')
@@ -53,9 +53,6 @@ let mapleader = ' '
 
 nnoremap - :Explore<CR>
 autocmd FileType netrw setlocal statusline=#%{winnr()}\ %F
-
-cnoremap <c-n> <down>
-cnoremap <c-p> <up>
 
 nnoremap ]b :bnext<CR>
 nnoremap [b :bprevious<CR>
