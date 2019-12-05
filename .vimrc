@@ -1,3 +1,4 @@
+" .vimrc
 set nocompatible
 
 set backspace=indent,eol,start
@@ -28,6 +29,7 @@ set sidescrolloff=2
 set statusline=#%{winnr()}\ %{PasteMode()}%<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
 set title
+set updatetime=400
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
@@ -135,7 +137,7 @@ function TabLabel(n)
 	let buftype = getbufvar(bufnr, '&buftype')
 	if label == ''
 		if buftype == ''
-			return '[unnamed]'
+			return '[No Name]'
 		endif
 		return '[' . buftype . ']'
 	endif
