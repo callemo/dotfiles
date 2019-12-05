@@ -1,5 +1,6 @@
 set nocompatible
 
+set backspace=indent,eol,start
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
@@ -28,8 +29,8 @@ set statusline=#%{winnr()}\ %{PasteMode()}%<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ 
 set switchbuf=useopen,usetab,newtab
 set title
 set visualbell
-set wildmenu
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
+set wildmenu
 
 set autoread
 autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * checktime
