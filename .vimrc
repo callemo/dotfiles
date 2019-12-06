@@ -73,8 +73,8 @@ nnoremap yow :setlocal wrap!<CR>
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
-nnoremap <c-j> <c-w>w
-nnoremap <c-k> <c-w>W
+nnoremap <silent> <c-j> :if winnr() == winnr('$')<CR>silent !tmux select-pane -t :.+<CR>else<CR>wincmd w<CR>endif<CR>
+nnoremap <silent> <c-k> :if winnr() == 1<CR>silent !tmux select-pane -t :.-<CR>else<CR>wincmd W<CR>endif<CR>
 nnoremap <c-l> :nohlsearch<CR>
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>T :Ctags<CR>
