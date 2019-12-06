@@ -73,7 +73,13 @@ nnoremap yow :setlocal wrap!<CR>
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
+nnoremap <c-j> <c-w>w
+nnoremap <c-k> <c-w>W
 nnoremap <c-l> :nohlsearch<CR>
+nnoremap <leader>D :Dump<CR>
+nnoremap <leader>T :Ctags<CR>
+nnoremap <leader>c :bwipeout<CR>
+nnoremap <leader>w :write<CR>
 
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap # :call SetVisualSearch()<CR>?<CR>
@@ -85,11 +91,6 @@ else
 		vnoremap <c-c> :write !pbcopy<CR>
 	endif
 endif
-
-nnoremap <leader>D :Dump<CR>
-nnoremap <leader>T :Ctags<CR>
-nnoremap <leader>c :bwipeout<CR>
-nnoremap <leader>w :write<CR>
 
 command! Black call Format('black')
 command! Ctags silent !ctags -R --languages=-vim,sql .
