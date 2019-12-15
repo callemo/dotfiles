@@ -23,7 +23,7 @@ set number
 set ruler
 set shortmess+=I
 set showtabline=2
-set statusline=#%{winnr()}\ %{PasteMode()}%<%.99f\ %y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
+set statusline=%n:%<%.99f\ %{PasteMode()}%y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
 set title
 set updatetime=400
@@ -52,7 +52,7 @@ let g:netrw_list_hide = '^\./$,^\.\./$'
 let mapleader = ' '
 
 nnoremap - :Explore<CR>
-autocmd FileType netrw setlocal statusline=#%{winnr()}\ %F
+autocmd FileType netrw setlocal statusline=%F
 
 nnoremap ]b :bnext<CR>
 nnoremap [b :bprevious<CR>
@@ -101,7 +101,7 @@ command! TrimTrailingSpaces call TrimTrailingSpaces()
 
 function! PasteMode()
 	if &paste
-		return '(PASTE) '
+		return '[PASTE]'
 	endif
 	return ''
 endfunction
