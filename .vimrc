@@ -78,8 +78,8 @@ nnoremap <silent> <c-k> :if winnr() == 1<CR>silent !tmux select-pane -t :.-<CR>e
 nnoremap <c-l> :nohlsearch<CR>
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>T :Ctags<CR>
-nnoremap <leader>c :bwipeout<CR>
-nnoremap <leader>w :write<CR>
+nnoremap <leader>c :close<CR>
+nnoremap <leader>w :write!<CR>
 
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap # :call SetVisualSearch()<CR>?<CR>
