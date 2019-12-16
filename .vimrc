@@ -79,6 +79,8 @@ nnoremap <c-l> :nohlsearch<CR>
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>T :Ctags<CR>
 nnoremap <leader>c :close<CR>
+nnoremap <leader>d :bdelete<CR>
+nnoremap <leader>l :ls<CR>
 nnoremap <leader>w :write!<CR>
 
 vnoremap * :call SetVisualSearch()<CR>/<CR>
