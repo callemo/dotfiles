@@ -81,7 +81,7 @@ nnoremap <leader>T :Ctags<CR>
 nnoremap <leader>c :close<CR>
 nnoremap <leader>d :bdelete<CR>
 nnoremap <leader>l :ls<CR>
-nnoremap <leader>w :write!<CR>
+nnoremap <leader>w :silent write!<CR>
 
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap # :call SetVisualSearch()<CR>?<CR>
