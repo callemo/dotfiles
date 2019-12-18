@@ -20,6 +20,7 @@ set notimeout
 set nottimeout
 set nowritebackup
 set number
+set grepprg=grep\ -E\ -n\ -s\ $*\ /dev/null
 set ruler
 set shortmess+=I
 set showtabline=2
@@ -73,24 +74,27 @@ nnoremap yow :setlocal wrap!<CR>
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
-nnoremap <silent> <c-j> :if winnr() == winnr('$')<CR>silent !tmux select-pane -t :.+<CR>else<CR>wincmd w<CR>endif<CR>
-nnoremap <silent> <c-k> :if winnr() == 1<CR>silent !tmux select-pane -t :.-<CR>else<CR>wincmd W<CR>endif<CR>
-nnoremap <c-l> :nohlsearch<CR>
+nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
+
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>T :Ctags<CR>
 nnoremap <leader>c :close<CR>
 nnoremap <leader>d :bdelete<CR>
+nnoremap <leader>e :tabedit <C-r>=expand("%:p:h")<CR>/
 nnoremap <leader>l :ls<CR>
-nnoremap <leader>w :silent write!<CR>
+nnoremap <silent> <leader>w :silent write!<CR>
+
+nnoremap <silent> <C-j> :if winnr() == winnr('$')<CR>silent !tmux select-pane -t :.+<CR>else<CR>wincmd w<CR>endif<CR>
+nnoremap <silent> <C-k> :if winnr() == 1<CR>silent !tmux select-pane -t :.-<CR>else<CR>wincmd W<CR>endif<CR>
 
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap # :call SetVisualSearch()<CR>?<CR>
 
 if has('clipboard')
-	vnoremap <c-c> "*y
+	vnoremap <C-c> "*y
 else
 	if has('unix') && system('uname -s') == "Darwin\n"
-		vnoremap <c-c> :write !pbcopy<CR>
+		vnoremap <C-c> :write !pbcopy<CR>
 	endif
 endif
 
@@ -180,7 +184,7 @@ endif
 
 if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
-	nnoremap <c-p> :FZF<CR>
+	nnoremap <C-p> :FZF<CR>
 endif
 
 syntax enable
