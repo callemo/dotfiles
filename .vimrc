@@ -1,11 +1,13 @@
 set nocompatible
 
 set backspace=indent,eol,start
+set completeopt-=preview
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set foldmethod=indent
 set foldnestmax=3
+set grepprg=grep\ -E\ -n\ -s\ $*\ /dev/null
 set guioptions=
 set hidden
 set history=1000
@@ -20,7 +22,6 @@ set notimeout
 set nottimeout
 set nowritebackup
 set number
-set grepprg=grep\ -E\ -n\ -s\ $*\ /dev/null
 set ruler
 set shortmess+=I
 set showtabline=2
@@ -172,14 +173,45 @@ function! Format(command) abort
 	checktime
 endfunction
 
+if isdirectory(expand('~/dotfiles/vim'))
+	set rtp+=~/dotfiles/vim
+endif
+
 autocmd BufReadPost * exe "normal! g'\""
 autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
 autocmd FileType c,cpp setlocal path+=/usr/include
 autocmd FileType javascript,json setlocal expandtab shiftwidth=2 softtabstop=2
 autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
 
-if isdirectory(expand('~/dotfiles/vim'))
-	set rtp+=~/dotfiles/vim
+if has('python3')
+python3 <<EOF
+import os
+import site
+import sys
+from pathlib import Path
+
+VIRTUAL_ENV = os.environ.get("VIRTUAL_ENV")
+if VIRTUAL_ENV:
+    venv_path = Path(VIRTUAL_ENV)
+    os.environ["PATH"] = (
+        str(venv_path.joinpath("bin")) + os.pathsep + os.environ["PATH"]
+    )
+    for child in venv_path.joinpath("lib").iterdir():
+        site_packages = child.joinpath("site-packages")
+        if site_packages.is_dir():
+            site.addsitedir(site_packages)
+    sys.prefix = VIRTUAL_ENV
+EOF
+
+let g:UltiSnipsListSnippets = "<S-Tab>"
+let g:jedi#completions_command = ""
+let g:jedi#goto_command = "<F12>"
+let g:jedi#popup_on_dot = 0
+let g:jedi#rename_command = "<F2>"
+
+silent! packadd UltiSnips
+silent! packadd jedi-vim
+silent! packadd vim-snippets
 endif
 
 if isdirectory(expand('~/.fzf'))
