@@ -5,16 +5,16 @@ export HISTSIZE PYTHONUSERBASE
 
 # Functions
 test_and_source() {
-    if [[ -r "$1" ]]; then
-        # shellcheck source=/dev/null
-        . "$1"
-    fi
+	if [[ -r "$1" ]]; then
+		# shellcheck source=/dev/null
+		. "$1"
+	fi
 }
 
 test_and_prepend_path() {
-    if [[ -d "$1" ]]; then
-        PATH="$1:$PATH"
-    fi
+	if [[ -d "$1" ]]; then
+		PATH="$1:$PATH"
+	fi
 }
 
 # Paths
@@ -48,25 +48,32 @@ alias gupav='git pull --rebase --autostash -v'
 alias gup='git pull --rebase'
 
 if [[ "$BASH_VERSION" ]]; then
-    dir="$(cd "$(dirname "$BASH_SOURCE{0}")" && pwd)"
+	dir="$(cd "$(dirname "$BASH_SOURCE{0}")" && pwd)"
 elif [[ "$ZSH_VERSION" ]]; then
-    dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
-    test_and_source "$dir/zsh.sh"
+	dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+	test_and_source "$dir/zsh.sh"
 fi
 
 # Prompt
 test_and_source "$dir/git-prompt.sh"
+
+virtual_env_prompt() {
+	if [[ "$VIRTUAL_ENV" ]]; then
+		echo -n "($(basename "$VIRTUAL_ENV")) "
+	fi
+}
+
 if command -v __git_ps1 > /dev/null 2>&1; then
-    if [[ "$BASH_VERSION" ]]; then
-        PROMPT_COMMAND='__git_ps1 "\h:\W" "\\\$ "'
-        export PROMPT_COMMAND
-    elif [[ "$ZSH_VERSION" ]]; then
-        precmd () { __git_ps1 "%m:%1~" " %# "; }
-    fi
-    GIT_PS1_SHOWDIRTYSTATE=1
-    GIT_PS1_SHOWSTASHSTATE=1
-    GIT_PS1_SHOWUNTRACKEDFILES=1
-    GIT_PS1_SHOWUPSTREAM="auto"
-    GIT_PS1_SHOWCOLORHINTS=1
+	if [[ "$BASH_VERSION" ]]; then
+		PROMPT_COMMAND='__git_ps1 "$(virtual_env_prompt)\h:\W" "\\\$ "'
+		export PROMPT_COMMAND
+	elif [[ "$ZSH_VERSION" ]]; then
+		precmd () { __git_ps1 "$(virtual_env_prompt)%m:%1~" " %# "; }
+	fi
+	GIT_PS1_SHOWDIRTYSTATE=1
+	GIT_PS1_SHOWSTASHSTATE=1
+	GIT_PS1_SHOWUNTRACKEDFILES=1
+	GIT_PS1_SHOWUPSTREAM="auto"
+	GIT_PS1_SHOWCOLORHINTS=1
 fi
 
