@@ -207,10 +207,13 @@ let g:UltiSnipsListSnippets = "<S-Tab>"
 let g:jedi#completions_command = ""
 let g:jedi#goto_command = "<F12>"
 let g:jedi#popup_on_dot = 0
+let g:jedi#popup_select_first = 0
 let g:jedi#rename_command = "<F2>"
+let g:jedi#show_call_signatures = 0
+let g:jedi#use_tabs_not_buffers = 1
+silent! packadd jedi-vim
 
 silent! packadd UltiSnips
-silent! packadd jedi-vim
 silent! packadd vim-snippets
 endif
 
