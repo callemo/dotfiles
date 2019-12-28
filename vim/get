@@ -1,20 +1,49 @@
 #!/bin/bash
 set -e
 
-readonly plugin_home="$HOME/.vim/pack/default/start"
+print_usage () {
+	echo "usage: $0 [-or] <url>"
+}
+
+while getopts ":or" opt; do
+	case $opt in
+		o)
+			opt_optional=1
+			;;
+		r)
+			opt_recursive=1
+			;;
+		*)
+			echo "$0: unknown option: $OPTARG" >&2
+			print_usage >&2
+			exit 1
+			;;
+	esac
+done
+shift $((OPTIND - 1))
 
 if [[ $# -lt 1 ]]; then
-	echo "usage: $0 <url>"
+	print_usage >&2
 	exit 1
+fi
+
+if [[ $opt_optional = 1 ]]; then
+	readonly PLUGIN_HOME="$HOME/.vim/pack/default/opt"
+else
+	readonly PLUGIN_HOME="$HOME/.vim/pack/default/start"
 fi
 
 url=$1
 name=${url##*/}
 name=${name%.*}
-dir="$plugin_home/$name"
+dir="$PLUGIN_HOME/$name"
 if [[ ! -e "$dir" ]]; then
-	mkdir -p "$plugin_home"
-	git -C "$plugin_home" clone "$url"
+	mkdir -p "$PLUGIN_HOME"
+	if [[ $opt_recursive = 1 ]]; then
+		git -C "$PLUGIN_HOME" clone --recursive "$url"
+	else
+		git -C "$PLUGIN_HOME" clone "$url"
+	fi
 else
 	git -C "$dir" pull
 fi
