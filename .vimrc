@@ -213,8 +213,8 @@ let g:jedi#show_call_signatures = 0
 let g:jedi#use_tabs_not_buffers = 1
 silent! packadd jedi-vim
 
-silent! packadd UltiSnips
-silent! packadd vim-snippets
+silent! packadd! UltiSnips
+silent! packadd! vim-snippets
 endif
 
 if isdirectory(expand('~/.fzf'))
