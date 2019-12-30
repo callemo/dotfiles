@@ -193,13 +193,11 @@ from pathlib import Path
 VIRTUAL_ENV = os.environ.get("VIRTUAL_ENV")
 if VIRTUAL_ENV:
     venv_path = Path(VIRTUAL_ENV)
-    os.environ["PATH"] = (
-        str(venv_path.joinpath("bin")) + os.pathsep + os.environ["PATH"]
-    )
-    for child in venv_path.joinpath("lib").iterdir():
-        site_packages = child.joinpath("site-packages")
-        if site_packages.is_dir():
-            site.addsitedir(site_packages)
+    os.environ["PATH"] = str(venv_path / "bin") + os.pathsep + os.environ["PATH"]
+    for child in (venv_path / "lib").iterdir():
+        site_path = child / "site-packages"
+        if site_path.is_dir():
+            site.addsitedir(site_path)
     sys.prefix = VIRTUAL_ENV
 EOF
 
