@@ -47,6 +47,17 @@ alias gst='git status'
 alias gupav='git pull --rebase --autostash -v'
 alias gup='git pull --rebase'
 
+gupr () {
+	set -o pipefail
+	if [[ $# -lt 1 ]]; then
+		echo "usage: $0 path [args]" >&2
+		return 1
+	fi
+	p="$1"
+	shift
+	find "$p" -name .git | sed 's/.git$//' | xargs -n 1 -I % git -C "%" pull --rebase "$@"
+}
+
 if [[ "$BASH_VERSION" ]]; then
 	dir="$(cd "$(dirname "$BASH_SOURCE{0}")" && pwd)"
 elif [[ "$ZSH_VERSION" ]]; then
