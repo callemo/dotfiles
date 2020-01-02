@@ -217,7 +217,11 @@ endif
 
 if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
-	nnoremap <C-p> :FZF<CR>
+	nnoremap <C-p> :call fzf#run({'sink': 'tabedit', 'options': '--reverse'})<CR>
+	nnoremap <leader>o :call fzf#run({
+				\'source': filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
+				\'sink': 'tabedit', 'options': '--reverse'
+				\})<CR>
 endif
 
 syntax enable
