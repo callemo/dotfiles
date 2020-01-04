@@ -183,7 +183,7 @@ endif
 autocmd BufReadPost * exe "normal! g'\""
 autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
 autocmd FileType c,cpp setlocal path+=/usr/include
-autocmd FileType javascript,json setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType javascript,json,html,css,scss setlocal expandtab shiftwidth=2 softtabstop=2
 autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
 
 if has('python3')
