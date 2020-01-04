@@ -195,7 +195,14 @@ let g:projectionist_heuristics = {
 			\   },
 			\   "*.html": {"type": "template"},
 			\   "*/models.py": {"type": "models", "alternate": "{}/views.py"},
-			\   "*/urls.py": {"type": "urls"},
+			\   "*/urls.py": {
+			\     "type": "urls",
+			\     "template": [
+			\       "from django.urls import path", "",
+			\       "from . import views", "",
+			\       "app_name = \"{basename}\"", "urlpatterns = [", "]"
+			\     ]
+			\   },
 			\   "*/views.py": {"type": "views", "alternate": "{}/models.py"},
 			\ }}
 
