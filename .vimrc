@@ -56,6 +56,9 @@ let mapleader = ' '
 nnoremap - :Explore<CR>
 autocmd FileType netrw setlocal statusline=%F
 
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+
 nnoremap ]b :bnext<CR>
 nnoremap [b :bprevious<CR>
 nnoremap ]l :lnext<CR>
@@ -94,7 +97,7 @@ vnoremap # :call SetVisualSearch()<CR>?<CR>
 if has('clipboard')
 	vnoremap <C-c> "*y
 else
-	if has('unix') && system('uname -s') == "Darwin\n"
+	if has('unix') && system('uname')[0:-2] ==# "Darwin"
 		vnoremap <C-c> :write !pbcopy<CR>
 	endif
 endif

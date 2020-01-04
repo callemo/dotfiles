@@ -68,7 +68,7 @@ fi
 # Prompt
 test_and_source "$dir/git-prompt.sh"
 
-virtual_env_prompt() {
+__venv_ps1() {
 	if [[ "$VIRTUAL_ENV" ]]; then
 		echo -n "($(basename "$VIRTUAL_ENV")) "
 	fi
@@ -76,10 +76,10 @@ virtual_env_prompt() {
 
 if command -v __git_ps1 > /dev/null 2>&1; then
 	if [[ "$BASH_VERSION" ]]; then
-		PROMPT_COMMAND='__git_ps1 "$(virtual_env_prompt)\h:\W" "\\\$ "'
+		PROMPT_COMMAND='__git_ps1 "$(__venv_ps1)\h:\W" "\\\$ "'
 		export PROMPT_COMMAND
 	elif [[ "$ZSH_VERSION" ]]; then
-		precmd () { __git_ps1 "$(virtual_env_prompt)%m:%1~" " %# "; }
+		precmd () { __git_ps1 "$(__venv_ps1)%m:%1~" " %# "; }
 	fi
 	GIT_PS1_SHOWDIRTYSTATE=1
 	GIT_PS1_SHOWSTASHSTATE=1
