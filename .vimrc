@@ -187,6 +187,10 @@ autocmd FileType javascript,json setlocal expandtab shiftwidth=2 softtabstop=2
 autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
 
 if has('python3')
+let g:UltiSnipsListSnippets = "<S-Tab>"
+silent! packadd! UltiSnips
+silent! packadd! vim-snippets
+
 python3 <<EOF
 import os
 import site
@@ -204,7 +208,6 @@ if VIRTUAL_ENV:
     sys.prefix = VIRTUAL_ENV
 EOF
 
-let g:UltiSnipsListSnippets = "<S-Tab>"
 let g:jedi#completions_command = ""
 let g:jedi#goto_command = "<F12>"
 let g:jedi#popup_on_dot = 0
@@ -212,19 +215,15 @@ let g:jedi#popup_select_first = 0
 let g:jedi#rename_command = "<F2>"
 let g:jedi#show_call_signatures = 0
 let g:jedi#use_tabs_not_buffers = 1
-silent! packadd jedi-vim
-
-silent! packadd! UltiSnips
-silent! packadd! vim-snippets
 endif
 
 if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
-	nnoremap <C-p> :call fzf#run({'sink': 'tabedit', 'options': '--reverse'})<CR>
-	nnoremap <leader>o :call fzf#run({
+	nnoremap <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
+	nnoremap <leader>o :call fzf#run(fzf#wrap({
 				\'source': filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
-				\'sink': 'tabedit', 'options': '--reverse'
-				\})<CR>
+				\'options': '--reverse'
+				\}))<CR>
 endif
 
 syntax enable
