@@ -186,6 +186,19 @@ autocmd FileType c,cpp setlocal path+=/usr/include
 autocmd FileType javascript,json,html,css,scss setlocal expandtab shiftwidth=2 softtabstop=2
 autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
 
+let g:projectionist_heuristics = {
+			\ "manage.py": {
+			\   "*": {
+			\     "console": "./manage.py shell",
+			\     "dispatch": "./manage.py test",
+			\     "start": "./manage.py runserver",
+			\   },
+			\   "*.html": {"type": "template"},
+			\   "*/models.py": {"type": "models", "alternate": "{}/views.py"},
+			\   "*/urls.py": {"type": "urls"},
+			\   "*/views.py": {"type": "views", "alternate": "{}/models.py"},
+			\ }}
+
 if has('python3')
 let g:UltiSnipsListSnippets = "<S-Tab>"
 silent! packadd! UltiSnips
@@ -219,8 +232,8 @@ endif
 
 if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
-	nnoremap <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
-	nnoremap <leader>o :call fzf#run(fzf#wrap({
+	nnoremap <silent> <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
+	nnoremap <silent> <leader>o :call fzf#run(fzf#wrap({
 				\'source': filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
 				\'options': '--reverse'
 				\}))<CR>
