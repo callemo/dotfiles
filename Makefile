@@ -4,6 +4,9 @@ dotfiles     =  .vimrc .tmux.conf
 dotfiles     := $(patsubst .%,$(HOME)/.%,$(dotfiles))
 excludesfile =  $(HOME)/.gitignore
 
+.PHONY: all
+all: dotfiles vim tmux fzf
+
 .PHONY: dotfiles
 dotfiles: $(dotfiles) $(excludesfile) ## Link dotfiles
 
@@ -18,8 +21,10 @@ $(excludesfile): .gitignore
 vim: ## Install vim plugins
 	./vimget https://github.com/sheerun/vim-polyglot.git
 	./vimget https://github.com/tpope/vim-commentary.git
+	./vimget https://github.com/tpope/vim-dispatch.git
 	./vimget https://github.com/tpope/vim-eunuch.git
 	./vimget https://github.com/tpope/vim-fugitive.git
+	./vimget https://github.com/tpope/vim-projectionist.git
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
 	./vimget https://github.com/tpope/vim-tbone.git
