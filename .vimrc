@@ -193,17 +193,26 @@ let g:projectionist_heuristics = {
 			\     "dispatch": "./manage.py test",
 			\     "start": "./manage.py runserver",
 			\   },
-			\   "*.html": {"type": "template"},
-			\   "*/models.py": {"type": "models", "alternate": "{}/views.py"},
+			\   "*.html": {
+			\     "type": "template",
+			\   },
+			\   "*/models.py": {
+			\     "type": "models",
+			\     "alternate": "{}/views.py"
+			\   },
 			\   "*/urls.py": {
 			\     "type": "urls",
+			\     "related": ["{}/views.py", "{}/models.py"],
 			\     "template": [
 			\       "from django.urls import path", "",
 			\       "from . import views", "",
 			\       "app_name = \"{basename}\"", "urlpatterns = [", "]"
 			\     ]
 			\   },
-			\   "*/views.py": {"type": "views", "alternate": "{}/models.py"},
+			\   "*/views.py": {
+			\     "type": "views",
+			\     "alternate": "{}/models.py",
+			\   },
 			\ }}
 
 if has('python3')
