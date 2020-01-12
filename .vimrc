@@ -143,7 +143,11 @@ function TabLabel(n)
 		endif
 		return '[' . buftype . ']'
 	endif
-	let label = fnamemodify(label, ':p:t')
+	if isdirectory(label)
+		let label = fnamemodify(label, ':~:.') . '/'
+	else
+		let label = fnamemodify(label, ':p:t')
+	endif
 	let modified = getbufvar(bufnr, "&modified")
 	if modified
 		let label = label .'*'
