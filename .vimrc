@@ -241,7 +241,6 @@ if VIRTUAL_ENV:
     sys.prefix = VIRTUAL_ENV
 EOF
 
-let g:jedi#completions_command = ""
 let g:jedi#goto_command = "<F12>"
 let g:jedi#popup_on_dot = 0
 let g:jedi#popup_select_first = 0
