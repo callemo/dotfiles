@@ -21,22 +21,14 @@ $(excludesfile): .gitignore
 vim: ## Install vim plugins
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-dispatch.git
+	./vimget https://github.com/tpope/vim-endwise.git
 	./vimget https://github.com/tpope/vim-eunuch.git
 	./vimget https://github.com/tpope/vim-fugitive.git
 	./vimget https://github.com/tpope/vim-projectionist.git
+	./vimget https://github.com/tpope/vim-ragtag.git
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
 	./vimget https://github.com/tpope/vim-tbone.git
-
-.PHONY: vim-extras
-vim-extras: ## Install vim optional plugins
-	./vimget -o https://github.com/roxma/nvim-yarp.git
-	./vimget -o https://github.com/roxma/vim-hug-neovim-rpc.git
-	./vimget -o https://github.com/Shougo/deoplete.nvim.git
-	./vimget -o -r https://github.com/deoplete-plugins/deoplete-jedi.git
-	./vimget -o https://github.com/Shougo/neosnippet.vim.git
-	./vimget -o https://github.com/Shougo/neosnippet-snippets.git
-	./vimget -o https://github.com/honza/vim-snippets.git
 
 .PHONY: tmux
 tmux: ## Install tmux plugins
@@ -48,7 +40,7 @@ tmux: ## Install tmux plugins
 	fi
 
 .PHONY: fzf
-fzf: ## Installs fzf
+fzf: ## Install fzf
 	if [[ -d ~/.fzf ]]; then \
 		git -C ~/.fzf pull; \
 	else \

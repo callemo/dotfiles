@@ -150,7 +150,7 @@ function TabLabel(n)
 	endif
 	let modified = getbufvar(bufnr, "&modified")
 	if modified
-		let label = label .'*'
+		let label = label .'+'
 	endif
 	return label
 endfunction
@@ -243,9 +243,9 @@ if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 	nnoremap <silent> <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
 	nnoremap <silent> <leader>o :call fzf#run(fzf#wrap({
-				\'source': filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
-				\'options': '--reverse'
-				\}))<CR>
+				\ 'source': filter(copy(v:oldfiles), "filereadable(fnamemodify(v:val, ':p'))"),
+				\ 'options': '--reverse'
+				\ }))<CR>
 endif
 
 if filereadable(expand('~/.vimrc.local'))
