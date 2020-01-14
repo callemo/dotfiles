@@ -182,6 +182,8 @@ endfunction
 
 if isdirectory(expand('~/dotfiles/vim'))
 	set rtp+=~/dotfiles/vim
+	syntax enable
+	colorscheme monokai
 endif
 
 autocmd BufReadPost * exe "normal! g'\""
@@ -189,6 +191,24 @@ autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
 autocmd FileType c,cpp setlocal path+=/usr/include
 autocmd FileType javascript,json,html,css,scss setlocal expandtab shiftwidth=2 softtabstop=2
 autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
+
+if has('python3')
+python3 <<EOF
+import os
+import site
+import sys
+from pathlib import Path
+VIRTUAL_ENV = os.environ.get("VIRTUAL_ENV")
+if VIRTUAL_ENV:
+    venv_path = Path(VIRTUAL_ENV)
+    os.environ["PATH"] = str(venv_path / "bin") + os.pathsep + os.environ["PATH"]
+    for child in (venv_path / "lib").iterdir():
+        site_path = child / "site-packages"
+        if site_path.is_dir():
+            site.addsitedir(site_path)
+    sys.prefix = VIRTUAL_ENV
+EOF
+endif
 
 let g:projectionist_heuristics = {
 			\ "manage.py": {
@@ -219,36 +239,6 @@ let g:projectionist_heuristics = {
 			\   },
 			\ }}
 
-if has('python3')
-let g:UltiSnipsListSnippets = "<S-Tab>"
-silent! packadd! UltiSnips
-silent! packadd! vim-snippets
-
-python3 <<EOF
-import os
-import site
-import sys
-from pathlib import Path
-
-VIRTUAL_ENV = os.environ.get("VIRTUAL_ENV")
-if VIRTUAL_ENV:
-    venv_path = Path(VIRTUAL_ENV)
-    os.environ["PATH"] = str(venv_path / "bin") + os.pathsep + os.environ["PATH"]
-    for child in (venv_path / "lib").iterdir():
-        site_path = child / "site-packages"
-        if site_path.is_dir():
-            site.addsitedir(site_path)
-    sys.prefix = VIRTUAL_ENV
-EOF
-
-let g:jedi#goto_command = "<F12>"
-let g:jedi#popup_on_dot = 0
-let g:jedi#popup_select_first = 0
-let g:jedi#rename_command = "<F2>"
-let g:jedi#show_call_signatures = 0
-let g:jedi#use_tabs_not_buffers = 1
-endif
-
 if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 	nnoremap <silent> <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
@@ -257,9 +247,6 @@ if isdirectory(expand('~/.fzf'))
 				\'options': '--reverse'
 				\}))<CR>
 endif
-
-syntax enable
-colorscheme monokai
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local

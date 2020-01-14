@@ -19,7 +19,6 @@ $(excludesfile): .gitignore
 
 .PHONY: vim
 vim: ## Install vim plugins
-	./vimget https://github.com/sheerun/vim-polyglot.git
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-dispatch.git
 	./vimget https://github.com/tpope/vim-eunuch.git
@@ -28,16 +27,24 @@ vim: ## Install vim plugins
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
 	./vimget https://github.com/tpope/vim-tbone.git
+
+.PHONY: vim-extras
+vim-extras: ## Install vim optional plugins
+	./vimget -o https://github.com/roxma/nvim-yarp.git
+	./vimget -o https://github.com/roxma/vim-hug-neovim-rpc.git
+	./vimget -o https://github.com/Shougo/deoplete.nvim.git
+	./vimget -o -r https://github.com/deoplete-plugins/deoplete-jedi.git
+	./vimget -o https://github.com/Shougo/neosnippet.vim.git
+	./vimget -o https://github.com/Shougo/neosnippet-snippets.git
 	./vimget -o https://github.com/honza/vim-snippets.git
-	./vimget -o https://github.com/sirver/UltiSnips.git
-	./vimget -o -r https://github.com/davidhalter/jedi-vim.git
 
 .PHONY: tmux
 tmux: ## Install tmux plugins
 	if [[ -d ~/.tmux/plugins/resurrect ]]; then \
 		git -C ~/.tmux/plugins/resurrect pull; \
 	else \
-		git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect; \
+		git clone https://github.com/tmux-plugins/tmux-resurrect.git \
+			~/.tmux/plugins/resurrect; \
 	fi
 
 .PHONY: fzf
@@ -46,13 +53,13 @@ fzf: ## Installs fzf
 		git -C ~/.fzf pull; \
 	else \
 		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; \
+		~/.fzf/install --all; \
 	fi
-	~/.fzf/install --all
 
 .PHONY: help
 help:  ## Prints help for targets with comments
 	@echo 'Makefile targets:'
 	@cat $(MAKEFILE_LIST) \
-		| egrep '^[a-zA-Z_-]+:.*?## .*$$' \
+		| grep -E '^[a-zA-Z_-]+:.*?## .*$$' \
 		| awk 'BEGIN { FS = ":.*?## " }; { printf "%-24s %s\n", $$1, $$2 }'
 
