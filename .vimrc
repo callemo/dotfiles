@@ -1,6 +1,7 @@
 set nocompatible
 
 set backspace=indent,eol,start
+set cmdheight=2
 set completeopt-=preview
 set confirm
 set dictionary+=/usr/share/dict/words
@@ -24,10 +25,12 @@ set nowritebackup
 set number
 set ruler
 set shortmess+=I
+set shortmess=at
 set showtabline=2
 set statusline=%n:%<%.99f\ %{PasteMode()}%y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
 set title
+set t_ut=
 set updatetime=400
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
@@ -193,8 +196,8 @@ endif
 autocmd BufReadPost * exe "normal! g'\""
 autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
 autocmd FileType c,cpp setlocal path+=/usr/include
-autocmd FileType javascript,json,html,css,scss setlocal expandtab shiftwidth=2 softtabstop=2
-autocmd FileType python,yaml setlocal expandtab shiftwidth=4 softtabstop=4
+autocmd FileType css,html,javascript,json,scss,sh setlocal sw=2 sts=2 et
+autocmd FileType python,yaml setlocal sw=4 sts=4 et
 
 if has('python3')
 python3 <<EOF
