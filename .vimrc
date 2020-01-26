@@ -217,35 +217,6 @@ if VIRTUAL_ENV:
 EOF
 endif
 
-let g:projectionist_heuristics = {
-			\ "manage.py": {
-			\   "*": {
-			\     "console": "./manage.py shell",
-			\     "dispatch": "./manage.py test",
-			\     "start": "./manage.py runserver",
-			\   },
-			\   "*.html": {
-			\     "type": "template",
-			\   },
-			\   "*/models.py": {
-			\     "type": "models",
-			\     "alternate": "{}/views.py"
-			\   },
-			\   "*/urls.py": {
-			\     "type": "urls",
-			\     "related": ["{}/views.py", "{}/models.py"],
-			\     "template": [
-			\       "from django.urls import path", "",
-			\       "from . import views", "",
-			\       "app_name = \"{basename}\"", "urlpatterns = [", "]"
-			\     ]
-			\   },
-			\   "*/views.py": {
-			\     "type": "views",
-			\     "alternate": "{}/models.py",
-			\   },
-			\ }}
-
 if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 	nnoremap <silent> <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
