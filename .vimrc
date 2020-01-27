@@ -193,7 +193,7 @@ if isdirectory(expand('~/dotfiles/vim'))
 	colorscheme monokai
 endif
 
-autocmd BufReadPost * exe "normal! g'\""
+autocmd BufReadPost * exe "silent! normal! g'\""
 autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
 autocmd FileType c,cpp setlocal path+=/usr/include
 autocmd FileType css,html,javascript,json,scss,sh setlocal sw=2 sts=2 et
