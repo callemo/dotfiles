@@ -143,34 +143,20 @@ function! Format(command) abort
 	checktime
 endfunction
 
+augroup config
+	autocmd BufReadPost * exe "silent! normal! g'\""
+	autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
+	autocmd FileType c,cpp setlocal path+=/usr/include
+	autocmd FileType css,html,javascript,json,scss,sh setlocal sw=2 sts=2 et
+	autocmd FileType python,yaml setlocal sw=4 sts=4 et
+augroup end
+
+iabbr modeline` <C-r>=printf(&commentstring, " vim: set sw=4 sts=4 et: ")<CR><Esc>F:w
+
 if isdirectory(expand('~/dotfiles/vim'))
 	set rtp+=~/dotfiles/vim
 	syntax enable
 	colorscheme monokai
-endif
-
-autocmd BufReadPost * exe "silent! normal! g'\""
-autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
-autocmd FileType c,cpp setlocal path+=/usr/include
-autocmd FileType css,html,javascript,json,scss,sh setlocal sw=2 sts=2 et
-autocmd FileType python,yaml setlocal sw=4 sts=4 et
-
-if has('python3')
-python3 <<EOF
-import os
-import site
-import sys
-from pathlib import Path
-VIRTUAL_ENV = os.environ.get("VIRTUAL_ENV")
-if VIRTUAL_ENV:
-    venv_path = Path(VIRTUAL_ENV)
-    os.environ["PATH"] = str(venv_path / "bin") + os.pathsep + os.environ["PATH"]
-    for child in (venv_path / "lib").iterdir():
-        site_path = child / "site-packages"
-        if site_path.is_dir():
-            site.addsitedir(site_path)
-    sys.prefix = VIRTUAL_ENV
-EOF
 endif
 
 if isdirectory(expand('~/.fzf'))

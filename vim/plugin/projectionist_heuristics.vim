@@ -1,3 +1,7 @@
+if exists("g:projectionist_heuristics")
+	finish
+endif
+
 let g:projectionist_heuristics = {
 			\ "manage.py": {
 			\   "*": {
