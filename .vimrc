@@ -26,6 +26,7 @@ set number
 set ruler
 set shortmess+=I
 set shortmess=at
+set showcmd
 set showtabline=2
 set statusline=%n:%<%.99f\ %{PasteMode()}%y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
