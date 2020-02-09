@@ -18,10 +18,7 @@ fi
 # Functions {{{
 _source_if() { [[ -r "${1}" ]] && . "${1}"; }
 _path_prepend_if() { [[ -d "${1}" ]] && PATH="${1}:${PATH}"; }
-
-_venv_prompt() {
-  [[ "${VIRTUAL_ENV}" ]] && echo -n "($(basename "${VIRTUAL_ENV}")) "
-}
+_venv_prompt() { [[ "${VIRTUAL_ENV}" ]] && echo -n "($(basename "${VIRTUAL_ENV}")) "; }
 
 venv () {
   local e
