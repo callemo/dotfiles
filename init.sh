@@ -1,31 +1,54 @@
-# Variables
+#
+# Shell initialization script
+#
+# Variables {{{
 HISTSIZE=50000
+export HISTSIZE
+
 PYTHONUSERBASE="$HOME/.local/python"
-export HISTSIZE PYTHONUSERBASE
+export PYTHONUSERBASE
 
-# Functions
-test_and_source() {
-	if [[ -r "$1" ]]; then
-		# shellcheck source=/dev/null
-		. "$1"
-	fi
+if [[ "${BASH_VERSION}" ]]; then
+  _shell_name=bash
+  _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+elif [[ "${ZSH_VERSION}" ]]; then
+  _shell_name=zsh
+  _script_dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+fi
+
+# }}}
+# Functions {{{
+_source_if() { [[ -r "${1}" ]] && . "${1}"; }
+_path_prepend_if() { [[ -d "${1}" ]] && PATH="${1}:${PATH}"; }
+
+_venv_prompt() {
+  [[ "${VIRTUAL_ENV}" ]] && echo -n "($(basename "${VIRTUAL_ENV}")) "
 }
 
-test_and_prepend_path() {
-	if [[ -d "$1" ]]; then
-		PATH="$1:$PATH"
-	fi
+gupr () {
+  set -o pipefail
+  if [[ $# -lt 1 ]]; then
+    echo "usage: $0 path [args]" >&2
+    return 1
+  fi
+  p="$1"
+  shift
+  find "$p" -name .git \
+    | sed 's/.git$//' \
+    | xargs -n 1 -I % git -C "%" pull --rebase "$@"
 }
 
-# Paths
-test_and_prepend_path "$PYTHONUSERBASE/bin"
-test_and_prepend_path "$HOME/.local/node/bin"
-test_and_prepend_path "$HOME/.local/yarn/bin"
-test_and_prepend_path "$HOME/.local/bin"
-test_and_prepend_path "$HOME/bin"
+# }}}
+# PATH {{{
+_path_prepend_if "$PYTHONUSERBASE/bin"
+_path_prepend_if "$HOME/.local/node/bin"
+_path_prepend_if "$HOME/.local/yarn/bin"
+_path_prepend_if "$HOME/.local/bin"
+_path_prepend_if "$HOME/bin"
 export PATH
 
-# Aliases
+# }}}
+# Aliases {{{
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
 alias ga='git add'
@@ -46,45 +69,22 @@ alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
 alias gst='git status'
 alias gupav='git pull --rebase --autostash -v'
 alias gup='git pull --rebase'
-
-gupr () {
-	set -o pipefail
-	if [[ $# -lt 1 ]]; then
-		echo "usage: $0 path [args]" >&2
-		return 1
-	fi
-	p="$1"
-	shift
-	find "$p" -name .git | sed 's/.git$//' | xargs -n 1 -I % git -C "%" pull --rebase "$@"
-}
-
-if [[ "$BASH_VERSION" ]]; then
-	dir="$(cd "$(dirname "$BASH_SOURCE{0}")" && pwd)"
-elif [[ "$ZSH_VERSION" ]]; then
-	dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
-	test_and_source "$dir/zsh.sh"
+# }}}
+# Prompt {{{
+. "${_script_dir}/git-prompt.sh"
+if [[ "${_shell_name}" = "bash" ]]; then
+  PROMPT_COMMAND='__git_ps1 "$(_venv_prompt)\h:\W" "\\\$ "'
+  export PROMPT_COMMAND
+elif [[ "${_shell_name}" = "zsh" ]]; then
+  precmd () { __git_ps1 "$(_venv_prompt)%m:%1~" " %# "; }
 fi
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWSTASHSTATE=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_SHOWUPSTREAM="auto"
+GIT_PS1_SHOWCOLORHINTS=1
+# }}}
 
-# Prompt
-test_and_source "$dir/git-prompt.sh"
-
-__venv_ps1() {
-	if [[ "$VIRTUAL_ENV" ]]; then
-		echo -n "($(basename "$VIRTUAL_ENV")) "
-	fi
-}
-
-if command -v __git_ps1 > /dev/null 2>&1; then
-	if [[ "$BASH_VERSION" ]]; then
-		PROMPT_COMMAND='__git_ps1 "$(__venv_ps1)\h:\W" "\\\$ "'
-		export PROMPT_COMMAND
-	elif [[ "$ZSH_VERSION" ]]; then
-		precmd () { __git_ps1 "$(__venv_ps1)%m:%1~" " %# "; }
-	fi
-	GIT_PS1_SHOWDIRTYSTATE=1
-	GIT_PS1_SHOWSTASHSTATE=1
-	GIT_PS1_SHOWUNTRACKEDFILES=1
-	GIT_PS1_SHOWUPSTREAM="auto"
-	GIT_PS1_SHOWCOLORHINTS=1
-fi
-
+[[ "${_shell_name}" = "zsh" ]] && _source_if "${_script_dir}/zsh.sh"
+unset _script_dir _shell_name _path_prepend_if _source_if
+# vim: set sw=2 sts=2 et fdm=marker:
