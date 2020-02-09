@@ -27,7 +27,7 @@ venv () {
   local e
   e="${1:-$(basename "$(pwd)")}"
   if [[ ! -d "${VENV_HOME:=${HOME}/.virtualenvs}/${e}" ]]; then
-    echo "environment not found: ${e}" 1>&2
+    echo "venv not found: ${e}" 1>&2
     return 1
   fi
   [[ -n "${VIRTUAL_ENV}" ]] && deactivate
