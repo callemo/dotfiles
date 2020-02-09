@@ -5,7 +5,7 @@
 HISTSIZE=50000
 export HISTSIZE
 
-PYTHONUSERBASE="$HOME/.local/python"
+PYTHONUSERBASE="${HOME}/.local/python"
 export PYTHONUSERBASE
 
 if [[ -n "${ZSH_VERSION}" ]]; then
@@ -23,6 +23,17 @@ _venv_prompt() {
   [[ "${VIRTUAL_ENV}" ]] && echo -n "($(basename "${VIRTUAL_ENV}")) "
 }
 
+venv () {
+  local e
+  e="${1:-$(basename "$(pwd)")}"
+  if [[ ! -d "${VENV_HOME:=${HOME}/.virtualenvs}/${e}" ]]; then
+    echo "environment not found: ${e}" 1>&2
+    return 1
+  fi
+  [[ -n "${VIRTUAL_ENV}" ]] && deactivate
+  . "${VENV_HOME}/${e}/bin/activate"
+}
+
 gupr () {
   set -o pipefail
   if [[ $# -lt 1 ]]; then
@@ -37,14 +48,19 @@ gupr () {
 }
 
 # }}}
-# PATH {{{
-_path_prepend_if "$PYTHONUSERBASE/bin"
-_path_prepend_if "$HOME/.local/node/bin"
-_path_prepend_if "$HOME/.local/yarn/bin"
-_path_prepend_if "$HOME/.local/bin"
-_path_prepend_if "$HOME/bin"
-export PATH
-
+# Prompt {{{
+. "${_script_dir}/git-prompt.sh"
+if [[ -n "${ZSH_VERSION}" ]]; then
+  precmd () { __git_ps1 "$(_venv_prompt)%m:%1~" " %# "; }
+else
+  PROMPT_COMMAND='__git_ps1 "$(_venv_prompt)\h:\W" "\\\$ "'
+  export PROMPT_COMMAND
+fi
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWSTASHSTATE=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_SHOWUPSTREAM="auto"
+GIT_PS1_SHOWCOLORHINTS=1
 # }}}
 # Aliases {{{
 alias dco='docker-compose'
@@ -68,19 +84,14 @@ alias gst='git status'
 alias gupav='git pull --rebase --autostash -v'
 alias gup='git pull --rebase'
 # }}}
-# Prompt {{{
-. "${_script_dir}/git-prompt.sh"
-if [[ -n "${ZSH_VERSION}" ]]; then
-  precmd () { __git_ps1 "$(_venv_prompt)%m:%1~" " %# "; }
-else
-  PROMPT_COMMAND='__git_ps1 "$(_venv_prompt)\h:\W" "\\\$ "'
-  export PROMPT_COMMAND
-fi
-GIT_PS1_SHOWDIRTYSTATE=1
-GIT_PS1_SHOWSTASHSTATE=1
-GIT_PS1_SHOWUNTRACKEDFILES=1
-GIT_PS1_SHOWUPSTREAM="auto"
-GIT_PS1_SHOWCOLORHINTS=1
+# PATH {{{
+_path_prepend_if "$PYTHONUSERBASE/bin"
+_path_prepend_if "$HOME/.local/node/bin"
+_path_prepend_if "$HOME/.local/yarn/bin"
+_path_prepend_if "$HOME/.local/bin"
+_path_prepend_if "$HOME/bin"
+export PATH
+
 # }}}
 
 [[ -n "${ZSH_VERSION}" ]] && _source_if "${_script_dir}/zsh.sh"
