@@ -8,12 +8,10 @@ export HISTSIZE
 PYTHONUSERBASE="$HOME/.local/python"
 export PYTHONUSERBASE
 
-if [[ "${BASH_VERSION}" ]]; then
-  _shell_name=bash
-  _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-elif [[ "${ZSH_VERSION}" ]]; then
-  _shell_name=zsh
+if [[ -n "${ZSH_VERSION}" ]]; then
   _script_dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+else
+  _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
 # }}}
@@ -72,11 +70,11 @@ alias gup='git pull --rebase'
 # }}}
 # Prompt {{{
 . "${_script_dir}/git-prompt.sh"
-if [[ "${_shell_name}" = "bash" ]]; then
+if [[ -n "${ZSH_VERSION}" ]]; then
+  precmd () { __git_ps1 "$(_venv_prompt)%m:%1~" " %# "; }
+else
   PROMPT_COMMAND='__git_ps1 "$(_venv_prompt)\h:\W" "\\\$ "'
   export PROMPT_COMMAND
-elif [[ "${_shell_name}" = "zsh" ]]; then
-  precmd () { __git_ps1 "$(_venv_prompt)%m:%1~" " %# "; }
 fi
 GIT_PS1_SHOWDIRTYSTATE=1
 GIT_PS1_SHOWSTASHSTATE=1
@@ -85,6 +83,6 @@ GIT_PS1_SHOWUPSTREAM="auto"
 GIT_PS1_SHOWCOLORHINTS=1
 # }}}
 
-[[ "${_shell_name}" = "zsh" ]] && _source_if "${_script_dir}/zsh.sh"
-unset _script_dir _shell_name _path_prepend_if _source_if
+[[ -n "${ZSH_VERSION}" ]] && _source_if "${_script_dir}/zsh.sh"
+unset _script_dir _path_prepend_if _source_if
 # vim: set sw=2 sts=2 et fdm=marker:
