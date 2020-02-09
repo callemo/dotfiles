@@ -120,7 +120,6 @@ function! PasteMode()
 	return ''
 endfunction
 
-
 function! TrimTrailingSpaces() abort
 	let cursor = getpos(".")
 	let last_search = @/
@@ -152,7 +151,7 @@ augroup config
 	autocmd FileType python,yaml setlocal sw=4 sts=4 et
 augroup end
 
-iabbr modeline` <C-r>=printf(&commentstring, " vim: set sw=4 sts=4 et: ")<CR><Esc>F:w
+iabbr modeline` <C-r>=printf(&commentstring, printf(" vim: set sw=%d sts=%d et fdm=%s: ", &sw, &sts, &fdm))<CR><Esc>^3W
 
 if isdirectory(expand('~/dotfiles/vim'))
 	set rtp+=~/dotfiles/vim
