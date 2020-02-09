@@ -27,15 +27,30 @@ venv () {
   local e
   e="${1:-$(basename "$(pwd)")}"
   if [[ ! -d "${VENV_HOME:=${HOME}/.virtualenvs}/${e}" ]]; then
-    echo "venv not found: ${e}" 1>&2
+    echo "venv not found: ${e}" >&2
     return 1
   fi
   [[ -n "${VIRTUAL_ENV}" ]] && deactivate
   . "${VENV_HOME}/${e}/bin/activate"
 }
 
+# Update current branch from master
+gupm () {
+  local branch master
+  master="${1:-master}"
+  branch="$(git branch | awk '/^\*/ { print $2 }')"
+  if [[ -z "${branch}" ]] || [[ "${branch}" = "${master}" ]]; then
+    echo "bad branch: ${branch}" >&2
+    return 1
+  fi
+  git checkout "${master}" \
+    && git pull \
+    && git checkout "${branch}" \
+    && git merge --no-ff -m "Merge ${master}"
+}
+
+# Find all repos and update
 gupr () {
-  set -o pipefail
   if [[ $# -lt 1 ]]; then
     echo "usage: $0 path [args]" >&2
     return 1
