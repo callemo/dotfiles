@@ -21,14 +21,40 @@ _path_prepend_if() { [[ -d "${1}" ]] && PATH="${1}:${PATH}"; }
 _venv_prompt() { [[ "${VIRTUAL_ENV}" ]] && echo -n "($(basename "${VIRTUAL_ENV}")) "; }
 
 venv () {
-  local e
-  e="${1:-$(basename "$(pwd)")}"
-  if [[ ! -d "${VENV_HOME:=${HOME}/.virtualenvs}/${e}" ]]; then
-    echo "venv not found: ${e}" >&2
+  [[ -z "${VENV_HOME}" ]] && VENV_HOME="${HOME}/.virtualenvs"
+
+  local cflag lflag env
+  while getopts c:l opt; do
+    case ${opt} in
+      c) cflag="${OPTARG}" ;;
+      l) lflag=1 ;;
+      ?)
+        echo "usage: $0 [-l] [-c env] args" >&2
+        return 2
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  if [[ ${lflag} = 1 ]]; then
+    ( cd "${VENV_HOME}" && ls -1 )
+    return 0
+  fi
+
+  if [[ -n "${cflag}" ]]; then
+    python3 -m venv "${VENV_HOME}/${cflag}"
+    env="${cflag}"
+  else
+    env="${1:-$(basename "$(pwd)")}"
+  fi
+
+  if [[ ! -d "${VENV_HOME}/${env}" ]]; then
+    echo "environment not found: ${env}" >&2
     return 1
   fi
+
   [[ -n "${VIRTUAL_ENV}" ]] && deactivate
-  . "${VENV_HOME}/${e}/bin/activate"
+  . "${VENV_HOME}/${env}/bin/activate"
 }
 
 # Update current branch from master
