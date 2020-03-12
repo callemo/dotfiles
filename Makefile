@@ -19,6 +19,7 @@ $(excludesfile): .gitignore
 
 .PHONY: vim
 vim: ## Install vim plugins
+	./vimget https://github.com/tpope/vim-abolish.git
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-dispatch.git
 	./vimget https://github.com/tpope/vim-endwise.git
