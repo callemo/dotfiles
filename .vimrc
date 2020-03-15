@@ -85,7 +85,6 @@ nnoremap m<Space> :make<Space>
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
 nnoremap <leader>D :Dump<CR>
-nnoremap <leader>T :Ctags<CR>
 nnoremap <leader>c :close<CR>
 nnoremap <leader>d :bdelete<CR>
 nnoremap <leader>e :tabedit <C-r>=expand("%:p:h")<CR>/
@@ -107,7 +106,9 @@ else
 endif
 
 command! Black call Format('black')
-command! Ctags silent !ctags -R --languages=-vim,sql .
+command! -nargs=* -complete=dir Ctags 
+			\terminal ++norestore ++hidden ++shell
+			\ ctags -R --languages=-vim,sql . <args>
 command! Dump mksession! Session.vim
 command! Load source Session.vim
 command! Prettier call Format('prettier --write')
