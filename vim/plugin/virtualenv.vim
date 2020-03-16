@@ -1,5 +1,5 @@
 if exists("g:loaded_virtualenv")
-	finish
+  finish
 endif
 let g:loaded_virtualenv = 1
 
@@ -21,3 +21,4 @@ if VIRTUAL_ENV:
 EOF
 endif
 
+" vim: set sw=2 sts=2 et fdm=indent: 
