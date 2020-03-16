@@ -148,7 +148,7 @@ augroup config
   autocmd BufReadPost * exe "silent! normal! g'\""
   autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
   autocmd FileType c,cpp setlocal path+=/usr/include
-  autocmd FileType css,html,htmldjango,javascript,json,scss,sh,vim setlocal sw=2 sts=2 et
+  autocmd FileType css,html,htmldjango,javascript,json,scss,sh,vim,yaml setlocal sw=2 sts=2 et
   autocmd FileType python,yaml setlocal sw=4 sts=4 et
 augroup end
 
