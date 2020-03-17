@@ -85,10 +85,9 @@ nnoremap m<Space> :make<Space>
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
 nnoremap <leader>D :Dump<CR>
-nnoremap <leader>c :close<CR>
-nnoremap <leader>d :bdelete<CR>
 nnoremap <leader>e :tabedit <C-r>=expand("%:p:h")<CR>/
 nnoremap <leader>l :ls<CR>
+nnoremap <silent> <leader>q :if bufnr("$") == 1<Bar>quit<Bar>else<Bar>bdelete<Bar>endif<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
 
 nnoremap <silent> <C-j> :if winnr() == winnr("$")<CR>silent !tmux select-pane -t :.+<CR>else<CR>wincmd w<CR>endif<CR>
@@ -149,7 +148,7 @@ augroup config
   autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
   autocmd FileType c,cpp setlocal path+=/usr/include
   autocmd FileType css,html,htmldjango,javascript,json,scss,sh,vim,yaml setlocal sw=2 sts=2 et
-  autocmd FileType python,yaml setlocal sw=4 sts=4 et
+  autocmd FileType python setlocal sw=4 sts=4 et
 augroup end
 
 iabbr modeline` <C-r>=printf(&commentstring, printf(" vim: set sw=%d sts=%d et fdm=%s: ", &sw, &sts, &fdm))<CR><Esc>^3W
