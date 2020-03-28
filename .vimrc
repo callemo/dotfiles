@@ -155,8 +155,6 @@ iabbr modeline` <C-r>=printf(&commentstring, printf(" vim: set sw=%d sts=%d et f
 
 if isdirectory(expand("~/dotfiles/vim"))
   set rtp+=~/dotfiles/vim
-  syntax enable
-  colorscheme monokai
 endif
 
 if isdirectory(expand("~/.fzf"))
