@@ -72,6 +72,7 @@ nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 
+nnoremap yob :call ToggleBackground()<CR>
 nnoremap yoh :setlocal hlsearch!<CR>
 nnoremap yol :setlocal list!<CR>
 nnoremap yon :setlocal number!<CR>
@@ -118,6 +119,14 @@ function! PasteMode()
     return "[PASTE]"
   endif
   return ""
+endfunction
+
+function! ToggleBackground()
+  if &background == "dark"
+    let &background = "light"
+  else
+    let &background = "dark"
+  endif
 endfunction
 
 function! TrimTrailingSpaces() abort
