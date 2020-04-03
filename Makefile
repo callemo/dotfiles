@@ -1,24 +1,21 @@
-# Makefile
-SHELL        =  /bin/bash
-dotfiles     =  .vimrc .tmux.conf
-dotfiles     := $(patsubst .%,$(HOME)/.%,$(dotfiles))
-excludesfile =  $(HOME)/.gitignore
+SHELL = /bin/bash
+sources = .vimrc .tmux.conf
+targets = $(sources:.%=$(HOME)/.%)
 
-.PHONY: all
+.PHONY: all dotfiles vim tmux fzf help
+
 all: dotfiles vim tmux fzf
 
-.PHONY: dotfiles
-dotfiles: $(dotfiles) $(excludesfile) ## Link dotfiles
+dotfiles: $(targets) $(HOME)/.gitignore
 
-$(dotfiles): $(HOME)/.%: .%
-	ln -s $(realpath $<) $@
+$(targets): $(HOME)/%: $(CURDIR)/%
+	ln -s $< $@
 
-$(excludesfile): .gitignore
-	ln -s $(realpath $<) $@
+$(HOME)/.gitignore: $(CURDIR)/.gitignore
+	ln -s $< $@
 	git config --global core.excludesfile $@
 
-.PHONY: vim
-vim: ## Install vim plugins
+vim:
 	./vimget https://github.com/tpope/vim-abolish.git
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-dispatch.git
@@ -31,28 +28,13 @@ vim: ## Install vim plugins
 	./vimget https://github.com/tpope/vim-surround.git
 	./vimget https://github.com/tpope/vim-tbone.git
 
-.PHONY: tmux
-tmux: ## Install tmux plugins
-	if [[ -d ~/.tmux/plugins/resurrect ]]; then \
-		git -C ~/.tmux/plugins/resurrect pull; \
-	else \
-		git clone https://github.com/tmux-plugins/tmux-resurrect.git \
-			~/.tmux/plugins/resurrect; \
+tmux:
+	if [[ -d ~/.tmux/plugins/resurrect ]]; then git -C ~/.tmux/plugins/resurrect pull; \
+	else git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect; \
 	fi
 
-.PHONY: fzf
 fzf: ## Install fzf
-	if [[ -d ~/.fzf ]]; then \
-		git -C ~/.fzf pull; \
-	else \
-		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; \
-		~/.fzf/install --all; \
+	if [[ -d ~/.fzf ]]; then git -C ~/.fzf pull; \
+	else git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; ~/.fzf/install --all; \
 	fi
-
-.PHONY: help
-help:  ## Prints help for targets with comments
-	@echo 'Makefile targets:'
-	@cat $(MAKEFILE_LIST) \
-		| grep -E '^[a-zA-Z_-]+:.*?## .*$$' \
-		| awk 'BEGIN { FS = ":.*?## " }; { printf "%-24s %s\n", $$1, $$2 }'
 
