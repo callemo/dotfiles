@@ -125,7 +125,6 @@ alias gup='git pull --rebase'
 # PATH {{{
 _path_prepend_if "$PYTHONUSERBASE/bin"
 _path_prepend_if "$HOME/.local/node/bin"
-_path_prepend_if "$HOME/.local/yarn/bin"
 _path_prepend_if "$HOME/.local/bin"
 _path_prepend_if "$HOME/bin"
 export PATH
