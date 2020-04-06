@@ -121,6 +121,7 @@ alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
 alias gst='git status'
 alias gupav='git pull --rebase --autostash -v'
 alias gup='git pull --rebase'
+alias tsw='tmux split-window -l 12'
 # }}}
 # PATH {{{
 _path_prepend_if "$PYTHONUSERBASE/bin"
