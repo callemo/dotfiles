@@ -88,6 +88,7 @@ nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>e :tabedit <C-r>=expand("%:p:h")<CR>/
 nnoremap <leader>l :ls<CR>
+nnoremap <leader>t :tags<CR>
 nnoremap <silent> <leader>q :if bufnr("$") == 1<Bar>quit<Bar>else<Bar>bdelete<Bar>endif<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
 
