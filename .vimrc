@@ -106,9 +106,7 @@ else
 endif
 
 command! Black call Format("black")
-command! -nargs=* -complete=dir Ctags 
-      \terminal ++norestore ++hidden ++shell
-      \ ctags -R --languages=-vim,sql . <args>
+command! -nargs=* -complete=dir Ctags belowright terminal ++norestore ++rows=12 ++close ++shell ctags -R <args>
 command! Dump mksession! Session.vim
 command! Load source Session.vim
 command! Prettier call Format("prettier --write")
