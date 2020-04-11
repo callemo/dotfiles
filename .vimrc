@@ -98,6 +98,13 @@ nnoremap <silent> <C-k> :if winnr() == 1<CR>silent !tmux select-pane -t :.-<CR>e
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap # :call SetVisualSearch()<CR>?<CR>
 
+command! Dump mksession! Session.vim
+command! Load source Session.vim
+
+command! Black call Format("black")
+command! Prettier call Format("prettier --write")
+command! TrimTrailingSpaces call TrimTrailingSpaces()
+
 if has("clipboard")
   vnoremap <C-c> "*y
 else
@@ -106,12 +113,11 @@ else
   endif
 endif
 
-command! Black call Format("black")
-command! -nargs=* -complete=dir Ctags belowright terminal ++norestore ++rows=12 ++close ++shell ctags -R <args>
-command! Dump mksession! Session.vim
-command! Load source Session.vim
-command! Prettier call Format("prettier --write")
-command! TrimTrailingSpaces call TrimTrailingSpaces()
+if has("terminal")
+  command! -nargs=* -complete=shellcmd Win belowright terminal ++noclose ++kill=term ++rows=10 <args>
+  highlight! link StatusLineTerm StatusLine
+  highlight! link StatusLineTermNC StatusLineNC
+endif
 
 function! PasteMode()
   if &paste
@@ -178,4 +184,4 @@ if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
 
-" vim: set sw=2 sts=2 et fdm=indent: 
+" vim: set sw=2 sts=2 et fdm=indent:
