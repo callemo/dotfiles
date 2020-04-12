@@ -151,7 +151,7 @@ exe 'hi! PmenuSel'     . s:text          . s:secondaryBg
 exe 'hi! PmenuThumb'   . s:text          . s:background      . ' gui=reverse cterm=reverse'
 exe 'hi! Search'       . s:text          . s:primaryBg
 exe 'hi! StatusLineNC' . s:text          . s:secondaryBg
-exe 'hi! StatusLine'   . s:text          . s:secondaryDarkBg
+exe 'hi! StatusLine'   . s:text          . s:secondaryDarkBg . s:bold
 exe 'hi! TabLineSel'   . s:text          . s:secondaryDarkBg . s:bold
 exe 'hi! TabLine'      . s:text          . s:secondaryBg
 exe 'hi! Visual'       . s:text          . s:primaryBg
@@ -172,7 +172,6 @@ exe 'hi! Directory'  . s:blue
 exe 'hi! ErrorMsg'   . s:red             . ' gui=bold cterm=bold'
 exe 'hi! Error'      . s:red             . ' gui=bold cterm=bold'
 exe 'hi! PreProc'    . s:orange
-exe 'hi! Special'    . s:blue
 exe 'hi! SpellBad'   . s:red             . ' gui=undercurl cterm=undercurl'
 exe 'hi! SpellCap'                       . ' gui=undercurl cterm=undercurl'
 exe 'hi! SpellLocal'                     . ' gui=undercurl cterm=undercurl'
@@ -186,6 +185,7 @@ hi! link diffRemoved DiffDelete
 hi! link Todo Error
 if (g:plan9_syntax == 1)
   exe 'hi! Identifier' . s:cyan
+  exe 'hi! Special'    . s:blue
   exe 'hi! Statement'  . s:violet
   exe 'hi! Type'       . s:violet
 endif
@@ -234,4 +234,4 @@ hi! link goType Statement
 hi! link goFormatSpecifier PreProc
 "}}}
 
-" vim: set sw=2 ts=2 sts=2 et tw=80 ft=vim fdm=marker:
+" vim: set sw=2 sts=2 et fdm=marker: 

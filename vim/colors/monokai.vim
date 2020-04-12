@@ -10,26 +10,26 @@ set background=dark
 let g:colors_name = 'monokai'
 
 if !exists('g:monokai_syntax')
-	let g:monokai_syntax = 0
+  let g:monokai_syntax = 0
 endif
 
 " Formats: {{{
 let s:support_italics=['rxvt', 'gnome-terminal', 'iTerm.app']
 let s:has_italic=0
 for term in s:support_italics
-	if $TERM_PROGRAM =~ term
-		let s:has_italic=1
-		break
-	endif
+  if $TERM_PROGRAM =~ term
+    let s:has_italic=1
+    break
+  endif
 endfor
 
 if has('gui_running') || $COLORTERM == 'truecolor'
-	let s:has_italic=1
+  let s:has_italic=1
 endif
 
 let s:i= ''
 if s:has_italic == 1
-	let s:i= ',italic'
+  let s:i= ',italic'
 endif
 
 let s:italic = ' gui=NONE'.s:i.' cterm=NONE'.s:i
@@ -177,10 +177,10 @@ hi! link diffAdded DiffAdd
 hi! link diffRemoved DiffDelete
 hi! link Todo Error
 if (g:monokai_syntax == 1)
-	exe 'hi! Identifier' . s:identifier
-	exe 'hi! Special'    . s:activeGuide
-	exe 'hi! Statement'  . s:keyword
-	exe 'hi! Type'       . s:type
+  exe 'hi! Identifier' . s:identifier
+  exe 'hi! Special'    . s:activeGuide
+  exe 'hi! Statement'  . s:keyword
+  exe 'hi! Type'       . s:type
 endif
 " }}}
 " Plugins: {{{
@@ -234,3 +234,4 @@ hi! link xmlTag Normal
 hi! link yamlKey Identifier
 "}}}
 
+" vim: set sw=2 sts=2 et fdm=marker: 
