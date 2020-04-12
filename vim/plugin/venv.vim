@@ -1,10 +1,19 @@
-if exists("g:loaded_virtualenv")
+if exists("g:loaded_venv")
   finish
 endif
-let g:loaded_virtualenv = 1
+let g:loaded_venv = 1
 
-if has('python3')
-python3 <<EOF
+function! Venv(path)
+  if !has("python3")
+    return 0
+  endif
+
+  if !isdirectory(expand(a:path))
+    return 0
+  endif
+
+  let $VIRTUAL_ENV=(expand(a:path))
+  python3 <<EOF
 import os
 import pathlib
 import site
@@ -19,6 +28,7 @@ if VIRTUAL_ENV:
             site.addsitedir(site_path)
     sys.prefix = VIRTUAL_ENV
 EOF
-endif
+  return 1
+endfunction
 
 " vim: set sw=2 sts=2 et fdm=indent: 
