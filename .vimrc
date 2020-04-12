@@ -100,6 +100,7 @@ vnoremap # :call SetVisualSearch()<CR>?<CR>
 
 command! Dump mksession! Session.vim
 command! Load source Session.vim
+command! Lwd lcd %:p:h
 
 command! Black call Format("black")
 command! Prettier call Format("prettier --write")
@@ -114,9 +115,7 @@ else
 endif
 
 if has("terminal")
-  command! -nargs=* -complete=shellcmd Win belowright terminal ++noclose ++kill=term ++rows=10 <args>
-  highlight! link StatusLineTerm StatusLine
-  highlight! link StatusLineTermNC StatusLineNC
+  command! -nargs=* -complete=file Win belowright terminal ++noclose ++kill=term ++rows=10 <args>
 endif
 
 function! PasteMode()
