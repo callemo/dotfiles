@@ -113,7 +113,7 @@ command! Prettier call Format("prettier --write")
 command! TrimTrailingSpaces call TrimTrailingSpaces()
 
 if has("terminal")
-  command! -nargs=* -complete=file Win belowright terminal ++noclose ++kill=term ++rows=10 <args>
+  command! -nargs=* -complete=file Win belowright terminal ++noclose ++kill=term ++shell ++rows=10 <args>
 endif
 " Commands }}}
 " Functions {{{

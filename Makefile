@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 
-sources = .vimrc .tmux.conf .ctags
+sources = .vimrc .gvimrc .tmux.conf .ctags
 targets = $(sources:.%=$(HOME)/.%)
 
 .PHONY: all dotfiles vim tmux fzf help
