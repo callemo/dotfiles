@@ -108,6 +108,8 @@ let s:blue    = ' guifg=#268bd2 ctermfg=033'
 let s:cyan    = ' guifg=#2aa198 ctermfg=037'
 let s:green   = ' guifg=#859900 ctermfg=064'
 
+let s:white   = ' guibg=#ffffff ctermbg=15'
+
 let s:text       = ' guifg=#000000 ctermfg=016'
 let s:background = ' guibg=#ffffe0 ctermbg=230'
 
@@ -145,6 +147,7 @@ exe 'hi! MatchParen'   . s:accentFg      . s:background      . ' gui=bold,underl
 exe 'hi! ModeMsg'                                            . ' gui=bold cterm=bold'
 exe 'hi! MoreMsg'                                            . ' gui=bold cterm=bold'
 " exe 'hi! Normal'       . s:text          . s:background
+exe 'hi! Normal'       . s:text          . s:white
 exe 'hi! Pmenu'        . s:accentFg      . s:background      . ' gui=reverse cterm=reverse'
 exe 'hi! PmenuSbar'    . s:text          . s:secondaryBg
 exe 'hi! PmenuSel'     . s:text          . s:secondaryBg
