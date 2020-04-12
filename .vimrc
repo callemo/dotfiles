@@ -1,5 +1,10 @@
 set nocompatible
 
+let mapleader = " "
+let g:netrw_banner = 0
+let g:netrw_list_hide = "^\./$,^\.\./$"
+
+" Settings {{{
 set backspace=indent,eol,start
 set cmdheight=2
 set completeopt-=preview
@@ -51,12 +56,8 @@ setglobal path=.,,
 filetype plugin indent on
 set autoindent
 set textwidth=0
-
-let g:netrw_banner = 0
-let g:netrw_list_hide = "^\./$,^\.\./$"
-
-let mapleader = " "
-
+"Settings }}}
+" Mappings {{{
 nnoremap - :Explore<CR>
 autocmd FileType netrw setlocal statusline=%F
 
@@ -98,6 +99,11 @@ nnoremap <silent> <C-k> :if winnr() == 1<CR>silent !tmux select-pane -t :.-<CR>e
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap # :call SetVisualSearch()<CR>?<CR>
 
+if has("clipboard")
+  vnoremap <C-c> "*y
+endif
+" Mappings }}}
+" Commands {{{
 command! Dump mksession! Session.vim
 command! Load source Session.vim
 command! Lwd lcd %:p:h
@@ -106,18 +112,11 @@ command! Black call Format("black")
 command! Prettier call Format("prettier --write")
 command! TrimTrailingSpaces call TrimTrailingSpaces()
 
-if has("clipboard")
-  vnoremap <C-c> "*y
-else
-  if has("unix") && system("uname")[0:-2] ==# "Darwin"
-    vnoremap <C-c> :write !pbcopy<CR>
-  endif
-endif
-
 if has("terminal")
   command! -nargs=* -complete=file Win belowright terminal ++noclose ++kill=term ++rows=10 <args>
 endif
-
+" Commands }}}
+" Functions {{{
 function! PasteMode()
   if &paste
     return "[PASTE]"
@@ -155,7 +154,7 @@ function! Format(command) abort
   execute "!" . a:command . expand(" %")
   checktime
 endfunction
-
+" Functions }}}
 augroup config
   autocmd BufReadPost * exe "silent! normal! g'\""
   autocmd BufWritePre *.txt,*.js,*.py,*.sh :call TrimTrailingSpaces()
@@ -183,4 +182,4 @@ if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local
 endif
 
-" vim: set sw=2 sts=2 et fdm=indent:
+" vim: set sw=2 sts=2 et fdm=marker:
