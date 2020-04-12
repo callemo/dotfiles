@@ -1,38 +1,40 @@
-" --------------------------------------------------------------------
-" File: monokai.vim
-" Description: A dark color scheme inspired by Monokai.
-" --------------------------------------------------------------------
+" ---------------------------------------------------------------------
+" File: plan9.vim
+" Description: A light color scheme inspired by Plan 9.
+" ---------------------------------------------------------------------
 
 hi clear
 syntax reset
 
-set background=dark
-let g:colors_name = 'monokai'
+set background=light
+let g:colors_name = 'plan9'
 
-if !exists('g:monokai_syntax')
-	let g:monokai_syntax = 0
+if !exists('g:plan9_syntax')
+  let g:plan9_syntax = 0
 endif
 
 " Formats: {{{
 let s:support_italics=['rxvt', 'gnome-terminal', 'iTerm.app']
 let s:has_italic=0
 for term in s:support_italics
-	if $TERM_PROGRAM =~ term
-		let s:has_italic=1
-		break
-	endif
+  if $TERM_PROGRAM =~ term
+    let s:has_italic=1
+    break
+  endif
 endfor
 
-if has('gui_running') || $COLORTERM == 'truecolor'
-	let s:has_italic=1
+if has('gui_running')
+  let s:has_italic=1
 endif
 
 let s:i= ''
 if s:has_italic == 1
-	let s:i= ',italic'
+  let s:i= ',italic'
 endif
 
-let s:italic = ' gui=NONE'.s:i.' cterm=NONE'.s:i
+let s:bold        = ' gui=bold cterm=bold'
+let s:italic      = ' gui=NONE'.s:i.' cterm=NONE'.s:i
+let s:bold_italic = ' gui=bold'.s:i.' cterm=bold'.s:i
 " }}} Formats:
 " Reset: {{{
 hi! ColorColumn  term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
@@ -106,131 +108,130 @@ let s:blue    = ' guifg=#268bd2 ctermfg=033'
 let s:cyan    = ' guifg=#2aa198 ctermfg=037'
 let s:green   = ' guifg=#859900 ctermfg=064'
 
-let s:activeGuide        = ' guifg=#9D550F ctermfg=130'
-let s:background         = ' guibg=#000000 ctermbg=016'
-let s:bracketsForeground = ' guifg=#f8f8f2 ctermfg=231'
-let s:findHighlight      = ' guibg=#ffe792 ctermbg=222'
-let s:findHighlightText  = ' guifg=#000000 ctermfg=016'
-let s:guide              = ' guifg=#90908a ctermfg=102'
-let s:identifier         = ' guifg=#a6e22e ctermfg=148'
-let s:keyword            = ' guifg=#f92672 ctermfg=197'
-let s:lineHighlight      = ' guibg=#3e3d32 ctermbg=059'
-let s:misspelling        = ' guifg=#F92672 ctermfg=197'
-let s:number             = ' guifg=#ae81ff ctermfg=141'
-let s:selection          = ' guibg=#49483e ctermbg=059'
-let s:string             = ' guifg=#e6db74 ctermfg=186'
-let s:text               = ' guifg=#f8f8f2 ctermfg=231'
-let s:textBackground     = ' guibg=#272822 ctermbg=235'
-let s:textComment        = ' guifg=#75715e ctermfg=242'
-let s:type               = ' guifg=#66d9ef ctermfg=81'
+let s:text       = ' guifg=#000000 ctermfg=016'
+let s:background = ' guibg=#ffffe0 ctermbg=230'
+
+let s:primaryAnsi = '229'
+let s:primaryRGB  = '#ededa6'
+let s:primaryFg   = ' guifg=' . s:primaryRGB . ' ctermfg=' . s:primaryAnsi
+let s:primaryBg   = ' guibg=' . s:primaryRGB . ' ctermbg=' . s:primaryAnsi
+
+let s:primaryDarkAnsi = '101'
+let s:primaryDarkRGB  = '#979758'
+let s:primaryDarkFg   = ' guifg=' . s:primaryDarkRGB . ' ctermfg=' . s:primaryDarkAnsi
+let s:primaryDarkBg   = ' guibg=' . s:primaryDarkRGB . ' ctermbg=' . s:primaryDarkAnsi
+
+let s:secondaryAnsi = '195'
+let s:secondaryRGB  = '#e9ffff'
+let s:secondaryFg   = ' guifg=' . s:secondaryRGB . ' ctermfg=' . s:secondaryAnsi
+let s:secondaryBg   = ' guibg=' . s:secondaryRGB . ' ctermbg=' . s:secondaryAnsi
+
+let s:secondaryDarkAnsi = '159'
+let s:secondaryDarkRGB  = '#9ceeed'
+let s:secondaryDarkFg   = ' guifg=' . s:secondaryDarkRGB . ' ctermfg=' . s:secondaryDarkAnsi
+let s:secondaryDarkBg   = ' guibg=' . s:secondaryDarkRGB . ' ctermbg=' . s:secondaryDarkAnsi
+
+let s:accentAnsi = '104'
+let s:accentRGB  = '#8787c6'
+let s:accentFg   = ' guifg=' . s:accentRGB . ' ctermfg=' . s:accentAnsi
+let s:accentBg   = ' guibg=' . s:accentRGB . ' ctermbg=' . s:accentAnsi
 " }}}
 " Interface: {{{
-exe 'hi! CursorLine'   . s:text                 . s:lineHighlight
-exe 'hi! Folded'       . s:guide                . s:textBackground . s:italic
-exe 'hi! IncSearch'    . s:findHighlightText    . s:findHighlight
-exe 'hi! LineNr'       . s:guide                . s:textBackground . s:italic
-exe 'hi! MatchParen'   . s:bracketsForeground   . s:textBackground . ' gui=bold,underline cterm=bold,underline'
-exe 'hi! MoreMsg'                                                  . ' gui=bold cterm=bold'
-exe 'hi! Normal'       . s:text                 . s:textBackground
-exe 'hi! PmenuSbar'    . s:text                 . s:lineHighlight
-exe 'hi! PmenuSel'     . s:text                 . s:lineHighlight
-exe 'hi! Pmenu'        . s:guide                . s:background     . ' gui=reverse cterm=reverse'
-exe 'hi! PmenuThumb'   . s:guide                . s:background     . ' gui=reverse cterm=reverse'
-exe 'hi! Search'       . s:findHighlightText    . s:findHighlight
-exe 'hi! StatusLineNC' . s:text                 . s:background
-exe 'hi! StatusLine'   . s:text                 . s:background     . ' gui=bold cterm=bold'
-exe 'hi! TabLineSel'   . s:text                 . s:textBackground . ' gui=bold cterm=bold'
-exe 'hi! TabLine'      . s:guide                . s:background
-exe 'hi! Visual'       . s:text                 . s:selection
-exe 'hi! WarningMsg'   . s:activeGuide                             . ' gui=bold cterm=bold'
-exe 'hi! WildMenu'     . s:text                 . s:lineHighlight  . ' gui=reverse cterm=reverse'
+exe 'hi! CursorLine'   . s:text          . s:primaryBg
+exe 'hi! Folded'       . s:primaryDarkFg . s:background      . s:italic
+exe 'hi! IncSearch'    . s:text          . s:primaryBg
+exe 'hi! LineNr'       . s:primaryDarkFg . s:background      . s:italic
+exe 'hi! MatchParen'   . s:accentFg      . s:background      . ' gui=bold,underline cterm=bold,underline'
+exe 'hi! ModeMsg'                                            . ' gui=bold cterm=bold'
+exe 'hi! MoreMsg'                                            . ' gui=bold cterm=bold'
+" exe 'hi! Normal'       . s:text          . s:background
+exe 'hi! Pmenu'        . s:accentFg      . s:background      . ' gui=reverse cterm=reverse'
+exe 'hi! PmenuSbar'    . s:text          . s:secondaryBg
+exe 'hi! PmenuSel'     . s:text          . s:secondaryBg
+exe 'hi! PmenuThumb'   . s:text          . s:background      . ' gui=reverse cterm=reverse'
+exe 'hi! Search'       . s:text          . s:primaryBg
+exe 'hi! StatusLineNC' . s:text          . s:secondaryBg
+exe 'hi! StatusLine'   . s:text          . s:secondaryDarkBg
+exe 'hi! TabLineSel'   . s:text          . s:secondaryDarkBg . s:bold
+exe 'hi! TabLine'      . s:text          . s:secondaryBg
+exe 'hi! Visual'       . s:text          . s:primaryBg
+exe 'hi! WildMenu'     . s:text          . s:background      . ' gui=reverse cterm=reverse'
 
-hi! link ErrorMsg Error
-hi! link FoldColumn Folded
-hi! link ModeMsg WarningMsg
-hi! link NonText LineNr
 hi! link SignColumn LineNr
-hi! link SpecialKey LineNr
-hi! link StatusLineTermNC StatusLineTerm
 hi! link StatusLineTerm StatusLine
+hi! link StatusLineTermNC StatusLineTerm
 hi! link TabLineFill TabLine
 " }}}
 " Syntax: {{{
-exe 'hi! Comment'    . s:textComment              . s:italic
-exe 'hi! Constant'   . s:number
-exe 'hi! DiffAdd'    . s:green        . s:base02
-exe 'hi! DiffChange' . s:yellow       . s:base02
-exe 'hi! DiffDelete' . s:red          . s:base02
-exe 'hi! DiffText'   . s:orange       . s:base02
-exe 'hi! Error'      . s:misspelling              . ' gui=bold cterm=bold'
-exe 'hi! Function'   . s:type
-exe 'hi! Number'     . s:number
-exe 'hi! PreProc'    . s:keyword
-exe 'hi! SpellBad'   . s:misspelling              . ' gui=undercurl cterm=undercurl'
-exe 'hi! SpellCap'                                . ' gui=undercurl cterm=undercurl'
-exe 'hi! SpellLocal'                              . ' gui=undercurl cterm=undercurl'
-exe 'hi! SpellRare'                               . ' gui=undercurl cterm=undercurl'
-exe 'hi! String'     . s:string
-exe 'hi! Title'                                   . ' gui=bold cterm=bold'
-exe 'hi! Underlined'                              . ' gui=underline cterm=underline'
+exe 'hi! Comment'    . s:base01          . s:italic
+exe 'hi! DiffAdd'    . s:green . s:base2
+exe 'hi! DiffChange' . s:base1 . s:base2
+exe 'hi! DiffDelete' . s:red   . s:base2
+exe 'hi! DiffText'   . s:blue  . s:base2
+exe 'hi! Directory'  . s:blue
+exe 'hi! ErrorMsg'   . s:red             . ' gui=bold cterm=bold'
+exe 'hi! Error'      . s:red             . ' gui=bold cterm=bold'
+exe 'hi! PreProc'    . s:orange
+exe 'hi! Special'    . s:blue
+exe 'hi! SpellBad'   . s:red             . ' gui=undercurl cterm=undercurl'
+exe 'hi! SpellCap'                       . ' gui=undercurl cterm=undercurl'
+exe 'hi! SpellLocal'                     . ' gui=undercurl cterm=undercurl'
+exe 'hi! SpellRare'                      . ' gui=undercurl cterm=undercurl'
+exe 'hi! String'     . s:magenta
+exe 'hi! Title'                          . ' gui=bold cterm=bold'
+exe 'hi! Underlined'                     . ' gui=underline cterm=underline'
+exe 'hi! WarningMsg' . s:yellow          . ' gui=bold cterm=bold'
 hi! link diffAdded DiffAdd
 hi! link diffRemoved DiffDelete
 hi! link Todo Error
-if (g:monokai_syntax == 1)
-	exe 'hi! Identifier' . s:identifier
-	exe 'hi! Special'    . s:activeGuide
-	exe 'hi! Statement'  . s:keyword
-	exe 'hi! Type'       . s:type
+if (g:plan9_syntax == 1)
+  exe 'hi! Identifier' . s:cyan
+  exe 'hi! Statement'  . s:violet
+  exe 'hi! Type'       . s:violet
 endif
 " }}}
 " Plugins: {{{
+hi! link ALEError SpellBad
+hi! link ALEErrorSign Error
+
 exe 'hi! CtrlPPrtCursor gui=underline cterm=underline'
-exe 'hi! CtrlPTagKind' . s:type
 hi! link CtrlPMatch IncSearch
 hi! link CtrlPNoEntries Error
 hi! link CtrlPTabExtra Normal
+hi! link CtrlPTagKind Type
+
 hi! link NERDTreeCWD ModeMsg
 hi! link NERDTreeDir Directory
-hi! link NERDTreeDirSlash LineNr
 " }}}
 " Filetypes: {{{
-hi! link cssBraces Normal
-hi! link cssInclude Normal
-hi! link goDeclaration Statement
-hi! link goDeclType Statement
-hi! link goFormatSpecifier PreProc
-hi! link goType Statement
-exe 'hi! htmlArg'     . s:identifier . s:italic
-exe 'hi! htmlItalic'                 . s:italic
-exe 'hi! htmlTagName' . s:keyword
+exe 'hi! htmlArg'                . s:italic
+exe 'hi! htmlItalic'             . s:italic
+exe 'hi! htmlTagName' . s:violet
 hi! link htmlEndTag Normal
 hi! link htmlTag Normal
 hi! link htmlTagN Statement
+exe 'hi! xmlTagName' . s:violet
+hi! link xmlTag Normal
+hi! link xmlEndTag Normal
+hi! link xmlAttrib htmlArg
+hi! link yamlKey Identifier
+hi! link jsonKeyword Identifier
+hi! link jsonString String
+hi! link jsonBraces Normal
 hi! link jsClassKeyword Statement
 hi! link jsExtendsKeyword Statement
 hi! link jsFunction Statement
-hi! link jsGlobalNodeObjects Type
-hi! link jsGlobalObjects Type
-hi! link jsObjectKey Identifier
-hi! link jsonBraces Normal
-hi! link jsonKeyword Identifier
-hi! link jsonString String
 hi! link jsTemplateString String
-hi! link jsVariableDef Normal
-hi! link phpClass Identifier
-hi! link phpDocTags Statement
-hi! link phpParent Normal
-hi! link phpUseClass Identifier
-hi! link pythonBuiltin Statement
-hi! link pythonConditional Statement
+hi! link jsVariableDef Identifier
+hi! link jsObjectKey Identifier
 hi! link pythonImport PreProc
+hi! link pythonBuiltin Statement
 hi! link pythonRepeat Statement
-hi! link scssAttribute cssAttr
-hi! link scssProperty cssProp
-exe 'hi! xmlTagName' . s:keyword
-hi! link xmlAttrib htmlArg
-hi! link xmlEndTag Normal
-hi! link xmlTag Normal
-hi! link yamlKey Identifier
+hi! link pythonConditional Statement
+hi! link goDeclaration Statement
+hi! link goDeclType Statement
+hi! link goType Statement
+hi! link goFormatSpecifier PreProc
 "}}}
 
+" vim: set sw=2 ts=2 sts=2 et tw=80 ft=vim fdm=marker:
