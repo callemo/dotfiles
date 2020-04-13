@@ -21,9 +21,9 @@ endfor
 
 if has("gui_running")
   let s:has_italic=1
-  let g:terminal_ansi_colors = ['#e5e5e5', '#d12f1b', '#3e8087', '#78492a',
-        \ '#0f68a0', '#ad3da4', '#804fb8', '#262626', '#8a99a6', '#d12f1b',
-        \ '#23575c', '#78492a', '#0b4f79', '#ad3da4', '#4b21b0', '#262626']
+  let g:terminal_ansi_colors = ["#e5e5e5", "#d12f1b", "#3e8087", "#78492a",
+        \ "#0f68a0", "#ad3da4", "#804fb8", "#262626", "#8a99a6", "#d12f1b",
+        \ "#23575c", "#78492a", "#0b4f79", "#ad3da4", "#4b21b0", "#262626"]
 endif
 
 let s:i= ""
