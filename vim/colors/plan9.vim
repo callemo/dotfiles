@@ -103,9 +103,9 @@ let s:blue    = " guifg=#268bd2 ctermfg=033"
 let s:cyan    = " guifg=#2aa198 ctermfg=037"
 let s:green   = " guifg=#859900 ctermfg=064"
 
-let s:white   = " guibg=#ffffff ctermbg=15"
+let s:white   = " guibg=White ctermbg=White"
 
-let s:text       = " guifg=#000000 ctermfg=016"
+let s:text       = " guifg=Black ctermfg=Black"
 let s:background = " guibg=#ffffe0 ctermbg=230"
 
 let s:primaryAnsi = "229"
@@ -141,7 +141,6 @@ exe "hi! LineNr"       . s:primaryDarkFg . s:background
 exe "hi! MatchParen"   . s:accentFg      . s:background      . " gui=bold,underline cterm=bold,underline"
 exe "hi! ModeMsg"                                            . " gui=bold cterm=bold"
 exe "hi! MoreMsg"                                            . " gui=bold cterm=bold"
-" exe "hi! Normal"       . s:text          . s:background
 exe "hi! Normal"       . s:text          . s:white
 exe "hi! Pmenu"        . s:accentFg      . s:background      . " gui=reverse cterm=reverse"
 exe "hi! PmenuSbar"    . s:text          . s:secondaryBg
@@ -162,13 +161,9 @@ hi! link TabLineFill TabLine
 " }}}
 " Syntax: {{{
 exe "hi! Comment"    . s:base01          . s:italic
-exe "hi! DiffAdd"    . s:green . s:base2
-exe "hi! DiffChange" . s:base1 . s:base2
-exe "hi! DiffDelete" . s:red   . s:base2
-exe "hi! DiffText"   . s:blue  . s:base2
 exe "hi! Directory"  . s:blue
-exe "hi! ErrorMsg"   . s:red             . " gui=bold cterm=bold"
 exe "hi! Error"      . s:red             . " gui=bold cterm=bold"
+exe "hi! ErrorMsg"   . s:red             . " gui=bold cterm=bold"
 exe "hi! PreProc"    . s:orange
 exe "hi! SpellBad"   . s:red             . " gui=undercurl cterm=undercurl"
 exe "hi! SpellCap"                       . " gui=undercurl cterm=undercurl"
@@ -178,9 +173,12 @@ exe "hi! String"     . s:magenta
 exe "hi! Title"                          . " gui=bold cterm=bold"
 exe "hi! Underlined"                     . " gui=underline cterm=underline"
 exe "hi! WarningMsg" . s:yellow          . " gui=bold cterm=bold"
+hi! DiffAdd    guibg=#edfff0 ctermbg=195
+hi! DiffDelete guibg=#fef0f1 ctermbg=255 
+hi! DiffText   guibg=#fdfae6 ctermbg=230
+hi! link Todo Error
 hi! link diffAdded DiffAdd
 hi! link diffRemoved DiffDelete
-hi! link Todo Error
 " }}}
 " Plugins: {{{
 hi! link ALEError SpellBad
