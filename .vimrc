@@ -104,8 +104,8 @@ if has("clipboard")
 endif
 " Mappings }}}
 " Commands {{{
-command! Dump mksession! Session.vim
-command! Load source Session.vim
+command! Dump mksession! ~/Session.vim
+command! Load source ~/Session.vim
 command! Lwd lcd %:p:h
 
 command! Black call Format("black")
