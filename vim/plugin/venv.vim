@@ -61,7 +61,7 @@ def venv_reset():
     print("venv: disabled")
 EOF
 
-function! Venv()
+function! s:venv()
   if g:venv_is_enabled == 1
     python3 venv_reset()
     return
@@ -80,10 +80,14 @@ function! Venv()
   python3 venv_set()
 endfunction
 
-command! Venv call Venv()
+command! Venv call s:venv()
 
 if !empty($VIRTUAL_ENV)
-  call Venv()
+  if v:vim_did_enter
+    call s:venv()
+  else
+    au VimEnter * call s:venv()
+  endif
 endif
 
 " vim: set sw=2 sts=2 et fdm=indent: 
