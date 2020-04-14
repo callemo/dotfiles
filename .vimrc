@@ -29,6 +29,7 @@ set nottimeout
 set nowritebackup
 set number
 set ruler
+set sessionoptions-=buffers
 set shortmess+=I
 set shortmess=at
 set showcmd
@@ -90,6 +91,7 @@ nnoremap m<Space> :make<Space>
 
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
+nnoremap <leader>. :Lwd<CR>
 nnoremap <leader>D :Dump<CR>
 nnoremap <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
 nnoremap <leader>l :ls<CR>
@@ -146,7 +148,7 @@ function! TrimTrailingSpaces() abort
   call setpos('.', cursor)
 endfunction
 
-function! SetVisualSearch()
+function! SetVisualSearch() abort
   let reg = @"
   execute 'normal! vgvy'
   let pattern = escape(@", "\\/.*'$^~[]")
@@ -169,7 +171,7 @@ augroup config
   autocmd FileType python setlocal sw=4 sts=4 et
 augroup end
 
-iabbr modeline` <C-r>=printf(&commentstring, printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))<CR><Esc>^3W
+iabbr modeline` <C-r>=printf(&commentstring, printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))<CR><Esc>^2W
 
 if isdirectory(expand('~/dotfiles/vim'))
   set rtp+=~/dotfiles/vim
