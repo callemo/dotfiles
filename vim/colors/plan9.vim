@@ -106,7 +106,7 @@ let s:blue    = " guifg=#268bd2 ctermfg=033"
 let s:cyan    = " guifg=#2aa198 ctermfg=037"
 let s:green   = " guifg=#859900 ctermfg=064"
 
-let s:white   = " guibg=White ctermbg=White"
+let s:white   = " guibg=#ffffff ctermbg=256"
 
 let s:text       = " guifg=Black ctermfg=Black"
 let s:background = " guibg=#ffffe0 ctermbg=230"
