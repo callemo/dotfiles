@@ -1,11 +1,11 @@
-if exists("g:loaded_venv") || !has("python3")
+if exists('g:loaded_venv') || !has('python3')
   finish
 endif
 let g:loaded_venv = 1
 let g:venv_is_enabled = 0
 
-if !exists("g:venv_home")
-  let g:venv_home = !empty($WORKON_HOME) ? $WORKON_HOME : expand("~/.virtualenvs")
+if !exists('g:venv_home')
+  let g:venv_home = !empty($WORKON_HOME) ? $WORKON_HOME : expand('~/.virtualenvs')
 endif
 
 python3 <<EOF
@@ -38,7 +38,7 @@ def venv_set():
     )
     sys.prefix = os.environ["VIRTUAL_ENV"]
     vim.command("let g:venv_is_enabled = 1")
-    print("venv: enabled: " + sys.prefix)
+    print("venv: set: " + sys.prefix)
 
 
 def venv_reset():
@@ -58,7 +58,7 @@ def venv_reset():
     sys.prefix = sys.base_prefix
     venv_is_enabled = False
     vim.command("let g:venv_is_enabled = 0")
-    print("venv: disabled")
+    print("venv: reset")
 EOF
 
 function! s:venv()
@@ -68,9 +68,9 @@ function! s:venv()
   endif
 
   if empty($VIRTUAL_ENV)
-    let path = g:venv_home . "/" . fnamemodify(getcwd(), ":t")
+    let path = g:venv_home . '/' . fnamemodify(getcwd(), ':t')
     if !isdirectory(path)
-      echoerr "venv: not found: " . path
+      echoerr 'venv: path not found: ' . path
       return
     endif
     let $VIRTUAL_ENV=path
@@ -90,4 +90,4 @@ if !empty($VIRTUAL_ENV)
   endif
 endif
 
-" vim: set sw=2 sts=2 et fdm=indent: 
+" vim: set sw=2 sts=2 et fdm=indent:
