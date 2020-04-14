@@ -122,6 +122,7 @@ command! TrimTrailingSpaces call TrimTrailingSpaces()
 
 if has('terminal')
   command! -nargs=* -complete=file Win belowright terminal ++noclose ++kill=term ++shell ++rows=10 <args>
+  command! -nargs=1 -range Send call term_sendkeys(<args>, join(getline(<line1>, <line2>), "\n") . "\n")
 endif
 " Commands }}}
 " Functions {{{
@@ -162,6 +163,7 @@ function! Format(command) abort
   execute '!' . a:command . expand(' %')
   checktime
 endfunction
+
 " Functions }}}
 augroup config
   autocmd BufReadPost * exe "silent! normal! g'\""
