@@ -1,60 +1,60 @@
-setglobal nocompatible
+set nocompatible
 
 let mapleader = ' '
 let g:netrw_banner = 0
 let g:netrw_list_hide = netrw_gitignore#Hide() . '^\./$,^\.\./$'
 
 " Settings {{{
-setglobal backspace=indent,eol,start
-setglobal cmdheight=2
-setglobal completeopt-=preview
-setglobal confirm
-setglobal dictionary+=/usr/share/dict/words
-setglobal encoding=utf-8
-setglobal foldmethod=indent
-setglobal foldnestmax=3
-setglobal grepprg=grep\ -E\ -n\ -s\ $*\ /dev/null
-setglobal guioptions=
-setglobal hidden
-setglobal history=1000
-setglobal hlsearch
-setglobal laststatus=2
-setglobal lazyredraw
-setglobal listchars=eol:$,tab:>\ ,space:.
-setglobal nobackup
-setglobal nofoldenable
-setglobal noswapfile
-setglobal notimeout
-setglobal nottimeout
-setglobal nowritebackup
-setglobal number
-setglobal ruler
-setglobal shortmess=atI
-setglobal showcmd
-setglobal showtabline=2
-setglobal statusline=%n:%<%.99f\ %{PasteMode()}%y%h%w%m%r%=%-14.(%l,%c%V%)\ %P
-setglobal switchbuf=useopen,usetab,newtab
-setglobal title
-setglobal t_ut=
-setglobal updatetime=400
-setglobal visualbell
-setglobal wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
-setglobal wildmenu
+set backspace=indent,eol,start
+set cmdheight=2
+set completeopt-=preview
+set confirm
+set dictionary+=/usr/share/dict/words
+set encoding=utf-8
+set foldmethod=indent
+set foldnestmax=3
+set grepprg=grep\ -E\ -n\ -s\ $*\ /dev/null
+set guioptions=
+set hidden
+set history=1000
+set hlsearch
+set laststatus=2
+set lazyredraw
+set listchars=eol:$,tab:>\ ,space:.
+set nobackup
+set nofoldenable
+set noswapfile
+set notimeout
+set nottimeout
+set nowritebackup
+set number
+set ruler
+set shortmess=atI
+set showcmd
+set showtabline=2
+set statusline=%n:%<%.99f\ %{PasteMode()}%y%h%w%m%r%=[cwd:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
+set switchbuf=useopen,usetab,newtab
+set title
+set t_ut=
+set updatetime=400
+set visualbell
+set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
+set wildmenu
 
-setglobal autoread
+set autoread
 autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 
-setglobal mouse=a
+set mouse=a
 if has('mouse_sgr')
-  setglobal ttymouse=sgr
+  set ttymouse=sgr
 endif
 
 if exists('+macmeta')
-  setglobal macmeta
+  set macmeta
 endif
 
-setglobal commentstring=#\ %s
-setglobal path=.,,
+set commentstring=#\ %s
+set path=.,,
 
 filetype plugin indent on
 setglobal autoindent
