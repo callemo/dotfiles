@@ -7,6 +7,7 @@ let g:netrw_list_hide = netrw_gitignore#Hide() . '^\./$,^\.\./$'
 " Settings {{{
 set backspace=indent,eol,start
 set cmdheight=2
+set complete-=i
 set completeopt-=preview
 set confirm
 set dictionary+=/usr/share/dict/words
@@ -35,7 +36,6 @@ set showtabline=2
 set statusline=%n:%<%.99f\ %{PasteMode()}%y%h%w%m%r%=[cwd:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
 set title
-set t_ut=
 set updatetime=400
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
