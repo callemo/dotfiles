@@ -70,7 +70,9 @@ function! s:venv()
   if empty($VIRTUAL_ENV)
     let path = g:venv_home . '/' . fnamemodify(getcwd(), ':t')
     if !isdirectory(path)
-      echoerr 'venv: path not found: ' . path
+      echohl ErrorMsg
+      echomsg 'venv: not found: ' . path
+      echohl NONE
       return
     endif
     let $VIRTUAL_ENV=path
