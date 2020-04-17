@@ -12,9 +12,9 @@ nnoremap <leader>o :browse
       \ filter /^<C-r>=escape(fnamemodify(getcwd(), ':~'), '~/\.')<CR>/ oldfiles<CR>
 nnoremap <leader>r :registers<CR>
 nnoremap <leader>t :tags<CR>
-nnoremap <silent> <leader>. :lcd %:p:h<CR>
-nnoremap <silent> <leader>q :if bufnr('$') == 1<CR>quit<CR>else<CR>bdelete<CR>endif<CR>
-nnoremap <silent> <leader>w :silent write!<CR>
+nnoremap <leader>. :lcd %:p:h<CR>
+nnoremap <leader>q :if bufnr('$') == 1<CR>quit<CR>else<CR>bdelete<CR>endif<CR>
+nnoremap <leader>w :silent write!<CR>
 
 nnoremap - :Explore<CR>
 
