@@ -12,7 +12,6 @@ set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set foldmethod=indent
 set foldnestmax=3
-set grepprg=grep\ -rnE\ $*\ /dev/null
 set guioptions=
 set hidden
 set history=1000
@@ -33,15 +32,20 @@ set ruler
 set shortmess=atI
 set showcmd
 set showtabline=2
-set statusline=%n:%<%.99f\ %y%h%w%m
+set statusline=%n:%<%.99f\ %y%h%w%m%{dotfiles#PasteFlag()}
 set statusline+=%r%=[cwd:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
+set tabline=%!dotfiles#TabLine()
 set textwidth=0
 set title
 set updatetime=400
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
+
+if has('unix')
+  set grepprg=grep\ -rnE\ $*\ /dev/null
+endif
 
 if has('mouse_sgr')
   set ttymouse=sgr
