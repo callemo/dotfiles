@@ -23,8 +23,11 @@ for term in s:support_italics
   endif
 endfor
 
-if has('gui_running') || $COLORTERM == 'truecolor'
+if has('gui_running')
   let s:has_italic=1
+  let g:terminal_ansi_colors = ['#393b44', '#ff8170', '#78c2b3', '#d9c97c',
+        \ '#4eb0cc', '#ff7ab2', '#b281eb', '#dfdfe0', '#7f8c98', '#ff8170',
+        \ '#acf2e4', '#ffa14f', '#6bdfff', '#ff7ab2', '#dabaff', '#dfdfe0']
 endif
 
 let s:i= ''
@@ -125,25 +128,25 @@ let s:textComment        = ' guifg=#75715e ctermfg=242'
 let s:type               = ' guifg=#66d9ef ctermfg=81'
 " }}}
 " Interface: {{{
-exe 'hi! CursorLine'   . s:text                 . s:lineHighlight
-exe 'hi! Folded'       . s:guide                . s:textBackground . s:italic
-exe 'hi! IncSearch'    . s:findHighlightText    . s:findHighlight
-exe 'hi! LineNr'       . s:guide                . s:textBackground . s:italic
-exe 'hi! MatchParen'   . s:bracketsForeground   . s:textBackground . ' gui=bold,underline cterm=bold,underline'
-exe 'hi! MoreMsg'                                                  . ' gui=bold cterm=bold'
-exe 'hi! Normal'       . s:text                 . s:textBackground
-exe 'hi! PmenuSbar'    . s:text                 . s:lineHighlight
-exe 'hi! PmenuSel'     . s:text                 . s:lineHighlight
-exe 'hi! Pmenu'        . s:guide                . s:background     . ' gui=reverse cterm=reverse'
-exe 'hi! PmenuThumb'   . s:guide                . s:background     . ' gui=reverse cterm=reverse'
-exe 'hi! Search'       . s:findHighlightText    . s:findHighlight
-exe 'hi! StatusLineNC' . s:text                 . s:background
-exe 'hi! StatusLine'   . s:text                 . s:background     . ' gui=bold cterm=bold'
-exe 'hi! TabLineSel'   . s:text                 . s:textBackground . ' gui=bold cterm=bold'
-exe 'hi! TabLine'      . s:guide                . s:background
-exe 'hi! Visual'       . s:text                 . s:selection
-exe 'hi! WarningMsg'   . s:activeGuide                             . ' gui=bold cterm=bold'
-exe 'hi! WildMenu'     . s:text                 . s:lineHighlight  . ' gui=reverse cterm=reverse'
+exe 'hi! CursorLine'   . s:text               . s:lineHighlight
+exe 'hi! Folded'       . s:guide              . s:textBackground . s:italic
+exe 'hi! IncSearch'    . s:findHighlightText  . s:findHighlight
+exe 'hi! LineNr'       . s:guide              . s:textBackground
+exe 'hi! MatchParen'   . s:bracketsForeground . s:textBackground . ' gui=bold,underline cterm=bold,underline'
+exe 'hi! MoreMsg'                                                . ' gui=bold cterm=bold'
+exe 'hi! Normal'       . s:text               . s:textBackground
+exe 'hi! PmenuSbar'    . s:text               . s:lineHighlight
+exe 'hi! PmenuSel'     . s:text               . s:lineHighlight
+exe 'hi! Pmenu'        . s:guide              . s:background     . ' gui=reverse cterm=reverse'
+exe 'hi! PmenuThumb'   . s:guide              . s:background     . ' gui=reverse cterm=reverse'
+exe 'hi! Search'       . s:findHighlightText  . s:findHighlight
+exe 'hi! StatusLineNC' . s:text               . s:background
+exe 'hi! StatusLine'   . s:text               . s:background     . ' gui=bold cterm=bold'
+exe 'hi! TabLineSel'   . s:text               . s:textBackground . ' gui=bold cterm=bold'
+exe 'hi! TabLine'      . s:guide              . s:background
+exe 'hi! Visual'       . s:text               . s:selection
+exe 'hi! WarningMsg'   . s:activeGuide                           . ' gui=bold cterm=bold'
+exe 'hi! WildMenu'     . s:text               . s:lineHighlight  . ' gui=reverse cterm=reverse'
 
 hi! link ErrorMsg Error
 hi! link FoldColumn Folded
@@ -162,17 +165,21 @@ exe 'hi! DiffAdd'    . s:green        . s:base02
 exe 'hi! DiffChange' . s:yellow       . s:base02
 exe 'hi! DiffDelete' . s:red          . s:base02
 exe 'hi! DiffText'   . s:orange       . s:base02
-exe 'hi! Error'      . s:misspelling              . ' gui=bold cterm=bold'
+hi DiffAdd    ctermfg=159 ctermbg=235 guifg=#b1faeb guibg=#1e2a28
+hi DiffChange ctermfg=215             guifg=#ffa14f
+hi DiffDelete ctermfg=210 ctermbg=235 guifg=#ff8a7a guibg=#2f2625
+hi DiffText   ctermfg=215 ctermbg=235 guifg=#ffa14f guibg=#2e2622 cterm=reverse gui=reverse
+exe 'hi! Error'      . s:misspelling . ' gui=bold cterm=bold'
 exe 'hi! Function'   . s:type
 exe 'hi! Number'     . s:number
 exe 'hi! PreProc'    . s:keyword
-exe 'hi! SpellBad'   . s:misspelling              . ' gui=undercurl cterm=undercurl'
-exe 'hi! SpellCap'                                . ' gui=undercurl cterm=undercurl'
-exe 'hi! SpellLocal'                              . ' gui=undercurl cterm=undercurl'
-exe 'hi! SpellRare'                               . ' gui=undercurl cterm=undercurl'
+exe 'hi! SpellBad'   . s:misspelling . ' gui=undercurl cterm=undercurl'
+exe 'hi! SpellCap'                   . ' gui=undercurl cterm=undercurl'
+exe 'hi! SpellLocal'                 . ' gui=undercurl cterm=undercurl'
+exe 'hi! SpellRare'                  . ' gui=undercurl cterm=undercurl'
 exe 'hi! String'     . s:string
-exe 'hi! Title'                                   . ' gui=bold cterm=bold'
-exe 'hi! Underlined'                              . ' gui=underline cterm=underline'
+exe 'hi! Title'                      . ' gui=bold cterm=bold'
+exe 'hi! Underlined'                 . ' gui=underline cterm=underline'
 hi! link diffAdded DiffAdd
 hi! link diffRemoved DiffDelete
 hi! link Todo Error
