@@ -5,16 +5,16 @@ cnoremap <C-p> <Up>
 
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
-nnoremap <leader>D :Dump<CR>
-nnoremap <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
-nnoremap <leader>l :ls<CR>
-nnoremap <leader>o :browse
-      \ filter /^<C-r>=escape(fnamemodify(getcwd(), ':~'), '~/\.')<CR>/ oldfiles<CR>
-nnoremap <leader>r :registers<CR>
-nnoremap <leader>t :tags<CR>
-nnoremap <leader>. :lcd %:p:h<CR>
-nnoremap <leader>q :if bufnr('$') == 1<CR>quit<CR>else<CR>bdelete<CR>endif<CR>
-nnoremap <leader>w :silent write!<CR>
+nnoremap <silent> <leader>D :Dump<CR>
+nnoremap <silent> <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
+nnoremap <silent> <leader>l :ls<CR>
+nnoremap <silent> <leader>o :browse filter 
+      \ /^<C-r>=escape(fnamemodify(getcwd(), ':~'), '~/\.')<CR>/ oldfiles<CR>
+nnoremap <silent> <leader>r :registers<CR>
+nnoremap <silent> <leader>t :tags<CR>
+nnoremap <silent> <leader>. :lcd %:p:h<CR>
+nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
+nnoremap <silent> <leader>w :silent write!<CR>
 
 nnoremap - :Explore<CR>
 
@@ -29,8 +29,7 @@ nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 
-nnoremap yob :set background=<C-R>=&background == "dark" ?
-      \ "light" : "dark"<CR><CR>
+nnoremap yob :set background=<C-R>=&background == 'light' ? 'dark' : 'light'<CR><CR>
 nnoremap yoh :setlocal invhlsearch<CR>
 nnoremap yol :setlocal invlist<CR>
 nnoremap yon :setlocal invnumber<CR>
