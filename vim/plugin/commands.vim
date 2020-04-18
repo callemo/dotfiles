@@ -1,7 +1,9 @@
-command Black call dotfiles#Format('black')
 command Dump mksession! ~/Session.vim
 command Load source ~/Session.vim
+
+command Black call dotfiles#Format('black')
 command Prettier call dotfiles#Format('prettier --write')
+
 command Trim call dotfiles#TrimTrailingSpaces()
 
 if has('terminal')

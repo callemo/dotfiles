@@ -8,7 +8,5 @@ augroup dotfiles
   au FileType netrw setlocal statusline=%F
 
   au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
-
-  au BufWritePre *.txt,*.js,*.py,*.sh :call dotfiles#TrimTrailingSpaces()
 augroup END
 

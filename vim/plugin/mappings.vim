@@ -18,10 +18,10 @@ nnoremap <leader>w :silent write!<CR>
 
 nnoremap - :Explore<CR>
 
+nnoremap ]a :next<CR>
+nnoremap [a :previous<CR>
 nnoremap ]b :bnext<CR>
 nnoremap [b :bprevious<CR>
-nnoremap ]f :next<CR>
-nnoremap [f :previous<CR>
 nnoremap ]l :lnext<CR>
 nnoremap [l :lprevious<CR>
 nnoremap ]q :cnext<CR>
@@ -29,16 +29,18 @@ nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 
-nnoremap yob :call dotfiles#ToggleBackground()<CR>
-nnoremap yoh :setlocal hlsearch!<CR>
-nnoremap yol :setlocal list!<CR>
-nnoremap yon :setlocal number!<CR>
-nnoremap yop :setlocal paste!<CR>
-nnoremap yos :setlocal spell!<CR>
-nnoremap yow :setlocal wrap!<CR>
+nnoremap yob :set background=<C-R>=&background == "dark" ?
+      \ "light" : "dark"<CR><CR>
+nnoremap yoh :setlocal invhlsearch<CR>
+nnoremap yol :setlocal invlist<CR>
+nnoremap yon :setlocal invnumber<CR>
+nnoremap yop :setlocal invpaste<CR>
+nnoremap yos :setlocal invspell<CR>
+nnoremap yow :setlocal invwrap<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
+
 nnoremap <silent> <C-j> :if winnr() == winnr('$')<CR>
       \ silent !tmux select-pane -t :.+<CR>
       \ else<CR>

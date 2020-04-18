@@ -13,27 +13,12 @@ function! dotfiles#SetVisualSearch() abort
   let @" = reg
 endfunction
 
-function! dotfiles#ToggleBackground() abort
-  if &background == 'dark'
-    let &background = 'light'
-  else
-    let &background = 'dark'
-  endif
-endfunction
-
 function! dotfiles#TrimTrailingSpaces() abort
   let cursor = getpos('.')
   let last_search = @/
-  silent! %s/\s\+$//e
-  let @/ = last_search
-  call setpos('.', cursor)
-endfunction
-
-function! dotfiles#PasteFlag() abort
-  if &paste
-    return '[PASTE]'
-  endif
-  return ''
+  silent! %s/\m\C\s\+$//e
+  let @/ = l:last_search
+  call setpos('.', l:cursor)
 endfunction
 
 function! dotfiles#TabLine() abort
@@ -57,8 +42,8 @@ function! dotfiles#TabLabel(n) abort
   let bufnr = buflist[winnr - 1]
   let label = bufname(bufnr)
   let buftype = getbufvar(bufnr, '&buftype')
-  if label == ''
-    if buftype == ''
+  if empty(label)
+    if empty(buftype)
       return '[No Name]'
     endif
     return '[' . buftype . ']'

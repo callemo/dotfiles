@@ -32,7 +32,8 @@ set ruler
 set shortmess=atI
 set showcmd
 set showtabline=2
-set statusline=%n:%<%.99f\ %y%h%w%m%{dotfiles#PasteFlag()}
+set statusline=%n:%<%.99f\ %y%h%w%m
+set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
 set statusline+=%r%=[cwd:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,usetab,newtab
 set tabline=%!dotfiles#TabLine()
