@@ -103,6 +103,7 @@ GIT_PS1_SHOWCOLORHINTS=1
 # Aliases {{{
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
+
 alias ga='git add'
 alias gb='git branch'
 alias gca='git commit -v -a'
@@ -112,6 +113,7 @@ alias gc!='git commit -v --amend'
 alias gdca='git diff --cached'
 alias gdcw='git diff --cached --word-diff'
 alias gd='git diff'
+alias gdtvim='git difftool --no-prompt --tool=vimdiff'
 alias gdw='git diff --word-diff'
 alias glod="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset'"
 alias glo='git log --oneline --decorate'
@@ -121,6 +123,7 @@ alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
 alias gst='git status'
 alias gupav='git pull --rebase --autostash -v'
 alias gup='git pull --rebase'
+
 alias tsw='tmux split-window -l 12'
 # }}}
 # PATH {{{
