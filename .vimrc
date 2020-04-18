@@ -59,7 +59,7 @@ endif
 filetype plugin indent on
 let mapleader = ' '
 let g:netrw_banner = 0
-let g:netrw_list_hide = netrw_gitignore#Hide() . '^\./$,^\.\./$'
+let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
 
 iabbr modeline` <C-r>=printf(
       \ &commentstring,
