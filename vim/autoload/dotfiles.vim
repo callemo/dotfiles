@@ -39,28 +39,30 @@ endfunction
 function! dotfiles#TabLabel(n) abort
   let buflist = tabpagebuflist(a:n)
   let winnr = tabpagewinnr(a:n)
-  let bufnr = buflist[winnr - 1]
-  let label = bufname(bufnr)
-  let buftype = getbufvar(bufnr, '&buftype')
-  if empty(label)
+  let bufnr = l:buflist[l:winnr - 1]
+  let label = bufname(l:bufnr)
+
+  if empty(l:label)
+    let buftype = getbufvar(l:bufnr, '&buftype')
     if empty(buftype)
       return '[No Name]'
     endif
     return '[' . buftype . ']'
   endif
-  if filereadable(label)
-    let label = fnamemodify(label, ':p:t')
-  elseif isdirectory(label)
-    let label = fnamemodify(label, ':~:.') . '/'
-  elseif label[-1:] == '/'
-    let label = split(label, '/')[-1] . '/'
+
+  if filereadable(l:label)
+    let label = fnamemodify(l:label, ':p:t')
+  elseif isdirectory(l:label)
+    let label = fnamemodify(l:label, ':p:~')
+  elseif l:label[-1:] == '/'
+    let label = split(l:label, '/')[-1] . '/'
   else
-    let label = split(label, '/')[-1]
+    let label = split(l:label, '/')[-1]
   endif
-  let modified = getbufvar(bufnr, '&modified')
-  if modified
-    let label = label .'+'
+
+  if getbufvar(l:bufnr, '&modified')
+    return l:label .'+'
   endif
-  return label
+  return l:label
 endfunction
 
