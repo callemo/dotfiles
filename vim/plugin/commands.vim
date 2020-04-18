@@ -1,5 +1,5 @@
-command Dump mksession! ~/Session.vim
-command Load source ~/Session.vim
+command Dump mksession! ~/vim.dump
+command Load source ~/vim.dump
 
 command Black call dotfiles#Format('black')
 command Prettier call dotfiles#Format('prettier --write')
