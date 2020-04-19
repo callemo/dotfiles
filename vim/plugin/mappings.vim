@@ -5,17 +5,17 @@ cnoremap <C-p> <Up>
 
 inoremap <C-a> <Home>
 inoremap <C-e> <End>
-inoremap <C-n> <Down>
-inoremap <C-p> <Up>
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
 
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
 nnoremap <silent> <leader>. :lcd %:p:h<CR>
-nnoremap <silent> <leader>b :buffers<CR>
-nnoremap <silent> <leader>D :Dump<CR>
-nnoremap <silent> <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
+nnoremap <leader>b :buffers<CR>
+nnoremap <leader>D :Dump<CR>
+nnoremap <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
 nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
-nnoremap <silent> <leader>r :registers<CR>
+nnoremap <leader>r :registers<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
 
 nnoremap - :Explore<CR>

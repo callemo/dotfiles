@@ -17,7 +17,6 @@ $(HOME)/.gitignore: $(CURDIR)/.gitignore
 	git config --global core.excludesfile $@
 
 vim:
-	./vimget https://github.com/tpope/vim-abolish.git
 	./vimget https://github.com/tpope/vim-commentary.git
 	./vimget https://github.com/tpope/vim-dispatch.git
 	./vimget https://github.com/tpope/vim-endwise.git
@@ -27,14 +26,14 @@ vim:
 	./vimget https://github.com/tpope/vim-ragtag.git
 	./vimget https://github.com/tpope/vim-repeat.git
 	./vimget https://github.com/tpope/vim-surround.git
-	./vimget https://github.com/tpope/vim-tbone.git
+	./vimget -o https://github.com/tpope/vim-scriptease.git
 
 tmux:
 	if [[ -d ~/.tmux/plugins/resurrect ]]; then git -C ~/.tmux/plugins/resurrect pull; \
 	else git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect; \
 	fi
 
-fzf: ## Install fzf
+fzf:
 	if [[ -d ~/.fzf ]]; then git -C ~/.fzf pull; \
 	else git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; ~/.fzf/install --all; \
 	fi
