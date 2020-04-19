@@ -148,6 +148,8 @@ exe 'hi! Visual'       . s:text               . s:selection
 exe 'hi! WarningMsg'   . s:activeGuide                           . ' gui=bold cterm=bold'
 exe 'hi! WildMenu'     . s:text               . s:lineHighlight  . ' gui=reverse cterm=reverse'
 
+hi! helpHyperTextJump gui=underline cterm=underline
+
 hi! link ErrorMsg Error
 hi! link FoldColumn Folded
 hi! link ModeMsg WarningMsg

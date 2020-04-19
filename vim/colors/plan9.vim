@@ -156,6 +156,7 @@ exe "hi! TabLineSel"   . s:text          . s:secondaryDarkBg . " gui=bold cterm=
 exe "hi! TabLine"      . s:text          . s:secondaryBg
 exe "hi! Visual"       . s:text          . s:primaryBg
 exe "hi! WildMenu"     . s:text          . s:background      . " gui=reverse cterm=reverse"
+hi! helpHyperTextJump gui=underline cterm=underline
 
 hi! link SignColumn LineNr
 hi! link StatusLineTerm StatusLine
