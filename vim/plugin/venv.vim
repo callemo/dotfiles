@@ -91,8 +91,8 @@ function! s:venv(...)
 endfunction
 
 function! s:complete(A, L, P) abort
-  return glob(g:venv_home . '/' . a:A . '*', 1, 1, 1)
-        \ ->map({k, v -> v->fnamemodify(':t')})
+  return glob(g:venv_home . '/' . a:A . '*', v:true, v:true, v:true)
+        \ ->map("v:val->fnamemodify(':t')")
 endfunction
 
 command! -nargs=? -complete=customlist,s:complete Venv call s:venv(<f-args>)
