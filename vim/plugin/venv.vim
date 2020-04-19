@@ -7,7 +7,6 @@ if !exists('g:venv_home')
   let g:venv_home = !empty($WORKON_HOME) ? $WORKON_HOME : expand('~/.virtualenvs')
 endif
 
-let g:venv_is_enabled = 0
 
 python3 <<EOF
 import os
@@ -42,7 +41,6 @@ class Venv:
             (os.path.join(dir, "bin"), os.environ["PATH"])
         )
         sys.prefix = self.dir = dir
-        vim.command("let g:venv_is_enabled = 1")
 
     def deactivate(self):
         if not self.is_active:
@@ -58,14 +56,13 @@ class Venv:
         sys.prefix = sys.base_prefix
         self.dir = ""
         self.is_active = False
-        vim.command("let g:venv_is_enabled = 0")
 
 
 venv = Venv()
 EOF
 
 function! s:venv(...)
-  if a:0 == 0 && g:venv_is_enabled == 1
+  if a:0 == 0 && py3eval('venv.is_active') == 1
     python3 venv.deactivate()
     return
   endif
@@ -79,7 +76,7 @@ function! s:venv(...)
   elseif !empty($VIRTUAL_ENV)
     let path = $VIRTUAL_ENV
   else
-    let path = g:venv_home . '/' . fnamemodify(getcwd(), ':t')
+    let path = g:venv_home . '/' . getcwd()->fnamemodify(':t')
   endif
 
   if !isdirectory(l:path)
@@ -92,7 +89,11 @@ function! s:venv(...)
   python3 venv.activate(vim.eval("l:path"))
 endfunction
 
-command! -nargs=? Venv call s:venv(<f-args>)
+function! s:complete(A, L, P) abort
+  return glob(g:venv_home . '/' . a:A . '*', 1, 1, 1)->map({k, v -> v->fnamemodify(':t')})
+endfunction
+
+command! -nargs=? -complete=customlist,s:complete Venv call s:venv(<f-args>)
 
 if !empty($VIRTUAL_ENV)
   if v:vim_did_enter
