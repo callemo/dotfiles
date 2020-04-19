@@ -5,15 +5,12 @@ cnoremap <C-p> <Up>
 
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
+nnoremap <silent> <leader>. :lcd %:p:h<CR>
+nnoremap <silent> <leader>b :buffers<CR>
 nnoremap <silent> <leader>D :Dump<CR>
 nnoremap <silent> <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
-nnoremap <silent> <leader>l :ls<CR>
-nnoremap <silent> <leader>o :browse filter 
-      \ /^<C-r>=escape(fnamemodify(getcwd(), ':~'), '~/\.')<CR>/ oldfiles<CR>
-nnoremap <silent> <leader>r :registers<CR>
-nnoremap <silent> <leader>t :tags<CR>
-nnoremap <silent> <leader>. :lcd %:p:h<CR>
 nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
+nnoremap <silent> <leader>r :registers<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
 
 nnoremap - :Explore<CR>
