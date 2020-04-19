@@ -56,10 +56,12 @@ if exists('+macmeta')
   set macmeta
 endif
 
-filetype plugin indent on
 let mapleader = ' '
+
+filetype plugin indent on
 let g:netrw_banner = 0
 let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
+let g:ragtag_global_maps = 1
 
 iabbr modeline` <C-r>=printf(
       \ &commentstring,
