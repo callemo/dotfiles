@@ -87,10 +87,12 @@ function! s:venv(...)
   endif
 
   python3 venv.activate(vim.eval("l:path"))
+  echomsg l:path
 endfunction
 
 function! s:complete(A, L, P) abort
-  return glob(g:venv_home . '/' . a:A . '*', 1, 1, 1)->map({k, v -> v->fnamemodify(':t')})
+  return glob(g:venv_home . '/' . a:A . '*', 1, 1, 1)
+        \ ->map({k, v -> v->fnamemodify(':t')})
 endfunction
 
 command! -nargs=? -complete=customlist,s:complete Venv call s:venv(<f-args>)
