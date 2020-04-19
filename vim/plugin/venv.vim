@@ -56,6 +56,7 @@ class Venv:
         os.environ["PATH"] = self.initial_os_path
         sys.path = self.initial_sys_path[:]
         sys.prefix = sys.base_prefix
+        self.dir = ""
         self.is_active = False
         vim.command("let g:venv_is_enabled = 0")
 
@@ -66,13 +67,12 @@ EOF
 function! s:venv(...)
   if a:0 == 0 && g:venv_is_enabled == 1
     python3 venv.deactivate()
-    echomsg 'venv: deactivate'
     return
   endif
 
   if a:0 > 0
     if a:1 == "?"
-      echomsg 'venv: ' . py3eval('venv.dir')
+      echomsg py3eval('venv.dir')
       return
     endif
     let path = g:venv_home . '/' . a:1
@@ -84,7 +84,7 @@ function! s:venv(...)
 
   if !isdirectory(l:path)
     echohl ErrorMsg
-    echomsg 'venv: not found: ' . l:path
+    echomsg 'Not found: ' . l:path
     echohl NONE
     return
   endif
