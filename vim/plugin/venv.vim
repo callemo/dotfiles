@@ -62,18 +62,13 @@ venv = Venv()
 EOF
 
 function! s:venv(...)
-  if a:0 == 0 && py3eval('venv.is_active') == 1
-    python3 venv.deactivate()
-    return
-  endif
-
   if a:0 > 0
     if a:1 == "?"
       echomsg py3eval('venv.dir')
       return
     endif
     let path = g:venv_home . '/' . a:1
-  elseif !empty($VIRTUAL_ENV)
+  elseif !empty($VIRTUAL_ENV) && $VIRTUAL_ENV !=# py3eval('venv.dir')
     let path = $VIRTUAL_ENV
   else
     let path = g:venv_home . '/' . getcwd()->fnamemodify(':t')
@@ -96,6 +91,7 @@ function! s:complete(A, L, P) abort
 endfunction
 
 command! -nargs=? -complete=customlist,s:complete Venv call s:venv(<f-args>)
+command! NoVenv python3 venv.deactivate()
 
 if !empty($VIRTUAL_ENV)
   if v:vim_did_enter
