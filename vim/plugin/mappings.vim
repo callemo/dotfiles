@@ -3,6 +3,11 @@ cnoremap <C-e> <End>
 cnoremap <C-n> <Down>
 cnoremap <C-p> <Up>
 
+inoremap <C-a> <Home>
+inoremap <C-e> <End>
+inoremap <C-n> <Down>
+inoremap <C-p> <Up>
+
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
 nnoremap <silent> <leader>. :lcd %:p:h<CR>
