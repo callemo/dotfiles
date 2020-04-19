@@ -1,46 +1,57 @@
-function! dotfiles#Format(command) abort
+function! dotfiles#FormatFile(...) abort
+  let l:fallback = 'prettier --write --print-width 88'
+  let l:formatters = {
+        \ 'python': 'black',
+        \ }
+  let l:cmd = a:0 > 0 ? a:1 : l:formatters->get(&filetype, l:fallback)
+
   update
-  execute '!' . a:command . expand(' %')
+
+  let l:out = system(l:cmd . ' ' . expand('%:S'))
+  if v:shell_error != 0
+    echo out
+  endif
+
   checktime
 endfunction
 
 function! dotfiles#SetVisualSearch() abort
-  let reg = @"
-  execute 'normal! vgvy'
-  let pattern = escape(@", "\\/.*'$^~[]")
-  let pattern = substitute(pattern, "\n$", '', '')
-  let @/ = pattern
-  let @" = reg
+  let l:reg = @"
+  exe 'normal! vgvy'
+  let l:pattern = escape(@", "\\/.*'$^~[]")
+  let l:pattern = substitute(l:pattern, "\n$", '', '')
+  let @/ = '\m\C' . l:pattern
+  let @" = l:reg
 endfunction
 
 function! dotfiles#TrimTrailingSpaces() abort
-  let cursor = getpos('.')
-  let last_search = @/
+  let l:cursor = getpos('.')
+  let l:last_search = @/
   silent! %s/\m\C\s\+$//e
   let @/ = l:last_search
   call setpos('.', l:cursor)
 endfunction
 
 function! dotfiles#TabLine() abort
-  let s = ''
+  let l:s = ''
   for i in range(tabpagenr('$'))
     if i + 1 == tabpagenr()
-      let s .= '%#TabLineSel#'
+      let l:s .= '%#TabLineSel#'
     else
-      let s .= '%#TabLine#'
+      let l:s .= '%#TabLine#'
     endif
-    let s .= '%' . (i + 1) . 'T'
-    let s .= ' %{dotfiles#TabLabel(' . (i + 1) . ')} '
+    let l:s .= '%' . (i + 1) . 'T'
+    let l:s .= ' %{dotfiles#TabLabel(' . (i + 1) . ')} '
   endfor
-  let s .= '%#TabLineFill#%T'
-  return s
+  let l:s .= '%#TabLineFill#%T'
+  return l:s
 endfunction
 
 function! dotfiles#TabLabel(n) abort
-  let buflist = tabpagebuflist(a:n)
+  let l:buflist = tabpagebuflist(a:n)
   let winnr = tabpagewinnr(a:n)
-  let bufnr = l:buflist[l:winnr - 1]
-  let label = bufname(l:bufnr)
+  let l:bufnr = l:buflist[l:winnr - 1]
+  let l:label = bufname(l:bufnr)
 
   if empty(l:label)
     let buftype = getbufvar(l:bufnr, '&buftype')
@@ -51,13 +62,13 @@ function! dotfiles#TabLabel(n) abort
   endif
 
   if filereadable(l:label)
-    let label = fnamemodify(l:label, ':p:t')
+    let l:label = fnamemodify(l:label, ':p:t')
   elseif isdirectory(l:label)
-    let label = fnamemodify(l:label, ':p:~')
+    let l:label = fnamemodify(l:label, ':p:~')
   elseif l:label[-1:] == '/'
-    let label = split(l:label, '/')[-1] . '/'
+    let l:label = split(l:label, '/')[-1] . '/'
   else
-    let label = split(l:label, '/')[-1]
+    let l:label = split(l:label, '/')[-1]
   endif
 
   if getbufvar(l:bufnr, '&modified')
