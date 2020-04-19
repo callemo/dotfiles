@@ -18,34 +18,34 @@ import vim
 
 class Venv:
     def __init__(self):
+        self.dir = ""
         self.initial_os_path = os.environ["PATH"]
         self.initial_os_venv = os.environ.get("VIRTUAL_ENV")
         self.initial_sys_path = sys.path[:]
-        self.is_enabled = False
+        self.is_active = False
 
-    def set(self, path):
-        if self.is_enabled:
-            self.reset()
+    def activate(self, dir):
+        if self.is_active:
+            self.deactivate()
 
-        for child in os.scandir(os.path.join(path, "lib")):
+        for child in os.scandir(os.path.join(dir, "lib")):
             sitedir = os.path.join(child.path, "site-packages")
             if os.path.isdir(sitedir):
                 site.addsitedir(sitedir)
-                if not self.is_enabled:
-                    self.is_enabled = True
+                if not self.is_active:
+                    self.is_active = True
 
-        if not self.is_enabled:
+        if not self.is_active:
             return
 
         os.environ["PATH"] = os.pathsep.join(
-            (os.path.join(path, "bin"), os.environ["PATH"])
+            (os.path.join(dir, "bin"), os.environ["PATH"])
         )
-        sys.prefix = path
+        sys.prefix = self.dir = dir
         vim.command("let g:venv_is_enabled = 1")
-        print("venv: set: " + sys.prefix)
 
-    def reset(self):
-        if not self.is_enabled:
+    def deactivate(self):
+        if not self.is_active:
             return
         if self.initial_os_venv is None:
             del os.environ["VIRTUAL_ENV"]
@@ -56,7 +56,7 @@ class Venv:
         os.environ["PATH"] = self.initial_os_path
         sys.path = self.initial_sys_path[:]
         sys.prefix = sys.base_prefix
-        self.is_enabled = False
+        self.is_active = False
         vim.command("let g:venv_is_enabled = 0")
 
 
@@ -65,12 +65,16 @@ EOF
 
 function! s:venv(...)
   if a:0 == 0 && g:venv_is_enabled == 1
-    python3 venv.reset()
-    echomsg 'venv: reset'
+    python3 venv.deactivate()
+    echomsg 'venv: deactivate'
     return
   endif
 
   if a:0 > 0
+    if a:1 == "?"
+      echomsg 'venv: ' . py3eval('venv.dir')
+      return
+    endif
     let path = g:venv_home . '/' . a:1
   elseif !empty($VIRTUAL_ENV)
     let path = $VIRTUAL_ENV
@@ -85,7 +89,7 @@ function! s:venv(...)
     return
   endif
 
-  python3 venv.set(vim.eval("l:path"))
+  python3 venv.activate(vim.eval("l:path"))
 endfunction
 
 command! -nargs=? Venv call s:venv(<f-args>)
