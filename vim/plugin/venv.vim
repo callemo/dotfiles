@@ -45,10 +45,7 @@ class Venv:
     def deactivate(self):
         if not self.is_active:
             return
-        if self.initial_os_venv is None:
-            del os.environ["VIRTUAL_ENV"]
-            vim.command("unlet $VIRTUAL_ENV")
-        else:
+        if self.initial_os_venv is not None:
             os.environ["VIRTUAL_ENV"] = self.initial_os_venv
             vim.command('let $VIRTUAL_ENV = "' + self.initial_os_venv + '"')
         os.environ["PATH"] = self.initial_os_path
