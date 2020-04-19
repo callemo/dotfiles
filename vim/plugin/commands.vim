@@ -1,9 +1,9 @@
 command Dump mksession! ~/vim.dump
 command Load source ~/vim.dump
+
 command -nargs=1 Recent browse filter /<args>/ oldfiles 
 
-command Black call dotfiles#Format('black')
-command Prettier call dotfiles#Format('prettier --write')
+command -nargs=? Format call dotfiles#FormatFile(<f-args>)
 
 command Trim call dotfiles#TrimTrailingSpaces()
 
