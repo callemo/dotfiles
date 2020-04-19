@@ -1,10 +1,7 @@
 command Dump mksession! ~/vim.dump
 command Load source ~/vim.dump
 
-command -nargs=1 Recent browse filter /<args>/ oldfiles 
-
 command -nargs=? Format call dotfiles#FormatFile(<f-args>)
-
 command Trim call dotfiles#TrimTrailingSpaces()
 
 if has('terminal')
