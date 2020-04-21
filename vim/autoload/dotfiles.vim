@@ -15,6 +15,23 @@ function! dotfiles#FormatFile(...) abort
   checktime
 endfunction
 
+function! dotfiles#SendTerminalKeys(start, end, ...) abort
+  if a:0 > 0
+    let l:buf = a:1
+  elseif exists('w:send_terminal_buf')
+    let l:buf = w:send_terminal_buf
+  else
+    echohl ErrorMsg
+    echo 'No terminal link'
+    return
+    echohl None
+  endif
+
+  let l:keys = getline(a:start, a:end)->join(" \n")
+  call term_sendkeys(l:buf, l:keys . "\n")
+  let w:send_terminal_buf = l:buf
+endfunction
+
 function! dotfiles#SetVisualSearch() abort
   let l:reg = @"
   exe 'normal! vgvy'

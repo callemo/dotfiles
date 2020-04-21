@@ -1,15 +1,3 @@
-cnoremap <C-a> <Home>
-cnoremap <C-e> <End>
-cnoremap <C-n> <Down>
-cnoremap <C-p> <Up>
-
-inoremap <C-a> <Home>
-inoremap <C-e> <End>
-inoremap <C-j> <Down>
-inoremap <C-k> <Up>
-
-tnoremap <C-w><C-b> <C-w>N<C-b>
-
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
 nnoremap <silent> <leader>. :lcd %:p:h<CR>
@@ -18,6 +6,7 @@ nnoremap <leader>D :Dump<CR>
 nnoremap <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
 nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <leader>r :registers<CR>
+nnoremap <leader>s :Send<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
 
 nnoremap - :Explore<CR>
@@ -55,9 +44,23 @@ nnoremap <silent> <C-k> :if winnr() == 1<CR>
       \ wincmd W<CR>
       \ endif<CR>
 
-vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
-vnoremap # :call dotfiles#SetVisualSearch()<CR>?<CR>
-
 if has('clipboard')
   vnoremap <C-c> "*y
 endif
+
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+cnoremap <C-n> <Down>
+cnoremap <C-p> <Up>
+
+inoremap <C-a> <Home>
+inoremap <C-e> <End>
+inoremap <C-Enter> <C-o>o
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
+
+tnoremap <C-w><C-b> <C-w>N<C-b>
+
+vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
+vnoremap # :call dotfiles#SetVisualSearch()<CR>?<CR>
+
