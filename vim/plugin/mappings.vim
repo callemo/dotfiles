@@ -8,6 +8,8 @@ inoremap <C-e> <End>
 inoremap <C-j> <Down>
 inoremap <C-k> <Up>
 
+tnoremap <C-w><C-b> <C-w>N<C-b>
+
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 
 nnoremap <silent> <leader>. :lcd %:p:h<CR>
