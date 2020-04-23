@@ -23,8 +23,8 @@ function! dotfiles#SendTerminalKeys(start, end, ...) abort
   else
     echohl ErrorMsg
     echo 'No terminal link'
-    return
     echohl None
+    return
   endif
 
   let l:keys = getline(a:start, a:end)->join(" \n")

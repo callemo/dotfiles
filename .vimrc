@@ -20,6 +20,7 @@ set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
 set mouse=a
+set mousemodel=extend
 set nobackup
 set nofoldenable
 set noswapfile

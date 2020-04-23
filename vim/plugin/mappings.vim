@@ -38,6 +38,7 @@ nnoremap <silent> <C-j> :if winnr() == winnr('$')<CR>
       \ else<CR>
       \ wincmd w<CR>
       \ endif<CR>
+
 nnoremap <silent> <C-k> :if winnr() == 1<CR>
       \ silent !tmux select-pane -t :.-<CR>
       \ else<CR>
@@ -63,4 +64,5 @@ tnoremap <C-w><C-b> <C-w>N<C-b>
 
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
 vnoremap # :call dotfiles#SetVisualSearch()<CR>?<CR>
+vnoremap <S-LeftMouse> :call dotfiles#SetVisualSearch()<CR>/<CR>
 
