@@ -12,7 +12,6 @@ set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set foldmethod=indent
 set foldnestmax=3
-set guioptions=
 set hidden
 set history=1000
 set hlsearch
@@ -51,10 +50,6 @@ endif
 
 if has('mouse_sgr')
   set ttymouse=sgr
-endif
-
-if exists('+macmeta')
-  set macmeta
 endif
 
 let mapleader = ' '
