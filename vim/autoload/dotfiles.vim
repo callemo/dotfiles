@@ -57,11 +57,11 @@ function! dotfiles#SetVisualSearch() abort
 endfunction
 
 function! dotfiles#TrimTrailingSpaces() abort
-  let l:cursor = getpos('.')
+  let l:last_pos = getpos('.')
   let l:last_search = @/
   silent! %s/\m\C\s\+$//e
   let @/ = l:last_search
-  call setpos('.', l:cursor)
+  call setpos('.', l:last_pos)
 endfunction
 
 function! dotfiles#TabLine() abort
