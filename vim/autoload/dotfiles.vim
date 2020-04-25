@@ -1,3 +1,15 @@
+function! dotfiles#Camelize(term) abort
+  return a:term->substitute('[^A-Za-z0-9]\+\([A-Za-z0-9]\)', '\u\1', 'g')
+endfunction
+
+function! dotfiles#Underscore(term) abort
+  return a:term->substitute('\([a-z]\)\([A-Z]\)', '\1_\l\2', 'g')->tolower()
+endfunction
+
+function! dotfiles#Dasherize(term) abort
+  return dotfiles#Underscore(a:term)->tr('_', '-')
+endfunction
+
 function! dotfiles#FormatFile(...) abort
   let l:fallback = 'prettier --write --print-width 88'
   let l:formatters = {
@@ -35,9 +47,7 @@ endfunction
 function! dotfiles#SetVisualSearch() abort
   let l:reg = @"
   exe 'normal! vgvy'
-  let l:pattern = escape(@", "\\/.*'$^~[]")
-  let l:pattern = substitute(l:pattern, "\n$", '', '')
-  let @/ = '\m\C' . l:pattern
+  let @/ = '\m\C' . escape(@", "\\/.*'$^~[]")->substitute("\n$", '', '')
   let @" = l:reg
 endfunction
 
