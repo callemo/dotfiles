@@ -3,16 +3,23 @@ function! dotfiles#BufferOnly() abort
   silent bufdo if bufnr() != l:keep | exec 'bdelete ' . bufnr() | endif
 endfunction
 
-function! dotfiles#Camelize(term) abort
-  return a:term->substitute('[^A-Za-z0-9]\+\([A-Za-z0-9]\)', '\u\1', 'g')
+function! dotfiles#ChangeVisualCamelCase() abort
+  s/\m\C\%V[^A-Za-z0-9]\+\([A-Za-z0-9]\)/\u\1/ge
+  normal! gv
 endfunction
 
-function! dotfiles#Underscore(term) abort
-  return a:term->substitute('\([a-z]\)\([A-Z]\)', '\1_\l\2', 'g')->tolower()
+function! dotfiles#ChangeVisualSnakeCase() abort
+  s/\m\C\%V[^A-Za-z0-9_]\+/_/ge
+  s/\m\C\%V\([a-z]\)\([A-Z]\)/\1_\l\2/ge
+  s/\m\C\%V.*/\L&/ge
+  normal! gv
 endfunction
 
-function! dotfiles#Dasherize(term) abort
-  return dotfiles#Underscore(a:term)->tr('_', '-')
+function! dotfiles#ChangeVisualKebabCase() abort
+  s/\m\C\%V[^A-Za-z0-9_]\+/-/ge
+  s/\m\C\%V\([a-z]\)\([A-Z]\)/\1-\l\2/ge
+  s/\m\C\%V.*/\L&/ge
+  normal! gv
 endfunction
 
 function! dotfiles#FormatFile(...) abort
@@ -57,7 +64,7 @@ function! dotfiles#SetVisualSearch() abort
 endfunction
 
 function! dotfiles#TrimTrailingSpaces() abort
-  let l:last_pos = getpos('.')
+  let l:last_pos = getcurpos()
   let l:last_search = @/
   silent! %s/\m\C\s\+$//e
   let @/ = l:last_search

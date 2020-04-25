@@ -45,10 +45,6 @@ nnoremap <silent> <C-k> :if winnr() == 1<CR>
       \ wincmd W<CR>
       \ endif<CR>
 
-if has('clipboard')
-  vnoremap <C-c> "*y
-endif
-
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
 cnoremap <C-n> <Down>
@@ -62,7 +58,11 @@ inoremap <C-k> <Up>
 
 tnoremap <C-w><C-b> <C-w>N<C-b>
 
+vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
-vnoremap # :call dotfiles#SetVisualSearch()<CR>?<CR>
 vnoremap <S-LeftMouse> :call dotfiles#SetVisualSearch()<CR>/<CR>
+
+if has('clipboard')
+  vnoremap <C-c> "*y
+endif
 
