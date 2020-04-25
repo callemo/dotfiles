@@ -1,3 +1,8 @@
+function! dotfiles#BufferOnly() abort
+  let l:keep = bufnr()
+  silent bufdo if bufnr() != l:keep | exec 'bdelete ' . bufnr() | endif
+endfunction
+
 function! dotfiles#Camelize(term) abort
   return a:term->substitute('[^A-Za-z0-9]\+\([A-Za-z0-9]\)', '\u\1', 'g')
 endfunction

@@ -2,6 +2,7 @@ command Dump mksession! ~/vim.dump
 command Load source ~/vim.dump
 
 command -nargs=? Format call dotfiles#FormatFile(<f-args>)
+command Only call dotfiles#BufferOnly()
 command Trim call dotfiles#TrimTrailingSpaces()
 
 if has('terminal')
