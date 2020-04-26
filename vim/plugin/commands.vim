@@ -3,7 +3,7 @@ command Load source ~/vim.dump
 command -nargs=?
       \ Format call dotfiles#FormatFile(<f-args>)
 command Bonly call dotfiles#BufferOnly()
-command Trim call dotfiles#TrimTrailingSpaces()
+command Trim call dotfiles#TrimTrailingBlanks()
 command -nargs=1 -range -complete=customlist,dotfiles#VisualChangeCaseComplete
       \ Case :call dotfiles#VisualChangeCase(<f-args>)
 if has('terminal')

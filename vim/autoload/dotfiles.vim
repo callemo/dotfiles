@@ -67,11 +67,11 @@ endfunction
 function! dotfiles#SetVisualSearch() abort
   let l:reg = @"
   exe 'normal! vgvy'
-  let @/ = '\m\C' . escape(@", "\\/.*'$^~[]")->substitute("\n$", '', '')
+  let @/ = '\V\C' . escape(@", '\')->substitute("\n$", '', '')
   let @" = l:reg
 endfunction
 
-function! dotfiles#TrimTrailingSpaces() abort
+function! dotfiles#TrimTrailingBlanks() abort
   let l:last_pos = getcurpos()
   let l:last_search = @/
   silent! %s/\m\C\s\+$//e
