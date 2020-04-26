@@ -163,10 +163,6 @@ hi! link TabLineFill TabLine
 " Syntax: {{{
 exe 'hi! Comment'    . s:textComment              . s:italic
 exe 'hi! Constant'   . s:number
-exe 'hi! DiffAdd'    . s:green        . s:base02
-exe 'hi! DiffChange' . s:yellow       . s:base02
-exe 'hi! DiffDelete' . s:red          . s:base02
-exe 'hi! DiffText'   . s:orange       . s:base02
 hi DiffAdd    ctermfg=159 ctermbg=235 guifg=#b1faeb guibg=#1e2a28
 hi DiffChange ctermfg=215             guifg=#ffa14f
 hi DiffDelete ctermfg=210 ctermbg=235 guifg=#ff8a7a guibg=#2f2625

@@ -8,7 +8,6 @@ nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <leader>r :registers<CR>
 nnoremap <leader>s :Send<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
-nnoremap <silent> <leader>wa :silent wall!<CR>
 
 nnoremap - :Explore<CR>
 

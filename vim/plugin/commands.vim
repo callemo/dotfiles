@@ -4,7 +4,7 @@ command -nargs=?
       \ Format call dotfiles#FormatFile(<f-args>)
 command Bonly call dotfiles#BufferOnly()
 command Trim call dotfiles#TrimTrailingSpaces()
-command -nargs=1 -complete=customlist,dotfiles#VisualChangeCaseComplete
+command -nargs=1 -range -complete=customlist,dotfiles#VisualChangeCaseComplete
       \ Case :call dotfiles#VisualChangeCase(<f-args>)
 if has('terminal')
   command -nargs=? -range
