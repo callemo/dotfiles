@@ -9,15 +9,14 @@ endfunction
 
 function! dotfiles#VisualChangeCase(style) abort
   if a:style ==# 'camel'
-    s/\m\C\%V[^A-Za-z0-9]\+\([A-Za-z0-9]\)/\u\1/ge
+    s/\m\C\%V.*\%V./\L&/ge
+    s/\m\C\%V[^A-Za-z0-9]\+\([A-Za-z0-9]\)\%V/\u\1/ge
   elseif a:style ==# 'snake'
-    s/\m\C\%V[^A-Za-z0-9_]\+/_/ge
-    s/\m\C\%V\([a-z]\)\([A-Z]\)/\1_\l\2/ge
-    s/\m\C\%V.*/\L&/ge
+    s/\m\C\%V[^A-Za-z0-9_]\%V/_/ge
+    s/\m\C\%V\([a-z]\)\([A-Z]\)\%V/\1_\l\2/ge
   elseif a:style ==# 'kebab'
-    s/\m\C\%V[^A-Za-z0-9-]\+/-/ge
-    s/\m\C\%V\([a-z]\)\([A-Z]\)/\1-\l\2/ge
-    s/\m\C\%V.*/\L&/ge
+    s/\m\C\%V[^A-Za-z0-9-]\%V/-/ge
+    s/\m\C\%V\([a-z]\)\([A-Z]\)\%V/\1-\l\2/ge
   else
     echohl ErrorMsg
     echo 'Unknown case style: ' . a:style

@@ -64,6 +64,7 @@ tnoremap <C-w><C-b> <C-w>N<C-b>
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
 vnoremap <S-LeftMouse> :call dotfiles#SetVisualSearch()<CR>/<CR>
+vnoremap <Leader>c :<C-u>Case<Space>
 
 if has('clipboard')
   vnoremap <C-c> "*y
