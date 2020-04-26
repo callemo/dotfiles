@@ -26,6 +26,10 @@ function! dotfiles#VisualChangeCase(style) abort
   normal! gv
 endfunction
 
+function! dotfiles#VisualChangeCaseComplete(A, L, P) abort
+  return ['camel', 'snake', 'kebab']->filter('v:val =~ ("^" . a:A)' )
+endfunction
+
 function! dotfiles#FormatFile(...) abort
   let l:fallback = 'prettier --write --print-width 88'
   let l:formatters = {
