@@ -8,6 +8,7 @@ nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <leader>r :registers<CR>
 nnoremap <leader>s :Send<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
+nnoremap <silent> <leader>wa :silent wall!<CR>
 
 nnoremap - :Explore<CR>
 
@@ -21,6 +22,9 @@ nnoremap ]q :cnext<CR>
 nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
+
+nmap <Up> <C-U>
+nmap <Down> <C-D>
 
 nnoremap yob :set background=<C-R>=&background == 'light' ? 'dark' : 'light'<CR><CR>
 nnoremap yoh :setlocal invhlsearch<CR>

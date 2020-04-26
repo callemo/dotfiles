@@ -35,7 +35,7 @@ set showtabline=2
 set statusline=%n:%<%.99f\ %y%h%w%m
 set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
 set statusline+=%r%=[dir:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
-set switchbuf=useopen,usetab,newtab
+set switchbuf=useopen,split
 set tabline=%!dotfiles#TabLine()
 set textwidth=0
 set title

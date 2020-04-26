@@ -74,7 +74,7 @@ function! s:venv(...)
   if !isdirectory(l:path)
     echohl ErrorMsg
     echomsg 'Not found: ' . l:path
-    echohl NONE
+    echohl None
     return
   endif
 

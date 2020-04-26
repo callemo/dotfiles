@@ -1,24 +1,28 @@
 function! dotfiles#BufferOnly() abort
-  let l:keep = bufnr()
-  silent bufdo if bufnr() != l:keep | exec 'bdelete ' . bufnr() | endif
+  let l:current = bufnr()
+  for b in getbufinfo({'buflisted': v:true})
+    if b.bufnr != l:current
+      exe 'bdelete ' . b.bufnr
+    endif
+  endfor
 endfunction
 
-function! dotfiles#ChangeVisualCamelCase() abort
-  s/\m\C\%V[^A-Za-z0-9]\+\([A-Za-z0-9]\)/\u\1/ge
-  normal! gv
-endfunction
-
-function! dotfiles#ChangeVisualSnakeCase() abort
-  s/\m\C\%V[^A-Za-z0-9_]\+/_/ge
-  s/\m\C\%V\([a-z]\)\([A-Z]\)/\1_\l\2/ge
-  s/\m\C\%V.*/\L&/ge
-  normal! gv
-endfunction
-
-function! dotfiles#ChangeVisualKebabCase() abort
-  s/\m\C\%V[^A-Za-z0-9_]\+/-/ge
-  s/\m\C\%V\([a-z]\)\([A-Z]\)/\1-\l\2/ge
-  s/\m\C\%V.*/\L&/ge
+function! dotfiles#VisualChangeCase(style) abort
+  if a:style ==# 'camel'
+    s/\m\C\%V[^A-Za-z0-9]\+\([A-Za-z0-9]\)/\u\1/ge
+  elseif a:style ==# 'snake'
+    s/\m\C\%V[^A-Za-z0-9_]\+/_/ge
+    s/\m\C\%V\([a-z]\)\([A-Z]\)/\1_\l\2/ge
+    s/\m\C\%V.*/\L&/ge
+  elseif a:style ==# 'kebab'
+    s/\m\C\%V[^A-Za-z0-9-]\+/-/ge
+    s/\m\C\%V\([a-z]\)\([A-Z]\)/\1-\l\2/ge
+    s/\m\C\%V.*/\L&/ge
+  else
+    echohl ErrorMsg
+    echo 'Unknown case style: ' . a:style
+    echohl None
+  endif
   normal! gv
 endfunction
 
