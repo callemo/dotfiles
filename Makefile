@@ -29,8 +29,8 @@ vim:
 	./vimget -o https://github.com/tpope/vim-scriptease.git
 
 tmux:
-	if [[ -d ~/.tmux/plugins/resurrect ]]; then git -C ~/.tmux/plugins/resurrect pull; \
-	else git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/resurrect; \
+	if [[ -d ~/.tmux/plugins/tmux-resurrect ]]; then git -C ~/.tmux/plugins/tmux-resurrect pull; \
+	else git clone https://github.com/tmux-plugins/tmux-tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect; \
 	fi
 
 fzf:
