@@ -36,17 +36,13 @@ nnoremap yow :setlocal invwrap<CR>
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
 
-nnoremap <silent> <C-j> :if winnr() == winnr('$')<CR>
-      \ silent !tmux select-pane -t :.+<CR>
-      \ else<CR>
-      \ wincmd w<CR>
-      \ endif<CR>
-
-nnoremap <silent> <C-k> :if winnr() == 1<CR>
-      \ silent !tmux select-pane -t :.-<CR>
-      \ else<CR>
-      \ wincmd W<CR>
-      \ endif<CR>
+if !empty($TMUX)
+  nnoremap <expr> <silent> <C-j> winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<CR>' : ':wincmd w<CR>'
+  nnoremap <expr> <silent> <C-k> winnr() == 1 ? ':silent !tmux selectp -t :.-<CR>' : ':wincmd W<CR>'
+else
+  nnoremap <silent> <C-j> :wincmd w<CR>
+  nnoremap <silent> <C-k> :wincmd W<CR>
+endif
 
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
