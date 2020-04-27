@@ -37,6 +37,7 @@ class Venv:
         if not self.is_active:
             return
 
+        os.environ["VIRTUAL_ENV"] = dir
         os.environ["PATH"] = os.pathsep.join(
             (os.path.join(dir, "bin"), os.environ["PATH"])
         )
@@ -87,14 +88,14 @@ function! s:complete(A, L, P) abort
         \ ->map("v:val->fnamemodify(':t')")
 endfunction
 
-command! -nargs=? -complete=customlist,s:complete Venv call s:venv(<f-args>)
+command! -nargs=? -complete=customlist,<SID>complete Venv call <SID>venv(<f-args>)
 command! NoVenv python3 venv.deactivate()
 
 if !empty($VIRTUAL_ENV)
   if v:vim_did_enter
-    call s:venv()
+    call <SID>venv()
   else
-    au VimEnter * call s:venv()
+    au VimEnter * call <SID>venv()
   endif
 endif
 
