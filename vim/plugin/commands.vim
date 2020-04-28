@@ -10,7 +10,7 @@ if has('terminal')
   command -nargs=? -range
         \ Send call dotfiles#SendTerminalKeys(<line1>, <line2>, <args>)
   command -nargs=* -complete=file
-        \ Win belowright terminal ++noclose ++kill=term ++shell ++rows=10 <args>
+        \ Win botright terminal ++noclose ++shell ++kill=term <args>
 endif
 
 

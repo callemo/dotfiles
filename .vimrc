@@ -39,7 +39,7 @@ set switchbuf=useopen,split
 set tabline=%!dotfiles#TabLine()
 set textwidth=0
 set title
-set updatetime=400
+set updatetime=300
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu

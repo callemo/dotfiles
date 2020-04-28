@@ -52,9 +52,7 @@ function! dotfiles#SendTerminalKeys(start, end, ...) abort
   elseif exists('w:send_terminal_buf')
     let l:buf = w:send_terminal_buf
   else
-    echohl ErrorMsg
-    echo 'No terminal link'
-    echohl None
+    echohl ErrorMsg | echo 'No terminal link' | echohl None
     return
   endif
 
