@@ -1,105 +1,78 @@
 set nocompatible
 
+set autoindent
 set autoread
+set backspace=indent,eol,start
+set cmdheight=2
+set commentstring=#\ %s
+set complete-=i
+set completeopt-=preview
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
-set exrc
-set foldmethod=marker
-set guioptions=
+set foldmethod=indent
+set foldnestmax=3
 set hidden
 set history=1000
+set hlsearch
 set laststatus=2
 set lazyredraw
-set listchars=eol:$,tab:>\ 
+set listchars=eol:$,tab:>\ ,space:.
 set mouse=a
-set nomodeline
-set path+=**
-set ruler
-set scrolloff=1
-set secure
-set sidescrolloff=2
-set title
-set wildmenu
-
+set mousemodel=extend
+set nobackup
+set nofoldenable
+set noswapfile
 set notimeout
 set nottimeout
-
-set nobackup
-set noswapfile
 set nowritebackup
-
-filetype plugin indent on
-set autoindent
-set shiftwidth=4
-set tabstop=4
+set number
+set path=.,,
+set ruler
+set shortmess=atI
+set showcmd
+set showtabline=2
+set statusline=%n:%<%.99f\ %y%h%w%m
+set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
+set statusline+=%r%=[dir:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
+set switchbuf=useopen,split
+set tabline=%!dotfiles#TabLine()
 set textwidth=0
+set title
+set updatetime=300
+set visualbell
+set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
+set wildmenu
 
-let g:netrw_banner = 0
-let g:netrw_list_hide = '^\./$,^\.\./$'
+if has('unix')
+  set grepprg=grep\ -rnE\ $*\ /dev/null
+endif
 
-function! PatchColors()
-	highlight! Comment term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Constant term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! CursorLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Directory term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Identifier term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! LineNr term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! MatchParen term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! PreProc term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! QuickFixLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Special term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Statement term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! TabLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! TabLine term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! TabLineFill term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Title term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-	highlight! Type term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE
-
-	highlight! Comment          	ctermfg=008 guifg=#808080
-	highlight! LineNr           	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! QuickFixLine     	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! TabLine          	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! TabLineFill      	ctermfg=008 guifg=#808080 term=reverse   cterm=reverse   gui=reverse
-	highlight! helpHyperTextJump	ctermfg=004 guifg=#268bd2 term=underline cterm=underline gui=underline
-
-	if &background == 'light'
-		highlight! Normal guibg=#fdf6e3
-	endif
-endfunction
-
-command! Dump mksession! Session.vim
-command! Load source Session.vim
-command! Ctags silent !ctags -R --languages=-vim,sql .
+if has('mouse_sgr')
+  set ttymouse=sgr
+endif
 
 let mapleader = ' '
 
-nnoremap - :Explore<CR>
+filetype plugin indent on
+let g:netrw_banner = 0
+let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
+let g:ragtag_global_maps = 1
 
-cnoremap <c-n> <down>
-cnoremap <c-p> <up>
+iabbr modeline` <C-r>=printf(
+      \ &commentstring,
+      \ printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))
+      \ <CR><Esc>^2W
 
-nnoremap ]b :bnext<CR>
-nnoremap [b :bprevious<CR>
-
-nnoremap ]q :cnext<CR>
-nnoremap [q :cprevious<CR>
-
-nnoremap yol :setlocal list!<CR>
-nnoremap yon :setlocal number!<CR>
-nnoremap yop :setlocal paste!<CR>
-nnoremap yos :setlocal spell!<CR>
-nnoremap yow :setlocal wrap!<CR>
-
-nnoremap <leader>T :Ctags<CR>
-
-nnoremap m<CR> :make<CR>
-nnoremap m<Space> :make<Space>
-
-colorscheme default
-call PatchColors()
-
-if filereadable(expand("~/.vimrc.local"))
-	source ~/.vimrc.local
+if isdirectory(expand('~/dotfiles/vim'))
+  set rtp+=~/dotfiles/vim
 endif
 
+if isdirectory(expand('~/.fzf'))
+  set rtp+=~/.fzf
+  nnoremap <silent> <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
+endif
+
+if filereadable(expand('~/.vimrc.local'))
+  source ~/.vimrc.local
+endif
