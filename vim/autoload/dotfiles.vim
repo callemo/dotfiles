@@ -60,6 +60,7 @@ function! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
     let l:lnum = line('$')
   endif
   silent let l:err = a:cmd->systemlist(l:input)->append(l:lnum - 1)
+  call line('$')->cursor('.')
 endfunction
 
 function! dotfiles#SendTerminalKeys(start, end, ...) abort
