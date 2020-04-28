@@ -6,6 +6,7 @@ nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <leader>r :registers<CR>
 nnoremap <leader>s :Send<CR>
 nnoremap <silent> <leader>w :silent write!<CR>
+nnoremap <Leader>! :Cmd<Space><C-r><C-l>
 
 nmap <Up> <C-U>
 nmap <Down> <C-D>
@@ -27,6 +28,7 @@ vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
 vnoremap <S-LeftMouse> :call dotfiles#SetVisualSearch()<CR>/<CR>
 vnoremap <Leader>c :<C-u>ChangeCase<Space>
+vnoremap <Leader>! :Cmd<Space>
 
 nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
 

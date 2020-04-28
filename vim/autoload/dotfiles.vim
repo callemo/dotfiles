@@ -46,12 +46,20 @@ function! dotfiles#FormatFile(...) abort
   checktime
 endfunction
 
-function! dotfiles#RunShellCommand(cmd) abort
+function! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
+  let l:input = a:range > 0 ? getline(a:lnum, a:end) : []
   let l:bufname = getcwd() . '/+Output'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
-  exe l:winnr < 0 ? 'botright new ' . l:bufname : l:winnr . 'wincmd w '
-  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nonumber
-  exe 'silent $read!' . a:cmd
+  let l:lnum = 1
+  if l:winnr < 0
+    exe 'botright new ' . l:bufname
+    setl buftype=nofile bufhidden=wipe nobuflisted noswapfile nonumber
+    noremap <buffer> <2-LeftMouse> :wincmd F<CR>
+  else
+    exe l:winnr . 'wincmd w'
+    let l:lnum = line('$')
+  endif
+  silent let l:err = a:cmd->systemlist(l:input)->append(l:lnum - 1)
 endfunction
 
 function! dotfiles#SendTerminalKeys(start, end, ...) abort
