@@ -46,6 +46,14 @@ function! dotfiles#FormatFile(...) abort
   checktime
 endfunction
 
+function! dotfiles#RunShellCommand(cmd) abort
+  let l:bufname = getcwd() . '/+Output'
+  let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
+  exe l:winnr < 0 ? 'botright new ' . l:bufname : l:winnr . 'wincmd w '
+  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nonumber
+  exe 'silent $read!' . a:cmd
+endfunction
+
 function! dotfiles#SendTerminalKeys(start, end, ...) abort
   if a:0 > 0
     let l:buf = a:1
