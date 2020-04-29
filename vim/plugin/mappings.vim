@@ -27,7 +27,6 @@ tnoremap <C-w><C-b> <C-w>N<C-b>
 
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
-vnoremap <S-LeftMouse> :call dotfiles#SetVisualSearch()<CR>/<CR>
 vnoremap <Leader>c :<C-u>ChangeCase<Space>
 vnoremap <Leader>! :Cmd<Space>
 

@@ -50,16 +50,14 @@ function! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   let l:input = a:range > 0 ? getline(a:lnum, a:end) : []
   let l:bufname = getcwd() . '/+Output'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
-  let l:lnum = 1
   if l:winnr < 0
     exe 'botright new ' . l:bufname
-    setl buftype=nofile bufhidden=wipe nobuflisted noswapfile nonumber
+    setl buftype=nofile nobuflisted noswapfile nonumber
     noremap <buffer> <2-LeftMouse> :wincmd F<CR>
   else
     exe l:winnr . 'wincmd w'
-    let l:lnum = line('$')
   endif
-  silent let l:err = a:cmd->systemlist(l:input)->append(l:lnum - 1)
+  silent let l:err = a:cmd->systemlist(l:input)->append(line('$') - 1)
   call line('$')->cursor('.')
 endfunction
 
