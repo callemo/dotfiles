@@ -1,12 +1,13 @@
-nnoremap <silent> <leader>. :lcd %:p:h<CR>
-nnoremap <leader>b :buffers<CR>
-nnoremap <leader>D :Dump<CR>
-nnoremap <leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
-nnoremap <silent> <leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
-nnoremap <leader>r :registers<CR>
-nnoremap <leader>s :Send<CR>
-nnoremap <silent> <leader>w :silent write!<CR>
-nnoremap <Leader>! :Cmd<Space><C-r><C-l>
+nnoremap <Leader>! :Cmd<Space>
+nnoremap <Leader>!! :Cmd<Space><C-r><C-l><CR>
+nnoremap <Leader>b :buffers<CR>
+nnoremap <Leader>D :Dump<CR>
+nnoremap <Leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
+nnoremap <Leader>r :registers<CR>
+nnoremap <Leader>s :Send<CR>
+nnoremap <silent> <Leader>. :lcd %:p:h<CR>
+nnoremap <silent> <Leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
+nnoremap <silent> <Leader>w :silent write!<CR>
 
 nmap <Up> <C-U>
 nmap <Down> <C-D>
