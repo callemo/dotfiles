@@ -1,5 +1,5 @@
 nnoremap <Leader>! :Cmd<Space>
-nnoremap <Leader>!! :Cmd<Space><C-r><C-l><CR>
+nnoremap <Leader>!! :Cmd<Space><C-r><C-l>
 nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>D :Dump<CR>
 nnoremap <Leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
@@ -45,7 +45,7 @@ endif
 
 
 if has('clipboard')
-  vnoremap <C-c> "*y
+  vnoremap <silent> <C-c> "*y
 endif
 
 nnoremap - :Explore<CR>
