@@ -47,7 +47,7 @@ if has('gui_running')
         \ ]
 endif
 
-let s:italic = s:has_italic ? ' gui=italic cterm=italic' : ''
+let s:italic = s:has_italic ? ' gui=italic cterm=italic' : ' gui=NONE cterm=NONE'
 " }}} Formats:
 " Colors: {{{
 let s:base03  = ' guibg=#002b36 ctermbg=234'
