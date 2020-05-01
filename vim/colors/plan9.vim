@@ -4,7 +4,9 @@
 " ---------------------------------------------------------------------
 
 hi clear
-syntax reset
+if exists('syntax_on')
+  syntax reset
+endif
 
 set background=light
 let g:colors_name = 'plan9'
