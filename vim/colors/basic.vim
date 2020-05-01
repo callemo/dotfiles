@@ -37,6 +37,7 @@ if &background ==# 'light'
   hi Search ctermfg=235 ctermbg=254 guifg=#262626 guibg=#e5e5e5
   hi String ctermfg=160 guifg=#d12f1b
   hi Visual ctermbg=153 guibg=#b4d8fd
+  hi Number guifg=#272ad8 ctermfg=56 
 else
   hi Comment guifg=#8a99a6 ctermfg=246
   hi DiffAdd ctermfg=159 ctermbg=235 guifg=#b1faeb guibg=#1e2a28
@@ -47,6 +48,7 @@ else
   hi Search ctermfg=254 ctermbg=238 guifg=#dfdfe0 guibg=#414453
   hi String ctermfg=210 guifg=#ff8170
   hi Visual ctermbg=238 guibg=#414453
+  hi Number guifg=#d9c97c ctermfg=186
 endif
 
 hi! link diffAdded DiffAdd

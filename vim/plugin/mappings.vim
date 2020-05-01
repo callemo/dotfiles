@@ -1,4 +1,4 @@
-nnoremap <Leader>! :Cmd<Space>
+nnoremap <Leader>! :Cmd
 nnoremap <Leader>!! :Cmd<Space><C-r><C-l>
 nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>D :Dump<CR>
