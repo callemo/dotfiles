@@ -34,10 +34,12 @@ if &background ==# 'light'
   hi DiffDelete guibg=#fef0f1 ctermbg=255
   hi DiffText guibg=#fdfae6 ctermbg=230
   hi Function ctermfg=97 guifg=#804fb8
+  hi LineNr guifg=#cdcdcd ctermfg=252
+  hi MatchParen guifg=#262626 guibg=#fef869 ctermfg=235 ctermbg=227
+  hi Number guifg=#272ad8 ctermfg=56
   hi Search ctermfg=235 ctermbg=254 guifg=#262626 guibg=#e5e5e5
   hi String ctermfg=160 guifg=#d12f1b
   hi Visual ctermbg=153 guibg=#b4d8fd
-  hi Number guifg=#272ad8 ctermfg=56 
 else
   hi Comment guifg=#8a99a6 ctermfg=246
   hi DiffAdd ctermfg=159 ctermbg=235 guifg=#b1faeb guibg=#1e2a28
@@ -45,10 +47,12 @@ else
   hi DiffDelete ctermfg=210 ctermbg=235 guifg=#ff8a7a guibg=#2f2625
   hi DiffText ctermfg=215 ctermbg=235 guifg=#ffa14f guibg=#2e2622 cterm=reverse gui=reverse
   hi Function ctermfg=141 guifg=#b281eb
+  hi LineNr guifg=#53606e ctermfg=59
+  hi MatchParen guifg=#292a30 guibg=#fef937 ctermfg=235 ctermbg=226
+  hi Number guifg=#d9c97c ctermfg=186
   hi Search ctermfg=254 ctermbg=238 guifg=#dfdfe0 guibg=#414453
   hi String ctermfg=210 guifg=#ff8170
   hi Visual ctermbg=238 guibg=#414453
-  hi Number guifg=#d9c97c ctermfg=186
 endif
 
 hi! link diffAdded DiffAdd
