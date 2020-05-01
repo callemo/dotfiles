@@ -40,6 +40,14 @@ if &background ==# 'light'
   hi Search ctermfg=235 ctermbg=254 guifg=#262626 guibg=#e5e5e5
   hi String ctermfg=160 guifg=#d12f1b
   hi Visual ctermbg=153 guibg=#b4d8fd
+
+  if (has('termguicolors') && &termguicolors) || has('gui_running')
+    let g:terminal_ansi_colors = [
+          \ '#e5e5e5', '#d12f1b', '#3e8087', '#78492a', '#0f68a0', '#ad3da4',
+          \ '#804fb8', '#262626', '#8a99a6', '#d12f1b', '#23575c', '#78492a',
+          \ '#0b4f79', '#ad3da4', '#4b21b0', '#262626'
+          \ ]
+  endif
 else
   hi Comment guifg=#8a99a6 ctermfg=246
   hi DiffAdd ctermfg=159 ctermbg=235 guifg=#b1faeb guibg=#1e2a28
@@ -53,6 +61,14 @@ else
   hi Search ctermfg=254 ctermbg=238 guifg=#dfdfe0 guibg=#414453
   hi String ctermfg=210 guifg=#ff8170
   hi Visual ctermbg=238 guibg=#414453
+
+  if (has('termguicolors') && &termguicolors) || has('gui_running')
+    let g:terminal_ansi_colors = [
+          \ '#393b44', '#ff8170', '#78c2b3', '#d9c97c', '#4eb0cc', '#ff7ab2',
+          \ '#b281eb', '#dfdfe0', '#7f8c98', '#ff8170', '#acf2e4', '#ffa14f',
+          \ '#6bdfff', '#ff7ab2', '#dabaff', '#dfdfe0'
+          \ ]
+  endif
 endif
 
 hi! link diffAdded DiffAdd
