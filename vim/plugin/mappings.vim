@@ -62,10 +62,11 @@ nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 
 nnoremap yob :set background=<C-R>=&background == 'light' ? 'dark' : 'light'<CR><CR>
-nnoremap yoh :setlocal invhlsearch<CR>
-nnoremap yol :setlocal invlist<CR>
-nnoremap yon :setlocal invnumber<CR>
-nnoremap yop :setlocal invpaste<CR>
-nnoremap yos :setlocal invspell<CR>
-nnoremap yow :setlocal invwrap<CR>
+nnoremap yoc :setl invcursorline<CR>
+nnoremap yoh :setl invhlsearch<CR>
+nnoremap yol :setl invlist<CR>
+nnoremap yon :setl invnumber<CR>
+nnoremap yop :setl invpaste<CR>
+nnoremap yos :setl invspell<CR>
+nnoremap yow :setl invwrap<CR>
 
