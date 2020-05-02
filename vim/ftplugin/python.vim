@@ -1,4 +1,5 @@
-setlocal sw=4 sts=4 et
+setl sw=4 sts=4 et
+setl keywordprg=:Cmd\ pydoc3
 
 iabbr <buffer> """` """<CR>"""<Esc>k$a
 iabbr <buffer> #! #!/usr/bin/env python3<CR>
