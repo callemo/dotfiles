@@ -24,9 +24,9 @@ for s:g in s:highlight_groups
         \ . ' gui=NONE guifg=NONE guibg=NONE'
 endfor
 
-hi ErrorMsg guifg=#ffffff guibg=#f74a4a ctermfg=231 ctermbg=203
+hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
 hi TabLineSel gui=reverse,bold cterm=reverse,bold
-hi Todo guifg=#ffffff guibg=#efb759 ctermfg=231 ctermbg=215
+hi Todo guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
 hi WildMenu cterm=bold gui=bold
 
 if &background ==# 'light'
