@@ -8,6 +8,7 @@ set commentstring=#\ %s
 set complete-=i
 set completeopt-=preview
 set confirm
+set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set foldmethod=indent
