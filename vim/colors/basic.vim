@@ -30,7 +30,7 @@ hi Todo guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
 hi WildMenu cterm=bold gui=bold
 
 if &background ==# 'light'
-  hi Comment guifg=#5d6c79 ctermfg=60
+  hi Comment guifg=#707f8b ctermfg=241
   hi CursorLine guibg=#e8f2ff cterm=NONE term=NONE
   hi CursorLineNr guifg=#000000 ctermfg=16 cterm=NONE term=NONE
   hi DiffAdd guibg=#edfff0 ctermbg=195
@@ -38,35 +38,35 @@ if &background ==# 'light'
   hi DiffDelete guibg=#fef0f1 ctermbg=255
   hi DiffText guifg=#000000 guibg=#e8f2ff ctermfg=16 ctermbg=195
   hi ErrorMsg guibg=#f74a4a ctermbg=203
-  hi Function guifg=#326d74 ctermfg=60
+  hi Function guifg=#077cae ctermfg=31
   hi helpHyperTextJump guifg=#0e0eff ctermfg=21
   hi Keyword guifg=#9b2393 ctermfg=90
-  hi LineNr guifg=#cdcdcd ctermfg=252
+  hi LineNr guifg=#a6a6a6 ctermfg=145
   hi MatchParen guifg=#262626 guibg=#fef869 ctermfg=235 ctermbg=227
   hi Normal guifg=#000000 guibg=#ffffff
   hi Number guifg=#1c00cf ctermfg=20
-  hi PreProc guifg=#643820 ctermfg=58
+  hi PreProc guifg=#78492d ctermfg=94
   hi Search guifg=#262626 guibg=#e5e5e5 ctermfg=235 ctermbg=254
-  hi String guifg=#c41a16 ctermfg=160
-  hi Visual guibg=#a4cdff ctermbg=153
+  hi String guifg=#d13121 ctermfg=160
+  hi Visual guibg=#b2d7fd ctermbg=153
 else  " &background ==# 'dark'
-  hi Comment guifg=#6c7986 ctermfg=66
-  hi CursorLine guibg=#23252b cterm=NONE term=NONE
+  hi Comment guifg=#7f8c97 ctermfg=102
+  hi CursorLine guibg=#2f3239 cterm=NONE term=NONE
   hi CursorLineNr guifg=#ffffff cterm=NONE term=NONE
   hi DiffChange guifg=#ffffff guibg=#8e8e8e ctermfg=231 ctermbg=102
   hi DiffDelete ctermfg=210 ctermbg=235 guifg=#ff8a7a guibg=#2f2625
   hi DiffText guifg=#ffffff guibg=#23252b ctermfg=231 ctermbg=16
-  hi Function guifg=#67b7a4 ctermfg=73
-  hi helpHyperTextJump guifg=#5482ff ctermfg=69
+  hi Function guifg=#4fb0ca ctermfg=74
+  hi helpHyperTextJump guifg=#6699fb ctermfg=69
   hi Keyword guifg=#fc5fa3 ctermfg=205
-  hi LineNr guifg=#53606e ctermfg=59
+  hi LineNr guifg=#747478 ctermfg=102
   hi MatchParen guifg=#292a30 guibg=#fef937 ctermfg=235 ctermbg=226
-  hi Normal guifg=#ffffff guibg=#1f1f24
-  hi Number guifg=#d0bf69 ctermfg=179
-  hi PreProc guifg=#fd8f3f ctermfg=209
+  hi Normal guifg=#ffffff guibg=#292a30
+  hi Number guifg=#d9c981 ctermfg=186
+  hi PreProc guifg=#ffa157 ctermfg=215
   hi Search ctermfg=254 ctermbg=238 guifg=#dfdfe0 guibg=#414453
-  hi String guifg=#fc6a5d ctermfg=203
-  hi Visual guibg=#515b70 ctermbg=59
+  hi String guifg=#ff8272 ctermfg=209
+  hi Visual guibg=#646f82 ctermbg=60
 endif
 
 hi link diffAdded DiffAdd

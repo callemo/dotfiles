@@ -67,6 +67,7 @@ nnoremap yoh :setl invhlsearch<CR>
 nnoremap yol :setl invlist<CR>
 nnoremap yon :setl invnumber<CR>
 nnoremap yop :setl invpaste<CR>
+nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 

@@ -53,7 +53,7 @@ if has('mouse_sgr')
   set ttymouse=sgr
 endif
 
-let mapleader = ' '
+let mapleader = "\<Space>"
 
 filetype plugin indent on
 syntax on
