@@ -60,11 +60,11 @@ else  " &background ==# 'dark'
   hi helpHyperTextJump guifg=#6699fb ctermfg=69
   hi Keyword guifg=#fc5fa3 ctermfg=205
   hi LineNr guifg=#747478 ctermfg=102
-  hi MatchParen guifg=#292a30 guibg=#fef937 ctermfg=235 ctermbg=226
+  hi MatchParen guifg=#000000 guibg=#fffb3b ctermfg=16 ctermbg=227
   hi Normal guifg=#ffffff guibg=#292a30
   hi Number guifg=#d9c981 ctermfg=186
   hi PreProc guifg=#ffa157 ctermfg=215
-  hi Search ctermfg=254 ctermbg=238 guifg=#dfdfe0 guibg=#414453
+  hi Search guibg=#545558 ctermbg=59 gui=bold cterm=bold
   hi String guifg=#ff8272 ctermfg=209
   hi Visual guibg=#646f82 ctermbg=60
 endif
