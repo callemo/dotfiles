@@ -1,13 +1,18 @@
 nnoremap <Leader>! :Cmd
 nnoremap <Leader>!! :Cmd<Space><C-r><C-l>
-nnoremap <Leader>b :buffers<CR>
+nnoremap <silent> <Leader>. :lcd %:p:h<CR>
 nnoremap <Leader>D :Dump<CR>
+nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
+nnoremap <silent> <Leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>s :Send<CR>
-nnoremap <silent> <Leader>. :lcd %:p:h<CR>
-nnoremap <silent> <Leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <silent> <Leader>w :silent write!<CR>
+
+vnoremap <Leader>! :Cmd<Space>
+vnoremap <Leader><S-`> :<C-u>ChangeCase<Space>
+vnoremap <Leader>x "*x
+vnoremap <Leader>y "*y
 
 nmap <Up> <C-U>
 nmap <Down> <C-D>
@@ -27,10 +32,8 @@ tnoremap <C-w><C-b> <C-w>N<C-b>
 
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
-vnoremap <Leader>c :<C-u>ChangeCase<Space>
-vnoremap <Leader>! :Cmd<Space>
 
-nnoremap <silent> <C-l> :nohlsearch<CR>:syntax sync fromstart<CR>
+nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<Space> :make<Space>
@@ -41,11 +44,6 @@ if !empty($TMUX)
 else
   nnoremap <silent> <C-j> :wincmd w<CR>
   nnoremap <silent> <C-k> :wincmd W<CR>
-endif
-
-
-if has('clipboard')
-  vnoremap <silent> <C-c> "*y
 endif
 
 nnoremap - :Explore<CR>
