@@ -39,7 +39,7 @@ if &background ==# 'light'
   hi DiffText guifg=#000000 guibg=#e8f2ff ctermfg=16 ctermbg=195
   hi ErrorMsg guibg=#f74a4a ctermbg=203
   hi Function guifg=#077cae ctermfg=31
-  hi helpHyperTextJump guifg=#0e0eff ctermfg=21
+  hi helpHyperTextJump guifg=#0e38fa ctermfg=27
   hi Keyword guifg=#9b2393 ctermfg=90
   hi LineNr guifg=#a6a6a6 ctermfg=145
   hi MatchParen guifg=#262626 guibg=#fef869 ctermfg=235 ctermbg=227
