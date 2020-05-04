@@ -8,8 +8,10 @@ set commentstring=#\ %s
 set complete-=i
 set completeopt-=preview
 set confirm
+set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
+set fillchars=vert:\ ,fold:-
 set foldmethod=indent
 set foldnestmax=3
 set hidden
@@ -52,9 +54,11 @@ if has('mouse_sgr')
   set ttymouse=sgr
 endif
 
-let mapleader = ' '
+let mapleader = "\<Space>"
 
 filetype plugin indent on
+syntax on
+
 let g:netrw_banner = 0
 let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
 let g:ragtag_global_maps = 1
@@ -66,6 +70,7 @@ iabbr modeline` <C-r>=printf(
 
 if isdirectory(expand('~/dotfiles/vim'))
   set rtp+=~/dotfiles/vim
+  colorscheme basic
 endif
 
 if isdirectory(expand('~/.fzf'))
