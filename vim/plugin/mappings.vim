@@ -4,6 +4,7 @@ nnoremap <silent> <Leader>. :lcd %:p:h<CR>
 nnoremap <Leader>D :Dump<CR>
 nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
+nnoremap <Leader>p "*p
 nnoremap <silent> <Leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>s :Send<CR>
@@ -11,6 +12,7 @@ nnoremap <silent> <Leader>w :silent write!<CR>
 
 vnoremap <Leader>! :Cmd<Space>
 vnoremap <Leader><S-`> :<C-u>ChangeCase<Space>
+vnoremap <Leader>p "*p
 vnoremap <Leader>x "*x
 vnoremap <Leader>y "*y
 
