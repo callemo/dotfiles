@@ -37,8 +37,8 @@ vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
 
 nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
 
-nnoremap m<CR> :make<CR>
-nnoremap m<Space> :make<Space>
+nnoremap m<CR> :Cmd make<CR>
+nnoremap m<Space> :Cmd make<Space>
 
 if !empty($TMUX)
   nnoremap <expr> <silent> <C-j> winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<CR>' : ':wincmd w<CR>'
