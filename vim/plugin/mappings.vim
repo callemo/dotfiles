@@ -1,11 +1,11 @@
 nnoremap <Leader>! :Cmd
 nnoremap <Leader>!! :Cmd<Space><C-r><C-l>
 nnoremap <silent> <Leader>. :lcd %:p:h<CR>
-nnoremap <Leader>D :Dump<CR>
 nnoremap <Leader>b :buffers<CR>
+nnoremap <Leader>D :Dump<CR>
+nnoremap <silent> <Leader>d :bdelete<CR>
 nnoremap <Leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
 nnoremap <Leader>p "*p
-nnoremap <silent> <Leader>q :exe bufnr('$') == 1 ? 'quit' : 'bdelete'<CR>
 nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>s :Send<CR>
 nnoremap <silent> <Leader>w :silent write!<CR>
