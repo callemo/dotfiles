@@ -44,7 +44,7 @@ if &background ==# 'light'
   hi Folded guifg=#6c6c6c guibg=#d9d9d9 ctermfg=59 ctermbg=188
   hi Function guifg=#077cae ctermfg=31
   hi helpHyperTextJump guifg=#0e38fa ctermfg=27
-  hi Keyword guifg=#9b2393 ctermfg=90
+  hi Keyword guifg=#9b2393 ctermfg=90 gui=bold cterm=bold
   hi LineNr guifg=#a6a6a6 ctermfg=145
   hi MatchParen guifg=#262626 guibg=#fef869 ctermfg=235 ctermbg=227
   hi Normal guifg=#000000 guibg=#ffffff
