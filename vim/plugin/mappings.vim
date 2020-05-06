@@ -31,7 +31,9 @@ inoremap <C-Enter> <C-o>o
 inoremap <C-j> <Down>
 inoremap <C-k> <Up>
 
-tnoremap <C-w><C-b> <C-w>N<C-b>
+tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
+tnoremap <C-r><C-r> <C-r>
+tnoremap <C-w><C-b> <C-\><C-n><C-b>
 tnoremap <C-w><C-w> <C-w>.
 
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
@@ -47,11 +49,13 @@ endif
 if !empty($TMUX)
   nnoremap <expr> <silent> <C-j> winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<CR>' : ':wincmd w<CR>'
   nnoremap <expr> <silent> <C-k> winnr() == 1 ? ':silent !tmux selectp -t :.-<CR>' : ':wincmd W<CR>'
+  tnoremap <expr> <silent> <C-j> winnr() == winnr('$') ? '<C-\><C-n>::silent !tmux selectp -t :.+<CR>' : '<C-\><C-n>::wincmd w<CR>'
+  tnoremap <expr> <silent> <C-k> winnr() == 1 ? '<C-\><C-n>::silent !tmux selectp -t :.-<CR>' : '<C-\><C-n>::wincmd W<CR>'
 else
   nnoremap <silent> <C-j> :wincmd w<CR>
   nnoremap <silent> <C-k> :wincmd W<CR>
-  tnoremap <silent> <C-j> <C-w>:wincmd w<CR>
-  tnoremap <silent> <C-k> <C-w>:wincmd W<CR>
+  tnoremap <silent> <C-j> <C-\><C-n>:wincmd w<CR>
+  tnoremap <silent> <C-k> <C-\><C-n>:wincmd W<CR>
 endif
 
 nnoremap - :Explore<CR>
