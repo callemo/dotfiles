@@ -1,7 +1,7 @@
 command Dump mksession! ~/vim.dump
 command Load source ~/vim.dump
 command -nargs=?
-      \ Format call dotfiles#FormatFile(<f-args>)
+      \ Fmt call dotfiles#FormatFile(<f-args>)
 command Bonly call dotfiles#BufferOnly()
 command Trim call dotfiles#TrimTrailingBlanks()
 command -nargs=1 -complete=customlist,dotfiles#VisualChangeCaseComplete
