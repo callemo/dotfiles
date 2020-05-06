@@ -11,7 +11,7 @@ nnoremap <Leader>s :Send<CR>
 nnoremap <silent> <Leader>w :silent write!<CR>
 
 vnoremap <Leader>! :Cmd<Space>
-vnoremap <Leader><S-`> :<C-u>ChangeCase<Space>
+vnoremap <Leader>~ :<C-u>ChangeCase<Space>
 vnoremap <Leader>p "*p
 vnoremap <Leader>s :Send<CR>
 vnoremap <Leader>x "*x
