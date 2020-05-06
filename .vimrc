@@ -35,9 +35,6 @@ set sessionoptions=buffers,curdir,folds,help,tabpages,terminal,winpos,winsize
 set shortmess=atI
 set showcmd
 set showtabline=2
-set statusline=%n:%<%.99f\ %y%h%w%m
-set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
-set statusline+=%r%=[dir:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,split
 set tabline=%!dotfiles#TabLine()
 set textwidth=0
@@ -46,6 +43,10 @@ set updatetime=300
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
+
+set statusline=%n:%<%.99f\ %y%h%w%m
+set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
+set statusline+=%r%=[dir:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
 
 if has('unix')
   set grepprg=grep\ -rnE\ $*\ /dev/null

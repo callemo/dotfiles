@@ -13,6 +13,7 @@ nnoremap <silent> <Leader>w :silent write!<CR>
 vnoremap <Leader>! :Cmd<Space>
 vnoremap <Leader><S-`> :<C-u>ChangeCase<Space>
 vnoremap <Leader>p "*p
+vnoremap <Leader>s :Send<CR>
 vnoremap <Leader>x "*x
 vnoremap <Leader>y "*y
 
@@ -31,6 +32,7 @@ inoremap <C-j> <Down>
 inoremap <C-k> <Up>
 
 tnoremap <C-w><C-b> <C-w>N<C-b>
+tnoremap <C-w><C-w> <C-w>.
 
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
@@ -48,6 +50,8 @@ if !empty($TMUX)
 else
   nnoremap <silent> <C-j> :wincmd w<CR>
   nnoremap <silent> <C-k> :wincmd W<CR>
+  tnoremap <silent> <C-j> <C-w>:wincmd w<CR>
+  tnoremap <silent> <C-k> <C-w>:wincmd W<CR>
 endif
 
 nnoremap - :Explore<CR>
