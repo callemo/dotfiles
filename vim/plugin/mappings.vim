@@ -31,10 +31,13 @@ inoremap <C-Enter> <C-o>o
 inoremap <C-j> <Down>
 inoremap <C-k> <Up>
 
+" Terminal {{{
 tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
 tnoremap <C-r><C-r> <C-r>
 tnoremap <C-w><C-b> <C-\><C-n><C-b>
 tnoremap <C-w><C-w> <C-w>.
+tnoremap <ScrollWheelUp> <C-\><C-n>
+" }}}
 
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
