@@ -1,5 +1,6 @@
-setl sw=4 sts=4 et
+setl foldmethod=indent
 setl keywordprg=:Cmd\ pydoc3
+setl sw=4 sts=4 et
 
 iabbr <buffer> """` """<CR>"""<Esc>k$a
 iabbr <buffer> #! #!/usr/bin/env python3<CR>
