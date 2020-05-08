@@ -31,7 +31,7 @@ set nowritebackup
 set number
 set path=.,,
 set ruler
-set sessionoptions=buffers,curdir,folds,help,tabpages,terminal,winpos,winsize
+set sessionoptions=buffers,folds,help,tabpages,terminal,winpos,winsize
 set shortmess=atI
 set showcmd
 set showtabline=2
