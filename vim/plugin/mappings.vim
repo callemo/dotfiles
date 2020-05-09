@@ -4,7 +4,7 @@ nnoremap <silent> <Leader>. :lcd %:p:h<CR>
 nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>D :Dump<CR>
 nnoremap <silent> <Leader>d :bdelete<CR>
-nnoremap <Leader>e :tabedit <C-r>=expand('%:p:h')<CR>/
+nnoremap <Leader>e :split <C-r>=expand('%:p:h')<CR>/
 nnoremap <Leader>p "*p
 nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>s :Send<CR>
