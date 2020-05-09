@@ -1,13 +1,13 @@
-function! dotfiles#BufferOnly() abort
+func! dotfiles#BufferOnly() abort
   let l:current = bufnr()
   for b in getbufinfo({'buflisted': v:true})
     if b.bufnr != l:current
       exe 'bdelete ' . b.bufnr
     endif
   endfor
-endfunction
+endfunc
 
-function! dotfiles#VisualSwitchCase(style) abort
+func! dotfiles#VisualSwitchCase(style) abort
   if a:style ==# 'camel'
     s/\m\C\%V.*\%V./\L&/ge
     s/\m\C\%V[^A-Za-z0-9]\+\([A-Za-z0-9]\)\%V/\u\1/ge
@@ -21,13 +21,13 @@ function! dotfiles#VisualSwitchCase(style) abort
     echohl ErrorMsg | echo 'Unknown case style: ' . a:style | echohl None
   endif
   norm! `<
-endfunction
+endfunc
 
-function! dotfiles#VisualSwitchCaseComplete(A, L, P) abort
+func! dotfiles#VisualSwitchCaseComplete(A, L, P) abort
   return ['camel', 'snake', 'kebab']->filter('v:val =~ ("^" . a:A)' )
-endfunction
+endfunc
 
-function! dotfiles#FormatFile(...) abort
+func! dotfiles#FormatFile(...) abort
   let l:fallback = 'prettier --write --print-width 88'
   let l:formatters = {
         \ 'python': 'black',
@@ -42,9 +42,9 @@ function! dotfiles#FormatFile(...) abort
   endif
 
   checktime
-endfunction
+endfunc
 
-function! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
+func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   let l:input = a:range > 0 ? getline(a:lnum, a:end) : []
   let l:bufname = getcwd() . '/+Output'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
@@ -57,9 +57,9 @@ function! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   endif
   silent let l:err = a:cmd->systemlist(l:input)->append(line('$') - 1)
   call line('$')->cursor('.')
-endfunction
+endfunc
 
-function! dotfiles#SendTerminalKeys(start, end, ...) abort
+func! dotfiles#SendTerminalKeys(start, end, ...) abort
   if a:0 > 0
     let l:buf = a:1
   elseif exists('w:send_terminal_buf')
@@ -72,24 +72,24 @@ function! dotfiles#SendTerminalKeys(start, end, ...) abort
   let l:keys = getline(a:start, a:end)->join(" \n")
   call term_sendkeys(l:buf, l:keys . "\n")
   let w:send_terminal_buf = l:buf
-endfunction
+endfunc
 
-function! dotfiles#SetVisualSearch() abort
+func! dotfiles#SetVisualSearch() abort
   let l:reg = @"
   exe 'normal! vgvy'
   let @/ = '\V\C' . escape(@", '\')->substitute("\n$", '', '')
   let @" = l:reg
-endfunction
+endfunc
 
-function! dotfiles#TrimTrailingBlanks() abort
+func! dotfiles#TrimTrailingBlanks() abort
   let l:last_pos = getcurpos()
   let l:last_search = @/
   silent! %s/\m\C\s\+$//e
   let @/ = l:last_search
   call setpos('.', l:last_pos)
-endfunction
+endfunc
 
-function! dotfiles#TabLine() abort
+func! dotfiles#TabLine() abort
   let l:s = ''
   for i in range(tabpagenr('$'))
     if i + 1 == tabpagenr()
@@ -102,9 +102,9 @@ function! dotfiles#TabLine() abort
   endfor
   let l:s .= '%#TabLineFill#%T'
   return l:s
-endfunction
+endfunc
 
-function! dotfiles#TabLabel(n) abort
+func! dotfiles#TabLabel(n) abort
   let l:buflist = tabpagebuflist(a:n)
   let winnr = tabpagewinnr(a:n)
   let l:bufnr = l:buflist[l:winnr - 1]
@@ -132,5 +132,10 @@ function! dotfiles#TabLabel(n) abort
     return l:label .'+'
   endif
   return l:label
-endfunction
+endfunc
+
+func! dotfiles#EatBlank() abort
+  let l:ch = nr2char(getchar(0))
+  return (ch =~# '\s') ? '' : ch
+endfunc
 

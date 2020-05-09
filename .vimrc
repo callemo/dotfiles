@@ -65,10 +65,7 @@ let g:netrw_banner = 0
 let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
 let g:ragtag_global_maps = 1
 
-iabbr modeline` <C-r>=printf(
-      \ &commentstring,
-      \ printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))
-      \ <CR><Esc>^2W
+iabbr modeline\ <C-r>=printf(&cms, printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))<CR><Esc>^2W
 
 if isdirectory(expand('~/dotfiles/vim'))
   set rtp+=~/dotfiles/vim

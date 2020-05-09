@@ -3,8 +3,7 @@ nmap <Up> <C-U>
 nmap <Down> <C-D>
 nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
 nnoremap - :Explore<CR>
-nnoremap <Leader>! :Cmd
-nnoremap <Leader>!! :Cmd<Space><C-r><C-l>
+nnoremap <Leader>! :Cmd<Space>
 nnoremap <silent> <Leader>. :lcd %:p:h<CR>
 nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>D :Dump<CR>
