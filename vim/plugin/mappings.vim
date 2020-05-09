@@ -55,7 +55,7 @@ nnoremap yow :setl invwrap<CR>
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
 vnoremap <Leader>! :Cmd<Space>
-vnoremap <Leader>~ :<C-u>ChangeCase<Space>
+vnoremap <Leader>~ :<C-u>SwitchCase<Space>
 vnoremap <Leader>p "*p
 vnoremap <Leader>s :Send<CR>
 vnoremap <Leader>x "*x

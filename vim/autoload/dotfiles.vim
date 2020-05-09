@@ -7,7 +7,7 @@ function! dotfiles#BufferOnly() abort
   endfor
 endfunction
 
-function! dotfiles#VisualChangeCase(style) abort
+function! dotfiles#VisualSwitchCase(style) abort
   if a:style ==# 'camel'
     s/\m\C\%V.*\%V./\L&/ge
     s/\m\C\%V[^A-Za-z0-9]\+\([A-Za-z0-9]\)\%V/\u\1/ge
@@ -18,14 +18,12 @@ function! dotfiles#VisualChangeCase(style) abort
     s/\m\C\%V[^A-Za-z0-9-]\%V/-/ge
     s/\m\C\%V\([a-z]\)\([A-Z]\)\%V/\1-\l\2/ge
   else
-    echohl ErrorMsg
-    echo 'Unknown case style: ' . a:style
-    echohl None
+    echohl ErrorMsg | echo 'Unknown case style: ' . a:style | echohl None
   endif
-  normal! gv
+  norm! `<
 endfunction
 
-function! dotfiles#VisualChangeCaseComplete(A, L, P) abort
+function! dotfiles#VisualSwitchCaseComplete(A, L, P) abort
   return ['camel', 'snake', 'kebab']->filter('v:val =~ ("^" . a:A)' )
 endfunction
 
