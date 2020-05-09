@@ -7,8 +7,8 @@ iabbr <buffer> #! #!/usr/bin/env python3<CR><C-r>=dotfiles#EatBlank()<CR>
 
 iabbr <buffer> class\ class C:<Esc>Bmso
       \def __init__(self):<CR>
-      \pass<CR>
-      \<CR><Esc>`scw<C-r>=dotfiles#EatBlank()<CR>
+      \pass<CR><CR>
+      \<Esc>`scw<C-r>=dotfiles#EatBlank()<CR>
 
 iabbr <buffer> ifmain\ def main():<CR>
       \pass<Esc>Bmso<CR>
