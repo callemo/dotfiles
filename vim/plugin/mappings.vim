@@ -5,8 +5,9 @@ nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
 nnoremap - :Explore<CR>
 nnoremap <Leader>! :Cmd<Space>
 nnoremap <silent> <Leader>. :lcd %:p:h<CR>
-nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>D :Dump<CR>
+nnoremap <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
+nnoremap <Leader>b :buffers<CR>
 nnoremap <silent> <Leader>d :bdelete<CR>
 nnoremap <Leader>e :split <C-r>=expand('%:p:h')<CR>/
 nnoremap <Leader>p "*p
