@@ -134,7 +134,8 @@ func! dotfiles#TabLabel(n) abort
   return l:label
 endfunc
 
-func! dotfiles#EatBlank() abort
+" Consumes the space typed after an abbreviation.
+func! dotfiles#EndAbbr() abort
   let l:ch = nr2char(getchar(0))
   return (ch =~# '\s') ? '' : ch
 endfunc
