@@ -37,9 +37,9 @@ if &background ==# 'light'
   hi CursorLine guibg=#e8f2ff
   hi CursorLineNr guifg=#000000 ctermfg=16 gui=bold cterm=bold
   hi DiffAdd guibg=#e6ffee ctermbg=194
-  hi DiffChange guifg=#000000 guibg=#8e8e8e ctermfg=16 ctermbg=102
+  hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
   hi DiffDelete guibg=#ffeef0 ctermbg=225
-  hi DiffText guifg=#000000 guibg=#e8f2ff ctermfg=16 ctermbg=195
+  hi DiffText guifg=#000000 guibg=#d4edf4 ctermfg=16 ctermbg=195
   hi ErrorMsg guibg=#f74a4a ctermbg=203
   hi Folded guifg=#6c6c6c guibg=#d9d9d9 ctermfg=59 ctermbg=188
   hi Function guifg=#077cae ctermfg=31
@@ -59,9 +59,9 @@ else  " &background ==# 'dark'
   hi CursorLine guibg=#2f3239
   hi CursorLineNr guifg=#ffffff gui=bold cterm=bold
   hi DiffAdd guibg=#113a1d ctermbg=22
-  hi DiffChange guifg=#ffffff guibg=#8e8e8e ctermfg=231 ctermbg=102
+  hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
   hi DiffDelete guibg=#450c0f ctermbg=52
-  hi DiffText guifg=#ffffff guibg=#23252b ctermfg=231 ctermbg=16
+  hi DiffText guifg=#000000 guibg=#d4edf4 ctermfg=16 ctermbg=195
   hi Folded guifg=#a4a5a7 guibg=#494a4f ctermfg=145 ctermbg=59
   hi Function guifg=#4fb0ca ctermfg=74
   hi Keyword guifg=#fe7bb1 ctermfg=211 gui=bold cterm=bold
