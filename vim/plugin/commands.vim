@@ -1,5 +1,5 @@
 command -nargs=1
-      \ Dash silent exe '!open dash://' . <q-args>
+      \ Dash exe 'silent !open dash://<args>' | redr!
 command Dump mksession! ~/vim.dump
 command Load source ~/vim.dump
 command -nargs=?
