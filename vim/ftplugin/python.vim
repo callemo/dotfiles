@@ -1,5 +1,6 @@
 setl foldmethod=indent
 setl keywordprg=:Cmd\ pydoc3
+setl makeprg=pylint\ %
 setl sw=4 sts=4 et
 
 iabbr <buffer> #! #!/usr/bin/env python3<CR>
