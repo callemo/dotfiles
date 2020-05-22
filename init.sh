@@ -127,10 +127,11 @@ alias gup='git pull --rebase'
 alias tsw='tmux split-window -l 12'
 # }}}
 # PATH {{{
-_path_prepend_if "$PYTHONUSERBASE/bin"
-_path_prepend_if "$HOME/.local/node/bin"
-_path_prepend_if "$HOME/.local/bin"
-_path_prepend_if "$HOME/bin"
+_path_prepend_if "${HOME}/dotfiles/bin"
+_path_prepend_if "${PYTHONUSERBASE}/bin"
+_path_prepend_if "${HOME}/.local/node/bin"
+_path_prepend_if "${HOME}/.local/bin"
+_path_prepend_if "${HOME}/bin"
 export PATH
 
 # }}}
