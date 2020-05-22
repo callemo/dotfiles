@@ -68,6 +68,7 @@ iabbr modeline\ <C-r>=printf(&cms, printf('vim: set sw=%d sts=%d et fdm=%s:', &s
 
 if isdirectory(expand('~/dotfiles/vim'))
   set rtp+=~/dotfiles/vim
+  let $PATH = expand('~/dotfiles/bin') . ':' . $PATH
   colorscheme basic
 endif
 
