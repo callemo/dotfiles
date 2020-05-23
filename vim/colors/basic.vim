@@ -46,7 +46,7 @@ if &background ==# 'light'
   hi Keyword guifg=#9b2393 ctermfg=90 gui=bold cterm=bold
   hi MatchParen guifg=#262626 guibg=#fef869 ctermfg=235 ctermbg=227
   hi NonText guifg=#a6a6a6 ctermfg=145
-  hi Normal guifg=#000000 guibg=#ffffff
+  hi Normal guifg=#000000 guibg=#ffffeb
   hi Number guifg=#1c00cf ctermfg=20
   hi PreProc guifg=#78492d ctermfg=94
   hi Search guifg=#262626 guibg=#e5e5e5 ctermfg=235 ctermbg=254 gui=bold cterm=bold
