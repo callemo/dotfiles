@@ -23,11 +23,11 @@ class Venv:
         self.initial_sys_path = sys.path[:]
         self.is_active = False
 
-    def activate(self, dir):
+    def activate(self, venv):
         if self.is_active:
             self.deactivate()
 
-        for child in os.scandir(os.path.join(dir, "lib")):
+        for child in os.scandir(os.path.join(venv, "lib")):
             sitedir = os.path.join(child.path, "site-packages")
             if os.path.isdir(sitedir):
                 site.addsitedir(sitedir)
@@ -37,18 +37,19 @@ class Venv:
         if not self.is_active:
             return
 
-        os.environ["VIRTUAL_ENV"] = dir
-        os.environ["PATH"] = os.pathsep.join(
-            (os.path.join(dir, "bin"), os.environ["PATH"])
-        )
-        sys.prefix = self.dir = dir
+        venv_path = os.path.join(venv, "bin")
+        if venv_path not in (os.environ["PATH"].split(os.path.pathsep)):
+            os.environ["PATH"] = os.pathsep.join((venv_path, os.environ["PATH"]))
+
+        os.environ["VIRTUAL_ENV"] = sys.prefix = self.dir = venv
 
     def deactivate(self):
         if not self.is_active:
             return
+
         if self.initial_os_venv is not None:
             os.environ["VIRTUAL_ENV"] = self.initial_os_venv
-            vim.command('let $VIRTUAL_ENV = "' + self.initial_os_venv + '"')
+
         os.environ["PATH"] = self.initial_os_path
         sys.path = self.initial_sys_path[:]
         sys.prefix = sys.base_prefix
