@@ -1,0 +1,5 @@
+#!/bin/bash
+# Nobs copies the named files to standard output but removes all
+# backspace characters and the characters that precede them.
+
+sed 's/.//g' "$@"

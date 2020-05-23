@@ -1,4 +1,3 @@
-setl keywordprg=:Cmd\ PAGER=rmbs\ man
 setl makeprg=shellcheck\ -f\ gcc\ %
 setl sw=2 sts=2 et
 

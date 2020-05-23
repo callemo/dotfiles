@@ -1,6 +1,0 @@
-#!/bin/bash
-# Rmbs copies the named files to standard output but removes all
-# backspace characters and the characters that precede them. It is
-# useful to use as $PAGER with man(1) when run inside a text editor
-# buffer.
-sed 's/.//g'
