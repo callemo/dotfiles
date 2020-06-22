@@ -5,15 +5,16 @@ nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
 nnoremap - :Explore<CR>
 nnoremap <Leader>! :Cmd<Space>
 nnoremap <silent> <Leader>. :lcd %:p:h<CR>
-nnoremap <Leader>D :Dump<CR>
-nnoremap <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
 nnoremap <Leader>b :buffers<CR>
+nnoremap <Leader>D :Dump<CR>
 nnoremap <silent> <Leader>d :bdelete<CR>
 nnoremap <Leader>e :split <C-r>=expand('%:p:h')<CR>/
+nnoremap <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
 nnoremap <Leader>p "*p
 nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>s :Send<CR>
 nnoremap <silent> <Leader>w :silent write!<CR>
+nnoremap <Leader>y "*yy
 
 if empty(maparg('m<CR>'))
   nnoremap m<CR> :Win make<CR>
