@@ -1,9 +1,10 @@
+*.pyc
 .DS_Store
 .idea
+.ipynb_checkpoints/
 .netrwhist
-node_modules
-*.pyc
-__pycache__
-Session.vim
-tags
 .venv
+Session.vim
+__pycache__
+node_modules
+tags
