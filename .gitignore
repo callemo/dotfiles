@@ -1,0 +1,10 @@
+*.pyc
+.DS_Store
+.idea
+.ipynb_checkpoints/
+.netrwhist
+.venv
+Session.vim
+__pycache__
+node_modules
+tags
