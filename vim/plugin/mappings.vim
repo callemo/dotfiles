@@ -6,6 +6,7 @@ nnoremap - :Explore<CR>
 nnoremap <Leader>! :Cmd<Space>
 nnoremap <silent> <Leader>. :lcd %:p:h<CR>
 nnoremap <Leader>b :buffers<CR>
+nnoremap <Leader>c :Chk<CR>
 nnoremap <Leader>D :Dump<CR>
 nnoremap <silent> <Leader>d :bdelete<CR>
 nnoremap <Leader>e :split <C-r>=expand('%:p:h')<CR>/

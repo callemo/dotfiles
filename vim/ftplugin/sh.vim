@@ -1,4 +1,3 @@
-" setl makeprg=shellcheck\ -f\ gcc\ %
 setl sw=2 sts=2 et
 
 iabbr <buffer> #! #!/bin/bash<CR>

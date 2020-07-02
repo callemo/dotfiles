@@ -1,3 +1,4 @@
+command Chk call dotfiles#CheckFile()
 command -nargs=1
       \ Dash exe 'silent !open dash://<args>' | redr!
 command Dump mksession! ~/vim.dump

@@ -27,20 +27,35 @@ func! dotfiles#VisualSwitchCaseComplete(A, L, P) abort
   return ['camel', 'snake', 'kebab']->filter('v:val =~ ("^" . a:A)' )
 endfunc
 
+func! dotfiles#CheckFile() abort
+  let l:checkers = {
+        \ 'python': 'pylint',
+        \ 'sh': 'shellcheck -f gcc',
+        \ }
+  let l:cmd = l:checkers->get(&filetype, v:null)
+  if l:cmd == v:null
+    echohl ErrorMsg | echo 'No checker' | echohl None
+    return
+  endif
+  update
+  let l:out = system(l:cmd . ' ' . expand('%:S'))
+  if v:shell_error != 0
+    echo out
+  endif
+  checktime
+endfunc
+
 func! dotfiles#FormatFile(...) abort
   let l:fallback = 'prettier --write --print-width 88'
   let l:formatters = {
         \ 'python': 'black',
         \ }
   let l:cmd = a:0 > 0 ? a:1 : l:formatters->get(&filetype, l:fallback)
-
   update
-
   let l:out = system(l:cmd . ' ' . expand('%:S'))
   if v:shell_error != 0
     echo out
   endif
-
   checktime
 endfunc
 
