@@ -38,9 +38,10 @@ func! dotfiles#CheckFile() abort
     return
   endif
   update
-  let l:out = system(l:cmd . ' ' . expand('%:S'))
+  let l:out = systemlist(l:cmd . ' ' . expand('%:S'))
   if v:shell_error != 0
-    echo out
+    call setqflist([], 'r', {'title': l:cmd, 'lines': out})
+    copen
   endif
   checktime
 endfunc
