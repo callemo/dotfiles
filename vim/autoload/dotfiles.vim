@@ -27,14 +27,14 @@ func! dotfiles#VisualSwitchCaseComplete(A, L, P) abort
   return ['camel', 'snake', 'kebab']->filter('v:val =~ ("^" . a:A)' )
 endfunc
 
-func! dotfiles#CheckFile() abort
-  let l:checkers = {
+func! dotfiles#LintFile() abort
+  let l:linters = {
         \ 'python': 'pylint',
         \ 'sh': 'shellcheck -f gcc',
         \ }
-  let l:cmd = l:checkers->get(&filetype, v:null)
+  let l:cmd = l:linters->get(&filetype, v:null)
   if l:cmd == v:null
-    echohl ErrorMsg | echo 'No checker' | echohl None
+    echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
     return
   endif
   update
