@@ -1,5 +1,5 @@
 set guicursor=a:blinkwait1600-blinkon1600-blinkoff800
-set guifont=Inconsolata-Medium:h14
+set guifont=IBMPlexMono-Text:h12
 set guioptions=c
 set linespace=0
 if has('gui_macvim')
