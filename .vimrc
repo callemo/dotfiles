@@ -49,7 +49,7 @@ set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
 set statusline+=%r%=[dir:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
 
 if has('unix')
-  set grepprg=grep\ -rnE\ $*\ /dev/null
+  set grepprg=grep\ -rn\ $*\ /dev/null
 endif
 
 if has('mouse_sgr')

@@ -39,10 +39,8 @@ func! dotfiles#LintFile() abort
   endif
   update
   let l:out = systemlist(l:cmd . ' ' . expand('%:S'))
-  if v:shell_error != 0
-    call setqflist([], 'r', {'title': l:cmd, 'lines': out})
-    copen
-  endif
+  call setqflist([], 'r', {'title': l:cmd, 'lines': out})
+  cwindow
   checktime
 endfunc
 
