@@ -11,14 +11,15 @@ endif
 let g:colors_name = 'basic'
 
 let s:highlight_groups = [
-      \ 'Comment', 'Constant', 'CursorLine', 'CursorLineNr', 'Delimiter',
-      \ 'DiffAdd', 'DiffChange', 'DiffDelete', 'DiffText', 'Error',
-      \ 'ErrorMsg', 'Folded', 'Function', 'Identifier', 'MatchParen', 'NonText',
-      \ 'LineNr', 'PreProc', 'Search', 'Special', 'Statement',
-      \ 'StatusLine', 'StatusLineNC', 'StatusLineTerm', 'StatusLineTermNC',
-      \ 'TabLine', 'TabLineFill', 'TabLineSel', 'Todo', 'Type', 'VertSplit', 'Visual',
+      \ 'Comment', 'Constant', 'CursorLine', 'CursorLineNr',
+      \ 'Delimiter', 'DiffAdd', 'DiffChange', 'DiffDelete', 'DiffText',
+      \ 'Error', 'ErrorMsg', 'Folded', 'Function', 'Identifier',
+      \ 'MatchParen', 'NonText', 'LineNr', 'PreProc', 'Search',
+      \ 'Special', 'Statement', 'StatusLine', 'StatusLineNC',
+      \ 'StatusLineTerm', 'StatusLineTermNC', 'TabLine', 'TabLineFill',
+      \ 'TabLineSel', 'Title', 'Todo', 'Type', 'VertSplit', 'Visual',
       \ 'WarningMsg', 'WildMenu'
-      \]
+      \ ]
 
 for s:g in s:highlight_groups
   exe 'hi! ' . s:g
@@ -29,6 +30,7 @@ endfor
 hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
 hi StatusLine gui=bold,reverse cterm=bold,reverse
 hi TabLineSel gui=reverse,bold cterm=reverse,bold
+hi Title gui=bold cterm=bold
 hi WarningMsg guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
 hi WildMenu gui=bold cterm=bold
 
@@ -97,7 +99,7 @@ endif
 hi link LineNr NonText
 hi link StatusLineTerm StatusLine
 hi link StatusLineTermNC StatusLineNC
-hi link Todo WarningMsg
+hi link Todo Title
 hi link VertSplit StatusLine
 hi link diffAdded DiffAdd
 hi link diffRemoved DiffDelete
