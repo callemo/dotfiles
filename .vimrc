@@ -64,6 +64,8 @@ syntax on
 let g:netrw_banner = 0
 let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
 
+iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR>
+iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR>
 iabbr modeline\ <C-r>=printf(&cms, printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))<CR><Esc>^2W
 
 if isdirectory(expand('~/dotfiles/vim'))
