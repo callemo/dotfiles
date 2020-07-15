@@ -66,8 +66,6 @@ vnoremap <Leader>y "*y
 inoremap <C-a> <Home>
 inoremap <C-e> <End>
 inoremap <C-Enter> <C-o>o
-inoremap <C-j> <Down>
-inoremap <C-k> <Up>
 " }}}
 " Command {{{
 cnoremap <C-a> <Home>
