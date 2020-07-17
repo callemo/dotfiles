@@ -56,11 +56,11 @@ nnoremap yow :setl invwrap<CR>
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<CR>/<CR>
 vnoremap <Leader>! :Cmd<Space>
-vnoremap <Leader>~ :<C-u>SwitchCase<Space>
+vnoremap <Leader>S :'<,'>Send<CR>
 vnoremap <Leader>p "*p
-vnoremap <Leader>s :Send<CR>
 vnoremap <Leader>x "*x
 vnoremap <Leader>y "*y
+vnoremap <Leader>~ :<C-u>SwitchCase<Space>
 " }}}
 " Insert {{{
 inoremap <C-a> <Home>
