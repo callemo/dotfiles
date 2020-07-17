@@ -17,15 +17,16 @@ $(HOME)/.gitignore: $(CURDIR)/.gitignore
 	git config --global core.excludesfile $@
 
 vim:
-	./bin/vimget https://github.com/tpope/vim-commentary.git
-	./bin/vimget https://github.com/tpope/vim-dispatch.git
-	./bin/vimget https://github.com/tpope/vim-eunuch.git
-	./bin/vimget https://github.com/tpope/vim-fugitive.git
-	./bin/vimget https://github.com/tpope/vim-repeat.git
-	./bin/vimget https://github.com/tpope/vim-surround.git
-	./bin/vimget -o https://github.com/tpope/vim-projectionist.git
-	./bin/vimget -o https://github.com/tpope/vim-ragtag.git
-	./bin/vimget -o https://github.com/tpope/vim-scriptease.git
+	bin/vimget https://github.com/tpope/vim-commentary
+	bin/vimget https://github.com/tpope/vim-dispatch
+	bin/vimget https://github.com/tpope/vim-eunuch
+	bin/vimget https://github.com/tpope/vim-fugitive
+	bin/vimget https://github.com/tpope/vim-repeat
+	bin/vimget https://github.com/tpope/vim-surround
+	bin/vimget -o https://github.com/tpope/vim-projectionist
+	bin/vimget -o https://github.com/tpope/vim-ragtag
+	bin/vimget -o https://github.com/tpope/vim-scriptease
+	bin/vimget -o https://github.com/vimwiki/vimwiki
 
 tmux:
 	if [[ -d ~/.tmux/plugins/tmux-resurrect ]]; then git -C ~/.tmux/plugins/tmux-resurrect pull; else git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect; fi
