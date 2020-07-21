@@ -3,9 +3,9 @@ SHELL = /bin/bash
 sources = .vimrc .gvimrc .tmux.conf .ctags
 targets = $(sources:.%=$(HOME)/.%)
 
-.PHONY: all dotfiles vim tmux fzf help
+.PHONY: all dotfiles vim tmux fzf
 
-all: dotfiles vim tmux fzf
+all: dotfiles vim tmux fzf scipy
 
 dotfiles: $(targets) $(HOME)/.gitignore
 
@@ -33,4 +33,11 @@ tmux:
 
 fzf:
 	if [[ -d ~/.fzf ]]; then git -C ~/.fzf pull; else git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; ~/.fzf/install --all; fi
+
+scipy:
+	~/.virtualenvs/scipy/bin/python -m pip install --upgrade \
+		numpy scipy matplotlib ipython jupyter pandas sympy nose \
+		pip \
+		jupyterlab \
+		tabulate
 
