@@ -7,6 +7,7 @@ command -nargs=?
       \ Fmt call dotfiles#FormatFile(<f-args>)
 command Bonly call dotfiles#BufferOnly()
 command Trim call dotfiles#TrimTrailingBlanks()
+command Scratch new | set bt=nofile
 command -nargs=1 -complete=customlist,dotfiles#VisualSwitchCaseComplete
       \ SwitchCase :call dotfiles#VisualSwitchCase(<f-args>)
 command -nargs=+ -complete=file -range
