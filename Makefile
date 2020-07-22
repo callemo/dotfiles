@@ -3,9 +3,9 @@ SHELL = /bin/bash
 sources = .vimrc .gvimrc .tmux.conf .ctags
 targets = $(sources:.%=$(HOME)/.%)
 
-.PHONY: all dotfiles vim tmux fzf
+.PHONY: all dotfiles vim tmux fzf scipy
 
-all: dotfiles vim tmux fzf scipy
+all: dotfiles vim tmux fzf
 
 dotfiles: $(targets) $(HOME)/.gitignore
 
@@ -29,13 +29,21 @@ vim:
 	bin/vimget -o https://github.com/vimwiki/vimwiki
 
 tmux:
-	if [[ -d ~/.tmux/plugins/tmux-resurrect ]]; then git -C ~/.tmux/plugins/tmux-resurrect pull; else git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect; fi
+	@if [[ -d ~/.tmux/plugins/tmux-resurrect ]]; then \
+		git -C ~/.tmux/plugins/tmux-resurrect pull; \
+	else \
+		git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect; \
+	fi
 
 fzf:
-	if [[ -d ~/.fzf ]]; then git -C ~/.fzf pull; else git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; ~/.fzf/install --all; fi
+	@if [[ -d ~/.fzf ]]; then \
+		git -C ~/.fzf pull; \
+	else \
+		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; ~/.fzf/install --all; \
+	fi
 
 scipy:
-	~/.virtualenvs/scipy/bin/python -m pip install --upgrade \
+	@~/.virtualenvs/scipy/bin/python -m pip install --upgrade \
 		numpy scipy matplotlib ipython jupyter pandas sympy nose \
 		pip \
 		jupyterlab \
