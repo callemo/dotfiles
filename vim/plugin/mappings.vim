@@ -14,7 +14,7 @@ nnoremap <Leader>S :Send<CR>
 nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>p "*p
 nnoremap <Leader>r :registers<CR>
-nnoremap <Leader>y "*yy
+nnoremap <Leader>y "*y
 
 if empty(maparg('m<CR>'))
   nnoremap m<CR> :Win make<CR>
