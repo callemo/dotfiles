@@ -32,7 +32,7 @@ iabbr <buffer> getopts\ aflag=<CR>
       \done<CR>
       \shift $((OPTIND - 1))<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
 
-iabbr <buffer> scriptdir\ readonly SCRIPTDIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"<CR>
+iabbr <buffer> scriptdir\ readonly scriptdir="$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"<CR>
       \<C-r>=dotfiles#EndAbbr()<CR>
 
 iabbr <buffer> tempdir\ tempdir=$(mktemp -d)<CR>
