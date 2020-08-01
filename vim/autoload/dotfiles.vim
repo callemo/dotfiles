@@ -47,6 +47,9 @@ endfunc
 func! dotfiles#FormatFile(...) abort
   let l:fallback = 'prettier --write --print-width 88'
   let l:formatters = {
+        \ 'c': 'clang-format -i',
+        \ 'cpp': 'clang-format -i',
+        \ 'java': 'clang-format -i',
         \ 'python': 'black',
         \ }
   let l:cmd = a:0 > 0 ? a:1 : l:formatters->get(&filetype, l:fallback)
