@@ -62,7 +62,7 @@ EOF
 
 function! s:venv(...)
   if a:0 > 0
-    if a:1 == "?"
+    if a:1 == '?'
       echomsg py3eval('venv.dir')
       return
     endif
@@ -80,13 +80,13 @@ function! s:venv(...)
     return
   endif
 
-  python3 venv.activate(vim.eval("l:path"))
+  python3 venv.activate(vim.eval('l:path'))
   echomsg l:path
 endfunction
 
 function! s:complete(A, L, P) abort
   return glob(g:venv_home . '/' . a:A . '*', v:true, v:true, v:true)
-        \ ->map("v:val->fnamemodify(':t')")
+        \ ->map('v:val->fnamemodify(":t")')
 endfunction
 
 command! -nargs=? -complete=customlist,<SID>complete Venv call <SID>venv(<f-args>)
