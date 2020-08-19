@@ -1,40 +1,42 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-usage () { echo "usage: ${0} [-or] url"; }
+usage () { echo "usage: $0 [-or] url"; }
 
 oflag=0
 rlag=0
-while getopts "or" opt; do
+while getopts or opt
+do
   case ${opt} in
-    o)
-      oflag=1 ;;
-    r)
-      rlag=1 ;;
-    ?)
-      usage >&2; exit 2 ;;
+    o) oflag=1 ;;
+    r) rlag=1 ;;
+    ?) usage >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
 
-if [[ $# -lt 1 ]]; then
+if [ $# -lt 1 ]
+then
   usage >&2
   exit 1
 fi
 
-if [[ ${oflag} = 1 ]]; then
+if [ $oflag = 1 ]
+then
   readonly PLUGIN_HOME="${HOME}/.vim/pack/default/opt"
 else
   readonly PLUGIN_HOME="${HOME}/.vim/pack/default/start"
 fi
 
-url=${1}
+url=$1
 name=${url##*/}
 name=${name%.*}
 dir="${PLUGIN_HOME}/${name}"
-if [[ ! -e "${dir}" ]]; then
+if [ ! -e "${dir}" ]
+then
   mkdir -p "${PLUGIN_HOME}"
-  if [[ ${rlag} = 1 ]]; then
+  if [ ${rlag} = 1 ]
+  then
     git -C "${PLUGIN_HOME}" clone --recursive "${url}"
   else
     git -C "${PLUGIN_HOME}" clone "${url}"
@@ -42,6 +44,7 @@ if [[ ! -e "${dir}" ]]; then
 else
   git -C "${dir}" pull
 fi
-if [[ -d "${dir}/doc" ]]; then
+if [ -d "${dir}/doc" ]
+then
   vim -u NONE -c "helptags ${dir}/doc" -c q
 fi

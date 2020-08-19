@@ -2,11 +2,8 @@
 # Shell initialization script
 #
 # Variables {{{
-HISTSIZE=50000
-export HISTSIZE
-
-PYTHONUSERBASE="${HOME}/.local/python"
-export PYTHONUSERBASE
+HISTSIZE=50000 export HISTSIZE
+PYTHONUSERBASE="${HOME}/.local/python" export PYTHONUSERBASE
 
 if [[ -n "${ZSH_VERSION}" ]]; then
   _script_dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"

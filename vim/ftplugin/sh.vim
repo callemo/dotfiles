@@ -1,7 +1,7 @@
 setl sw=2 sts=2 et
 
-iabbr <buffer> #! #!/bin/bash<CR>
-      \set -euo pipefail<CR>
+iabbr <buffer> #! #!/bin/sh<CR>
+      \set -eu<CR>
       \<C-r>=dotfiles#EndAbbr()<CR>
 
 iabbr <buffer> case\ case  <C-o>mmin<CR>
@@ -12,10 +12,12 @@ iabbr <buffer> case\ case  <C-o>mmin<CR>
       \DEFAULT ;;<CR>
       \esac<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
 
-iabbr <buffer> for\ for ;<C-o>mm do<CR>
+iabbr <buffer> for\ for <C-o>mm<CR>
+      \do<CR>
       \done<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
 
-iabbr <buffer> if\ if [[  <C-o>mm]]; then<CR>
+iabbr <buffer> if\ if <C-o>mm<CR>
+      \then<CR>
       \fi<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
 
 iabbr <buffer> func\ (<C-o>mm) {<CR>
@@ -23,7 +25,8 @@ iabbr <buffer> func\ (<C-o>mm) {<CR>
 
 iabbr <buffer> getopts\ aflag=<CR>
       \bflag=<CR>
-      \while getopts a<C-o>mmb: opt; do<CR>
+      \while getopts a<C-o>mmb: opt<CR>
+      \do<CR>
       \case ${opt} in<CR>
       \a) aflag=1 ;;<CR>
       \b) bflag="${OPTARG}" ;;<CR>
@@ -32,13 +35,3 @@ iabbr <buffer> getopts\ aflag=<CR>
       \done<CR>
       \shift $((OPTIND - 1))<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
 
-iabbr <buffer> scriptdir\ readonly scriptdir="$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"<CR>
-      \<C-r>=dotfiles#EndAbbr()<CR>
-
-iabbr <buffer> tempdir\ tempdir=$(mktemp -d)<CR>
-      \atexit() { rm -rf "${tempdir}"; }<CR>
-      \trap atexit EXIT<CR>
-      \<C-r>=dotfiles#EndAbbr()<CR>
-
-inoremap <buffer> <C-x>= ${}<Left>
-inoremap <buffer> <C-x>- $()<Left>
