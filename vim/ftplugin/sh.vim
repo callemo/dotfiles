@@ -1,5 +1,8 @@
 setl sw=2 sts=2 et
 
+inoremap <buffer> <C-x>= ${}<Left>
+inoremap <buffer> <C-x>- $()<Left>
+
 iabbr <buffer> #! #!/bin/sh<CR>
       \set -eu<CR>
       \<C-r>=dotfiles#EndAbbr()<CR>
