@@ -66,7 +66,7 @@ gupm () {
   git checkout "${master}" \
     && git pull \
     && git checkout "${branch}" \
-    && git merge --no-ff -m "Merge ${master}"
+    && git merge --no-ff -m "Merge ${master}" "${master}"
 }
 
 # Find all repos and update
