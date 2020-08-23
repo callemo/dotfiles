@@ -29,7 +29,9 @@ endfunc
 
 func! dotfiles#LintFile() abort
   let l:linters = {
+        \ 'css': 'stylelint',
         \ 'python': 'pylint',
+        \ 'scss': 'stylelint',
         \ 'sh': 'shellcheck -f gcc',
         \ }
   let l:cmd = l:linters->get(&filetype, v:null)

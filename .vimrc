@@ -49,7 +49,7 @@ set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
 set statusline+=%r%=[cwd:%{getcwd()->fnamemodify(':~')}]\ %-14.(%l,%c%V%)\ %P
 
 if has('unix')
-  set grepprg=grep\ -rn\ $*\ /dev/null
+  set grepprg=grep\ -rnE\ $*\ /dev/null
 endif
 
 if has('mouse_sgr')
