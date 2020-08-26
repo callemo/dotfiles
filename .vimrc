@@ -49,7 +49,11 @@ set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
 set statusline+=%r%=[cwd:%{getcwd()->fnamemodify(':~')}]\ %-14.(%l,%c%V%)\ %P
 
 if has('unix')
-  set grepprg=grep\ -nEI\ --exclude-dir\ .git\ --exclude-dir\ node_modules\ $*\ /dev/null
+  if executable('ag')
+    set grepprg=ag\ --vimgrep
+  else
+    set grepprg=grep\ -nEsI\ --exclude-dir\ .git\ --exclude-dir\ node_modules\ $*\ /dev/null
+  endif
 endif
 
 if has('mouse_sgr')
