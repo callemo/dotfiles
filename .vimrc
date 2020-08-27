@@ -52,7 +52,7 @@ if has('unix')
   if executable('ag')
     set grepprg=ag\ --vimgrep
   else
-    set grepprg=grep\ -nEsI\ --exclude-dir\ .git\ --exclude-dir\ node_modules\ $*\ /dev/null
+    set grepprg=grep\ -EnRI\ --exclude-dir\ .git\ --exclude-dir\ node_modules\ $*\ /dev/null
   endif
 endif
 
