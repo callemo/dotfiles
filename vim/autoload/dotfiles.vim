@@ -24,7 +24,7 @@ func! dotfiles#VisualSwitchCase(style) abort
 endfunc
 
 func! dotfiles#VisualSwitchCaseComplete(A, L, P) abort
-  return ['camel', 'snake', 'kebab']->filter('v:val =~ ("^" . a:A)' )
+  return filter(['camel', 'snake', 'kebab'], 'v:val =~ ("^" . a:A)' )
 endfunc
 
 func! dotfiles#LintFile() abort
@@ -34,7 +34,7 @@ func! dotfiles#LintFile() abort
         \ 'scss': 'stylelint',
         \ 'sh': 'shellcheck -f gcc',
         \ }
-  let l:cmd = l:linters->get(&filetype, v:null)
+  let l:cmd = get(l:linters, &filetype, v:null)
   if l:cmd == v:null
     echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
     return
@@ -54,7 +54,7 @@ func! dotfiles#FormatFile(...) abort
         \ 'java': 'clang-format -i',
         \ 'python': 'black',
         \ }
-  let l:cmd = a:0 > 0 ? a:1 : l:formatters->get(&filetype, l:fallback)
+  let l:cmd = a:0 > 0 ? a:1 : get(l:formatters, &filetype, l:fallback)
   update
   let l:out = system(l:cmd . ' ' . expand('%:S'))
   if v:shell_error != 0
@@ -65,7 +65,7 @@ endfunc
 
 func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   let l:input = a:range > 0 ? getline(a:lnum, a:end) : []
-  let l:bufname = getcwd() . '/+Output'
+  let l:bufname = getcwd() . '/+Errors'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
   if l:winnr < 0
     exe 'botright new ' . l:bufname
@@ -74,8 +74,8 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   else
     exe l:winnr . 'wincmd w'
   endif
-  silent let l:err = a:cmd->systemlist(l:input)->append(line('$') - 1)
-  call line('$')->cursor('.')
+  silent let l:err = append(line('$') - 1, systemlist(a:cmd, l:input))
+  call cursor(line('$'), '.')
 endfunc
 
 func! dotfiles#SendTerminalKeys(start, end, ...) abort
@@ -88,7 +88,7 @@ func! dotfiles#SendTerminalKeys(start, end, ...) abort
     return
   endif
 
-  let l:keys = getline(a:start, a:end)->join(" \n")
+  let l:keys = join(getline(a:start, a:end), "\n")
   call term_sendkeys(l:buf, l:keys . "\n")
   let w:send_terminal_buf = l:buf
 endfunc
@@ -96,7 +96,7 @@ endfunc
 func! dotfiles#SetVisualSearch() abort
   let l:reg = @"
   exe 'normal! vgvy'
-  let @/ = '\V\C' . escape(@", '\')->substitute("\n$", '', '')
+  let @/ = substitute('\V\C' . escape(@", '\'), "\n$", '', '')
   let @" = l:reg
 endfunc
 
