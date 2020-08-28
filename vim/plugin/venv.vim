@@ -70,7 +70,7 @@ function! s:venv(...)
   elseif !empty($VIRTUAL_ENV) && $VIRTUAL_ENV !=# py3eval('venv.dir')
     let path = $VIRTUAL_ENV
   else
-    let path = g:venv_home . '/' . getcwd()->fnamemodify(':t')
+    let path = g:venv_home . '/' . fnamemodify(getcwd(), ':t')
   endif
 
   if !isdirectory(l:path)
@@ -85,8 +85,8 @@ function! s:venv(...)
 endfunction
 
 function! s:complete(A, L, P) abort
-  return glob(g:venv_home . '/' . a:A . '*', v:true, v:true, v:true)
-        \ ->map('v:val->fnamemodify(":t")')
+  return map(glob(g:venv_home . '/' . a:A . '*', v:true, v:true, v:true),
+        \ 'fnamemodify(v:val, ":t")')
 endfunction
 
 command! -nargs=? -complete=customlist,<SID>complete Venv call <SID>venv(<f-args>)
