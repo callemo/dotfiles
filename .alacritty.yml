@@ -1,0 +1,11 @@
+font:
+  normal:
+    family: Inconsolata
+  bold:
+    family: Inconsolata
+  italic:
+    family: Inconsolata
+  bold_italic:
+    family: Inconsolata
+  size: 15.0
+

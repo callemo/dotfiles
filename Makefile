@@ -1,6 +1,4 @@
-SHELL = /bin/bash
-
-sources = .vimrc .gvimrc .tmux.conf .ctags
+sources = .alacritty.yml .ctags .gvimrc .tmux.conf .vimrc
 targets = $(sources:.%=$(HOME)/.%)
 
 .PHONY: all dotfiles vim tmux fzf scipy
