@@ -28,14 +28,15 @@ vim:
 	bin/vimget -o https://github.com/vimwiki/vimwiki
 
 tmux:
-	@if [[ -d ~/.tmux/plugins/tmux-resurrect ]]; then \
+	@if [ -d ~/.tmux/plugins/tmux-resurrect ]; then \
 		git -C ~/.tmux/plugins/tmux-resurrect pull; \
 	else \
-		git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect; \
+		git clone https://github.com/tmux-plugins/tmux-resurrect.git \
+			~/.tmux/plugins/tmux-resurrect; \
 	fi
 
 fzf:
-	@if [[ -d ~/.fzf ]]; then \
+	@if [ -d ~/.fzf ]; then \
 		git -C ~/.fzf pull; \
 	else \
 		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; ~/.fzf/install --all; \

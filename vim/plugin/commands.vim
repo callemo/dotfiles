@@ -16,6 +16,6 @@ if has('terminal')
   command -nargs=? -range
         \ Send call dotfiles#SendTerminalKeys(<line1>, <line2>, <args>)
   command -nargs=* -complete=file
-        \ Win botright terminal ++noclose ++shell ++kill=term <args>
+        \ Win botright terminal ++noclose ++kill=term <args>
 endif
 
