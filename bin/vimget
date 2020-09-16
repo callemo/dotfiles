@@ -1,16 +1,14 @@
 #!/bin/sh
 set -eu
 
-usage () { echo "usage: $0 [-or] url"; }
-
 oflag=0
 rlag=0
 while getopts or opt
 do
-  case ${opt} in
+  case $opt in
     o) oflag=1 ;;
     r) rlag=1 ;;
-    ?) usage >&2; exit 2 ;;
+    ?) echo "usage: $0 [-or] url" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -23,9 +21,9 @@ fi
 
 if [ $oflag = 1 ]
 then
-  readonly PLUGIN_HOME="${HOME}/.vim/pack/default/opt"
+  PLUGIN_HOME="${HOME}/.vim/pack/default/opt"
 else
-  readonly PLUGIN_HOME="${HOME}/.vim/pack/default/start"
+  PLUGIN_HOME="${HOME}/.vim/pack/default/start"
 fi
 
 url=$1
@@ -44,7 +42,8 @@ then
 else
   git -C "${dir}" pull
 fi
+
 if [ -d "${dir}/doc" ]
 then
-  vim -u NONE -c "helptags ${dir}/doc" -c q
+  vim -u NONE -c "helptags ${dir}/doc" -c q >/dev/null 2>&1
 fi
