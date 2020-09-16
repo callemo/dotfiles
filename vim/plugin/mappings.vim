@@ -74,10 +74,10 @@ cnoremap <C-n> <Down>
 cnoremap <C-p> <Up>
 " }}}
 " Terminal {{{
-tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
 tnoremap <C-r><C-r> <C-r>
-tnoremap <C-w><C-b> <C-\><C-n><C-b>
+tnoremap <C-w>[ <C-\><C-n>
 tnoremap <C-w><C-w> <C-w>.
+tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
 tnoremap <ScrollWheelUp> <C-\><C-n>
 if !empty($TMUX)
   tnoremap <expr> <silent> <C-j> winnr() == winnr('$') ?
