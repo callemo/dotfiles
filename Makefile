@@ -24,6 +24,7 @@ vim:
 	bin/vimget -o https://github.com/tpope/vim-projectionist
 	bin/vimget -o https://github.com/tpope/vim-ragtag
 	bin/vimget -o https://github.com/tpope/vim-scriptease
+	bin/vimget -o https://github.com/tpope/vim-tbone
 	bin/vimget -o https://github.com/vimwiki/vimwiki
 
 tmux:
