@@ -9,51 +9,22 @@ _source_if() { [ -r "$1" ] && . "$1"; }
 _path_prepend_if() { [ -d "$1" ] && PATH="$1:$PATH"; }
 _venv_prompt() { [ "$VIRTUAL_ENV" ] && echo "($(basename "$VIRTUAL_ENV")) "; }
 
-# Update current branch from master
-gupm () {
-  local branch master
-  master="${1:-master}"
-  branch="$(git branch | awk '/^\*/ { print $2 }')"
-  if [ -z "${branch}" ] || [ "${branch}" = "${master}" ]; then
-    echo "bad branch: ${branch}" >&2
-    return 1
-  fi
-  git checkout "${master}" \
-    && git pull \
-    && git checkout "${branch}" \
-    && git merge --no-ff -m "Merge ${master}" "${master}"
-}
-
-# Find all repos and update
-gupr () {
-  if [ $# -lt 1 ]; then
-    echo "usage: $0 path [args]" >&2
-    return 1
-  fi
-  p="$1"
-  shift
-  find "$p" -name .git \
-    | sed 's/.git$//' \
-    | xargs -n 1 -I % git -C "%" pull --rebase "$@"
-}
-
 . "$progdir/git-prompt.sh"
-if [ -n "$ZSH_VERSION" ]; then
-  precmd () { __git_ps1 "$(_venv_prompt)%m:%1~" " %# "; }
-else
-  PROMPT_COMMAND='__git_ps1 "$(_venv_prompt)\h:\W" "\\\$ "'; export PROMPT_COMMAND
-fi
-
 GIT_PS1_SHOWDIRTYSTATE=1
 GIT_PS1_SHOWSTASHSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWUPSTREAM="auto"
 GIT_PS1_SHOWCOLORHINTS=1
 
+if [ -n "$ZSH_VERSION" ]; then
+  precmd () { __git_ps1 "$(_venv_prompt)%m:%1~" " %# "; }
+else
+  PROMPT_COMMAND='__git_ps1 "$(_venv_prompt)\h:\W" "\\\$ "'; export PROMPT_COMMAND
+fi
+
 alias dco='docker-compose'
 alias dps='docker ps -a --format "table {{.Names}}\t{{.ID}}\t{{.Status}}\t{{.Ports}}"'
 alias ga='git add'
-alias gb='git branch'
 alias gca='git commit -v -a'
 alias gcam='git commit -v -a -m'
 alias gc='git commit -v'
@@ -69,8 +40,6 @@ alias glol="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgre
 alias glols="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --stat"
 alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
 alias gst='git status'
-alias gupav='git pull --rebase --autostash -v'
-alias gup='git pull --rebase'
 alias tsp='tmux split-window -l 12'
 
 _path_prepend_if '/usr/local/go/bin'
