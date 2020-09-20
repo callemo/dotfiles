@@ -30,11 +30,11 @@ iabbr <buffer> getopts\ aflag=<CR>
       \bflag=<CR>
       \while getopts a<C-o>mmb: opt<CR>
       \do<CR>
-      \case ${opt} in<CR>
+      \case $opt in<CR>
       \a) aflag=1 ;;<CR>
-      \b) bflag="${OPTARG}" ;;<CR>
+      \b) bflag="$OPTARG" ;;<CR>
       \?) echo "usage: $0 [-a] [-b value] args" >&2; exit 2 ;;<CR>
       \esac<CR>
       \done<CR>
-      \shift $((OPTIND - 1))<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
+      \shift $((OPTIND - 1))<Esc>`m<C-r>=dotfiles#EndAbbr()<CR>
 
