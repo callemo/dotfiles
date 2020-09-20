@@ -3,57 +3,13 @@
 #
 # Variables {{{
 HISTSIZE=50000 export HISTSIZE
-PYTHONUSERBASE="${HOME}/.local/python" export PYTHONUSERBASE
-
-if [[ -n "${ZSH_VERSION}" ]]; then
-  _script_dir="$(cd "$(dirname "${(%):-%x}")" && pwd)"
-else
-  _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-fi
-
+PYTHONUSERBASE="$HOME/python"; export PYTHONUSERBASE
+_script_dir="$(dirname $0)"
 # }}}
 # Functions {{{
 _source_if() { [[ -r "${1}" ]] && . "${1}"; }
 _path_prepend_if() { [[ -d "${1}" ]] && PATH="${1}:${PATH}"; }
 _venv_prompt() { [[ "${VIRTUAL_ENV}" ]] && echo -n "($(basename "${VIRTUAL_ENV}")) "; }
-
-venv () {
-  [[ -z "${VENV_HOME}" ]] && VENV_HOME="${HOME}/.virtualenvs"
-
-  local cflag lflag env
-  while getopts c:l opt; do
-    case ${opt} in
-      c) cflag="${OPTARG}" ;;
-      l) lflag=1 ;;
-      ?)
-        echo "usage: $0 [-l] [-c env] args" >&2
-        return 2
-        ;;
-    esac
-  done
-  shift $((OPTIND - 1))
-
-  if [[ ${lflag} = 1 ]]; then
-    ( cd "${VENV_HOME}" && ls -1 )
-    return 0
-  fi
-
-  if [[ -n "${cflag}" ]]; then
-    python3 -m venv "${VENV_HOME}/${cflag}"
-    env="${cflag}"
-  else
-    env="${1:-$(basename "$(pwd)")}"
-  fi
-
-  if [[ ! -d "${VENV_HOME}/${env}" ]]; then
-    echo "environment not found: ${env}" >&2
-    return 1
-  fi
-
-  [[ -n "${VIRTUAL_ENV}" ]] && deactivate
-  . "${VENV_HOME}/${env}/bin/activate"
-}
-
 # Update current branch from master
 gupm () {
   local branch master
@@ -124,11 +80,11 @@ alias gup='git pull --rebase'
 alias tsw='tmux split-window -l 12'
 # }}}
 # PATH {{{
-_path_prepend_if "${HOME}/dotfiles/bin"
-_path_prepend_if "${PYTHONUSERBASE}/bin"
-_path_prepend_if "${HOME}/.local/node/bin"
-_path_prepend_if "${HOME}/.local/bin"
-_path_prepend_if "${HOME}/bin"
+_path_prepend_if '/usr/local/go/bin'
+_path_prepend_if '/usr/local/node/bin'
+_path_prepend_if "$PYTHONUSERBASE/bin"
+_path_prepend_if "$HOME/dotfiles/bin"
+_path_prepend_if "$HOME/bin"
 export PATH
 
 # }}}
