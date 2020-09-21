@@ -1,8 +1,8 @@
 command -nargs=1
       \ Dash exe 'silent !open dash://<args>' | redr!
-command Dump mksession! ~/vim.dump
+command Dump mksession!
 command Lint call dotfiles#LintFile()
-command Load source ~/vim.dump
+command Load source Session.vim
 command -nargs=?
       \ Fmt call dotfiles#FormatFile(<f-args>)
 command Bonly call dotfiles#BufferOnly()
