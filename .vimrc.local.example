@@ -1,0 +1,6 @@
+set background=dark
+if $COLORTERM == 'truecolor' && empty($TMUX)
+  if has('termguicolors') 
+    set termguicolors
+  endif
+endif
