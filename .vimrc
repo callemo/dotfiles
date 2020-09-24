@@ -12,8 +12,6 @@ set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set fillchars=vert:\ ,fold:-
-set foldmethod=marker
-set foldnestmax=3
 set hidden
 set history=1000
 set hlsearch
