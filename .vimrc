@@ -64,7 +64,7 @@ filetype plugin indent on
 syntax on
 
 let g:netrw_banner = 0
-let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
+let g:netrw_list_hide = '^\./$,^\.\./$'
 
 iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR>
 iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR>
