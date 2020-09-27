@@ -79,16 +79,15 @@ else  " &background ==# 'dark'
   hi helpHyperTextJump guifg=#6699fb ctermfg=69
 endif
 
-if has('gui_running') || (has('termguicolors') && &termguicolors)
+if has('terminal')
   if &background ==# 'light'
     let g:terminal_ansi_colors = [ '#e5e5e5', '#d12f1b', '#3e8087', '#78492a',
           \ '#0f68a0', '#ad3da4', '#804fb8', '#262626', '#8a99a6', '#d12f1b',
           \ '#23575c', '#78492a', '#0b4f79', '#ad3da4', '#4b21b0', '#262626' ]
   else  " &background ==# 'dark'
-    let g:terminal_ansi_colors = [ '#292a30', '#ff5555', '#50fa7b', '#f1fa8c',
-          \ '#bd93f9', '#ff79c6', '#8be9fd', '#bfbfbf', '#4d4d4d', '#ff6e67',
-          \ '#5af78e', '#f4f99d', '#caa9fa', '#ff92d0', '#9aedfe', '#e6e6e6' ]
-
+    let g:terminal_ansi_colors = [ '#21222c', '#ff5555', '#50fa7b', '#f1fa8c',
+          \ '#bd93f9', '#ff79c6', '#8be9fd', '#f8f8f2', '#6272a4', '#ff6e6e',
+          \ '#69ff94', '#ffffa5', '#d6acff', '#ff92df', '#a4ffff', '#ffffff' ]
   endif
 endif
 
