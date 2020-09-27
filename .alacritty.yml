@@ -13,9 +13,9 @@ colors:
   primary:
     background: "0x282a36"
     foreground: "0xf8f8f2"
-  # cursor:
-  #   text: "0x44475a"
-  #   cursor: "0xf8f8f2"
+  cursor:
+    text: "0x44475a"
+    cursor: "0xf8f8f2"
   selection:
     text: "0xf8f8f2"
     background: "0x44475a"
