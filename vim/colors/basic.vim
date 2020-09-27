@@ -81,17 +81,13 @@ endif
 
 if has('gui_running') || (has('termguicolors') && &termguicolors)
   if &background ==# 'light'
-    let g:terminal_ansi_colors = [
-          \ '#e5e5e5', '#d12f1b', '#3e8087', '#78492a', '#0f68a0', '#ad3da4',
-          \ '#804fb8', '#262626', '#8a99a6', '#d12f1b', '#23575c', '#78492a',
-          \ '#0b4f79', '#ad3da4', '#4b21b0', '#262626'
-          \ ]
+    let g:terminal_ansi_colors = [ '#e5e5e5', '#d12f1b', '#3e8087', '#78492a',
+          \ '#0f68a0', '#ad3da4', '#804fb8', '#262626', '#8a99a6', '#d12f1b',
+          \ '#23575c', '#78492a', '#0b4f79', '#ad3da4', '#4b21b0', '#262626' ]
   else  " &background ==# 'dark'
-    let g:terminal_ansi_colors = [
-          \ '#393b44', '#ff8170', '#78c2b3', '#d9c97c', '#4eb0cc', '#ff7ab2',
-          \ '#b281eb', '#dfdfe0', '#7f8c98', '#ff8170', '#acf2e4', '#ffa14f',
-          \ '#6bdfff', '#ff7ab2', '#dabaff', '#dfdfe0'
-          \ ]
+    let g:terminal_ansi_colors = [ '#292a30', '#ff5555', '#50fa7b', '#f1fa8c',
+          \ '#bd93f9', '#ff79c6', '#8be9fd', '#bfbfbf', '#4d4d4d', '#ff6e67',
+          \ '#5af78e', '#f4f99d', '#caa9fa', '#ff92d0', '#9aedfe', '#e6e6e6' ]
 
   endif
 endif
