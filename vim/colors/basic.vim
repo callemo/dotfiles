@@ -10,21 +10,17 @@ endif
 
 let g:colors_name = 'basic'
 
-let s:highlight_groups = [
-      \ 'Comment', 'Constant', 'CursorLine', 'CursorLineNr',
-      \ 'Delimiter', 'DiffAdd', 'DiffChange', 'DiffDelete', 'DiffText',
-      \ 'Error', 'ErrorMsg', 'Folded', 'Function', 'Identifier',
-      \ 'MatchParen', 'NonText', 'LineNr', 'PreProc', 'Search',
-      \ 'Special', 'Statement', 'StatusLine', 'StatusLineNC',
-      \ 'StatusLineTerm', 'StatusLineTermNC', 'TabLine', 'TabLineFill',
-      \ 'TabLineSel', 'Title', 'Todo', 'Type', 'VertSplit', 'Visual',
-      \ 'WarningMsg', 'WildMenu'
-      \ ]
+let s:highlight_groups = [ 'Comment', 'Constant', 'CursorLine',
+      \ 'CursorLineNr', 'Delimiter', 'DiffAdd', 'DiffChange', 'DiffDelete',
+      \ 'DiffText', 'Error', 'ErrorMsg', 'Folded', 'Function', 'Identifier', 'LineNr',
+      \ 'MatchParen', 'NonText', 'PreProc', 'Search', 'Special', 'Statement',
+      \ 'StatusLine', 'StatusLineNC', 'StatusLineTerm', 'StatusLineTermNC', 'TabLine',
+      \ 'TabLineFill', 'TabLineSel', 'Title', 'Todo', 'Type', 'VertSplit', 'Visual',
+      \ 'WarningMsg', 'WildMenu' ]
 
 for s:g in s:highlight_groups
-  exe 'hi! ' . s:g
-        \ . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE'
-        \ . ' gui=NONE guifg=NONE guibg=NONE'
+  exe 'hi! ' . s:g .
+        \ ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
 endfor
 
 hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
@@ -46,7 +42,6 @@ if &background ==# 'light'
   hi Folded guifg=#6c6c6c guibg=#d9d9d9 ctermfg=59 ctermbg=188
   hi Function guifg=#077cae ctermfg=31
   hi Keyword guifg=#9b2393 ctermfg=90 gui=bold cterm=bold
-  hi MatchParen guifg=#262626 guibg=#fef869 ctermfg=235 ctermbg=227
   hi NonText guifg=#a6a6a6 ctermfg=145
   hi Normal guifg=#000000 guibg=#ffffeb
   hi Number guifg=#1c00cf ctermfg=20
@@ -67,7 +62,6 @@ else  " &background ==# 'dark'
   hi Folded guifg=#a4a5a7 guibg=#494a4f ctermfg=145 ctermbg=59
   hi Function guifg=#4fb0ca ctermfg=74
   hi Keyword guifg=#fe7bb1 ctermfg=211 gui=bold cterm=bold
-  hi MatchParen guifg=#000000 guibg=#fffb3b ctermfg=16 ctermbg=227
   hi NonText guifg=#747478 ctermfg=102
   hi Normal guifg=#ffffff guibg=#292a30
   hi Number guifg=#d9c981 ctermfg=186
