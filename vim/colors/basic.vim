@@ -13,10 +13,10 @@ let g:colors_name = 'basic'
 let s:highlight_groups = [ 'Comment', 'Constant', 'CursorLine',
       \ 'CursorLineNr', 'Delimiter', 'DiffAdd', 'DiffChange', 'DiffDelete',
       \ 'DiffText', 'Error', 'ErrorMsg', 'Folded', 'Function', 'Identifier', 'LineNr',
-      \ 'MatchParen', 'NonText', 'PreProc', 'Search', 'Special', 'Statement',
-      \ 'StatusLine', 'StatusLineNC', 'StatusLineTerm', 'StatusLineTermNC', 'TabLine',
-      \ 'TabLineFill', 'TabLineSel', 'Title', 'Todo', 'Type', 'VertSplit', 'Visual',
-      \ 'WarningMsg', 'WildMenu' ]
+      \ 'MatchParen', 'NonText', 'PreProc', 'Search', 'Special', 'SpellBad',
+      \ 'Statement', 'StatusLine', 'StatusLineNC', 'StatusLineTerm',
+      \ 'StatusLineTermNC', 'TabLine', 'TabLineFill', 'TabLineSel', 'Title', 'Todo',
+      \ 'Type', 'VertSplit', 'Visual', 'WarningMsg', 'WildMenu' ]
 
 for s:g in s:highlight_groups
   exe 'hi! ' . s:g .
@@ -24,6 +24,10 @@ for s:g in s:highlight_groups
 endfor
 
 hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
+hi SpellBad ctermbg=DarkRed ctermfg=Black
+hi SpellCap ctermbg=DarkBlue ctermfg=Black
+hi SpellLocal ctermbg=DarkCyan ctermfg=Black
+hi SpellRare ctermbg=DarkMagenta ctermfg=Black
 hi StatusLine gui=bold,reverse cterm=bold,reverse
 hi TabLineSel gui=reverse,bold cterm=reverse,bold
 hi Title gui=bold cterm=bold
@@ -85,16 +89,17 @@ if has('terminal')
   endif
 endif
 
-hi link LineNr NonText
-hi link StatusLineTerm StatusLine
-hi link StatusLineTermNC StatusLineNC
-hi link Todo Title
-hi link VertSplit StatusLine
 hi link diffAdded DiffAdd
 hi link diffRemoved DiffDelete
+hi link LineNr NonText
+hi link MatchParen Search
 hi link pythonBuiltin Keyword
 hi link pythonStatement Keyword
 hi link rubyDefine Keyword
 hi link rubyStringDelimiter String
+hi link StatusLineTerm StatusLine
+hi link StatusLineTermNC StatusLineNC
+hi link Todo Title
+hi link VertSplit StatusLine
 hi link vimOption Keyword
 
