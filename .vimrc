@@ -66,9 +66,9 @@ syntax on
 let g:netrw_banner = 0
 let g:netrw_list_hide = '^\./$,^\.\./$'
 
-iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR>
-iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR>
-iabbr modeline\ <C-r>=printf(&cms, printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))<CR><Esc>^2W
+iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
+iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>
+iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
 
 if isdirectory(expand('~/dotfiles/vim'))
   set rtp+=~/dotfiles/vim
