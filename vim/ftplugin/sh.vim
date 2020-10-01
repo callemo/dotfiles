@@ -2,10 +2,7 @@ setl sw=2 sts=2 et
 
 inoremap <buffer> <C-x>= ${}<Left>
 inoremap <buffer> <C-x>- $()<Left>
-
-iabbr <buffer> #! #!/bin/sh<CR>
-      \set -eu<CR>
-      \<C-r>=dotfiles#EndAbbr()<CR>
+inoremap <buffer> <C-x>! #!/bin/sh<CR>set -eu<CR><ESC>
 
 iabbr <buffer> case\ case  <C-o>mmin<CR>
       \PATTERN \| PATTERN)<CR>
