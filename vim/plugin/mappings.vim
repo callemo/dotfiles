@@ -5,15 +5,16 @@ nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
 nnoremap - :Explore<CR>
 nnoremap <Leader>! :Cmd<Space>
 nnoremap <silent> <Leader>. :lcd %:p:h<CR>
+nnoremap <Leader>b :buffers<CR>
+nnoremap <Leader>d :Cmd dict <C-R>=expand('<cword>')<CR><CR>
 nnoremap <Leader>D :Dump<CR>
 nnoremap <Leader>E :Sexplore<CR>
 nnoremap <Leader>F :Fmt<CR>
 nnoremap <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
 nnoremap <Leader>L :Lint<CR>
-nnoremap <Leader>S :Send<CR>
-nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>p "*p
 nnoremap <Leader>r :registers<CR>
+nnoremap <Leader>S :Send<CR>
 nnoremap <Leader>y "*y
 
 if empty(maparg('m<CR>'))
