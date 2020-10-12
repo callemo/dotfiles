@@ -19,11 +19,11 @@ vim:
 	bin/vimget https://github.com/tpope/vim-dispatch
 	bin/vimget https://github.com/tpope/vim-eunuch
 	bin/vimget https://github.com/tpope/vim-fugitive
+	bin/vimget https://github.com/tpope/vim-ragtag
 	bin/vimget https://github.com/tpope/vim-repeat
 	bin/vimget https://github.com/tpope/vim-surround
 	bin/vimget https://github.com/tpope/vim-tbone
 	bin/vimget -o https://github.com/tpope/vim-projectionist
-	bin/vimget -o https://github.com/tpope/vim-ragtag
 	bin/vimget -o https://github.com/tpope/vim-scriptease
 	bin/vimget -o https://github.com/vimwiki/vimwiki
 
