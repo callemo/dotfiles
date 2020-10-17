@@ -1,10 +1,27 @@
 #!/usr/bin/env python3
 """Percent-encoding, also known as URL encoding."""
 import fileinput
+import os
+import sys
 import urllib.parse
 
-try:
+
+def encode():
     for line in fileinput.input():
         print(urllib.parse.quote(line, safe=""))
+
+
+def decode():
+    for line in fileinput.input():
+        print(urllib.parse.unquote(line))
+
+
+progname = os.path.basename(sys.argv[0])
+
+try:
+    if progname == "urlencode":
+        encode()
+    else:
+        decode()
 except KeyboardInterrupt:
     pass

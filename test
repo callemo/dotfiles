@@ -3,16 +3,25 @@ set -eu
 
 {
   echo 'nobs:'
-  echo 'BBSS' | ./bin/nobs | od -c
+  printf 'B\bBS\bS' | ./bin/nobs | od -c
 
   echo 'urlencode:'
-  echo | ./bin/urlencode
-  echo ' ' | ./bin/urlencode
-  echo '!#$%&'\''()*+,/:;=?@[]' | ./bin/urlencode
-  echo 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urlencode
-  echo 'abcdefghijklmnopqrstuvwxyz' | ./bin/urlencode
-  echo '0123456789-_.~' | ./bin/urlencode
-  echo '€äöå…' | ./bin/urlencode
+  printf '\n' | ./bin/urlencode
+  printf ' ' | ./bin/urlencode
+  printf '!#$%%&'\''()*+,/:;=?@[]' | ./bin/urlencode
+  printf 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urlencode
+  printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urlencode
+  printf '0123456789-_.~' | ./bin/urlencode
+  printf '€äöå…' | ./bin/urlencode
+
+  echo 'urldecode:'
+  printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
+    ./bin/urldecode
+  printf '!#$%%&'\''()*+,/:;=?@[]' | ./bin/urldecode
+  printf 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urldecode
+  printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urldecode
+  printf '0123456789-_.~' | ./bin/urldecode
+  printf '%%E2%%82%%AC%%C3%%A4%%C3%%B6%%C3%%A5%%E2%%80%%A6' | ./bin/urldecode
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -21,12 +30,19 @@ nobs:
 0000003
 urlencode:
 %0A
-%20%0A
-%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D%0A
-ABCDEFGHIJKLMNOPQRSTUVWXYZ%0A
-abcdefghijklmnopqrstuvwxyz%0A
-0123456789-_.~%0A
-%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6%0A
+%20
+%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789-_.~
+%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6
+urldecode:
+!#$%&'()*+,/:;=?@[]
+!#$%&'()*+,/:;=?@[]
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789-_.~
+€äöå…
 EOF
 
 diff -u test.exp test.out >&2
