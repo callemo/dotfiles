@@ -8,12 +8,12 @@ import urllib.parse
 
 def encode():
     for line in fileinput.input():
-        print(urllib.parse.quote(line, safe=""))
+        print(urllib.parse.quote(line, safe=""), end="")
 
 
 def decode():
     for line in fileinput.input():
-        print(urllib.parse.unquote(line))
+        print(urllib.parse.unquote(line), end="")
 
 
 progname = os.path.basename(sys.argv[0])
