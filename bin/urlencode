@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Percent-encoding, also known as URL encoding."""
 import fileinput
-import os
 import urllib.parse
 
 try:
