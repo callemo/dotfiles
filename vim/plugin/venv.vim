@@ -81,7 +81,6 @@ function! s:venv(...)
   endif
 
   python3 venv.activate(vim.eval('l:path'))
-  echomsg l:path
 endfunction
 
 function! s:complete(A, L, P) abort
