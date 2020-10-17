@@ -1,9 +1,12 @@
 sources = .alacritty.yml .ctags .gvimrc .pylintrc .tmux.conf .vimrc 
 targets = $(sources:.%=$(HOME)/.%)
 
-.PHONY: all dotfiles vim tmux fzf scipy
+.PHONY: all check dotfiles vim tmux fzf scipy
 
 all: dotfiles vim tmux fzf
+
+check:
+	./test
 
 dotfiles: $(targets) $(HOME)/.gitignore
 

@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+{
+  echo 'nobs:'
+  echo 'BBSS' | ./bin/nobs | od -c
+
+  echo 'urlencode:'
+  echo | ./bin/urlencode
+  echo ' ' | ./bin/urlencode
+  echo '!#$%&'\''()*+,/:;=?@[]' | ./bin/urlencode
+  echo 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urlencode
+  echo 'abcdefghijklmnopqrstuvwxyz' | ./bin/urlencode
+  echo '0123456789-_.~' | ./bin/urlencode
+  echo '€äöå…' | ./bin/urlencode
+} >test.out
+
+cat <<'EOF' >test.exp
+nobs:
+0000000    B   S  \n                                                    
+0000003
+urlencode:
+%0A
+%20%0A
+%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D%0A
+ABCDEFGHIJKLMNOPQRSTUVWXYZ%0A
+abcdefghijklmnopqrstuvwxyz%0A
+0123456789-_.~%0A
+%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6%0A
+EOF
+
+diff -u test.exp test.out >&2
