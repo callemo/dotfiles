@@ -3,7 +3,7 @@ set -eu
 
 {
   echo 'nobs:'
-  printf 'B\bBS\bS' | ./bin/nobs | od -c
+  printf 'B\bBS\bS\n' | ./bin/nobs
 
   echo 'urlencode:'
   printf '\n' | ./bin/urlencode; echo
@@ -26,8 +26,7 @@ set -eu
 
 cat <<'EOF' >test.exp
 nobs:
-0000000    B   S  \n                                                    
-0000003
+BS
 urlencode:
 %0A
 %20
