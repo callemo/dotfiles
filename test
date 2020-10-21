@@ -22,6 +22,14 @@ set -eu
   printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urldecode; echo
   printf '0123456789-_.~' | ./bin/urldecode; echo
   printf '%%E2%%82%%AC%%C3%%A4%%C3%%B6%%C3%%A5%%E2%%80%%A6' | ./bin/urldecode; echo
+  echo | ./bin/urlencode -l
+  echo 'line1: word1 word2 word3
+line2: word1 word2 word3
+line2: word1 word2 word3' | ./bin/urlencode -l
+  echo | ./bin/urldecode -l
+  echo 'line1%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -42,6 +50,14 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
 abcdefghijklmnopqrstuvwxyz
 0123456789-_.~
 €äöå…
+
+line1%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+
+line1: word1 word2 word3
+line2: word1 word2 word3
+line2: word1 word2 word3
 EOF
 
 diff -u test.exp test.out >&2
