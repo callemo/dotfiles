@@ -10,18 +10,18 @@ iabbr <buffer> case\ case  <C-o>mmin<CR>
       \;;<CR>
       \*)<CR>
       \DEFAULT ;;<CR>
-      \esac<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
+      \esac<ESC>`m
 
-iabbr <buffer> for\ for <C-o>mm<CR>
+iabbr <buffer> for\ for i in *<C-o>mm<CR>
       \do<CR>
-      \done<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
+      \done<ESC>`m
 
-iabbr <buffer> if\ if <C-o>mm<CR>
+iabbr <buffer> if\ if [  <C-o>mm]<CR>
       \then<CR>
-      \fi<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
+      \fi<ESC>`m
 
 iabbr <buffer> func\ (<C-o>mm) {<CR>
-      \}<C-o>`m<C-r>=dotfiles#EndAbbr()<CR>
+      \}<ESC>`m
 
 iabbr <buffer> getopts\ aflag=<CR>
       \bflag=<CR>
@@ -33,5 +33,4 @@ iabbr <buffer> getopts\ aflag=<CR>
       \?) echo "usage: $0 [-a] [-b value] args" >&2; exit 2 ;;<CR>
       \esac<CR>
       \done<CR>
-      \shift $((OPTIND - 1))<Esc>`m<C-r>=dotfiles#EndAbbr()<CR>
-
+      \shift $((OPTIND - 1))<ESC>`m
