@@ -19,17 +19,18 @@ def decode(files=None):
 
 progname = os.path.basename(sys.argv[0])
 parser = argparse.ArgumentParser()
+parser.add_argument("-d", action="store_true", dest="decode")
 parser.add_argument("-l", action="store_true", dest="lines")
 parser.add_argument("files", nargs="*")
 args = parser.parse_args()
 
 try:
-    if progname == "urlencode":
+    if progname == "urldecode" or args.decode:
+        decode(args.files)
+    else:
         if args.lines:
             encode(args.files, safe="\n")
         else:
             encode(args.files)
-    else:
-        decode(args.files)
 except KeyboardInterrupt:
     pass

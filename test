@@ -17,6 +17,8 @@ set -eu
   echo 'urldecode:'
   printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
     ./bin/urldecode; echo
+  printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
+    ./bin/urlencode -d; echo
   printf '!#$%%&'\''()*+,/:;=?@[]' | ./bin/urldecode; echo
   printf 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urldecode; echo
   printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urldecode; echo
@@ -44,6 +46,7 @@ abcdefghijklmnopqrstuvwxyz
 0123456789-_.~
 %E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6
 urldecode:
+!#$%&'()*+,/:;=?@[]
 !#$%&'()*+,/:;=?@[]
 !#$%&'()*+,/:;=?@[]
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
