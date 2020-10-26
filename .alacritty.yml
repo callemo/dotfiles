@@ -1,13 +1,17 @@
+window:
+  dimensions:
+    columns: 120
+    lines: 38
 font:
   normal:
-    family: Inconsolata
+    family: Go Mono
   bold:
-    family: Inconsolata
+    family: Go Mono
   italic:
-    family: Inconsolata
+    family: Go Mono
   bold_italic:
-    family: Inconsolata
-  size: 15.0
+    family: Go Mono
+  size: 14.0
 
 colors:
   primary:
