@@ -7,6 +7,7 @@ let g:vimwiki_list = [{
       \ 'syntax': 'markdown',
       \ 'ext': '.md'
       \ },
+      \ {
       \ 'path': '~/wiki',
       \ 'path_html': '~/wiki/html',
       \ 'template_ext': '.html',
