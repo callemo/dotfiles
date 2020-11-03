@@ -12,8 +12,6 @@ set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set fillchars=vert:\ ,fold:-
-set foldmethod=indent
-set foldnestmax=3
 set hidden
 set history=1000
 set hlsearch
@@ -23,6 +21,7 @@ set listchars=eol:$,tab:>\ ,space:.
 set mouse=a
 set mousemodel=extend
 set nobackup
+set noequalalways
 set nofoldenable
 set noswapfile
 set notimeout
@@ -31,12 +30,10 @@ set nowritebackup
 set number
 set path=.,,
 set ruler
+set sessionoptions=buffers,folds,help,tabpages,terminal,winpos,winsize
 set shortmess=atI
 set showcmd
 set showtabline=2
-set statusline=%n:%<%.99f\ %y%h%w%m
-set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
-set statusline+=%r%=[dir:%{getcwd()}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,split
 set tabline=%!dotfiles#TabLine()
 set textwidth=0
@@ -46,8 +43,16 @@ set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 
+set statusline=%n:%<%.99f\ %y%h%w%m
+set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
+set statusline+=%r%=[cwd:%{fnamemodify(getcwd(),':~')}]\ %-14.(%l,%c%V%)\ %P
+
 if has('unix')
-  set grepprg=grep\ -rnE\ $*\ /dev/null
+  if executable('ag')
+    set grepprg=ag\ --vimgrep
+  else
+    set grepprg=grep\ -EnRI\ --exclude-dir\ .git\ --exclude-dir\ node_modules\ $*\ /dev/null
+  endif
 endif
 
 if has('mouse_sgr')
@@ -60,16 +65,15 @@ filetype plugin indent on
 syntax on
 
 let g:netrw_banner = 0
-let g:netrw_list_hide = netrw_gitignore#Hide() . ',^\./$,^\.\./$'
-let g:ragtag_global_maps = 1
+let g:netrw_list_hide = '^\./$,^\.\./$'
 
-iabbr modeline` <C-r>=printf(
-      \ &commentstring,
-      \ printf('vim: set sw=%d sts=%d et fdm=%s:', &sw, &sts, &fdm))
-      \ <CR><Esc>^2W
+iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
+iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>
+iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
 
 if isdirectory(expand('~/dotfiles/vim'))
   set rtp+=~/dotfiles/vim
+  set keywordprg=:Cmd\ PAGER=nobs\ man
   colorscheme basic
 endif
 
