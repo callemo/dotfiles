@@ -64,8 +64,9 @@ let mapleader = "\<Space>"
 filetype plugin indent on
 syntax on
 
+let g:netrw_altv = 1
 let g:netrw_banner = 0
-let g:netrw_list_hide = '^\./$,^\.\./$'
+let g:netrw_liststyle= 3
 let g:netrw_mousemaps = 0
 
 iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
