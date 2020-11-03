@@ -21,6 +21,7 @@ set listchars=eol:$,tab:>\ ,space:.
 set mouse=a
 set mousemodel=extend
 set nobackup
+set noequalalways
 set nofoldenable
 set noswapfile
 set notimeout
