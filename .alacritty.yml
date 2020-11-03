@@ -4,13 +4,13 @@ window:
     lines: 38
 font:
   normal:
-    family: Go Mono
+    family: Triplicate T4c
   bold:
-    family: Go Mono
+    family: Triplicate T4c
   italic:
-    family: Go Mono
+    family: Triplicate T4c
   bold_italic:
-    family: Go Mono
+    family: Triplicate T4c
   size: 14.0
 
 colors:
