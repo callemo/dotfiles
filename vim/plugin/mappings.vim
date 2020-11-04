@@ -79,8 +79,8 @@ cnoremap <C-p> <Up>
 " }}}
 " Terminal {{{
 tnoremap <C-r><C-r> <C-r>
-tnoremap <C-w>+ <C-w>:exe "resize " . (winheight(0) * 3/2)<CR>
-tnoremap <C-w>- <C-w>:exe "resize " . (winheight(0) * 2/3)<CR>
+tnoremap <C-w>+ <C-w>:exe 'resize ' . (winheight(0) * 3/2)<CR>
+tnoremap <C-w>- <C-w>:exe 'resize ' . (winheight(0) * 2/3)<CR>
 tnoremap <C-w><C-w> <C-w>.
 tnoremap <C-w>[ <C-\><C-n>
 tnoremap <ScrollWheelUp> <C-\><C-n>
