@@ -44,10 +44,9 @@ $(HOME)/.fzf:
 	git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	~/.fzf/install --all
 
-scipy:
-	@~/.virtualenvs/scipy/bin/python -m pip install --upgrade \
-		numpy scipy matplotlib ipython jupyter pandas sympy nose \
-		pip \
-		jupyterlab \
-		tabulate
+scipy: $(HOME)/.virtualenvs/scipy
+	$</bin/python3 -m pip install --upgrade \
+		numpy scipy matplotlib ipython jupyter pandas sympy nose jupyterlab
 
+$(HOME)/.virtualenvs/scipy:
+	python3 -m venv $@
