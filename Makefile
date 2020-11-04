@@ -10,6 +10,8 @@ check:
 
 dotfiles: $(targets) $(HOME)/.gitignore
 
+fzf: $(HOME)/.fzf
+
 $(targets): $(HOME)/%: $(CURDIR)/%
 	ln -s $< $@
 
@@ -38,12 +40,9 @@ tmux:
 			~/.tmux/plugins/tmux-resurrect; \
 	fi
 
-fzf:
-	@if [ -d ~/.fzf ]; then \
-		git -C ~/.fzf pull; \
-	else \
-		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf; ~/.fzf/install --all; \
-	fi
+$(HOME)/.fzf:
+	git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+	~/.fzf/install --all
 
 scipy:
 	@~/.virtualenvs/scipy/bin/python -m pip install --upgrade \
