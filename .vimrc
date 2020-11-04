@@ -43,8 +43,7 @@ set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 
-set statusline=%n:%<%.99f\ %y%h%w%m
-set statusline+=%r%=cwd:%{fnamemodify(getcwd(),':t')}\ %-14.(%l,%c%V%)\ %P
+set statusline=%n\ %<%.48f\ %Y%H%W%R%M%=%{fnamemodify(getcwd(),':t')}\ %l:%c\ %p%%
 
 if has('unix')
   if executable('ag')
