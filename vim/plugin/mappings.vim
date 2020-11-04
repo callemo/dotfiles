@@ -1,8 +1,10 @@
 " Normal {{{
-nmap <Up> <C-U>
+nmap + <C-w>+
 nmap <Down> <C-D>
-nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
+nmap <Up> <C-U>
 nnoremap - :Explore<CR>
+nnoremap <C-w>+ :exe 'resize ' . (winheight(0) * 3/2)<CR>
+nnoremap <C-w>- :exe 'resize ' . (winheight(0) * 2/3)<CR>
 nnoremap <Leader>! :Cmd<Space>
 nnoremap <Leader>. :lcd %:p:h<CR>
 nnoremap <Leader>D :Dump<CR>
@@ -17,6 +19,7 @@ nnoremap <Leader>f :let @"=expand('%:p') \| let @*=@"<CR>
 nnoremap <Leader>p "*p
 nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>y "*y
+nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
 
 if empty(maparg('m<CR>'))
   nnoremap m<CR> :Win make<CR>
@@ -67,7 +70,6 @@ vnoremap <Leader>~ :<C-u>SwitchCase<Space>
 " Insert {{{
 inoremap <C-a> <Home>
 inoremap <C-e> <End>
-inoremap <C-Enter> <C-o>o
 " }}}
 " Command {{{
 cnoremap <C-a> <Home>
@@ -77,10 +79,12 @@ cnoremap <C-p> <Up>
 " }}}
 " Terminal {{{
 tnoremap <C-r><C-r> <C-r>
-tnoremap <C-w>[ <C-\><C-n>
+tnoremap <C-w>+ <C-w>:exe "resize " . (winheight(0) * 3/2)<CR>
+tnoremap <C-w>- <C-w>:exe "resize " . (winheight(0) * 2/3)<CR>
 tnoremap <C-w><C-w> <C-w>.
-tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
+tnoremap <C-w>[ <C-\><C-n>
 tnoremap <ScrollWheelUp> <C-\><C-n>
+tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
 if !empty($TMUX)
   tnoremap <expr> <silent> <C-j> winnr() == winnr('$') ?
         \ '<C-w>:silent !tmux selectp -t :.+<CR>' : '<C-w>:wincmd w<CR>'
