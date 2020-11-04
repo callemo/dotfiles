@@ -44,8 +44,7 @@ set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 
 set statusline=%n:%<%.99f\ %y%h%w%m
-set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
-set statusline+=%r%=[cwd:%{fnamemodify(getcwd(),':~')}]\ %-14.(%l,%c%V%)\ %P
+set statusline+=%r%=cwd:%{fnamemodify(getcwd(),':t')}\ %-14.(%l,%c%V%)\ %P
 
 if has('unix')
   if executable('ag')
