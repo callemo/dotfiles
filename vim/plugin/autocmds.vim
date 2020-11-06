@@ -1,6 +1,7 @@
 augroup dotfiles
   au!
   au BufReadPost * exe "silent! norm! g'\""
+  au BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
   au FileType c,cpp setl sw=2 sts=2 et path+=/usr/include
   au FileType css,html,htmldjango,scss setl sw=2 sts=2 et iskeyword+=-
   au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
