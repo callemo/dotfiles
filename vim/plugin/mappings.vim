@@ -1,25 +1,27 @@
 " Normal {{{
 nmap + <C-w>+
+nmap <C-a> <Home>
+nmap <C-e> <End>
 nmap <Down> <C-D>
 nmap <Up> <C-U>
 nnoremap - :Explore<CR>
-nnoremap <C-w>+ :exe 'resize ' . (winheight(0) * 3/2)<CR>
-nnoremap <C-w>- :exe 'resize ' . (winheight(0) * 2/3)<CR>
-nnoremap <Leader>! :Cmd<Space>
-nnoremap <Leader>. :lcd %:p:h<CR>
-nnoremap <Leader>D :Dump<CR>
-nnoremap <Leader>E :Sexplore<CR>
-nnoremap <Leader>F :Fmt<CR>
-nnoremap <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
-nnoremap <Leader>L :Lint<CR>
-nnoremap <Leader>S :Send<CR>
-nnoremap <Leader>b :buffers<CR>
-nnoremap <Leader>c :cclose<CR>
-nnoremap <Leader>f :let @"=expand('%:p') \| let @*=@"<CR>
 nnoremap <Leader>p "*p
-nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>y "*y
 nnoremap <silent> <C-l> :noh \| syntax sync fromstart<CR>
+nnoremap <silent> <C-w>+ :exe 'resize ' . (winheight(0) * 3/2)<CR>
+nnoremap <silent> <C-w>- :exe 'resize ' . (winheight(0) * 2/3)<CR>
+nnoremap <silent> <Leader>! :Cmd<Space>
+nnoremap <silent> <Leader>. :lcd %:p:h<CR>
+nnoremap <silent> <Leader>D :Dump<CR>
+nnoremap <silent> <Leader>E :Sexplore<CR>
+nnoremap <silent> <Leader>F :Fmt<CR>
+nnoremap <silent> <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
+nnoremap <silent> <Leader>L :Lint<CR>
+nnoremap <silent> <Leader>S :Send<CR>
+nnoremap <silent> <Leader>b :buffers<CR>
+nnoremap <silent> <Leader>c :cclose<CR>
+nnoremap <silent> <Leader>f :let @"=expand('%:p') \| let @*=@"<CR>
+nnoremap <silent> <Leader>r :registers<CR>
 
 if empty(maparg('m<CR>'))
   nnoremap m<CR> :Win make<CR>
