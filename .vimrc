@@ -75,11 +75,6 @@ if isdirectory(expand('~/dotfiles/vim'))
   colorscheme basic
 endif
 
-if isdirectory(expand('~/.fzf'))
-  set rtp+=~/.fzf
-  nnoremap <silent> <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
-endif
-
 if filereadable(expand('~/.vimrc.local'))
   source ~/.vimrc.local
 endif
