@@ -13,7 +13,7 @@ nnoremap <silent> <C-w>- :exe 'resize ' . (winheight(0) * 2/3)<CR>
 nnoremap <silent> <Leader>! :Cmd<Space>
 nnoremap <silent> <Leader>. :lcd %:p:h<CR>
 nnoremap <silent> <Leader>D :Dump<CR>
-nnoremap <silent> <Leader>E :Sexplore<CR>
+nnoremap <silent> <Leader>E :split <C-r>=expand('%:p:h')<CR>/
 nnoremap <silent> <Leader>F :Fmt<CR>
 nnoremap <silent> <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
 nnoremap <silent> <Leader>L :Lint<CR>
