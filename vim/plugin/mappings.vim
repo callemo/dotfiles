@@ -1,7 +1,5 @@
 " Normal {{{
 nmap + <C-w>+
-nmap <C-a> <Home>
-nmap <C-e> <End>
 nmap <Down> <C-D>
 nmap <Up> <C-U>
 nnoremap - :Explore<CR>
