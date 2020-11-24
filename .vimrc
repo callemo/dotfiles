@@ -18,8 +18,6 @@ set hlsearch
 set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
-set mouse=a
-set mousemodel=extend
 set nobackup
 set noequalalways
 set nofoldenable
