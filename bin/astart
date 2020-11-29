@@ -1,0 +1,17 @@
+#!/bin/sh
+set -a
+
+EDITOR=E
+PAGER=nobs
+home="$HOME"
+user="$USER"
+
+for i in plumber fontsrv
+do
+  if pgrep "$i"
+  then
+    continue
+  fi
+  $i &
+done
+exec 9 acme -a -W 1200x600 "$@"
