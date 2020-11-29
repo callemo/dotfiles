@@ -63,4 +63,4 @@ line2: word1 word2 word3
 line2: word1 word2 word3
 EOF
 
-diff -u test.exp test.out >&2
+diff test.exp test.out >&2
