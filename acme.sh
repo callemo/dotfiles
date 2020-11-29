@@ -1,0 +1,3 @@
+cd() {
+  command cd && awd
+}
