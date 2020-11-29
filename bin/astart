@@ -8,17 +8,19 @@ do
   $i &
 done
 
+size=28
+
 set -a
 
 EDITOR=E
 PAGER=nobs
 SHELL=/bin/dash
 acmeshell="$SHELL"
-font=/usr/local/plan9/font/lucm/unicode.9.font,/mnt/font/Menlo-Regular/25a/font
+font=/usr/local/plan9/font/lucm/unicode.9.font,/mnt/font/Menlo-Regular/${size}a/font
 home="$HOME"
 user="$USER"
 
-exec 9 acme -a -W 1200x600 \
-  -f /lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/25a/font \
-  -F /usr/local/plan9/font/pelm/unicode.9.font,/mnt/font/Menlo-Regular/25a/font \
+exec 9 acme -a -W 1200x700 \
+  -f /lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/${size}a/font \
+  -F /usr/local/plan9/font/pelm/unicode.9.font,/mnt/font/Menlo-Regular/${size}a/font \
   "$@"
