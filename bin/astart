@@ -13,6 +13,7 @@ set -a
 EDITOR=E
 PAGER=nobs
 SHELL=/bin/dash
+acmeshell="$SHELL"
 font=/usr/local/plan9/font/lucm/unicode.9.font,/mnt/font/Menlo-Regular/25a/font
 home="$HOME"
 user="$USER"
