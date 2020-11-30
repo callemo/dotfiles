@@ -1,3 +1,3 @@
 cd() {
-  command cd && awd
+  command cd "$@" && awd "$sysname"
 }
