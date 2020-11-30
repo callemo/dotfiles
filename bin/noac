@@ -1,0 +1,5 @@
+#!/bin/sh
+# Noac copies the named files to standard output but removes all
+# the ANSI escape code sequences.
+
+sed 's/\[[0-9;]*[0-~]//g' "$@"
