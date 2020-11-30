@@ -1,4 +1,10 @@
 #!/bin/sh
+
+winsize="1200x600"
+
+fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/30a/font
+varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
+
 for i in plumber fontsrv
 do
   if pgrep "$i"
@@ -18,4 +24,9 @@ acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
 
-exec 9 acme -a -W 1200x600 "$@"
+if [ "${hires:-1}" = "1" ]
+then
+  exec 9 acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
+else
+  exec 9 acme -a -W "$winsize" "$@"
+fi
