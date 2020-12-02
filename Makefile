@@ -1,4 +1,4 @@
-sources = .alacritty.yml .ctags .gvimrc .pylintrc .tmux.conf .vimrc 
+sources = .alacritty.yml .ctags .pylintrc .tmux.conf .vimrc
 targets = $(sources:.%=$(HOME)/.%)
 
 .PHONY: all check dotfiles vim tmux fzf scipy
