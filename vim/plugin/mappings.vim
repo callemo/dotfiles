@@ -22,8 +22,13 @@ nnoremap <Leader>r :registers<CR>
 nnoremap <Leader>y "*y
 
 if empty(maparg('m<CR>'))
-  nnoremap m<CR> :Win make<CR>
-  nnoremap m<Space> :Win make<Space>
+  if has('terminal')
+    nnoremap m<CR> :Win make<CR>
+    nnoremap m<Space> :Win make<Space>
+  else
+    nnoremap m<CR> make<CR>
+    nnoremap m<Space> make<Space>
+  endif
 endif
 
 if !empty($TMUX)
@@ -77,21 +82,23 @@ cnoremap <C-n> <Down>
 cnoremap <C-p> <Up>
 " }}}
 " Terminal {{{
-tnoremap <C-r><C-r> <C-r>
-tnoremap <C-w>+ <C-w>:exe 'resize ' . (winheight(0) * 3/2)<CR>
-tnoremap <C-w>- <C-w>:exe 'resize ' . (winheight(0) * 2/3)<CR>
-tnoremap <C-w><C-w> <C-w>.
-tnoremap <C-w>[ <C-\><C-n>
-tnoremap <ScrollWheelUp> <C-\><C-n>
-tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
-if !empty($TMUX)
-  tnoremap <expr> <silent> <C-j> winnr() == winnr('$') ?
-        \ '<C-w>:silent !tmux selectp -t :.+<CR>' : '<C-w>:wincmd w<CR>'
-  tnoremap <expr> <silent> <C-k> winnr() == 1 ?
-        \ '<C-w>:silent !tmux selectp -t :.-<CR>' : '<C-w>:wincmd W<CR>'
-else
-  tnoremap <silent> <C-j> <C-w>:wincmd w<CR>
-  tnoremap <silent> <C-k> <C-w>:wincmd W<CR>
+if has('terminal')
+  tnoremap <C-r><C-r> <C-r>
+  tnoremap <C-w>+ <C-w>:exe 'resize ' . (winheight(0) * 3/2)<CR>
+  tnoremap <C-w>- <C-w>:exe 'resize ' . (winheight(0) * 2/3)<CR>
+  tnoremap <C-w><C-w> <C-w>.
+  tnoremap <C-w>[ <C-\><C-n>
+  tnoremap <ScrollWheelUp> <C-\><C-n>
+  tnoremap <expr> <C-r> '<C-w>"' . nr2char(getchar())
+  if !empty($TMUX)
+    tnoremap <expr> <silent> <C-j> winnr() == winnr('$') ?
+          \ '<C-w>:silent !tmux selectp -t :.+<CR>' : '<C-w>:wincmd w<CR>'
+    tnoremap <expr> <silent> <C-k> winnr() == 1 ?
+          \ '<C-w>:silent !tmux selectp -t :.-<CR>' : '<C-w>:wincmd W<CR>'
+  else
+    tnoremap <silent> <C-j> <C-w>:wincmd w<CR>
+    tnoremap <silent> <C-k> <C-w>:wincmd W<CR>
+  endif
 endif
 " }}}
 

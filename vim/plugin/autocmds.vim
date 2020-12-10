@@ -8,6 +8,8 @@ augroup dotfiles
   au FileType java,javascript,json,typescript,vim,xml,yaml setl sw=2 sts=2 et
   au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
   au OptionSet * if &diff | setl nocursorline | endif
-  au TerminalOpen * setl nonumber | noremap <buffer> <2-LeftMouse> :wincmd F<CR>
+  if has('terminal')
+    au TerminalOpen * setl nonumber | noremap <buffer> <2-LeftMouse> :wincmd F<CR>
+  endif
 augroup END
 
