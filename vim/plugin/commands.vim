@@ -12,7 +12,7 @@ command Trim call dotfiles#TrimTrailingBlanks()
 command Scratch new | set bt=nofile
 command Wiki :call wiki#Open()
 
-if has('terminal')
+if v:version > 800 && has('terminal')
   command -nargs=? -range
         \ Send call dotfiles#SendTerminalKeys(<line1>, <line2>, <args>)
   command -nargs=* -complete=file
