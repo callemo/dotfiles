@@ -32,7 +32,7 @@ line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
 
   echo
   echo 'noac:'
-  noac <termcolors
+  ./bin/noac <termcolors
 } >test.out
 
 cat <<'EOF' >test.exp
