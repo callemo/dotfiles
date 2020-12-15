@@ -18,8 +18,7 @@ set hlsearch
 set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
-set mouse=a
-set mousemodel=extend
+set mouse=nvi
 set nobackup
 set noequalalways
 set nofoldenable
@@ -27,10 +26,11 @@ set noswapfile
 set notimeout
 set nottimeout
 set nowritebackup
+set nrformats-=octal
 set number
 set path=.,,
 set ruler
-set sessionoptions=buffers,folds,help,tabpages,terminal,winpos,winsize
+set sessionoptions-=options
 set shortmess=atI
 set showcmd
 set showtabline=2
@@ -39,13 +39,18 @@ set tabline=%!dotfiles#TabLine()
 set textwidth=0
 set title
 set updatetime=300
+set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 
-set statusline=%n:%<%.99f\ %y%h%w%m
-set statusline+=%{&paste\ ?\ '[PASTE]'\ :\ ''}
-set statusline+=%r%=[cwd:%{fnamemodify(getcwd(),':~')}]\ %-14.(%l,%c%V%)\ %P
+set statusline=\ %n\ %<%.56f\ %Y%H%W%R%M%=%{fnamemodify(getcwd(),':t')}\ %l,%c\ %P\ 
+
+let mapleader = "\<Space>"
+
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+  runtime! macros/matchit.vim
+endif
 
 if has('unix')
   if executable('ag')
@@ -59,28 +64,24 @@ if has('mouse_sgr')
   set ttymouse=sgr
 endif
 
-let mapleader = "\<Space>"
-
 filetype plugin indent on
 syntax on
 
 let g:netrw_banner = 0
-let g:netrw_list_hide = '^\./$,^\.\./$'
+let g:netrw_mousemaps = 0
 
 iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
 iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>
 iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
 
-if isdirectory(expand('~/dotfiles/vim'))
+if $DOTFILES
+  set rtp+=$DOTFILES/vim
+else
   set rtp+=~/dotfiles/vim
-  set keywordprg=:Cmd\ PAGER=nobs\ man
-  colorscheme basic
 endif
 
-if isdirectory(expand('~/.fzf'))
-  set rtp+=~/.fzf
-  nnoremap <silent> <C-p> :call fzf#run(fzf#wrap({'options': '--reverse'}))<CR>
-endif
+set keywordprg=:Cmd\ PAGER=nobs\ man
+colorscheme basic
 
 if filereadable(expand('~/.vimrc.local'))
   source ~/.vimrc.local
