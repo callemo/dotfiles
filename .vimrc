@@ -74,7 +74,12 @@ iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
 iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>
 iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
 
-set rtp+=$DOTFILES/vim
+if $DOTFILES
+  set rtp+=$DOTFILES/vim
+else
+  set rtp+=~/dotfiles/vim
+endif
+
 set keywordprg=:Cmd\ PAGER=nobs\ man
 colorscheme basic
 
