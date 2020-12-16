@@ -53,7 +53,9 @@ if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
 endif
 
 if has('unix')
-  if executable('ag')
+  if executable('rg')
+    set grepprg=rg\ --vimgrep
+  elseif executable('ag')
     set grepprg=ag\ --vimgrep
   else
     set grepprg=grep\ -EnRI\ --exclude-dir\ .git\ --exclude-dir\ node_modules\ $*\ /dev/null
