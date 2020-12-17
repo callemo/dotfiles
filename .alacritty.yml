@@ -7,50 +7,14 @@ font:
     family: Triplicate T4c
   bold:
     family: Triplicate T4c
+    style: Bold
   italic:
     family: Triplicate T4c
+    style: Italic
   bold_italic:
     family: Triplicate T4c
+    style: Bold Italic
   size: 14.0
-
-colors:
-  primary:
-    background: "0x282a36"
-    foreground: "0xf8f8f2"
-  cursor:
-    text: "0x44475a"
-    cursor: "0xf8f8f2"
-  selection:
-    text: "0xf8f8f2"
-    background: "0x44475a"
-  normal:
-    black: "0x000000"
-    red: "0xff5555"
-    green: "0x50fa7b"
-    yellow: "0xf1fa8c"
-    blue: "0xbd93f9"
-    magenta: "0xff79c6"
-    cyan: "0x8be9fd"
-    white: "0xbfbfbf"
-  bright:
-    black: "0x4d4d4d"
-    red: "0xff6e67"
-    green: "0x5af78e"
-    yellow: "0xf4f99d"
-    blue: "0xcaa9fa"
-    magenta: "0xff92d0"
-    cyan: "0x9aedfe"
-    white: "0xe6e6e6"
-  dim:
-    black: "0x14151b"
-    red: "0xff2222"
-    green: "0x1ef956"
-    yellow: "0xebf85b"
-    blue: "0x4d5b86"
-    magenta: "0xff46b0"
-    cyan: "0x59dffc"
-    white: "0xe6e6d1"
-  indexed_colors: []
 
 key_bindings:
   - { key: Key0, mods: Alt, chars: "\x1b0" }
@@ -63,3 +27,28 @@ key_bindings:
   - { key: Key7, mods: Alt, chars: "\x1b7" }
   - { key: Key8, mods: Alt, chars: "\x1b8" }
   - { key: Key9, mods: Alt, chars: "\x1b9" }
+
+# XTerm's default colors
+colors:
+   primary:
+     background: '#ffffff'
+     foreground: '#000000'
+   normal:
+     black:   '#000000'
+     red:     '#cd0000'
+     green:   '#00cd00'
+     yellow:  '#cdcd00'
+     blue:    '#0000ee'
+     magenta: '#cd00cd'
+     cyan:    '#00cdcd'
+     white:   '#e5e5e5'
+   bright:
+     black:   '#7f7f7f'
+     red:     '#ff0000'
+     green:   '#00ff00'
+     yellow:  '#ffff00'
+     blue:    '#5c5cff'
+     magenta: '#ff00ff'
+     cyan:    '#00ffff'
+     white:   '#ffffff'
+
