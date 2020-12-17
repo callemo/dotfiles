@@ -58,7 +58,7 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   call cursor(line('$'), '.')
 endfunc
 
-func! dotfiles#SendTerminalKeys(start, end, ...) abort
+func! dotfiles#SendTerminalKeys(start, end, range, ...) abort
   if a:0 > 0
     let l:buf = a:1
   elseif exists('w:send_terminal_buf')
@@ -69,7 +69,10 @@ func! dotfiles#SendTerminalKeys(start, end, ...) abort
   endif
 
   let l:keys = join(getline(a:start, a:end), "\n")
-  call term_sendkeys(l:buf, l:keys . "\n")
+  call term_sendkeys(l:buf, l:keys)
+  if a:range
+    call term_sendkeys(l:buf, "\n")
+  endif
   let w:send_terminal_buf = l:buf
 endfunc
 
