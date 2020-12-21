@@ -9,7 +9,6 @@ command -nargs=?
       \ Fmt call dotfiles#FormatFile(<f-args>)
 command Bonly call dotfiles#BufferOnly()
 command Trim call dotfiles#TrimTrailingBlanks()
-command Scratch new | set bt=nofile
 command Wiki :call wiki#Open()
 
 if v:version > 800 && has('terminal')
