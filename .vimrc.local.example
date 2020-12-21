@@ -15,7 +15,7 @@ let g:vimwiki_list = [{
       \ 'css_name': 'style/style.css'
       \ }]
 
-if $COLORTERM == 'truecolor' && empty($TMUX)
+if $COLORTERM == 'truecolor'
   if has('termguicolors') 
     set termguicolors
   endif
