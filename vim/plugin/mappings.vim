@@ -9,9 +9,7 @@ nnoremap <C-w>- :exe 'resize ' . (winheight(0) * 2/3)<CR>
 nnoremap <Leader>! :Cmd<Space>
 nnoremap <Leader>. :lcd %:p:h<CR>
 nnoremap <Leader><CR> :Send<CR>
-nnoremap <Leader>D :Dump<CR>
 nnoremap <Leader>F :Fmt<CR>
-nnoremap <Leader>K :Dash <C-r>=expand('<cword>')<CR><CR>
 nnoremap <Leader>L :Lint<CR>
 nnoremap <Leader>b :buffers<CR>
 nnoremap <Leader>c :cclose<CR>
@@ -23,8 +21,8 @@ nnoremap <Leader>y "*y
 
 if empty(maparg('m<CR>'))
   if has('terminal')
-    nnoremap m<CR> :Win make<CR>
-    nnoremap m<Space> :Win make<Space>
+    nnoremap m<CR> :terminal make<CR>
+    nnoremap m<Space> :terminal make<Space>
   else
     nnoremap m<CR> make<CR>
     nnoremap m<Space> make<Space>
