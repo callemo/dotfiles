@@ -3,7 +3,7 @@ nmap + <C-w>+
 nmap <Down> <C-D>
 nmap <Up> <C-U>
 nnoremap - :Explore<CR>
-nnoremap <C-l> :noh \| syntax sync fromstart<CR>
+nnoremap <C-l> :noh \| syntax sync fromstart \| redraw!<CR>
 nnoremap <C-w>+ :exe 'resize ' . (winheight(0) * 3/2)<CR>
 nnoremap <C-w>- :exe 'resize ' . (winheight(0) * 2/3)<CR>
 nnoremap <Leader>! :Cmd<Space>
