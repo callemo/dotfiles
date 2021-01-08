@@ -1,5 +1,7 @@
 command -nargs=+ -complete=file -range
       \ Cmd call dotfiles#RunShellCommand(<range>, <line1>, <line2>, <q-args>)
+command -nargs=1
+      \ TabLabel let t:label = '<args>'
 
 if has('terminal')
   command -nargs=? -range

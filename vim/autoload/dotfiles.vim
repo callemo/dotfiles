@@ -93,25 +93,32 @@ endfunc
 
 func! dotfiles#TabLine() abort
   let l:s = ''
-  for i in range(tabpagenr('$'))
-    if i + 1 == tabpagenr()
+  for i in range(1, tabpagenr('$'))
+    if i == tabpagenr()
       let l:s .= '%#TabLineSel#'
     else
       let l:s .= '%#TabLine#'
     endif
-    let l:s .= '%' . (i + 1) . 'T'
-    let l:s .= ' %{dotfiles#TabLabel(' . (i + 1) . ')} '
+    let l:s .= '%' . i . 'T'
+    let l:s .= ' %{dotfiles#TabLabel(' . i . ')} '
   endfor
   let l:s .= '%#TabLineFill#%T'
   return l:s
 endfunc
 
+" TabLabel returns the a label string for the given tab number a:n. If t:label
+" exists then returns it instead.
 func! dotfiles#TabLabel(n) abort
-  let l:buflist = tabpagebuflist(a:n)
-  let winnr = tabpagewinnr(a:n)
-  let l:bufnr = l:buflist[l:winnr - 1]
-  let l:label = bufname(l:bufnr)
+  let l:tabl = gettabvar(a:n, 'label')
+  if !empty(l:tabl)
+    return l:tabl
+  endif
 
+  let l:buflist = tabpagebuflist(a:n)
+  let l:winnr = tabpagewinnr(a:n)
+  let l:bufnr = l:buflist[l:winnr - 1]
+
+  let l:label = bufname(l:bufnr)
   if empty(l:label)
     let buftype = getbufvar(l:bufnr, '&buftype')
     if empty(buftype)
