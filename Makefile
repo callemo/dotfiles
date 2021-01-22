@@ -28,6 +28,7 @@ vim:
 	bin/vimget https://github.com/tpope/vim-repeat
 	bin/vimget https://github.com/tpope/vim-surround
 	bin/vimget https://github.com/tpope/vim-tbone
+	bin/vimget -o https://github.com/preservim/nerdtree
 	bin/vimget -o https://github.com/tpope/vim-projectionist
 	bin/vimget -o https://github.com/tpope/vim-scriptease
 	bin/vimget -o https://github.com/vimwiki/vimwiki
