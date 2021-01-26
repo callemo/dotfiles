@@ -15,7 +15,6 @@ nnoremap <leader>b :buffers<cr>
 nnoremap <leader>c :cclose<cr>
 nnoremap <leader>e :split <c-r>=expand('%:p:h')<cr>/
 nnoremap <leader>f :let @"=expand('%:p') \| let @*=@"<cr>
-nnoremap <leader>n :edit <c-r>=strftime('%Y%m%d%H%M')<cr>-
 nnoremap <leader>p "*p
 nnoremap <leader>r :registers<cr>
 nnoremap <leader>y "*y
