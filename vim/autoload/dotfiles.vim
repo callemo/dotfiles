@@ -111,7 +111,7 @@ endfunc
 func! dotfiles#TabLabel(n) abort
   let l:tabl = gettabvar(a:n, 'label')
   if !empty(l:tabl)
-    return l:tabl
+    return a:n . ':' . l:tabl
   endif
 
   let l:buflist = tabpagebuflist(a:n)
@@ -122,9 +122,9 @@ func! dotfiles#TabLabel(n) abort
   if empty(l:label)
     let buftype = getbufvar(l:bufnr, '&buftype')
     if empty(buftype)
-      return '[No Name]'
+      return a:n . ':' . '[No Name]'
     endif
-    return '[' . buftype . ']'
+    return a:n . ':' . '[' . buftype . ']'
   endif
 
   if filereadable(l:label)
@@ -137,6 +137,7 @@ func! dotfiles#TabLabel(n) abort
     let l:label = split(l:label, '/')[-1]
   endif
 
+  let l:label = a:n . ':' . l:label
   if getbufvar(l:bufnr, '&modified')
     return l:label .'+'
   endif
