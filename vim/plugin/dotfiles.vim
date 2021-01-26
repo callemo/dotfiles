@@ -1,4 +1,40 @@
-" Normal {{{
+" Autocmds: {{{
+augroup dotfiles
+  au!
+  au BufReadPost * exe "silent! norm! g'\""
+  au BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
+  au FileType c,cpp setl sw=2 sts=2 et path+=/usr/include
+  au FileType css,html,htmldjango,scss setl sw=2 sts=2 et iskeyword+=-
+  au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
+  au FileType java,javascript,json,typescript,vim,xml,yaml setl sw=2 sts=2 et
+  au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
+  au OptionSet * if &diff | setl nocursorline | endif
+
+  if v:version > 800 && has('terminal')
+    au TerminalOpen * setl nonumber | noremap <buffer> <2-LeftMouse> :wincmd F<CR>
+  endif
+augroup END
+" }}}
+" Commands: {{{
+command -nargs=+ -complete=file -range
+      \ Cmd call dotfiles#RunShellCommand(<range>, <line1>, <line2>, <q-args>)
+command -nargs=1
+      \ TabLabel let t:label = '<args>'
+
+if has('terminal')
+  command -nargs=? -range
+        \ Send call dotfiles#SendTerminalKeys(<line1>, <line2>, <range>, <args>)
+endif
+
+command -nargs=1
+      \ Dash exe 'silent !open dash://<args>' | redr!
+command Lint call dotfiles#LintFile()
+command -nargs=?
+      \ Fmt call dotfiles#FormatFile(<f-args>)
+command Bonly call dotfiles#BufferOnly()
+command Trim call dotfiles#TrimTrailingBlanks()
+" }}}
+" Mappings: normal {{{
 nmap + <c-w>+
 nmap - <c-w>-
 nmap <down> <c-d>
@@ -39,7 +75,7 @@ else
   nnoremap <silent> <c-k> :wincmd W<cr>
 endif
 " }}}
-" Pairs {{{
+" Mappings: pairs {{{
 nnoremap ]a :next<cr>
 nnoremap [a :previous<cr>
 nnoremap ]b :bnext<cr>
@@ -60,7 +96,7 @@ nnoremap yor :setl invrelativenumber<cr>
 nnoremap yos :setl invspell<cr>
 nnoremap yow :setl invwrap<cr>
 " }}}
-" Visual {{{
+" Mappings: visual {{{
 vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
 vnoremap * :call dotfiles#SetVisualSearch()<cr>/<cr>
 vnoremap <leader>! :Cmd<space>
@@ -69,17 +105,17 @@ vnoremap <leader>p "*p
 vnoremap <leader>x "*x
 vnoremap <leader>y "*y
 " }}}
-" Insert {{{
+" Mappings: insert {{{
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 " }}}
-" Command {{{
+" Mappings: command {{{
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 " }}}
-" Terminal {{{
+" Mappings: terminal {{{
 if has('terminal')
   tnoremap <c-r><c-r> <c-r>
   tnoremap <c-w>+ <c-w>:exe 'resize ' . (winheight(0) * 3/2)<cr>
@@ -99,4 +135,3 @@ if has('terminal')
   endif
 endif
 " }}}
-
