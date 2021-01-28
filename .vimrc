@@ -64,7 +64,7 @@ if has('terminal')
   set keywordprg=:terminal\ man
 endif
 
-filetype plugin indent on
+filetype plugin on
 syntax on
 
 let g:netrw_banner = 0
