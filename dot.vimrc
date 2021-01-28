@@ -52,27 +52,29 @@ if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
 
-if has('unix')
-  if executable('ag')
-    set grepprg=ag\ --vimgrep
-  else
-    set grepprg=grep\ -EnRI\ --exclude-dir\ .git\ --exclude-dir\ node_modules\ $*\ /dev/null
-  endif
+if executable('rg')
+  set grepprg=rg\ --vimgrep
 endif
 
 if has('mouse_sgr')
   set ttymouse=sgr
 endif
 
-filetype plugin indent on
+if has('terminal')
+  set keywordprg=:terminal\ man
+endif
+
+filetype plugin on
 syntax on
 
 let g:netrw_banner = 0
 let g:netrw_mousemaps = 0
 
 iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
-iabbr datetime\ <C-r>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>
+iabbr datet\ <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
+iabbr datew\ <C-r>=strftime('%G-W%V')<CR><ESC>
 iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
+iabbr note\ Title: <CR>Date: <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><CR>Tags:<ESC><Up><Up>
 
 if $DOTFILES
   set rtp+=$DOTFILES/vim
@@ -80,7 +82,6 @@ else
   set rtp+=~/dotfiles/vim
 endif
 
-set keywordprg=:Cmd\ PAGER=nobs\ man
 colorscheme basic
 
 if filereadable(expand('~/.vimrc.local'))
