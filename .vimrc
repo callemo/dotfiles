@@ -74,7 +74,6 @@ iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
 iabbr datet\ <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
 iabbr datew\ <C-r>=strftime('%G-W%V')<CR><ESC>
 iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
-iabbr note\ Title: <CR>Date: <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><CR>Tags:<ESC><Up><Up>
 
 if $DOTFILES
   set rtp+=$DOTFILES/vim
