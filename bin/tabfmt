@@ -20,7 +20,7 @@ BEGIN {
       }
       {
         for (i = 1; i <= NF; i++) {
-          values[NR][i] = $i
+          values[NR, i] = $i
           if ((w = length($i)) > widths[i])
             widths[i] = w
           if (w > maxwidth)
@@ -31,12 +31,12 @@ END   {
         for (i = 1; i <= maxwidth; i++)
           blanks = blanks " "
 
-        m = length(values)
+        m = NR
         n = length(widths)
         for (i = 1; i <= m; i++) {
           for (j = 1; j <= n; j++) {
-            printf "%s%s", values[i][j], \
-              substr(blanks, 1, widths[j] - length(values[i][j]))
+            printf "%s%s", values[i, j], \
+              substr(blanks, 1, widths[j] - length(values[i, j]))
             if (j < n)
               printf OFS
           }
