@@ -1,0 +1,45 @@
+#!/bin/sh
+# Tabfmt formats tabulated data.
+
+fs='	'
+ofs=' '
+while getopts F:O: opt
+do
+  case $opt in
+  F) fs="$OPTARG" ;;
+  O) ofs="$OPTARG" ;;
+  ?) echo "usage: tabfmt [-s separator] args" >&2; exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+awk '
+BEGIN {
+        FS = "'"$fs"'"
+        OFS = "'"$ofs"'"
+      }
+      {
+        for (i = 1; i <= NF; i++) {
+          values[NR][i] = $i
+          if ((w = length($i)) > widths[i])
+            widths[i] = w
+          if (w > maxwidth)
+            maxwidth = w
+        }
+      }
+END   {
+        for (i = 1; i <= maxwidth; i++)
+          blanks = blanks " "
+
+        m = length(values)
+        n = length(widths)
+        for (i = 1; i <= m; i++) {
+          for (j = 1; j <= n; j++) {
+            printf "%s%s", values[i][j], \
+              substr(blanks, 1, widths[j] - length(values[i][j]))
+            if (j < n)
+              printf OFS
+          }
+          printf "\n"
+        }
+      }' "$@"
