@@ -35,11 +35,11 @@ END   {
         n = length(widths)
         for (i = 1; i <= m; i++) {
           for (j = 1; j <= n; j++) {
-            printf "%s%s", values[i, j], \
+            printf "%s%s", values[i, j],
               substr(blanks, 1, widths[j] - length(values[i, j]))
             if (j < n)
               printf OFS
           }
-          printf "\n"
+          printf ORS
         }
       }' "$@"
