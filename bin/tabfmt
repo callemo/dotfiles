@@ -8,7 +8,7 @@ do
   case $opt in
   F) fs="$OPTARG" ;;
   O) ofs="$OPTARG" ;;
-  ?) echo "usage: tabfmt [-s separator] args" >&2; exit 2 ;;
+  ?) echo "usage: tabfmt [-F fs -O ofs] [files]" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -30,7 +30,6 @@ BEGIN {
 END   {
         for (i = 1; i <= maxwidth; i++)
           blanks = blanks " "
-
         m = NR
         n = length(widths)
         for (i = 1; i <= m; i++) {
