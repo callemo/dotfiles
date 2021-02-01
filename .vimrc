@@ -48,8 +48,8 @@ set statusline=\ %n\ %<%.56f\ %Y%H%W%R%M%=%{fnamemodify(getcwd(),':t')}\ %l,%c\ 
 
 let mapleader = "\<Space>"
 
-if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
-  runtime! macros/matchit.vim
+if has('syntax') && has('eval')
+  packadd! matchit
 endif
 
 if executable('rg')
