@@ -37,8 +37,8 @@ command Trim call dotfiles#TrimTrailingBlanks()
 " Mappings: normal {{{
 nmap + <c-w>+
 nmap - <c-w>-
-nmap <down> <c-d>
-nmap <up> <c-u>
+nmap <down> <c-e>
+nmap <up> <c-y>
 nnoremap <c-l> :noh \| syntax sync fromstart \| redraw!<cr>
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
 nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
