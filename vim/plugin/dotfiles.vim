@@ -11,7 +11,7 @@ augroup dotfiles
   au OptionSet * if &diff | setl nocursorline | endif
 
   if v:version > 800 && has('terminal')
-    au TerminalOpen * setl nonumber | noremap <buffer> <2-LeftMouse> :wincmd F<CR>
+    au TerminalOpen * setl nonumber | noremap <buffer> <2-leftmouse> :wincmd F<cr>
   endif
 augroup END
 " }}}
@@ -39,7 +39,7 @@ nmap + <c-w>+
 nmap - <c-w>-
 nmap <down> <c-e>
 nmap <up> <c-y>
-nnoremap <c-l> :noh \| syntax sync fromstart \| redraw!<cr>
+nnoremap <c-l> :noh<c-r>=has('diff')?'<bar>diffupdate':''<cr> \| syntax sync fromstart \| redraw!<cr>
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
 nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
 nnoremap <leader>! :Cmd<space>
