@@ -60,8 +60,8 @@ if has('mouse_sgr')
   set ttymouse=sgr
 endif
 
-if !empty(findfile('ftplugin/man.vim', &rtp))
-  runtime! ftplugin/man.vim
+runtime! ftplugin/man.vim
+if exists(':Man')
   set keywordprg=:Man
 endif
 
