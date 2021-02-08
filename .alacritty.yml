@@ -19,7 +19,7 @@ font:
     style: Bold Italic
   size: 15.0
 
-# The 'GNOME Light" theme from GNOME terminal.
+# The "GNOME Light" theme from GNOME terminal.
 colors:
   primary:
     foreground: "#171421"
