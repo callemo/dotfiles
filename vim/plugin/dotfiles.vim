@@ -11,7 +11,7 @@ augroup dotfiles
   au OptionSet * if &diff | setl nocursorline | endif
 
   if v:version > 800 && has('terminal')
-    au TerminalOpen * setl nonumber | noremap <buffer> <2-leftmouse> :wincmd F<cr>
+    au TerminalOpen * setl nonumber | noremap <buffer> q i
   endif
 augroup END
 " }}}
