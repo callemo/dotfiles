@@ -55,16 +55,6 @@ nnoremap <leader>p "*p
 nnoremap <leader>r :registers<cr>
 nnoremap <leader>y "*y
 
-if empty(maparg('m<cr>'))
-  if has('terminal')
-    nnoremap m<cr> :terminal make<cr>
-    nnoremap m<space> :terminal make<space>
-  else
-    nnoremap m<cr> make<cr>
-    nnoremap m<space> make<space>
-  endif
-endif
-
 if !empty($TMUX)
   nnoremap <expr> <silent> <c-j> winnr() == winnr('$') ?
         \ ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
@@ -135,3 +125,4 @@ if has('terminal')
   endif
 endif
 " }}}
+" vi: set sw=2 sts=2 et fdm=marker :
