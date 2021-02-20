@@ -4,7 +4,9 @@ inoremap <buffer> <c-x>= ${}<left>
 inoremap <buffer> <c-x>- $()<left>
 inoremap <buffer> <c-x>! #!/bin/sh<cr>
 
-iabbr <buffer> case] case  <c-o>mmin<cr>
+iabbrev <buffer> progdir] readonly progdir="$(cd "$(dirname "$0")" && pwd)"
+
+iabbrev <buffer> case] case  <c-o>mmin<cr>
   \PATTERN1\|PATTERN2)<cr>
   \<c-t>COMMAND_LIST<cr>
   \;;<cr>
@@ -12,18 +14,18 @@ iabbr <buffer> case] case  <c-o>mmin<cr>
   \<c-t>DEFAULT ;;<cr>
   \<c-d>esac<esc>`mi
 
-iabbr <buffer> for] for i in <c-o>mm<cr>
+iabbrev <buffer> for] for i in <c-o>mm<cr>
   \do<cr>
   \done<esc>`ma
 
-iabbr <buffer> if] if [  <c-o>mm]<cr>
+iabbrev <buffer> if] if [  <c-o>mm]<cr>
   \then<cr>
   \fi<esc>`mi
 
-iabbr <buffer> func] (<c-o>mm) {<cr>
+iabbrev <buffer> func] (<c-o>mm) {<cr>
   \}<esc>`mi
 
-iabbr <buffer> getopts] aflag=<cr>
+iabbrev <buffer> getopts] aflag=<cr>
   \bflag=<cr>
   \while getopts ab:<c-o>mm i<cr>
   \do<cr>
