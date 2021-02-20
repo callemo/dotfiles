@@ -4,7 +4,7 @@ set autoindent
 set autoread
 set backspace=indent,eol,start
 set cmdheight=2
-set commentstring=#\ %s
+set commentstring=#%s
 set complete-=i
 set completeopt-=preview
 set confirm
@@ -48,8 +48,8 @@ set statusline=\ %n\ %<%.56f\ %Y%H%W%R%M%=%{fnamemodify(getcwd(),':t')}\ %l,%c\ 
 
 let mapleader = "\<Space>"
 
-if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
-  runtime! macros/matchit.vim
+if has('syntax') && has('eval')
+  packadd! matchit
 endif
 
 if executable('rg')
@@ -60,8 +60,9 @@ if has('mouse_sgr')
   set ttymouse=sgr
 endif
 
-if has('terminal')
-  set keywordprg=:terminal\ man
+runtime! ftplugin/man.vim
+if exists(':Man')
+  set keywordprg=:Man
 endif
 
 filetype plugin on
@@ -70,11 +71,11 @@ syntax on
 let g:netrw_banner = 0
 let g:netrw_mousemaps = 0
 
-iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
-iabbr datet\ <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
-iabbr datew\ <C-r>=strftime('%G-W%V')<CR><ESC>
-iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
-iabbr note\ Title: <CR>Date: <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><CR>Tags:<ESC><Up><Up>
+iabbr date] <C-r>=strftime('%Y-%m-%d')<CR><ESC>
+iabbr datet] <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
+iabbr datew] <C-r>=strftime('%G-W%V')<CR><ESC>
+iabbr modeline] <C-r>=printf(&cms, printf('vi: set sw=%d sts=%d%s ft=%s fdm=%s:',
+  \ &sw, &sts, &et ? ' et' : '', &ft, &fdm))<CR><ESC>
 
 if $DOTFILES
   set rtp+=$DOTFILES/vim
