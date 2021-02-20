@@ -49,10 +49,10 @@ nnoremap <leader>F :Fmt<cr>
 nnoremap <leader>L :Lint<cr>
 nnoremap <leader>b :buffers<cr>
 nnoremap <leader>c :cclose<cr>
-nnoremap <leader>e :split <c-r>=expand('%:p:h')<cr>/
 nnoremap <leader>f :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>p "*p
 nnoremap <leader>r :registers<cr>
+nnoremap <leader>s :split <c-r>=expand('%:h')<cr>/
 nnoremap <leader>y "*y
 
 if !empty($TMUX)
@@ -125,4 +125,4 @@ if has('terminal')
   endif
 endif
 " }}}
-" vi: set sw=2 sts=2 et fdm=marker :
+"vi: set sw=2 sts=2 et ft=vim fdm=marker:

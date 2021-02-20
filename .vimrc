@@ -4,7 +4,7 @@ set autoindent
 set autoread
 set backspace=indent,eol,start
 set cmdheight=2
-set commentstring=#\ %s
+set commentstring=#%s
 set complete-=i
 set completeopt-=preview
 set confirm
@@ -71,10 +71,11 @@ syntax on
 let g:netrw_banner = 0
 let g:netrw_mousemaps = 0
 
-iabbr date\ <C-r>=strftime('%Y-%m-%d')<CR><ESC>
-iabbr datet\ <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
-iabbr datew\ <C-r>=strftime('%G-W%V')<CR><ESC>
-iabbr modeline\ <C-r>=printf('vi: set sw=%d sts=%d et ft=%s :', &sw, &sts, &ft)<CR><ESC>
+iabbr date] <C-r>=strftime('%Y-%m-%d')<CR><ESC>
+iabbr datet] <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
+iabbr datew] <C-r>=strftime('%G-W%V')<CR><ESC>
+iabbr modeline] <C-r>=printf(&cms, printf('vi: set sw=%d sts=%d%s ft=%s fdm=%s:',
+  \ &sw, &sts, &et ? ' et' : '', &ft, &fdm))<CR><ESC>
 
 if $DOTFILES
   set rtp+=$DOTFILES/vim
