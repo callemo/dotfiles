@@ -52,10 +52,6 @@ if has('syntax') && has('eval')
   packadd! matchit
 endif
 
-if executable('rg')
-  set grepprg=rg\ --vimgrep
-endif
-
 if has('mouse_sgr')
   set ttymouse=sgr
 endif
