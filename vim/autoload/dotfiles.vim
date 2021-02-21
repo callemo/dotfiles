@@ -1,3 +1,11 @@
+func! dotfiles#GetVisualText() abort
+  let l:reg = @"
+  exe 'normal! vgvy'
+  let l:text = @"
+  let @" = l:reg
+  return l:text
+endfunc
+
 func! dotfiles#BufferOnly() abort
   let l:current = bufnr()
   for b in getbufinfo({'buflisted': v:true})
@@ -67,6 +75,10 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   endif
 endfunc
 
+func! dotfiles#RunShellVisualText()
+  call dotfiles#RunShellCommand(0, v:none, v:none, escape(dotfiles#GetVisualText(), '%#'))
+endfunc
+
 func! dotfiles#SendTerminalKeys(start, end, range, ...) abort
   if a:0 > 0
     let l:buf = a:1
@@ -86,10 +98,7 @@ func! dotfiles#SendTerminalKeys(start, end, range, ...) abort
 endfunc
 
 func! dotfiles#SetVisualSearch() abort
-  let l:reg = @"
-  exe 'normal! vgvy'
-  let @/ = substitute('\V\C' . escape(@", '\'), "\n$", '', '')
-  let @" = l:reg
+  let @/ = substitute('\V\C' . escape(dotfiles#GetVisualText(), '\'), "\n$", '', '')
 endfunc
 
 func! dotfiles#TrimTrailingBlanks() abort

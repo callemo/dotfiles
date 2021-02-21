@@ -43,7 +43,7 @@ nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
 nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
 nnoremap <c-a-leftmouse> <leftmouse>:Cmd <c-r><c-w><cr>
 nnoremap <c-leftmouse> <leftmouse>gF
-nnoremap <c-rightmouse> <leftmouse>*
+nnoremap <rightmouse> <leftmouse>*
 nnoremap <c-l> :noh<c-r>=has('diff')?'<bar>diffupdate':''<cr> \| syntax sync fromstart \| redraw!<cr>
 nnoremap <leader>! :Cmd<space>
 nnoremap <leader>. :lcd %:p:h<cr>
@@ -90,10 +90,10 @@ nnoremap yos :setl invspell<cr>
 nnoremap yow :setl invwrap<cr>
 " }}}
 " Mappings: visual {{{
-vmap <c-rightmouse> *
+vmap <c-a-leftmouse> <leader>!
+vmap <rightmouse> *
 vnoremap * :call dotfiles#SetVisualSearch()<cr>/<cr>
-vnoremap <c-a-leftmouse> vgvy:Cmd <c-r>=escape(@", '%#')<cr><cr>
-vnoremap <leader>! :Cmd<space>
+vnoremap <leader>! :<c-u>call dotfiles#RunShellVisualText()<cr>
 vnoremap <leader><cr> :Send<cr>
 vnoremap <leader>p "*p
 vnoremap <leader>x "*x
