@@ -53,8 +53,18 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   else
     exe l:winnr . 'wincmd w'
   endif
-  silent let l:err = append(line('$') - 1, systemlist(a:cmd, l:input))
-  call cursor(line('$'), '.')
+
+  if exists('g:dotfiles_async') && has('job') && has('channel')
+  " FIXME: stdin and auto-scroll
+    let l:job = job_start([&sh, &shcf, a:cmd], {
+      \ 'out_io': 'buffer', 'out_name': l:bufname,
+      \ 'err_io': 'buffer', 'err_name': l:bufname,
+      \ 'mode': 'raw',
+      \ })
+  else
+    silent let l:err = append(line('$') - 1, systemlist(a:cmd, l:input))
+    call cursor(line('$'), '.')
+  endif
 endfunc
 
 func! dotfiles#SendTerminalKeys(start, end, range, ...) abort

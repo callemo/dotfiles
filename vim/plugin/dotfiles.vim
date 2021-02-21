@@ -92,7 +92,7 @@ nnoremap yow :setl invwrap<cr>
 " Mappings: visual {{{
 vmap <c-rightmouse> *
 vnoremap * :call dotfiles#SetVisualSearch()<cr>/<cr>
-vnoremap <c-a-leftmouse> vgvy:Cmd <c-r>=escape(@", '\%#')<cr><cr>
+vnoremap <c-a-leftmouse> vgvy:Cmd <c-r>=escape(@", '%#')<cr><cr>
 vnoremap <leader>! :Cmd<space>
 vnoremap <leader><cr> :Send<cr>
 vnoremap <leader>p "*p
