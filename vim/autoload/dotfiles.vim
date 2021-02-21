@@ -63,7 +63,7 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   endif
 
   if exists('g:dotfiles_async') && has('job') && has('channel')
-  " FIXME: stdin and auto-scroll
+  " FIXME: stdin
     let l:job = job_start([&sh, &shcf, a:cmd], {
       \ 'out_io': 'buffer', 'out_name': l:bufname,
       \ 'err_io': 'buffer', 'err_name': l:bufname,
