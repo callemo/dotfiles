@@ -161,3 +161,10 @@ func! dotfiles#TabLabel(n) abort
   endif
   return l:label
 endfunc
+
+func! dotfiles#Rg(args) abort
+  let l:oprg = &grepprg
+  let &grepprg = 'rg --vimgrep'
+  exec 'grep ' . a:args
+  let &grepprg = l:oprg
+endfunc
