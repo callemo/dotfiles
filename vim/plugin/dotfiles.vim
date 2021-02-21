@@ -39,9 +39,12 @@ nmap + <c-w>+
 nmap - <c-w>-
 nmap <down> <c-e>
 nmap <up> <c-y>
-nnoremap <c-l> :noh<c-r>=has('diff')?'<bar>diffupdate':''<cr> \| syntax sync fromstart \| redraw!<cr>
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
 nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
+nnoremap <c-a-leftmouse> <leftmouse>:Cmd <c-r><c-w><cr>
+nnoremap <c-leftmouse> <leftmouse>gF
+nnoremap <c-rightmouse> <leftmouse>*
+nnoremap <c-l> :noh<c-r>=has('diff')?'<bar>diffupdate':''<cr> \| syntax sync fromstart \| redraw!<cr>
 nnoremap <leader>! :Cmd<space>
 nnoremap <leader>. :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
@@ -87,8 +90,9 @@ nnoremap yos :setl invspell<cr>
 nnoremap yow :setl invwrap<cr>
 " }}}
 " Mappings: visual {{{
-vnoremap # :call dotfiles#SetVisualSearch()<cr>?<cr>
+vmap <c-rightmouse> *
 vnoremap * :call dotfiles#SetVisualSearch()<cr>/<cr>
+vnoremap <c-a-leftmouse> vgvy:Cmd <c-r>=escape(@", '\%#')<cr><cr>
 vnoremap <leader>! :Cmd<space>
 vnoremap <leader><cr> :Send<cr>
 vnoremap <leader>p "*p
@@ -125,4 +129,4 @@ if has('terminal')
   endif
 endif
 " }}}
-"vi: set sw=2 sts=2 et ft=vim fdm=marker:
+" vi: set sw=2 sts=2 et fdm=marker :

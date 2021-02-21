@@ -48,9 +48,8 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   let l:bufname = getcwd() . '/+Errors'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
   if l:winnr < 0
-    exe 'botright new ' . l:bufname
-    setl buftype=nofile nobuflisted noswapfile nonumber
-    noremap <buffer> <2-LeftMouse> :wincmd F<CR>
+    exe 'new ' . l:bufname
+    setl buftype=nofile noswapfile nonumber
   else
     exe l:winnr . 'wincmd w'
   endif
