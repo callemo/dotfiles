@@ -51,8 +51,8 @@ func! dotfiles#FormatFile(...) abort
   checktime
 endfunc
 
-func! dotfiles#Cmd(range, lnum, end, cmd) abort
-  let l:input = a:range > 0 ? getline(a:lnum, a:end) : []
+func! dotfiles#Cmd(range, line1, line2, cmd) abort
+  let l:bufnr = bufnr()
   let l:bufname = getcwd() . '/+Errors'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
   if l:winnr < 0
@@ -63,15 +63,20 @@ func! dotfiles#Cmd(range, lnum, end, cmd) abort
   endif
 
   if has('job') && has('channel')
-  " FIXME:
-  " - pass input
-  " - print return code (e.g. ": exit 126")
-    let l:job = job_start([&sh, &shcf, a:cmd], {
+    " FIXME:
+    " - print return code (e.g. "progname: exit 126")
+    let l:opts ={ 'in_io': 'null', 'mode': 'raw',
       \ 'out_io': 'buffer', 'out_name': l:bufname,
-      \ 'err_io': 'buffer', 'err_name': l:bufname,
-      \ 'mode': 'raw',
-      \ })
+      \ 'err_io': 'buffer', 'err_name': l:bufname }
+    if a:range > 0
+      let l:opts.in_io = 'buffer'
+      let l:opts.in_buf = l:bufnr
+      let l:opts.in_top = a:line1
+      let l:opts.in_bot = a:line2
+    endif
+    let l:job = job_start([&sh, &shcf, a:cmd], l:opts)
   else
+    let l:input = a:range > 0 ? getline(a:line1, a:line2) : []
     silent let l:err = append(line('$') - 1, systemlist(a:cmd, l:input))
     call cursor(line('$'), '.')
   endif
