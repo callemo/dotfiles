@@ -63,22 +63,31 @@ func! dotfiles#Cmd(range, line1, line2, cmd) abort
   endif
 
   if has('job') && has('channel')
-    " FIXME:
-    " - print return code (e.g. "progname: exit 126")
     let l:opts ={ 'in_io': 'null', 'mode': 'raw',
       \ 'out_io': 'buffer', 'out_name': l:bufname,
-      \ 'err_io': 'buffer', 'err_name': l:bufname }
+      \ 'err_io': 'buffer', 'err_name': l:bufname,
+      \ 'exit_cb': 'dotfiles#HandleCmdExit' }
     if a:range > 0
       let l:opts.in_io = 'buffer'
       let l:opts.in_buf = l:bufnr
       let l:opts.in_top = a:line1
       let l:opts.in_bot = a:line2
     endif
-    let l:job = job_start([&sh, &shcf, a:cmd], l:opts)
+    call job_start([&sh, &shcf, a:cmd], l:opts)
   else
     let l:input = a:range > 0 ? getline(a:line1, a:line2) : []
     silent let l:err = append(line('$') - 1, systemlist(a:cmd, l:input))
     call cursor(line('$'), '.')
+  endif
+endfunc
+
+func! dotfiles#HandleCmdExit(job, code) abort
+  let l:prog = split(job_info(a:job).cmd[2])[0]
+  let l:msg = l:prog . ': exit ' . a:code
+  if a:code > 0
+    echohl ErrorMsg | echom l:msg | echohl None
+  else
+    echom l:msg
   endif
 endfunc
 
