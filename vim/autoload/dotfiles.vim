@@ -30,7 +30,7 @@ func! dotfiles#LintFile() abort
   update
   let l:out = systemlist(l:cmd . ' ' . expand('%:S'))
   call setqflist([], 'r', {'title': l:cmd, 'lines': out})
-  cwindow
+  botright cwindow
   checktime
 endfunc
 
@@ -63,7 +63,9 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   endif
 
   if exists('g:dotfiles_async') && has('job') && has('channel')
-  " FIXME: stdin
+  " FIXME:
+  " - pass input
+  " - print return code (e.g. ": exit 126")
     let l:job = job_start([&sh, &shcf, a:cmd], {
       \ 'out_io': 'buffer', 'out_name': l:bufname,
       \ 'err_io': 'buffer', 'err_name': l:bufname,
@@ -165,6 +167,7 @@ endfunc
 func! dotfiles#Rg(args) abort
   let l:oprg = &grepprg
   let &grepprg = 'rg --vimgrep'
-  exec 'grep ' . a:args
+  exec 'grep' a:args
   let &grepprg = l:oprg
+  botright cwindow
 endfunc
