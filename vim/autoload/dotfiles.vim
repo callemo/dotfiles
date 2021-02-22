@@ -51,7 +51,7 @@ func! dotfiles#FormatFile(...) abort
   checktime
 endfunc
 
-func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
+func! dotfiles#Cmd(range, lnum, end, cmd) abort
   let l:input = a:range > 0 ? getline(a:lnum, a:end) : []
   let l:bufname = getcwd() . '/+Errors'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
@@ -62,7 +62,7 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
     exe l:winnr . 'wincmd w'
   endif
 
-  if exists('g:dotfiles_async') && has('job') && has('channel')
+  if has('job') && has('channel')
   " FIXME:
   " - pass input
   " - print return code (e.g. ": exit 126")
@@ -77,11 +77,11 @@ func! dotfiles#RunShellCommand(range, lnum, end, cmd) abort
   endif
 endfunc
 
-func! dotfiles#RunShellVisualText()
-  call dotfiles#RunShellCommand(0, v:none, v:none, escape(dotfiles#GetVisualText(), '%#'))
+func! dotfiles#CmdVisual()
+  call dotfiles#Cmd(0, v:null, v:null, escape(dotfiles#GetVisualText(), '%#'))
 endfunc
 
-func! dotfiles#SendTerminalKeys(start, end, range, ...) abort
+func! dotfiles#Send(range, start, end, ...) abort
   if a:0 > 0
     let l:buf = a:1
   elseif exists('w:send_terminal_buf')

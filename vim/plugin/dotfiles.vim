@@ -17,13 +17,13 @@ augroup END
 " }}}
 " Commands: {{{
 command -nargs=+ -complete=file -range Cmd
-  \ call dotfiles#RunShellCommand(<range>, <line1>, <line2>, <q-args>)
+  \ call dotfiles#Cmd(<range>, <line1>, <line2>, <q-args>)
 
 command -nargs=1 TabLabel let t:label = '<args>'
 
 if has('terminal')
   command -nargs=? -range Send
-    \ call dotfiles#SendTerminalKeys(<line1>, <line2>, <range>, <args>)
+    \ call dotfiles#Send(<range>, <line1>, <line2>, <args>)
 endif
 
 command -nargs=1 Dash exe 'silent !open dash://<args>' | redraw!
@@ -48,10 +48,10 @@ nnoremap <leader><cr> :Send<cr>
 nnoremap <leader>F :Fmt<cr>
 nnoremap <leader>L :Lint<cr>
 nnoremap <leader>b :buffers<cr>
+nnoremap <leader>cc :cclose<cr>
+nnoremap <leader>co :copen \| wincmd p<cr>
 nnoremap <leader>f :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>p "*p
-nnoremap <leader>qc :cclose<cr>
-nnoremap <leader>qo :copen<cr>
 nnoremap <leader>r :registers<cr>
 nnoremap <leader>s :split <c-r>=expand('%:h')<cr>/
 nnoremap <leader>y "*y
@@ -124,7 +124,7 @@ if has('terminal')
   endif
 endif
 " }}}
-" Maps: shell {{{
+" Maps: mouse {{{
 nnoremap <c-leftmouse> <leftmouse>gF
 nnoremap <c-rightmouse> <c-o>
 nnoremap <leader>! :Cmd<space>
@@ -133,7 +133,7 @@ nnoremap <rightmouse> <leftmouse>*
 
 nmap <c-a-leftmouse> <middlemouse>
 
-vnoremap <leader>! :<c-u>call dotfiles#RunShellVisualText()<cr>
+vnoremap <leader>! :<c-u>call dotfiles#CmdVisual()<cr>
 
 vmap <c-a-leftmouse> <leader>!
 vmap <rightmouse> *
