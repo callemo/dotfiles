@@ -8,6 +8,8 @@ augroup dotfiles
   au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
   au FileType java,javascript,json,typescript,vim,xml,yaml setl sw=2 sts=2 et
   au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
+  au InsertEnter,WinLeave * setl nocursorline
+  au InsertLeave,WinEnter * setl cursorline
   au OptionSet * if &diff | setl nocursorline | endif
 
   if v:version > 800 && has('terminal')
@@ -130,6 +132,10 @@ if has('terminal')
 endif
 " }}}
 " Maps: mouse {{{
+"
+" MacVim interprets ctrl-click as right-click. To disable this type:
+"   defaults write org.vim.MacVim MMTranslateCtrlClick 0
+"
 nnoremap <c-leftmouse> <leftmouse>gF
 nnoremap <c-rightmouse> <c-o>
 nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
