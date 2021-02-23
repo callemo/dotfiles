@@ -1,21 +1,21 @@
-func! dotfiles#GetVisualText() abort
+func! dotfiles#GetVisualText() abort "{{{
   let l:reg = @"
   exe 'normal! vgvy'
   let l:text = @"
   let @" = l:reg
   return l:text
-endfunc
+endfunc "}}}
 
-func! dotfiles#BufferOnly() abort
+func! dotfiles#BufferOnly() abort "{{{
   let l:current = bufnr()
   for b in getbufinfo({'buflisted': v:true})
     if b.bufnr != l:current
       exe 'bdelete ' . b.bufnr
     endif
   endfor
-endfunc
+endfunc "}}}
 
-func! dotfiles#LintFile() abort
+func! dotfiles#LintFile() abort "{{{
   let l:linters = {
         \ 'css': 'stylelint',
         \ 'python': 'pylint',
@@ -32,9 +32,9 @@ func! dotfiles#LintFile() abort
   call setqflist([], 'r', {'title': l:cmd, 'lines': out})
   botright cwindow
   checktime
-endfunc
+endfunc "}}}
 
-func! dotfiles#FormatFile(...) abort
+func! dotfiles#FormatFile(...) abort "{{{
   let l:fallback = 'prettier --write --print-width 88'
   let l:formatters = {
         \ 'c': 'clang-format -i',
@@ -49,9 +49,9 @@ func! dotfiles#FormatFile(...) abort
     echo out
   endif
   checktime
-endfunc
+endfunc "}}}
 
-func! dotfiles#Cmd(range, line1, line2, cmd) abort
+func! dotfiles#Cmd(range, line1, line2, cmd) abort "{{{
   let l:bufnr = bufnr()
   let l:bufname = getcwd() . '/+Errors'
   let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
@@ -79,9 +79,9 @@ func! dotfiles#Cmd(range, line1, line2, cmd) abort
     silent let l:err = append(line('$') - 1, systemlist(a:cmd, l:input))
     call cursor(line('$'), '.')
   endif
-endfunc
+endfunc "}}}
 
-func! dotfiles#HandleCmdExit(job, code) abort
+func! dotfiles#HandleCmdExit(job, code) abort "{{{
   let l:prog = split(job_info(a:job).cmd[2])[0]
   let l:msg = l:prog . ': exit ' . a:code
   if a:code > 0
@@ -89,9 +89,9 @@ func! dotfiles#HandleCmdExit(job, code) abort
   else
     echom l:msg
   endif
-endfunc
+endfunc "}}}
 
-func! dotfiles#CmdVisual()
+func! dotfiles#CmdVisual()"{{{
   call dotfiles#Cmd(0, v:null, v:null, escape(dotfiles#GetVisualText(), '%#'))
 endfunc
 
@@ -111,9 +111,9 @@ func! dotfiles#Send(range, start, end, ...) abort
     call term_sendkeys(l:buf, "\n")
   endif
   let w:send_terminal_buf = l:buf
-endfunc
+endfunc "}}}
 
-func! dotfiles#SetVisualSearch() abort
+func! dotfiles#SetVisualSearch() abort "{{{
   let @/ = substitute('\V\C' . escape(dotfiles#GetVisualText(), '\'), "\n$", '', '')
 endfunc
 
@@ -138,11 +138,11 @@ func! dotfiles#TabLine() abort
   endfor
   let l:s .= '%#TabLineFill#%T'
   return l:s
-endfunc
+endfunc "}}}
 
 " TabLabel returns the a label string for the given tab number a:n. If t:label
 " exists then returns it instead.
-func! dotfiles#TabLabel(n) abort
+func! dotfiles#TabLabel(n) abort "{{{
   let l:tabl = gettabvar(a:n, 'label')
   if !empty(l:tabl)
     return a:n . ':' . l:tabl
@@ -176,12 +176,13 @@ func! dotfiles#TabLabel(n) abort
     return l:label .'+'
   endif
   return l:label
-endfunc
+endfunc "}}}
 
-func! dotfiles#Rg(args) abort
+func! dotfiles#Rg(args) abort "{{{
   let l:oprg = &grepprg
   let &grepprg = 'rg --vimgrep'
   exec 'grep' a:args
   let &grepprg = l:oprg
   botright cwindow
-endfunc
+endfunc "}}}
+" vi: set sw=2 sts=2 et ft=vim fdm=marker:
