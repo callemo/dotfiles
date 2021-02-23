@@ -43,6 +43,7 @@ nmap <down> <c-e>
 nmap <up> <c-y>
 nnoremap <c-l> :noh<c-r>=has('diff')?'<bar>diffupdate':''<cr> \| syntax sync fromstart \| redraw!<cr>
 
+nnoremap <leader>! :Cmd<space>
 nnoremap <leader>. :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
 nnoremap <leader>F :Fmt<cr>
@@ -89,6 +90,7 @@ nnoremap yow :setl invwrap<cr>
 " }}}
 " Maps: visual {{{
 vnoremap * :call dotfiles#SetVisualSearch()<cr>/<cr>
+vnoremap <leader>! :<c-u>call dotfiles#CmdVisual()<cr>
 vnoremap <leader><cr> :Send<cr>
 vnoremap <leader>p "*p
 vnoremap <leader>x "*x
@@ -127,15 +129,13 @@ endif
 " Maps: mouse {{{
 nnoremap <c-leftmouse> <leftmouse>gF
 nnoremap <c-rightmouse> <c-o>
-nnoremap <leader>! :Cmd<space>
 nnoremap <middlemouse> <leftmouse>:<c-u>Cmd <c-r><c-w><cr>
 nnoremap <rightmouse> <leftmouse>*
 
 nmap <c-a-leftmouse> <middlemouse>
 
-vnoremap <leader>! :<c-u>call dotfiles#CmdVisual()<cr>
-
 vmap <c-a-leftmouse> <leader>!
+vmap <middlemouse> <leader>!
 vmap <rightmouse> *
 " }}}
 " vi: set sw=2 sts=2 et fdm=marker :
