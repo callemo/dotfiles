@@ -41,7 +41,10 @@ nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
 
 nmap <down> <c-e>
 nmap <up> <c-y>
-nnoremap <c-l> :noh<c-r>=has('diff')?'<bar>diffupdate':''<cr> \| syntax sync fromstart \| redraw!<cr>
+
+nnoremap <c-l> :nohlsearch \|
+  \ diffupdate \|
+  \ syntax sync fromstart<cr><c-l>
 
 nnoremap <leader>! :Cmd<space>
 nnoremap <leader>. :lcd %:p:h<cr>
@@ -129,7 +132,7 @@ endif
 " Maps: mouse {{{
 nnoremap <c-leftmouse> <leftmouse>gF
 nnoremap <c-rightmouse> <c-o>
-nnoremap <middlemouse> <leftmouse>:<c-u>Cmd <c-r><c-w><cr>
+nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
 nnoremap <rightmouse> <leftmouse>*
 
 nmap <c-a-leftmouse> <middlemouse>
