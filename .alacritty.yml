@@ -1,45 +1,36 @@
 env:
   TERM: xterm-256color
   TERM_PROGRAM: Alacritty
+
 window:
   dimensions:
     columns: 120
     lines: 38
+
 font:
   normal:
-    family: Triplicate T4c
-  bold:
-    family: Triplicate T4c
-    style: Bold
-  italic:
-    family: Triplicate T4c
-    style: Italic
-  bold_italic:
-    family: Triplicate T4c
-    style: Bold Italic
+    family: Ubuntu Mono  # https://design.ubuntu.com/font/
   size: 15.0
 
-# The "GNOME Light" theme from GNOME terminal.
 colors:
   primary:
-    foreground: "#171421"
-    background: "#ffffff"
-    bright_foreground: "#5e5c64"
+    background: '#300a24'
+    foreground: '#eeeeec'
   normal:
-    black: "#171421"
-    red: "#c01c28"
-    green: "#26a269"
-    yellow: "#a2734c"
-    blue: "#12488b"
-    magenta: "#a347ba"
-    cyan: "#2aa1b3"
-    white: "#d0cfcc"
+    black:   '#2e3436'
+    red:     '#cc0000'
+    green:   '#4e9a06'
+    yellow:  '#c4a000'
+    blue:    '#3465a4'
+    magenta: '#75507b'
+    cyan:    '#06989a'
+    white:   '#d3d7cf'
   bright:
-    black: "#5e5c64"
-    red: "#f66151"
-    green: "#33d17a"
-    yellow: "#e9ad0c"
-    blue: "#2a7bde"
-    magenta: "#c061cb"
-    cyan: "#33c7de"
-    white: "#ffffff"
+    black:   '#555753'
+    red:     '#ef2929'
+    green:   '#8ae234'
+    yellow:  '#fce94f'
+    blue:    '#729fcf'
+    magenta: '#ad7fa8'
+    cyan:    '#34e2e2'
+    white:   '#eeeeec'
