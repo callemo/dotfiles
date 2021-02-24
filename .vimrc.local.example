@@ -1,24 +1,4 @@
-set background=dark
-
-let $PATH = 'node_modules/.bin:' . $PATH
-
-let g:vimwiki_list = [{
-      \ 'path': '~/code/wiki/',
-      \ 'syntax': 'markdown',
-      \ 'ext': '.md'
-      \ },
-      \ {
-      \ 'path': '~/wiki',
-      \ 'path_html': '~/wiki/html',
-      \ 'template_ext': '.html',
-      \ 'template_path': '~/wiki/templates',
-      \ 'css_name': 'style/style.css'
-      \ }]
-
-if $COLORTERM == 'truecolor'
-  if has('termguicolors') 
-    set termguicolors
-  endif
-endif
+let g:vimwiki_list = [{'path': '~/code/wiki/', 'syntax': 'markdown', 'ext': '.md'}]
 
 packadd vim-projectionist
+let $PATH = 'node_modules/.bin:' . $PATH
