@@ -36,8 +36,7 @@ command Trim call dotfiles#TrimTrailingBlanks()
 command -nargs=* Rg call dotfiles#Rg(<q-args>)
 " }}}
 " Maps: normal {{{
-nmap + <c-w>+
-nmap - <c-w>-
+nnoremap + :resize<cr>
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
 nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
 
