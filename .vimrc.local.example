@@ -7,3 +7,6 @@ let g:vimwiki_list = [{
   \ }]
 packadd vim-projectionist
 let $PATH = 'node_modules/.bin:' . $PATH
+if has('gui_macvim')
+  let $PATH = $HOME . '/bin:' . $PATH
+endif
