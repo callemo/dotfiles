@@ -32,7 +32,7 @@ func! dotfiles#LintFile() abort "{{{
   call setqflist([], 'r', {'title': l:cmd, 'lines': out})
   checktime
   botright cwindow
-  cfirst
+  silent! cfirst
 endfunc "}}}
 
 func! dotfiles#FormatFile(...) abort "{{{
@@ -185,6 +185,6 @@ func! dotfiles#Rg(args) abort "{{{
   exec 'grep' a:args
   let &grepprg = l:oprg
   botright cwindow
-  cfirst
+  silent! cfirst
 endfunc "}}}
 " vi: set sw=2 sts=2 et ft=vim fdm=marker:
