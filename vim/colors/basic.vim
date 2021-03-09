@@ -10,13 +10,15 @@ endif
 
 let g:colors_name = 'basic'
 
-let s:highlight_groups = [ 'Comment', 'Constant', 'CursorLine',
-      \ 'CursorLineNr', 'Delimiter', 'DiffAdd', 'DiffChange', 'DiffDelete',
-      \ 'DiffText', 'Error', 'ErrorMsg', 'Folded', 'Function', 'Identifier', 'LineNr',
-      \ 'MatchParen', 'NonText', 'PreProc', 'Search', 'Special', 'SpellBad',
-      \ 'Statement', 'StatusLine', 'StatusLineNC', 'StatusLineTerm',
-      \ 'StatusLineTermNC', 'TabLine', 'TabLineFill', 'TabLineSel', 'Title', 'Todo',
-      \ 'Type', 'VertSplit', 'Visual', 'WarningMsg', 'WildMenu' ]
+let s:highlight_groups = [
+  \ 'Comment', 'Constant', 'CursorLine', 'CursorLineNr', 'Delimiter',
+  \ 'DiffAdd', 'DiffChange', 'DiffDelete', 'DiffText', 'Error', 'ErrorMsg',
+  \ 'Folded', 'Function', 'Identifier', 'LineNr', 'MatchParen', 'NonText',
+  \ 'PreProc', 'Search', 'Special', 'SpellBad', 'SpellCap', 'SpellLocal',
+  \ 'SpellRare' , 'Statement', 'StatusLine', 'StatusLineNC', 'StatusLineTerm',
+  \ 'StatusLineTermNC', 'TabLine', 'TabLineFill', 'TabLineSel', 'Title', 'Todo',
+  \ 'Type', 'VertSplit', 'Visual', 'WarningMsg', 'WildMenu',
+  \ ]
 
 for s:g in s:highlight_groups
   exe 'hi! ' . s:g .
@@ -24,10 +26,10 @@ for s:g in s:highlight_groups
 endfor
 
 hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
-hi SpellBad ctermbg=DarkRed ctermfg=Black
-hi SpellCap ctermbg=DarkBlue ctermfg=Black
-hi SpellLocal ctermbg=DarkCyan ctermfg=Black
-hi SpellRare ctermbg=DarkMagenta ctermfg=Black
+hi SpellBad ctermbg=DarkRed ctermfg=Black gui=undercurl
+hi SpellCap ctermbg=DarkBlue ctermfg=Black gui=undercurl
+hi SpellLocal ctermbg=DarkCyan ctermfg=Black gui=undercurl
+hi SpellRare ctermbg=DarkMagenta ctermfg=Black gui=undercurl
 hi StatusLine gui=bold,reverse cterm=bold,reverse
 hi TabLineSel gui=reverse,bold cterm=reverse,bold
 hi Title gui=bold cterm=bold
