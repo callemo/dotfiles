@@ -26,10 +26,10 @@ for s:g in s:highlight_groups
 endfor
 
 hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
-hi SpellBad ctermbg=DarkRed ctermfg=Black gui=undercurl
-hi SpellCap ctermbg=DarkBlue ctermfg=Black gui=undercurl
-hi SpellLocal ctermbg=DarkCyan ctermfg=Black gui=undercurl
-hi SpellRare ctermbg=DarkMagenta ctermfg=Black gui=undercurl
+hi SpellBad ctermbg=DarkRed ctermfg=White cterm=bold gui=undercurl
+hi SpellCap ctermbg=DarkBlue ctermfg=White cterm=bold gui=undercurl
+hi SpellLocal ctermbg=DarkCyan ctermfg=White cterm=bold gui=undercurl
+hi SpellRare ctermbg=DarkMagenta ctermfg=White cterm=bold gui=undercurl
 hi StatusLine gui=bold,reverse cterm=bold,reverse
 hi TabLineSel gui=reverse,bold cterm=reverse,bold
 hi Title gui=bold cterm=bold
