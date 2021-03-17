@@ -1,7 +1,7 @@
 sources = .alacritty.yml .ctags .pylintrc .tmux.conf .vimrc .gvimrc
 targets = $(sources:.%=$(HOME)/.%)
 
-.PHONY: all check dotfiles vim tmux fzf scipy
+.PHONY: all check dotfiles vim tmux fzf lab
 
 all: dotfiles vim tmux fzf
 
@@ -46,9 +46,9 @@ $(HOME)/.fzf:
 	git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	~/.fzf/install --all
 
-scipy: $(HOME)/.virtualenvs/scipy
+lab: $(HOME)/.virtualenvs/lab
 	$</bin/python3 -m pip install --upgrade \
-		numpy scipy matplotlib ipython jupyter pandas sympy nose jupyterlab
+		numpy scipy matplotlib ipython jupyter pandas sympy nose scikit-learn
 
-$(HOME)/.virtualenvs/scipy:
+$(HOME)/.virtualenvs/lab:
 	python3 -m venv $@
