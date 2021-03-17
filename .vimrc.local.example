@@ -1,12 +1,5 @@
-let NERDTreeShowHidden=1
-cnoreabbrev Show NERDTreeFind
-let g:vimwiki_list = [{
-  \ 'path': '~/code/wiki/',
-  \ 'syntax': 'markdown',
-  \ 'ext': '.md',
-  \ }]
+let g:vimwiki_list = [{'path': '~/code/wiki/', 'syntax': 'markdown', 'ext': '.md'}]
 packadd vim-projectionist
 let $PATH = 'node_modules/.bin:' . $PATH
-if has('gui_macvim')
-  let $PATH = $HOME . '/bin:' . $PATH
-endif
+" if has('gui_macvim')
+" endif

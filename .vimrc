@@ -66,6 +66,8 @@ syntax on
 
 let g:netrw_banner = 0
 let g:netrw_mousemaps = 0
+let NERDTreeShowHidden=1
+cnoreabbrev Show NERDTreeFind
 
 iabbr date] <C-r>=strftime('%Y-%m-%d')<CR><ESC>
 iabbr datet] <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
