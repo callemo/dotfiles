@@ -3,12 +3,14 @@
 
 fs='	'
 ofs=' '
-while getopts F:O: opt
+pad=0
+while getopts F:O:p opt
 do
   case $opt in
   F) fs="$OPTARG" ;;
   O) ofs="$OPTARG" ;;
-  ?) echo "usage: tabfmt [-F fs -O ofs] [files]" >&2; exit 2 ;;
+  p) pad=1 ;;
+  ?) echo "usage: tabfmt [-F fs -O ofs -p] [files]" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -17,6 +19,7 @@ awk '
 BEGIN {
         FS = "'"$fs"'"
         OFS = "'"$ofs"'"
+        pad = '"$pad"'
       }
       {
         for (i = 1; i <= NF; i++) {
@@ -35,7 +38,7 @@ END   {
         for (i = 1; i <= m; i++) {
           for (j = 1; j <= n; j++) {
             printf values[i, j]
-            if ((j < n) || OFS != " ")
+            if ((j < n) || pad)
               printf substr(blanks, 1, widths[j] - length(values[i, j]))
             if (j < n)
               printf OFS
