@@ -34,8 +34,9 @@ END   {
         n = length(widths)
         for (i = 1; i <= m; i++) {
           for (j = 1; j <= n; j++) {
-            printf "%s%s", values[i, j],
-              substr(blanks, 1, widths[j] - length(values[i, j]))
+            printf values[i, j]
+            if ((j < n) || OFS != " ")
+              printf substr(blanks, 1, widths[j] - length(values[i, j]))
             if (j < n)
               printf OFS
           }
