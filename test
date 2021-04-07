@@ -33,6 +33,13 @@ line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
   echo
   echo 'noac:'
   ./bin/noac <termcolors
+
+  echo
+  echo 'tabfmt:'
+  echo 'val_1_1	val_1_2	val_1_3' | tabfmt
+  echo 'val_1_1	val_1_2	val_1_3' | tabfmt -O' | '
+  echo 'val_1_1 val_1_2 val_1_3' | tabfmt -O' | '
+  echo 'val_1_1 val_1_2 val_1_3' | tabfmt -F'[ \t][ \t]*' -O' | '
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -78,6 +85,12 @@ Bright blue
 Bright magenta
 Bright cyan
 Bright white
+
+tabfmt:
+val_1_1 val_1_2 val_1_3
+val_1_1 | val_1_2 | val_1_3
+val_1_1 val_1_2 val_1_3
+val_1_1 | val_1_2 | val_1_3
 EOF
 
 diff test.exp test.out >&2
