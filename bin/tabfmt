@@ -4,11 +4,11 @@
 fs='	'
 ofs=' '
 pad=0
-while getopts F:O:p opt
+while getopts F:d:p opt
 do
   case $opt in
   F) fs="$OPTARG" ;;
-  O) ofs="$OPTARG" ;;
+  d) ofs="$OPTARG" ;;
   p) pad=1 ;;
   ?) echo "usage: tabfmt [-F fs -O ofs -p] [files]" >&2; exit 2 ;;
   esac

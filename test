@@ -41,9 +41,9 @@ v_3__2	v_3___3	v_3_1'
   echo 'tabfmt:'
   echo "$tsv" | tabfmt
   echo "$tsv" | tabfmt -p | sed 's/$/$/'
-  echo "$tsv" | tabfmt -p -O' | ' | sed 's/^/| /; s/$/ |/'
-  echo 'v_1_1 v_1_2 v_1_3' | tabfmt -O' | '
-  echo 'v_1_1 v_1_2 v_1_3' | tabfmt -F'[ \t][ \t]*' -O' | '
+  echo "$tsv" | tabfmt -p -d' | ' | sed 's/^/| /; s/$/ |/'
+  echo 'v_1_1 v_1_2 v_1_3' | tabfmt -d' | '
+  echo 'v_1_1 v_1_2 v_1_3' | tabfmt -F'[ \t][ \t]*' -d' | '
 } >test.out
 
 cat <<'EOF' >test.exp
