@@ -10,7 +10,7 @@ do
   F) fs="$OPTARG" ;;
   d) ofs="$OPTARG" ;;
   p) pad=1 ;;
-  ?) echo "usage: tabfmt [-F fs -O ofs -p] [files]" >&2; exit 2 ;;
+  ?) echo "usage: tabfmt [-F fs -d ofs -p] [files]" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
