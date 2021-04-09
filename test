@@ -34,12 +34,16 @@ line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
   echo 'noac:'
   ./bin/noac <termcolors
 
+  tsv='v_1_1	v_1__2	v_1___3
+v_2___3	v_2_1	v_2__2
+v_3__2	v_3___3	v_3_1'
   echo
   echo 'tabfmt:'
-  echo 'val_1_1	val_1_2	val_1_3' | tabfmt
-  echo 'val_1_1	val_1_2	val_1_3' | tabfmt -O' | '
-  echo 'val_1_1 val_1_2 val_1_3' | tabfmt -O' | '
-  echo 'val_1_1 val_1_2 val_1_3' | tabfmt -F'[ \t][ \t]*' -O' | '
+  echo "$tsv" | tabfmt
+  echo "$tsv" | tabfmt -p | sed 's/$/$/'
+  echo "$tsv" | tabfmt -O' | '
+  echo 'v_1_1 v_1_2 v_1_3' | tabfmt -O' | '
+  echo 'v_1_1 v_1_2 v_1_3' | tabfmt -F'[ \t][ \t]*' -O' | '
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -87,10 +91,17 @@ Bright cyan
 Bright white
 
 tabfmt:
-val_1_1 val_1_2 val_1_3
-val_1_1 | val_1_2 | val_1_3
-val_1_1 val_1_2 val_1_3
-val_1_1 | val_1_2 | val_1_3
+v_1_1   v_1__2  v_1___3
+v_2___3 v_2_1   v_2__2
+v_3__2  v_3___3 v_3_1
+v_1_1   v_1__2  v_1___3$
+v_2___3 v_2_1   v_2__2 $
+v_3__2  v_3___3 v_3_1  $
+v_1_1   | v_1__2  | v_1___3
+v_2___3 | v_2_1   | v_2__2
+v_3__2  | v_3___3 | v_3_1
+v_1_1 v_1_2 v_1_3
+v_1_1 | v_1_2 | v_1_3
 EOF
 
 diff test.exp test.out >&2
