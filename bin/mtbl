@@ -1,4 +1,5 @@
 #!/bin/sh
+# Formats tabulated data as markdown.
 tabfmt -p -d' | ' "$@" |
   sed 's/^/| /; s/$/ |/'
 
