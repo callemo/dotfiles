@@ -44,6 +44,13 @@ v_3__2	v_3___3	v_3_1'
   echo "$tsv" | tabfmt -p -d' | ' | sed 's/^/| /; s/$/ |/'
   echo 'v_1_1 v_1_2 v_1_3' | tabfmt -d' | '
   echo 'v_1_1 v_1_2 v_1_3' | tabfmt -F'[ \t][ \t]*' -d' | '
+
+  echo
+  echo 'mtbl:'
+  echo "$tsv" | mtbl
+  echo 'v_1_1,v_1__2,v_1___3
+v_2___3,v_2_1,v_2__2
+v_3__2,v_3___3,v_3_1' | mtbl -F,
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -102,6 +109,14 @@ v_3__2  v_3___3 v_3_1  $
 | v_3__2  | v_3___3 | v_3_1   |
 v_1_1 v_1_2 v_1_3
 v_1_1 | v_1_2 | v_1_3
+
+mtbl:
+| v_1_1   | v_1__2  | v_1___3 |
+| v_2___3 | v_2_1   | v_2__2  |
+| v_3__2  | v_3___3 | v_3_1   |
+| v_1_1   | v_1__2  | v_1___3 |
+| v_2___3 | v_2_1   | v_2__2  |
+| v_3__2  | v_3___3 | v_3_1   |
 EOF
 
 diff test.exp test.out >&2
