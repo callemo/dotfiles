@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+"""Convert csv to tab-delimited data"""
+import csv
+import fileinput
+
+reader = csv.reader(fileinput.input())
+try:
+    for row in reader:
+        print("\t".join(row))
+except BrokenPipeError:
+    pass

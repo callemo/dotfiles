@@ -52,6 +52,11 @@ v_3__2	v_3___3	v_3_1'
 v_1_1,v_1__2,v_1___3
 v_2___3,v_2_1,v_2__2
 v_3__2,v_3___3,v_3_1' | mdtbl -F,
+
+  echo
+  echo 'csvtab:'
+  echo 'one,two,three
+one,"two ,","three "","""' | csvtab
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -122,6 +127,10 @@ mdtbl:
 | v\_1\_1     | v\_1\_\_2   | v\_1\_\_\_3 |
 | v\_2\_\_\_3 | v\_2\_1     | v\_2\_\_2   |
 | v\_3\_\_2   | v\_3\_\_\_3 | v\_3\_1     |
+
+csvtab:
+one	two	three
+one	two ,	three ","
 EOF
 
 diff test.exp test.out >&2
