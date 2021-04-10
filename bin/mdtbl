@@ -1,7 +1,18 @@
 #!/bin/sh
 # Format tables for markdown
 # https://github.github.com/gfm/#tables-extension-
-tabfmt -p -d' | ' "$@" |
+fs='	'
+while getopts F: i
+do
+  case $i in
+  F) fs="$OPTARG" ;;
+  ?) echo "usage: mdtbl [-F fs] [files]" >&2; exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+sed 's/[_\*]/\\&/g' "$@" |
+  tabfmt -F"$fs" -p -d' | ' |
   sed 's/^/| /
        s/$/ |/
        1 {
