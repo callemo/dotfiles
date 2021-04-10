@@ -1,0 +1,11 @@
+#!/bin/sh
+# Format tables for markdown
+# https://github.github.com/gfm/#tables-extension-
+tabfmt -p -d' | ' "$@" |
+  sed 's/^/| /
+       s/$/ |/
+       1 {
+         p
+         s/[^|]/-/g
+       }'
+
