@@ -11,7 +11,8 @@ do
 done
 shift $((OPTIND - 1))
 
-sed 's/[_\*]/\\&/g' "$@" |
+sed 's/[_\*]/\\&/g
+     s/|/\&#124;/g' "$@" |
   tabfmt -F"$fs" -p -d' | ' |
   sed 's/^/| /
        s/$/ |/
