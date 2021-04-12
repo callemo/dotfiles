@@ -5,9 +5,15 @@ import fileinput
 import os
 import sys
 
-try:
+
+def main():
     reader = csv.reader(fileinput.input())
     for row in reader:
         print("\t".join(row))
+
+
+try:
+    main()
+    sys.stdout.flush()
 except BrokenPipeError:
     os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
