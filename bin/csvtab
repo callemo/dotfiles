@@ -2,10 +2,12 @@
 """Convert csv to tab-delimited data"""
 import csv
 import fileinput
+import os
+import sys
 
-reader = csv.reader(fileinput.input())
 try:
+    reader = csv.reader(fileinput.input())
     for row in reader:
         print("\t".join(row))
 except BrokenPipeError:
-    pass
+    os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
