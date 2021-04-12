@@ -5,31 +5,41 @@ if has('unix') && has('terminal')
   setl keywordprg=:terminal\ python3\ -m\ pydoc
 endif
 
-inoremap <buffer> <C-x>= {}<Left>
-inoremap <buffer> <C-x>" """"""<Left><Left><Left>
-inoremap <buffer> <C-x>! #!/usr/bin/env python3<CR>
-imap <buffer> <C-x>' <C-x>"
+inoremap <buffer> <c-x>= {}<left>
+inoremap <buffer> <c-x>" """"""<left><left><left>
+inoremap <buffer> <c-x>! #!/usr/bin/env python3<cr>
+imap <buffer> <c-x>' <c-x>"
 
-iabbrev <buffer> class] class :<C-o>mm<CR>
-  \<c-t>def __init__(self):<CR>
-  \<c-t>pass<CR>
-  \<ESC>`mi
+iabbrev <buffer> class] class :<c-o>mm<cr>
+  \<c-t>def __init__(self):<cr>
+  \<c-t>pass<cr>
+  \<esc>`mi
 
-iabbrev <buffer> main] def main():<CR>
-  \<C-o>mm<CR>
-  \<c-d><CR>
-  \if __name__ == "__main__":<CR>
-  \<c-t>main()<ESC>`mi<c-t>
+iabbrev <buffer> main] def main():<cr>
+  \<c-o>mm<cr>
+  \<c-d><cr>
+  \if __name__ == "__main__":<cr>
+  \<c-t>main()<esc>`mi<c-t>
 
-iabbrev <buffer> argparse] parser = argparse.ArgumentParser()<CR>
-  \parser.add_argument(""<C-o>mm)<CR>
-  \args = parser.parse_args()<ESC>`mi
+iabbrev <buffer> argparse] parser = argparse.ArgumentParser()<cr>
+  \parser.add_argument(""<c-o>mm)<cr>
+  \args = parser.parse_args()<esc>`mi
 
-iabbrev <buffer> cmd] <c-x>!"""Command line utility."""<cr>
+iabbrev <buffer> util] <c-x>!"""Command line utility."""<cr>
   \import argparse<cr>
-  \import fileinput<cr><cr>
-  \<c-o>:normal amain]<cr>
-  \<c-o>:normal aargparse]<cr><right>files<right>, nargs="*"<esc>jo
+  \import fileinput<cr>
+  \import os<cr>
+  \import sys<cr>
+  \<cr><cr>
+  \def main():<cr>
+  \<c-o>:normal a<c-t>argparse]<cr><right>files<right>, nargs="*"<esc>jo
   \with fileinput.input(files=args.files) as f:<cr>
   \<c-t>for line in f:<cr>
-  \<c-t>print(line, end="")<cr>
+  \<c-t>print(line<c-o>mm, end="")<cr>
+  \<c-d><c-d><c-d>
+  \<cr><cr>
+  \try:<cr>
+  \<c-t>main()<cr>
+  \sys.stdout.flush()<cr>
+  \<c-d>except (BrokenPipeError, KeyboardInterrupt):<cr>
+  \<c-t>os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())<esc>`ma
