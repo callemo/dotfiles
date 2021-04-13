@@ -36,7 +36,6 @@ command Trim call dotfiles#TrimTrailingBlanks()
 command -nargs=* Rg call dotfiles#Rg(<q-args>)
 " }}}
 " Maps: normal {{{
-nnoremap + :resize<cr>
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
 nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
 
@@ -55,10 +54,11 @@ nnoremap <leader>L :Lint<cr>
 nnoremap <leader>b :buffers<cr>
 nnoremap <leader>cc :cclose<cr>
 nnoremap <leader>co :copen \| wincmd p<cr>
+nnoremap <leader>e :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f :let @"=expand('%:p') \| let @*=@"<cr>
+nnoremap <leader>gf :edit <cfile><cr>
 nnoremap <leader>p "*p
 nnoremap <leader>r :registers<cr>
-nnoremap <leader>s :split <c-r>=expand('%:h')<cr>/
 nnoremap <leader>y "*y
 
 if !empty($TMUX)
