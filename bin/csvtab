@@ -15,5 +15,5 @@ def main():
 try:
     main()
     sys.stdout.flush()
-except BrokenPipeError:
+except (BrokenPipeError, KeyboardInterrupt):
     os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
