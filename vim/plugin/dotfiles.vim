@@ -61,6 +61,12 @@ nnoremap <leader>p "*p
 nnoremap <leader>r :registers<cr>
 nnoremap <leader>y "*y
 
+if has('macunix')
+  nnoremap gx :silent !open <cfile><cr>
+elseif has('unix')
+  nnoremap gx :silent !xdg-open <cfile><cr>
+endif
+
 if !empty($TMUX)
   nnoremap <expr> <silent> <c-j> winnr() == winnr('$') ?
         \ ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
