@@ -32,7 +32,6 @@ vim:
 	bin/vimget https://github.com/tpope/vim-tbone
 	bin/vimget -o https://github.com/tpope/vim-projectionist
 	bin/vimget -o https://github.com/tpope/vim-scriptease
-	bin/vimget -o https://github.com/vimwiki/vimwiki
 
 tmux:
 	@if [ -d ~/.tmux/plugins/tmux-resurrect ]; then \
