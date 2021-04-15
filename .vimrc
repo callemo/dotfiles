@@ -64,8 +64,8 @@ endif
 filetype plugin on
 syntax on
 
-let g:netrw_banner = 0
-let g:netrw_mousemaps = 0
+let g:loaded_netrw = 1
+let g:loaded_netrwPlugin = 1
 let NERDTreeShowHidden=1
 cnoreabbrev Show NERDTreeFind
 
