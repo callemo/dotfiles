@@ -62,9 +62,9 @@ nnoremap <leader>r :registers<cr>
 nnoremap <leader>y "*y
 
 if has('macunix')
-  nnoremap gx :silent !open <cfile><cr>
+  nnoremap gx :silent !open '<cfile>'<cr>
 elseif has('unix')
-  nnoremap gx :silent !xdg-open <cfile><cr>
+  nnoremap gx :silent !xdg-open '<cfile>'<cr>
 endif
 
 if !empty($TMUX)
