@@ -27,17 +27,13 @@ set notimeout
 set nottimeout
 set nowritebackup
 set nrformats-=octal
-set number
 set path=.,,
-set ruler
 set sessionoptions-=options
 set shortmess=atI
 set showcmd
-set showtabline=2
 set switchbuf=useopen,split
 set tabline=%!dotfiles#TabLine()
 set textwidth=0
-set title
 set updatetime=300
 set viewoptions-=options
 set visualbell
