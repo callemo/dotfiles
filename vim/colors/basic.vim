@@ -102,6 +102,6 @@ hi link rubyStringDelimiter String
 hi link StatusLineTerm StatusLine
 hi link StatusLineTermNC StatusLineNC
 hi link Todo Title
-hi link VertSplit StatusLine
+hi link VertSplit StatusLineNC
 hi link vimOption Keyword
 
