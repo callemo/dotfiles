@@ -15,5 +15,3 @@ alias glo='git log --oneline --decorate'
 alias glol="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
 alias glols="git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --stat"
 alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
-alias gst='git status'
-alias tsp='tmux split-window -l 12'
