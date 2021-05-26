@@ -1,2 +1,2 @@
 #!/bin/sh
-git log --oneline --graph --stat "$@"
+git log --graph --stat --relative-date "$@"
