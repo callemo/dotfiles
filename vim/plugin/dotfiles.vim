@@ -34,6 +34,8 @@ command -nargs=? Fmt call dotfiles#FormatFile(<f-args>)
 command Bonly call dotfiles#BufferOnly()
 command Trim call dotfiles#TrimTrailingBlanks()
 command -nargs=* Rg call dotfiles#Rg(<q-args>)
+command -nargs=+ Bx call dotfiles#Bx(<f-args>)
+command -nargs=+ By call dotfiles#By(<f-args>)
 " }}}
 " Maps: normal {{{
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>

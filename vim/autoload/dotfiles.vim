@@ -197,4 +197,14 @@ func! dotfiles#Rg(args) abort " {{{
 endfunc
 
 " }}}
+func! dotfiles#Bx(regexp, command) abort " {{{
+  silent exe 'bufdo if expand("%:p") =~# "' .. a:regexp .. '" |' a:command '| endif'
+endfunc
+
+" }}}
+func! dotfiles#By(regexp, command) abort " {{{
+  silent exe 'bufdo if expand("%:p") !~# "' .. a:regexp .. '" |' a:command '| endif'
+endfunc
+
+" }}}
 " vi: set sw=2 sts=2 et ft=vim fdm=marker:
