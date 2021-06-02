@@ -7,16 +7,6 @@ func! dotfiles#GetVisualText() abort " {{{
 endfunc
 
 " }}}
-func! dotfiles#BufferOnly() abort " {{{
-  let l:current = bufnr()
-  for b in getbufinfo({'buflisted': v:true})
-    if b.bufnr != l:current
-      exe 'bdelete ' . b.bufnr
-    endif
-  endfor
-endfunc
-
-" }}}
 func! dotfiles#LintFile() abort " {{{
   let l:linters = {
         \ 'css': 'stylelint',

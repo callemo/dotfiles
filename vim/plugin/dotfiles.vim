@@ -31,7 +31,6 @@ endif
 command -nargs=1 Dash exe 'silent !open dash://<args>' | redraw!
 command Lint call dotfiles#LintFile()
 command -nargs=? Fmt call dotfiles#FormatFile(<f-args>)
-command Bonly call dotfiles#BufferOnly()
 command Trim call dotfiles#TrimTrailingBlanks()
 command -nargs=* Rg call dotfiles#Rg(<q-args>)
 command -nargs=+ Bx call dotfiles#Bx(<f-args>)
