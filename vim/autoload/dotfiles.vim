@@ -187,13 +187,27 @@ func! dotfiles#Rg(args) abort " {{{
 endfunc
 
 " }}}
-func! dotfiles#Bx(regexp, command) abort " {{{
-  silent exe 'bufdo if expand("%:p") =~# "' .. a:regexp .. '" |' a:command '| endif'
+func! dotfiles#Bx(regexp, command) " {{{
+  let prev = bufnr('%')
+  for b in getbufinfo({'buflisted': 1})
+    if b.name =~# a:regexp
+      exe 'buffer' l:b.bufnr
+      exe a:command
+    endif
+  endfor
+  exe buflisted(l:prev) ? 'buffer ' . l:prev : 'bfirst'
 endfunc
 
 " }}}
 func! dotfiles#By(regexp, command) abort " {{{
-  silent exe 'bufdo if expand("%:p") !~# "' .. a:regexp .. '" |' a:command '| endif'
+  let prev = bufnr('%')
+  for b in getbufinfo({'buflisted': 1})
+    if b.name !~# a:regexp
+      exe 'buffer' l:b.bufnr
+      exe a:command
+    endif
+  endfor
+  exe buflisted(l:prev) ? 'buffer ' . l:prev : 'bfirst'
 endfunc
 
 " }}}
