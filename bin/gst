@@ -2,7 +2,7 @@
 if [ "$1" = '-v' ]
 then
   shift
-  git status --long --show-stash --verbose --verbose "$@"
+  git status --long --show-stash --verbose "$@"
 else
   git status --short --branch "$@"
 fi
