@@ -1,8 +1,2 @@
 #!/bin/sh
-if [ "$1" = '-v' ]
-then
-  shift
-  git status --long --show-stash --verbose "$@"
-else
-  git status --short --branch "$@"
-fi
+git status --short --branch "$@"
