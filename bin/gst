@@ -1,2 +1,8 @@
 #!/bin/sh
-git status --short --branch "$@"
+if [ "$1" = "-v" ]
+then
+  set -- '--show-stash' "$@"
+else
+  set -- '--short' '--branch' "$@"
+fi
+git status "$@"
