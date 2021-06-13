@@ -1,214 +1,216 @@
-func! dotfiles#GetVisualText() abort " {{{
-  let l:reg = @"
+function! dotfiles#GetVisualText() abort " {{{
+  let reg = @"
   exe 'normal! vgvy'
-  let l:text = @"
-  let @" = l:reg
-  return l:text
-endfunc
+  let text = @"
+  let @" = reg
+  return text
+endfunction
 
 " }}}
-func! dotfiles#LintFile() abort " {{{
-  let l:linters = {
+function! dotfiles#LintFile() abort " {{{
+  let linters = {
         \ 'css': 'stylelint',
         \ 'python': 'pylint',
         \ 'scss': 'stylelint',
         \ 'sh': 'shellcheck -f gcc',
         \ }
-  let l:cmd = get(l:linters, &filetype, v:null)
-  if l:cmd == v:null
+  let cmd = get(linters, &filetype, v:null)
+  if cmd == v:null
     echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
     return
   endif
   update
-  let l:out = systemlist(l:cmd . ' ' . expand('%:S'))
-  call setqflist([], 'r', {'title': l:cmd, 'lines': out})
+  let out = systemlist(cmd . ' ' . expand('%:S'))
+  call setqflist([], 'r', {'title': cmd, 'lines': out})
   checktime
   botright cwindow
   silent! cfirst
-endfunc
+endfunction
 
 " }}}
-func! dotfiles#FormatFile(...) abort " {{{
-  let l:fallback = 'prettier --write --print-width 88'
-  let l:formatters = {
+function! dotfiles#FormatFile(...) abort " {{{
+  let fallback = 'prettier --write --print-width 88'
+  let formatters = {
         \ 'c': 'clang-format -i',
         \ 'cpp': 'clang-format -i',
         \ 'java': 'clang-format -i',
         \ 'python': 'black',
         \ }
-  let l:cmd = a:0 > 0 ? a:1 : get(l:formatters, &filetype, l:fallback)
+  let cmd = a:0 > 0 ? a:1 : get(formatters, &filetype, fallback)
   update
-  let l:out = system(l:cmd . ' ' . expand('%:S'))
+  let out = system(cmd . ' ' . expand('%:S'))
   if v:shell_error != 0
     echo out
   endif
   checktime
-endfunc
+endfunction
 
 " }}}
-func! dotfiles#Cmd(range, line1, line2, cmd) abort " {{{
-  let l:bufnr = bufnr()
-  let l:bufname = getcwd() . '/+Errors'
-  let l:winnr = bufwinnr('\m\C^' . l:bufname . '$')
-  if l:winnr < 0
-    exe 'new ' . l:bufname
+function! dotfiles#Cmd(range, line1, line2, cmd) abort " {{{
+  let bufnr = bufnr()
+  let bufname = getcwd() . '/+Errors'
+  let winnr = bufwinnr('\m\C^' . bufname . '$')
+  if winnr < 0
+    exe 'new ' . bufname
     setl buftype=nofile noswapfile nonumber
   else
-    exe l:winnr . 'wincmd w'
+    exe winnr . 'wincmd w'
   endif
 
   if has('job') && has('channel')
-    let l:opts ={ 'in_io': 'null', 'mode': 'raw',
-      \ 'out_io': 'buffer', 'out_name': l:bufname,
-      \ 'err_io': 'buffer', 'err_name': l:bufname,
+    let opts = { 'in_io': 'null', 'mode': 'raw',
+      \ 'out_io': 'buffer', 'out_name': bufname,
+      \ 'err_io': 'buffer', 'err_name': bufname,
       \ 'exit_cb': 'dotfiles#HandleCmdExit' }
     if a:range > 0
-      let l:opts.in_io = 'buffer'
-      let l:opts.in_buf = l:bufnr
-      let l:opts.in_top = a:line1
-      let l:opts.in_bot = a:line2
+      let opts.in_io = 'buffer'
+      let opts.in_buf = bufnr
+      let opts.in_top = a:line1
+      let opts.in_bot = a:line2
     endif
-    call job_start([&sh, &shcf, a:cmd], l:opts)
+    call job_start([&sh, &shcf, a:cmd], opts)
   else
-    let l:input = a:range > 0 ? getline(a:line1, a:line2) : []
-    silent let l:err = append(line('$') - 1, systemlist(a:cmd, l:input))
+    let input = a:range > 0 ? getline(a:line1, a:line2) : []
+    silent let err = append(line('$') - 1, systemlist(a:cmd, input))
     call cursor(line('$'), '.')
   endif
-endfunc
+endfunction
 
 " }}}
-func! dotfiles#HandleCmdExit(job, code) abort " {{{
-  let l:prog = split(job_info(a:job).cmd[2])[0]
-  let l:msg = l:prog . ': exit ' . a:code
+function! dotfiles#HandleCmdExit(job, code) abort " {{{
+  let prog = split(job_info(a:job).cmd[2])[0]
+  let msg = prog . ': exit ' . a:code
   if a:code > 0
-    echohl ErrorMsg | echom l:msg | echohl None
+    echohl ErrorMsg | echom msg | echohl None
   else
-    echom l:msg
+    echom msg
   endif
-endfunc
+endfunction
 
 " }}}
-func! dotfiles#CmdVisual() " {{{
+function! dotfiles#CmdVisual() " {{{
   call dotfiles#Cmd(0, v:null, v:null, escape(dotfiles#GetVisualText(), '%#'))
-endfunc " }}}
-func! dotfiles#Send(range, start, end, ...) abort " {{{
+endfunction
+
+" }}}
+function! dotfiles#Send(range, start, end, ...) abort " {{{
   if a:0 > 0
-    let l:buf = a:1
+    let buf = a:1
   elseif exists('w:send_terminal_buf')
-    let l:buf = w:send_terminal_buf
+    let buf = w:send_terminal_buf
   else
     echohl ErrorMsg | echo 'No terminal link' | echohl None
     return
   endif
 
-  let l:keys = join(getline(a:start, a:end), "\n")
-  call term_sendkeys(l:buf, l:keys)
+  let keys = join(getline(a:start, a:end), "\n")
+  call term_sendkeys(buf, keys)
   if a:range
-    call term_sendkeys(l:buf, "\n")
+    call term_sendkeys(buf, "\n")
   endif
-  let w:send_terminal_buf = l:buf
-endfunc
+  let w:send_terminal_buf = buf
+endfunction
 
 " }}}
-func! dotfiles#SetVisualSearch() abort " {{{
+function! dotfiles#SetVisualSearch() abort " {{{
   let @/ = substitute('\V\C' . escape(dotfiles#GetVisualText(), '\'), "\n$", '', '')
-endfunc
+endfunction
 
-func! dotfiles#TrimTrailingBlanks() abort
-  let l:last_pos = getcurpos()
-  let l:last_search = @/
+function! dotfiles#TrimTrailingBlanks() abort
+  let last_pos = getcurpos()
+  let last_search = @/
   silent! %s/\m\C\s\+$//e
-  let @/ = l:last_search
-  call setpos('.', l:last_pos)
-endfunc
+  let @/ = last_search
+  call setpos('.', last_pos)
+endfunction
 
-func! dotfiles#TabLine() abort
-  let l:s = ''
+function! dotfiles#TabLine() abort
+  let s = ''
   for i in range(1, tabpagenr('$'))
     if i == tabpagenr()
-      let l:s .= '%#TabLineSel#'
+      let s .= '%#TabLineSel#'
     else
-      let l:s .= '%#TabLine#'
+      let s .= '%#TabLine#'
     endif
-    let l:s .= '%' . i . 'T'
-    let l:s .= ' %{dotfiles#TabLabel(' . i . ')} '
+    let s .= '%' . i . 'T'
+    let s .= ' %{dotfiles#TabLabel(' . i . ')} '
   endfor
-  let l:s .= '%#TabLineFill#%T'
-  return l:s
-endfunc
+  let s .= '%#TabLineFill#%T'
+  return s
+endfunction
 
 " }}}
 " TabLabel returns the a label string for the given tab number a:n. If t:label
 " exists then returns it instead.
-func! dotfiles#TabLabel(n) abort " {{{
-  let l:tabl = gettabvar(a:n, 'label')
-  if !empty(l:tabl)
-    return a:n . ':' . l:tabl
+function! dotfiles#TabLabel(n) abort " {{{
+  let tabl = gettabvar(a:n, 'label')
+  if !empty(tabl)
+    return a:n . ':' . tabl
   endif
 
-  let l:buflist = tabpagebuflist(a:n)
-  let l:winnr = tabpagewinnr(a:n)
-  let l:bufnr = l:buflist[l:winnr - 1]
+  let buflist = tabpagebuflist(a:n)
+  let winnr = tabpagewinnr(a:n)
+  let bufnr = buflist[winnr - 1]
 
-  let l:label = bufname(l:bufnr)
-  if empty(l:label)
-    let buftype = getbufvar(l:bufnr, '&buftype')
+  let label = bufname(bufnr)
+  if empty(label)
+    let buftype = getbufvar(bufnr, '&buftype')
     if empty(buftype)
       return a:n . ':' . '[No Name]'
     endif
     return a:n . ':' . '[' . buftype . ']'
   endif
 
-  if filereadable(l:label)
-    let l:label = fnamemodify(l:label, ':p:t')
-  elseif isdirectory(l:label)
-    let l:label = fnamemodify(l:label, ':p:~')
-  elseif l:label[-1:] == '/'
-    let l:label = split(l:label, '/')[-1] . '/'
+  if filereadable(label)
+    let label = fnamemodify(label, ':p:t')
+  elseif isdirectory(label)
+    let label = fnamemodify(label, ':p:~')
+  elseif label[-1:] == '/'
+    let label = split(label, '/')[-1] . '/'
   else
-    let l:label = split(l:label, '/')[-1]
+    let label = split(label, '/')[-1]
   endif
 
-  let l:label = a:n . ':' . l:label
-  if getbufvar(l:bufnr, '&modified')
-    return l:label .'+'
+  let label = a:n . ':' . label
+  if getbufvar(bufnr, '&modified')
+    return label .'+'
   endif
-  return l:label
-endfunc
+  return label
+endfunction
 
 " }}}
-func! dotfiles#Rg(args) abort " {{{
-  let l:oprg = &grepprg
+function! dotfiles#Rg(args) abort " {{{
+  let oprg = &grepprg
   let &grepprg = 'rg --vimgrep'
   exec 'grep' a:args
-  let &grepprg = l:oprg
+  let &grepprg = oprg
   botright cwindow
   silent! cfirst
-endfunc
+endfunction
 
 " }}}
-func! dotfiles#Bx(regexp, command) " {{{
+function! dotfiles#Bx(regexp, command) " {{{
   let prev = bufnr('%')
   for b in getbufinfo({'buflisted': 1})
     if b.name =~# a:regexp
-      exe 'buffer' l:b.bufnr
+      exe 'buffer' b.bufnr
       exe a:command
     endif
   endfor
-  exe buflisted(l:prev) ? 'buffer ' . l:prev : 'bfirst'
-endfunc
+  exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
+endfunction
 
 " }}}
-func! dotfiles#By(regexp, command) abort " {{{
+function! dotfiles#By(regexp, command) abort " {{{
   let prev = bufnr('%')
   for b in getbufinfo({'buflisted': 1})
     if b.name !~# a:regexp
-      exe 'buffer' l:b.bufnr
+      exe 'buffer' b.bufnr
       exe a:command
     endif
   endfor
-  exe buflisted(l:prev) ? 'buffer ' . l:prev : 'bfirst'
-endfunc
+  exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
+endfunction
 
 " }}}
 " vi: set sw=2 sts=2 et ft=vim fdm=marker:
