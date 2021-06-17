@@ -1,9 +1,15 @@
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 EDITOR=vim; export EDITOR
-PYTHONUSERBASE="$HOME/python"; export PYTHONUSERBASE
 HISTSIZE=100000; export HISTSIZE
-HISTFILESIZE="$HISTSIZE"; export HISTFILESIZE
-SAVEHIST="$HISTSIZE"; export SAVEHIST
+PYTHONUSERBASE="$HOME/python"; export PYTHONUSERBASE
+
+if [ -n "$ZSH_VERSION" ]
+then
+  SAVEHIST="$HISTSIZE"; export SAVEHIST
+  bindkey -e  # implicitly changed with EDITOR=vim
+else
+  HISTFILESIZE="$HISTSIZE"; export HISTFILESIZE
+fi
 
 _path_prepend_if() { [ -d "$1" ] && PATH="$1:$PATH"; }
 
