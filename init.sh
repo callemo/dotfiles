@@ -6,6 +6,7 @@ PYTHONUSERBASE="$HOME/python"; export PYTHONUSERBASE
 if [ -n "$ZSH_VERSION" ]
 then
   SAVEHIST="$HISTSIZE"; export SAVEHIST
+  : "${HISTFILE:=$HOME/.zsh_history}"
   bindkey -e  # implicitly changed with EDITOR=vim
 else
   HISTFILESIZE="$HISTSIZE"; export HISTFILESIZE
