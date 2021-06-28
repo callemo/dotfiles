@@ -1,6 +1,15 @@
 #!/bin/sh
 set -eu
 
+case "$PATH" in
+${DOTFILES:=$HOME/dotfiles}/bin:*)
+  ;;
+*)
+  PATH="$DOTFILES/bin:$PATH"
+  export PATH
+  ;;
+esac
+
 {
   echo 'urlencode:'
   printf '\n' | ./bin/urlencode; echo
