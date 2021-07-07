@@ -62,6 +62,8 @@ nnoremap <leader>p "*p
 nnoremap <leader>r :registers<cr>
 nnoremap <leader>y "*y
 
+nnoremap <leader>N :NERDTreeToggle<cr>
+
 if has('macunix')
   nnoremap gx :silent !open '<cfile>'<cr>
 elseif has('unix')
