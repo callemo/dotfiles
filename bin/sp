@@ -1,0 +1,7 @@
+#!/bin/sh
+# sp: nicer interface to tmux split-window
+
+case $0 in
+*vsp)  tmux split-window -h "$@" ;;
+*)      tmux split-window "$@" ;;
+esac
