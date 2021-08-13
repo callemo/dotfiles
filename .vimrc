@@ -31,6 +31,8 @@ set path=.,,
 set sessionoptions-=options
 set shortmess=atI
 set showcmd
+set splitbelow
+set splitright
 set switchbuf=useopen,split
 set tabline=%!dotfiles#TabLine()
 set textwidth=0
