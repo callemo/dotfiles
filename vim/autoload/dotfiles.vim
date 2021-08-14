@@ -33,6 +33,7 @@ function! dotfiles#FormatFile(...) abort " {{{
   let formatters = {
         \ 'c': 'clang-format -i',
         \ 'cpp': 'clang-format -i',
+        \ 'go': 'gofmt -w',
         \ 'java': 'clang-format -i',
         \ 'python': 'black',
         \ }

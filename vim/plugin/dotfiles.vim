@@ -6,6 +6,7 @@ augroup dotfiles
   au FileType c,cpp setl sw=2 sts=2 et path+=/usr/include
   au FileType css,html,htmldjango,scss setl sw=2 sts=2 et iskeyword+=-
   au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
+  au FileType go setl ts=4 sw=0
   au FileType java,javascript,json,typescript,vim,xml,yaml setl sw=2 sts=2 et
   au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
   au InsertEnter,WinLeave * setl nocursorline
