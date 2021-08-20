@@ -9,6 +9,7 @@ endfunction
 " }}}
 function! dotfiles#LintFile() abort " {{{
   let linters = {
+        \ 'bash': 'shellcheck -f gcc',
         \ 'css': 'stylelint',
         \ 'python': 'pylint',
         \ 'scss': 'stylelint',
