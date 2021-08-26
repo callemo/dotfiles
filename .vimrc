@@ -42,7 +42,7 @@ set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 
-set statusline=\ %n\ %<%.56f\ %Y%H%W%R%M\ %{FugitiveStatusline()}%=%{fnamemodify(getcwd(),':t')}\ %l,%c\ %P\ 
+set statusline=%n:%<%f\ %y%m%r%{FugitiveStatusline()}%=(%{fnamemodify(getcwd(),':t')})\ %-14.(%l,%c%V%)\ %P
 
 let mapleader = "\<Space>"
 
