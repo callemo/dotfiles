@@ -1,0 +1,13 @@
+#!/bin/sh
+a=AES256
+p=~/.passphrase
+while getopts a:p: i
+do
+  case $i in
+  a) a="$OPTARG" ;;
+  p) p="$OPTARG" ;;
+  ?) echo "usage: $0 [-ap]" >&2; exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+exec gpg --symmetric --armor --batch --passphrase-file "$p" --cipher-algo "$a" "$@"
