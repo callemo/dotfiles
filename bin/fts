@@ -1,0 +1,58 @@
+#!/bin/sh
+readonly db=fts.db
+
+iflag=
+hflag=
+while getopts hir i
+do
+  case $i in
+  h) hflag=1 ;;
+  i) iflag=1 ;;
+  r) rflag=1 ;;
+  ?) echo "usage: $0 [-i] args" >&2; exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ -n "$rflag" ]
+then
+  rm "$db"
+fi
+
+if [ ! -f "$db" ]
+then
+  sqlite3 "$db" <<EOF
+    create virtual table files
+      using fts5(file, content, updated_at unindexed, prefix='2 3 4', tokenize='porter');
+EOF
+fi
+
+if [ -n "$iflag" ]
+then
+  d="$(date +%s)"
+  find . -type f | grep -v ''"$db"'$' |
+    while read -r i
+    do
+      sqlite3 "$db" <<EOF
+insert into files(file, content, updated_at)
+  values('$i','$(cat "$i" | sed -E 's/(['\''"])/\\1/g')','$')
+EOF
+    done
+fi
+
+if [ $# -gt 0 ]
+then
+  hstart=
+  hend=
+  if [ -n "$hflag" ]
+  then
+    hstart="$(tput bold)"
+    hend="$(tput sgr0)"
+  fi
+  sqlite3 -separator ':' "$db" <<EOF
+    select file, replace(snippet(files, 1, '$hstart', '$hend', '…', 10), '
+', ' ') from files
+      where files match '$1'
+      order by rank;
+EOF
+fi
