@@ -1,15 +1,19 @@
 #!/bin/sh
+# Provides full-text search indexing and querying.
+# Syntax: https://www.sqlite.org/fts5.html#full_text_query_syntax
+
 readonly db=fts.db
 
-iflag=
 hflag=
+iflag=
+rflag=
 while getopts hir i
 do
   case $i in
   h) hflag=1 ;;
   i) iflag=1 ;;
   r) rflag=1 ;;
-  ?) echo "usage: $0 [-i] args" >&2; exit 2 ;;
+  ?) echo "usage: $0 [-hir] query" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -23,19 +27,19 @@ if [ ! -f "$db" ]
 then
   sqlite3 "$db" <<EOF
     create virtual table files
-      using fts5(file, content, updated_at unindexed, prefix='2 3 4', tokenize='porter');
+      using fts5(file, content, indexed_at unindexed, prefix='2 3 4', tokenize='porter');
 EOF
 fi
 
 if [ -n "$iflag" ]
 then
   d="$(date +%s)"
-  find . -type f | grep -v ''"$db"'$' |
+  find . -type f | grep -v "$db"'$' |
     while read -r i
     do
       sqlite3 "$db" <<EOF
-insert into files(file, content, updated_at)
-  values('$i','$(cat "$i" | sed -E 's/(['\''"])/\\1/g')','$')
+insert into files(file, content, indexed_at)
+  values('$i','$(sed -E 's/(['\''"])/\\1/g' "$i")','$d')
 EOF
     done
 fi
