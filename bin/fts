@@ -22,12 +22,12 @@ do
 done
 shift $((OPTIND - 1))
 
-if [ -n "$iflag" ]
+if [ -n "$iflag" ] && [ -e "$db" ]
 then
   rm "$db"
 fi
 
-if [ ! -f "$db" ]
+if [ ! -e "$db" ]
 then
   sqlite3 "$db" <<EOF
     create virtual table files
