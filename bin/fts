@@ -1,24 +1,28 @@
 #!/bin/sh
-# Provides full-text search indexing and querying.
+# Provides full-text search for plain, markdown, html, and other text files.
 # Syntax: https://www.sqlite.org/fts5.html#full_text_query_syntax
+# Options:
+#   -h    Highlight matches in the terminal output.
+#   -i    Rebuild the file index.
+#   -n    Near search (approximately in the same paragraph).
 
 readonly db=fts.db
 
 hflag=
 iflag=
-rflag=
-while getopts hir i
+nflag=
+while getopts hin i
 do
   case $i in
   h) hflag=1 ;;
   i) iflag=1 ;;
-  r) rflag=1 ;;
-  ?) echo "usage: $0 [-hir] query" >&2; exit 2 ;;
+  n) nflag=1 ;;
+  ?) echo "usage: $0 [-hin] query" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
 
-if [ -n "$rflag" ]
+if [ -n "$iflag" ]
 then
   rm "$db"
 fi
@@ -39,7 +43,7 @@ then
     do
       sqlite3 "$db" <<EOF
 insert into files(file, content, indexed_at)
-  values('$i','$(sed -E 's/(['\''"])/\\1/g' "$i")','$d')
+  values('$i','$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")','$d')
 EOF
     done
 fi
@@ -53,10 +57,15 @@ then
     hstart="$(tput bold)$(tput setaf 1)"
     hend="$(tput sgr0)"
   fi
-  sqlite3 -separator '	' "$db" <<EOF
-    select file || ':', replace(snippet(files, 1, '$hstart', '$hend', '…', 15), '
+  q="$1"
+  if [ -n "$nflag" ]
+  then
+    q="NEAR($1, 100)"
+  fi
+  sqlite3 -separator ' ' "$db" <<EOF
+    select file || ':', replace(snippet(files, 1, '$hstart', '$hend', '…', 20), '
 ', ' ') from files
-      where files match '$1'
+      where files match '$q'
       order by rank;
 EOF
 fi
