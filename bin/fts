@@ -50,11 +50,11 @@ then
   hend=
   if [ -n "$hflag" ]
   then
-    hstart="$(tput bold)"
+    hstart="$(tput bold)$(tput setaf 1)"
     hend="$(tput sgr0)"
   fi
-  sqlite3 -separator ':' "$db" <<EOF
-    select file, replace(snippet(files, 1, '$hstart', '$hend', '…', 10), '
+  sqlite3 -separator '	' "$db" <<EOF
+    select file || ':', replace(snippet(files, 1, '$hstart', '$hend', '…', 15), '
 ', ' ') from files
       where files match '$1'
       order by rank;
