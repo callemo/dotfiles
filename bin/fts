@@ -2,22 +2,27 @@
 # Provides full-text search for plain, markdown, html, and other text files.
 # Syntax: https://www.sqlite.org/fts5.html#full_text_query_syntax
 # Options:
-#   -h    Highlight matches in the terminal output.
+#   -H    Highlight matches for terminal output.
 #   -i    Rebuild the file index.
 #   -n    Near search (approximately in the same paragraph).
+
+print_help() {
+  echo "usage: $0 [-Hin] query"
+  sed -En '2,/^[^#]/ s/^# *//p' "$0"
+}
 
 readonly db=fts.db
 
 hflag=
 iflag=
 nflag=
-while getopts hin i
+while getopts hHin i
 do
   case $i in
-  h) hflag=1 ;;
+  H) hflag=1 ;;
   i) iflag=1 ;;
   n) nflag=1 ;;
-  ?) echo "usage: $0 [-hin] query" >&2; exit 2 ;;
+  ?) print_help >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -50,10 +55,12 @@ fi
 
 if [ $# -gt 0 ]
 then
+  hfile=
   hstart=
   hend=
   if [ -n "$hflag" ]
   then
+    hfile="$(tput bold)"
     hstart="$(tput bold)$(tput setaf 1)"
     hend="$(tput sgr0)"
   fi
@@ -63,7 +70,8 @@ then
     q="NEAR($1, 100)"
   fi
   sqlite3 -separator ' ' "$db" <<EOF
-    select file || ':', replace(snippet(files, 1, '$hstart', '$hend', '…', 20), '
+    select '$hfile' || file || '$hend' || ':',
+      replace(snippet(files, 1, '$hstart', '$hend', '…', 20), '
 ', ' ') from files
       where files match '$q'
       order by rank;
