@@ -25,7 +25,7 @@ iabbrev <buffer> argparse] parser = argparse.ArgumentParser()<cr>
   \parser.add_argument(""<c-o>mm)<cr>
   \args = parser.parse_args()<esc>`mi
 
-iabbrev <buffer> util] <c-x>!"""Command line utility."""<cr>
+iabbrev <buffer> filter] <c-x>!"""Command-line filter."""<cr>
   \import argparse<cr>
   \import fileinput<cr>
   \import os<cr>
