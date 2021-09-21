@@ -43,7 +43,7 @@ fi
 if [ -n "$iflag" ]
 then
   d="$(date +%s)"
-  find . -type f | grep -Ev '(\.git/|'"$db"'$)' |
+  find . -type f | grep -Ev '(\.git/|'"$db"'$)' | sed 's/^\.\///' |
     while read -r i
     do
       sqlite3 "$db" <<EOF
