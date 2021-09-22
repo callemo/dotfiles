@@ -8,6 +8,7 @@ augroup dotfiles
   au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
   au FileType go setl ts=4 sw=0
   au FileType java,javascript,json,typescript,vim,xml,yaml setl sw=2 sts=2 et
+  au FileType markdown setl sw=4 sts=4 et
   au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
   au InsertEnter,WinLeave * setl nocursorline
   au InsertLeave,WinEnter * setl cursorline
