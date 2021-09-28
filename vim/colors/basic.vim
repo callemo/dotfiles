@@ -49,7 +49,11 @@ if &background ==# 'light'
   hi Function guifg=#077cae ctermfg=31
   hi Keyword guifg=#9b2393 ctermfg=90 gui=bold cterm=bold
   hi NonText guifg=#a6a6a6 ctermfg=145
-  hi Normal guifg=#000000 guibg=#ffffff
+  if exists('g:colors_low_contrast') && g:colors_low_contrast
+    hi Normal guifg=#000000 guibg=#ffffeb
+  else
+    hi Normal guifg=#000000 guibg=#ffffff
+  endif
   hi Number guifg=#1c00cf ctermfg=20
   hi PreProc guifg=#78492d ctermfg=94
   hi Search guifg=#262626 guibg=#e5e5e5 ctermfg=235 ctermbg=254 gui=bold cterm=bold
