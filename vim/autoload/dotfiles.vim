@@ -115,7 +115,7 @@ endfunction
 
 " }}}
 function! dotfiles#SetVisualSearch() abort " {{{
-  let @/ = substitute('\m\C' . escape(dotfiles#GetVisualText(), '\.$*~()'), "\n$", '', '')
+  let @/ = substitute('\m\C' . escape(dotfiles#GetVisualText(), '\.$*~'), "\n$", '', '')
 endfunction
 
 function! dotfiles#TrimTrailingBlanks() abort
