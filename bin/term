@@ -1,0 +1,5 @@
+#!/bin/sh
+set -a
+ENV=$DOTFILES/acme.sh
+PAGER=nobs
+exec /usr/local/plan9/bin/9term -f /mnt/font/GoMono/14a/font /bin/dash
