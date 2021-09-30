@@ -1,9 +1,9 @@
 #!/bin/sh
+# Starts the Acme interactive text window.
 
-: "${winsize=1200x600}"
-: "${hires=0}"
-: "${fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/30a/font}"
-: "${varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font}"
+readonly fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
+readonly varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
+readonly winsize=1200x720
 
 for i in plumber fontsrv
 do
@@ -17,16 +17,11 @@ done
 set -a
 
 EDITOR=E
-ENV=$HOME/dotfiles/acme.sh
+ENV=$DOTFILES/acme.sh
 PAGER=nobs
 SHELL=/bin/dash
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
 
-if [ "$hires" = "1" ]
-then
-  exec 9 acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
-else
-  exec 9 acme -a -W "$winsize" "$@"
-fi
+exec 9 acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
