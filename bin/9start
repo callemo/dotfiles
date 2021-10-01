@@ -16,7 +16,7 @@ done
 
 set -a
 EDITOR=E
-ENV=$DOTFILES/acme.sh
+ENV=$DOTFILES/9.sh
 PAGER=nobs
 SHELL=/bin/dash
 acmeshell="$SHELL"
