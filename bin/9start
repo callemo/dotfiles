@@ -1,5 +1,5 @@
 #!/bin/sh
-# Starts the Acme interactive text window.
+# Starts the Plan 9 from User Space windows with Go fonts and the dash(1) shell.
 
 readonly fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
 readonly varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
@@ -15,7 +15,6 @@ do
 done
 
 set -a
-
 EDITOR=E
 ENV=$DOTFILES/acme.sh
 PAGER=nobs
@@ -24,4 +23,5 @@ acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
 
+9term -f "$fixfont"
 exec 9 acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
