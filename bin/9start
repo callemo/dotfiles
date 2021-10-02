@@ -7,7 +7,7 @@ readonly winsize=1200x720
 
 for i in plumber fontsrv
 do
-  if pgrep "$i"
+  if pgrep -q "$i"
   then
     continue
   fi
@@ -23,5 +23,5 @@ acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
 
-9term -f "$fixfont"
-exec 9 acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
+#9term -f "$fixfont"
+exec acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
