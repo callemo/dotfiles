@@ -23,5 +23,5 @@ acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
 
-#9term -f "$fixfont"
+9term -f "$fixfont"
 exec acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
