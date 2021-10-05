@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+"""Expand text snippets."""
+import sys
+import os
+
+
+class CodeGenerator:
+    def __init__(self, tab="\t"):
+        self.tab = tab
+        self.level = 0
+        self.lines = []
+
+    def write(self, line):
+        self.lines.append(self.tab * self.level + line)
+
+    def indent(self):
+        self.level += 1
+
+    def dedent(self):
+        if self.level < 1:
+            raise IndentationError("code generator line: {len(self.lines)}")
+        self.level -= 1
+
+    def text(self):
+        return "\n".join(self.lines)
+
+
+class Snippet:
+    def __init__(self, name, args=None, tab="\t"):
+        if not args:
+            args = []
+        self.name = name
+        self.args = args
+        self.tab = tab
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}:[name:{self.name} args:{self.args}]"
+
+    def expand(self, args=None):
+        if args:
+            self.args = args
+        return getattr(self, "expand_" + self.name)()
+
+    def expand_shopts(self):
+        g = CodeGenerator(self.tab)
+        g.write("while getopts abc: f")
+        g.write("do")
+        g.indent()
+        g.write("case $f in")
+        g.write("a | b)  flag=$f;;")
+        g.write("c)      carg=$OPTARG;;")
+        g.write("\\?)     echo $USAGE; exit 1;;")
+        g.write("esac")
+        g.dedent()
+        g.write("done")
+        g.write("shift `expr $OPTIND - 1`")
+        return g.text()
+
+    def expand_pyargs(self):
+        g = CodeGenerator(self.tab)
+        g.write("parser = argparse.ArgumentParser()")
+        g.write('parser.add_argument("")')
+        g.write("args = parser.parse_args()")
+        return g.text()
+
+
+def main():
+    if len(sys.argv) < 2:
+        raise SystemExit(f"usage: {os.path.basename(sys.argv[0])} snippet [args ...]")
+    s = Snippet(sys.argv[1], sys.argv[2:])
+    print(s.expand())
+
+
+main()
