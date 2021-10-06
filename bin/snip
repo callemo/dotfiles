@@ -32,6 +32,7 @@ class Snippet:
         self.name = name
         self.args = args
         self.tab = tab
+        self.code = CodeGenerator(self.tab)
 
     def __repr__(self):
         return f"{self.__class__.__name__}:[name:{self.name} args:{self.args}]"
@@ -42,26 +43,31 @@ class Snippet:
         return getattr(self, "expand_" + self.name)()
 
     def expand_shopts(self):
-        g = CodeGenerator(self.tab)
-        g.write("while getopts abc: f")
-        g.write("do")
-        g.indent()
-        g.write("case $f in")
-        g.write("a | b)  flag=$f;;")
-        g.write("c)      carg=$OPTARG;;")
-        g.write("\\?)     echo $USAGE; exit 1;;")
-        g.write("esac")
-        g.dedent()
-        g.write("done")
-        g.write("shift `expr $OPTIND - 1`")
-        return g.text()
+        optstring = self.args[0] if self.args else "abc:"
+        self.code.write(f"while getopts {optstring} f")
+        self.code.write("do")
+        self.code.indent()
+        self.code.write("case $f in")
+        last = len(optstring) - 1
+        for i, v in enumerate(optstring):
+            if v == ":":
+                continue
+            if i < last and optstring[i + 1] == ":":
+                self.code.write(f"{v})  {v}arg=$OPTARG;;")
+            else:
+                self.code.write(f"{v})  {v}flag=$f;;")
+        self.code.write('\\?) echo "$USAGE"; exit 1;;')
+        self.code.write("esac")
+        self.code.dedent()
+        self.code.write("done")
+        self.code.write("shift $((OPTIND - 1))")
+        return self.code.text()
 
     def expand_pyargs(self):
-        g = CodeGenerator(self.tab)
-        g.write("parser = argparse.ArgumentParser()")
-        g.write('parser.add_argument("")')
-        g.write("args = parser.parse_args()")
-        return g.text()
+        self.code.write("parser = argparse.ArgumentParser()")
+        self.code.write('parser.add_argument("")')
+        self.code.write("args = parser.parse_args()")
+        return self.code.text()
 
 
 def main():
