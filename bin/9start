@@ -3,7 +3,6 @@
 
 readonly fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
 readonly varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
-readonly winsize=1200x720
 
 for i in plumber fontsrv
 do
@@ -16,12 +15,12 @@ done
 
 set -a
 EDITOR=E
-ENV=$DOTFILES/9.sh
+ENV="$DOTFILES/9.sh"
 PAGER=nobs
 SHELL=/bin/dash
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
 
-"$PLAN9"/bin/9term -f "$fixfont"
-exec "$PLAN9"/bin/acme -a -W "$winsize" -f "$varfont" -F "$fixfont" "$@"
+"$PLAN9"/bin/9term -f "$fixfont" -W 1065x450
+exec "$PLAN9"/bin/acme -a -W 1200x720 -f "$varfont" -F "$fixfont" "$@"
