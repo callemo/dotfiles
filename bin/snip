@@ -64,8 +64,16 @@ class Snippet:
         return self.code.text()
 
     def expand_pyargs(self):
+        optstring = self.args[0] if self.args else "abc:"
         self.code.write("parser = argparse.ArgumentParser()")
-        self.code.write('parser.add_argument("")')
+        last = len(optstring) - 1
+        for i, v in enumerate(optstring):
+            if v == ":":
+                continue
+            if i < last and optstring[i + 1] == ":":
+                self.code.write(f'parser.add_argument("-{v}")')
+            else:
+                self.code.write(f'parser.add_argument("-{v}", action="store_true")')
         self.code.write("args = parser.parse_args()")
         return self.code.text()
 
