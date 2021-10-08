@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Expand text snippets."""
-import sys
-import os
+import argparse
 
 
 class CodeGenerator:
@@ -34,12 +33,13 @@ class Snippet:
         self.tab = tab
         self.code = CodeGenerator(self.tab)
 
+    def __str__(self):
+        return self.expand()
+
     def __repr__(self):
         return f"{self.__class__.__name__}:[name:{self.name} args:{self.args}]"
 
-    def expand(self, args=None):
-        if args:
-            self.args = args
+    def expand(self):
         return getattr(self, "expand_" + self.name)()
 
     def expand_shopts(self):
@@ -79,10 +79,12 @@ class Snippet:
 
 
 def main():
-    if len(sys.argv) < 2:
-        raise SystemExit(f"usage: {os.path.basename(sys.argv[0])} snippet [args ...]")
-    s = Snippet(sys.argv[1], sys.argv[2:])
-    print(s.expand())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--tab", default="\t", help="indent string")
+    parser.add_argument("snippet")
+    parser.add_argument("args", nargs="*")
+    args = parser.parse_args()
+    print(Snippet(args.snippet, args.args, args.t))
 
 
 main()
