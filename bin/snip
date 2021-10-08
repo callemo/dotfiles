@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+"""Expand text snippets."""
+import argparse
+
+
+class CodeGenerator:
+    def __init__(self, tab="\t"):
+        self.tab = tab
+        self.level = 0
+        self.lines = []
+
+    def write(self, line):
+        self.lines.append(self.tab * self.level + line)
+
+    def indent(self):
+        self.level += 1
+
+    def dedent(self):
+        if self.level < 1:
+            raise IndentationError("code generator line: {len(self.lines)}")
+        self.level -= 1
+
+    def text(self):
+        return "\n".join(self.lines)
+
+
+class Snippet:
+    def __init__(self, name, args=None, tab="\t"):
+        if not args:
+            args = []
+        self.name = name
+        self.args = args
+        self.tab = tab
+        self.code = CodeGenerator(self.tab)
+
+    def __str__(self):
+        return self.expand()
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}:[name:{self.name} args:{self.args}]"
+
+    def expand(self):
+        return getattr(self, "expand_" + self.name)()
+
+    def expand_shopts(self):
+        optstring = self.args[0] if self.args else "abc:"
+        self.code.write(f"while getopts {optstring} f")
+        self.code.write("do")
+        self.code.indent()
+        self.code.write("case $f in")
+        last = len(optstring) - 1
+        for i, v in enumerate(optstring):
+            if v == ":":
+                continue
+            if i < last and optstring[i + 1] == ":":
+                self.code.write(f"{v})  {v}arg=$OPTARG;;")
+            else:
+                self.code.write(f"{v})  {v}flag=$f;;")
+        self.code.write('\\?) echo "$USAGE"; exit 1;;')
+        self.code.write("esac")
+        self.code.dedent()
+        self.code.write("done")
+        self.code.write("shift $((OPTIND - 1))")
+        return self.code.text()
+
+    def expand_pyargs(self):
+        optstring = self.args[0] if self.args else "abc:"
+        self.code.write("parser = argparse.ArgumentParser()")
+        last = len(optstring) - 1
+        for i, v in enumerate(optstring):
+            if v == ":":
+                continue
+            if i < last and optstring[i + 1] == ":":
+                self.code.write(f'parser.add_argument("-{v}")')
+            else:
+                self.code.write(f'parser.add_argument("-{v}", action="store_true")')
+        self.code.write("args = parser.parse_args()")
+        return self.code.text()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--tab", default="\t", help="indent string")
+    parser.add_argument("snippet")
+    parser.add_argument("args", nargs="*")
+    args = parser.parse_args()
+    print(Snippet(args.snippet, args.args, args.t))
+
+
+main()
