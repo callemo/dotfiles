@@ -56,7 +56,7 @@ class Snippet:
                 self.code.write(f"{v})  {v}arg=$OPTARG;;")
             else:
                 self.code.write(f"{v})  {v}flag=$f;;")
-        self.code.write('\\?) echo "$USAGE"; exit 1;;')
+        self.code.write('\\?) echo "$USAGE" >&2; exit 1;;')
         self.code.write("esac")
         self.code.dedent()
         self.code.write("done")
@@ -84,7 +84,7 @@ def main():
     parser.add_argument("snippet")
     parser.add_argument("args", nargs="*")
     args = parser.parse_args()
-    print(Snippet(args.snippet, args.args, args.t))
+    print(Snippet(args.snippet, args.args, args.tab))
 
 
 main()
