@@ -21,6 +21,9 @@ SHELL=/bin/dash
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
+set +a
 
 "$PLAN9"/bin/9term -f "$fixfont" -W 1065x450
-exec "$PLAN9"/bin/acme -a -W 1200x720 -f "$varfont" -F "$fixfont" "$@"
+
+PATH="$DOTFILES/acme/bin:$PATH" \
+  exec "$PLAN9"/bin/acme -a -W 1200x720 -f "$varfont" -F "$fixfont" "$@"
