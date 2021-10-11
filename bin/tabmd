@@ -1,0 +1,22 @@
+#!/bin/sh
+# Format columnar data into markdown tables
+# https://github.github.com/gfm/#tables-extension-
+fs='	'
+while getopts F: i
+do
+	case $i in
+	F) fs="$OPTARG" ;;
+	?) echo "usage: $0 [-F fs] [files]" >&2; exit 2 ;;
+	esac
+done
+shift $((OPTIND - 1))
+
+sed 's/[_\*]/\\&/g
+	s/|/\&#124;/g' "$@" |
+	tabfmt -F"$fs" -p -d' | ' |
+	sed 's/^/| /
+		s/$/ |/
+		1 {
+			p
+			s/[^|]/-/g
+		}'
