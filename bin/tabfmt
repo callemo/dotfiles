@@ -4,45 +4,45 @@
 fs='	'
 ofs=' '
 pad=0
-while getopts F:d:p opt
+while getopts F:d:p f
 do
-  case $opt in
-  F) fs="$OPTARG" ;;
-  d) ofs="$OPTARG" ;;
-  p) pad=1 ;;
-  ?) echo "usage: tabfmt [-F fs -d ofs -p] [files]" >&2; exit 2 ;;
-  esac
+	case $f in
+	F) fs="$OPTARG" ;;
+	d) ofs="$OPTARG" ;;
+	p) pad=1 ;;
+	?) echo "usage: $0 [-F fs -d ofs -p] [files...]" >&2; exit 2 ;;
+	esac
 done
 shift $((OPTIND - 1))
 
 awk '
 BEGIN {
-        FS = "'"$fs"'"
-        OFS = "'"$ofs"'"
-        pad = '"$pad"'
-      }
-      {
-        for (i = 1; i <= NF; i++) {
-          values[NR, i] = $i
-          if ((w = length($i)) > widths[i])
-            widths[i] = w
-          if (w > maxwidth)
-            maxwidth = w
-        }
-      }
-END   {
-        for (i = 1; i <= maxwidth; i++)
-          blanks = blanks " "
-        m = NR
-        n = length(widths)
-        for (i = 1; i <= m; i++) {
-          for (j = 1; j <= n; j++) {
-            printf "%s", values[i, j]
-            if ((j < n) || pad)
-              printf "%s", substr(blanks, 1, widths[j] - length(values[i, j]))
-            if (j < n)
-              printf OFS
-          }
-          printf ORS
-        }
-      }' "$@"
+	FS = "'"$fs"'"
+	OFS = "'"$ofs"'"
+	pad = '"$pad"'
+}
+{
+	for (i = 1; i <= NF; i++) {
+		values[NR, i] = $i
+		if ((w = length($i)) > widths[i])
+			widths[i] = w
+		if (w > maxwidth)
+			maxwidth = w
+	}
+}
+END {
+	for (i = 1; i <= maxwidth; i++)
+		blanks = blanks " "
+	m = NR
+	n = length(widths)
+	for (i = 1; i <= m; i++) {
+		for (j = 1; j <= n; j++) {
+			printf "%s", values[i, j]
+			if ((j < n) || pad)
+				printf "%s", substr(blanks, 1, widths[j] - length(values[i, j]))
+			if (j < n)
+				printf OFS
+		}
+		printf ORS
+	}
+}' "$@"
