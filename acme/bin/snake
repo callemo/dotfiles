@@ -1,4 +1,4 @@
 #!/bin/sh
 # Converts a camel case text to the underscored and lower-case form.
 sed -E 's/([a-z0-9])([A-Z])/\1_\2/g' "$@" |
-  tr A-Z a-z
+	tr A-Z a-z

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Converts an underscored text to the camel cased form.
+awk -F'[_\.-]' '{
+	for (i = 1; i <= NF; i++)
+	printf toupper(substr($i, 1, 1)) substr($i, 2)
+	printf "\n"
+}' "$@"
