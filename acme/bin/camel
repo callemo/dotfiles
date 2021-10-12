@@ -1,7 +1,6 @@
 #!/bin/sh
 # Converts an underscored text to the camel cased form.
-awk -F'[_\.-]' '{
+awk -F'[^A-Za-z0-9]' '{
 	for (i = 1; i <= NF; i++)
-	printf toupper(substr($i, 1, 1)) substr($i, 2)
-	printf "\n"
+		printf toupper(substr($i, 1, 1)) substr($i, 2)
 }' "$@"
