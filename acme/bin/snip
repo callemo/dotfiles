@@ -43,7 +43,9 @@ class Snippet:
         return getattr(self, "expand_" + self.name)()
 
     def expand_shopts(self):
-        optstring = self.args[0] if self.args else "abc:"
+        optstring = self.args[0] if self.args else ":abc:"
+        if optstring[0] != ":":
+            optstring = ":" + optstring
         self.code.write(f"while getopts {optstring} f")
         self.code.write("do")
         self.code.indent()
