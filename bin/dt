@@ -1,0 +1,23 @@
+#!/bin/sh
+# usage: dt [flags]
+# Displays current date and time expressed according to ISO 8601.
+# Flags:
+#   -b Basic format (without separators).
+#   -u Coordinated universal time (UTC).
+#   -w Week and weekday.
+
+fmt='%Y-%m-%dT%H:%M:%S'
+stripchars='\n'
+while getopts :buw f
+do
+	case $f in
+	 b)  stripchars="${stripchars}:-";;
+	 u)  TZ=UTC0; export TZ; fmt="${fmt}+00:00";;
+	 w)  fmt='%Y-W%V-%u';;
+	 \?) sed -En '2,/^[^#]/ s/# //p' "$0" >&2; exit 2;;
+	esac
+done
+shift $((OPTIND - 1))
+
+exec date "+$fmt" |
+	tr -d "$stripchars"
