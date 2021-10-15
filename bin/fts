@@ -1,79 +1,84 @@
 #!/bin/sh
+# usage: fts [flags] query
 # Provides full-text search for plain, markdown, html, and other text files.
-# Syntax: https://www.sqlite.org/fts5.html#full_text_query_syntax
-# Options:
-#   -H    Highlight matches for terminal output.
-#   -i    Rebuild the file index.
-#   -n    Near search (approximately in the same paragraph).
-
-print_help() {
-  echo "usage: $0 [-Hin] query"
-  sed -En '2,/^[^#]/ s/^# *//p' "$0"
-}
+# See https://www.sqlite.org/fts5.html#full_text_query_syntax for the complete syntax.
+# Flags:
+#   -H Highlight matches for terminal output.
+#   -i Rebuild the file index.
+#   -n Near search (approximately in the same paragraph).
 
 readonly db=fts.db
 
 hflag=
 iflag=
 nflag=
-while getopts hHin i
+while getopts :Hin i
 do
-  case $i in
-  H) hflag=1 ;;
-  i) iflag=1 ;;
-  n) nflag=1 ;;
-  ?) print_help >&2; exit 2 ;;
-  esac
+    case $i in
+    H)  hflag=1 ;;
+    i)  iflag=1 ;;
+    n)  nflag=1 ;;
+    \?) sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; exit 2 ;;
+    esac
 done
 shift $((OPTIND - 1))
 
 if [ -n "$iflag" ] && [ -e "$db" ]
 then
-  rm "$db"
+    rm "$db"
 fi
 
 if [ ! -e "$db" ]
 then
-  sqlite3 "$db" <<EOF
-    create virtual table files
-      using fts5(file, content, indexed_at unindexed, prefix='2 3 4', tokenize='porter');
+    sqlite3 "$db" <<EOF
+create virtual table files
+    using fts5(file,
+               content,
+               indexed_at unindexed,
+               prefix='2 3 4',
+               tokenize='porter');
 EOF
 fi
 
 if [ -n "$iflag" ]
 then
-  d="$(date +%s)"
-  find . -type f | grep -Ev '(\.git/|'"$db"'$)' | sed 's/^\.\///' |
-    while read -r i
-    do
-      sqlite3 "$db" <<EOF
+    d="$(date +%s)"
+    find . -type f | grep -Ev '(\.git/|'"$db"'$)' | sed 's/^\.\///' |
+        while read -r i
+        do
+            sqlite3 "$db" <<EOF
 insert into files(file, content, indexed_at)
-  values('$i','$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")','$d')
+    values('$i',
+           '$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")',
+           '$d')
 EOF
-    done
+        done
 fi
 
 if [ $# -gt 0 ]
 then
-  hfile=
-  hstart=
-  hend=
-  if [ -n "$hflag" ]
-  then
-    hfile="$(tput bold)"
-    hstart="$(tput bold)$(tput setaf 1)"
-    hend="$(tput sgr0)"
-  fi
-  q="$1"
-  if [ -n "$nflag" ]
-  then
-    q="NEAR($1, 100)"
-  fi
-  sqlite3 -separator ' ' "$db" <<EOF
-    select '$hfile' || file || '$hend' || ':',
-      replace(snippet(files, 1, '$hstart', '$hend', '…', 20), '
-', ' ') from files
-      where files match '$q'
-      order by rank;
+    hfile=
+    hstart=
+    hend=
+    if [ -n "$hflag" ]
+    then
+        hfile="$(tput bold)"
+        hstart="$(tput bold)$(tput setaf 1)"
+        hend="$(tput sgr0)"
+    fi
+    q="$*"
+    if [ -n "$nflag" ]
+    then
+        q="NEAR($q, 100)"
+    fi
+    sqlite3 -separator ' ' "$db" <<EOF
+        select '$hfile' || file || '$hend' || ':',
+            replace(snippet(files, 1, '$hstart', '$hend', '…', 10),
+                    '
+',
+                    ' ')
+        from files
+        where files match '$q'
+        order by rank;
 EOF
 fi
