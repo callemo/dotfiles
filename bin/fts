@@ -1,6 +1,6 @@
 #!/bin/sh
 # usage: fts [flags] query
-# Provides full-text search for plain, markdown, html, and other text files.
+# Provides full-text indexing and search for plain text and markdown files.
 # See https://www.sqlite.org/fts5.html#full_text_query_syntax for the complete syntax.
 # Flags:
 #   -H Highlight matches for terminal output.
@@ -43,7 +43,7 @@ fi
 if [ -n "$iflag" ]
 then
     d="$(date +%s)"
-    find . -type f | grep -Ev '(\.git/|'"$db"'$)' | sed 's/^\.\///' |
+    find . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
         while read -r i
         do
             sqlite3 "$db" <<EOF
@@ -72,13 +72,13 @@ then
         q="NEAR($q, 100)"
     fi
     sqlite3 -separator ' ' "$db" <<EOF
-        select '$hfile' || file || '$hend' || ':',
-            replace(snippet(files, 1, '$hstart', '$hend', '…', 10),
-                    '
+select '$hfile' || file || '$hend' || ':',
+    replace(snippet(files, 1, '$hstart', '$hend', '…', 10),
+            '
 ',
-                    ' ')
-        from files
-        where files match '$q'
-        order by rank;
+            ' ')
+from files
+where files match '$q'
+order by rank;
 EOF
 fi
