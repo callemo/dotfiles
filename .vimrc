@@ -103,7 +103,7 @@ function! FormatFile(...) abort
 endfunction
 
 function! Cmd(range, line1, line2, cmd) abort
-	let bufnr = bufnr()
+	let bufnr = bufnr("%")
 	let bufname = getcwd() . '/+Errors'
 	let winnr = bufwinnr('\m\C^' . bufname . '$')
 	if winnr < 0
