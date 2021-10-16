@@ -1,40 +1,39 @@
 #!/bin/sh
+# usage: venv [flags] [env]
 # Manages Python virtual environments.
-set -eu
+# Flags:
+#  -c Create.
+#  -l List.
 
-cflag=
-lflag=
-while getopts c:l o
+while getopts :cl f
 do
-  case $o in
-    c) cflag="$OPTARG" ;;
-    l) lflag=1 ;;
-    ?) echo "usage: $(basename "$0") [-l] [-c env] args" >&2; exit 2 ;;
-  esac
+	case $f in
+	c)  cflag=$f;;
+	l)  lflag=$f;;
+	\?) sed -En '2,/^[^#]/ s/# //p' "$0" >&2; exit 2;;
+	esac
 done
 shift $((OPTIND - 1))
 
-[ -z "${VENV_HOME:-}" ] && VENV_HOME="$HOME/.virtualenvs"
+: "${VENV_HOME:="$HOME/.virtualenvs"}"
 
 if [ -n "$lflag" ]
 then
-  cd "$VENV_HOME"
-  ls -1 
-  exit 0
+	ls -1 "$VENV_HOME"
+	exit
 fi
 
-if [ -n "$cflag" ]
-then
-  python3 -m venv "$VENV_HOME/$cflag"
-  env="$cflag"
-else
-  env="${1:-$(basename "$(pwd)")}"
-fi
+env="${1:-$(basename "$(pwd)")}"
 
 if [ ! -d "$VENV_HOME/$env" ]
 then
-  echo "environment not found: $env" >&2
-  exit 1
+	if [ -n "$cflag" ]
+	then
+		python3 -m venv "$VENV_HOME/$env"
+	else
+		echo "venv: not found: $env" >&2
+		exit 1
+	fi
 fi
 
 echo "$VENV_HOME/$env/bin/activate"
