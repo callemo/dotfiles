@@ -46,6 +46,8 @@ class Snippet:
         optstring = self.args[0] if self.args else ":abc:"
         if optstring[0] != ":":
             optstring = ":" + optstring
+        self.code.write("usage() { sed -En '2,/^[^#]/ s/^# //p' \"$0\" >&2; }")
+        self.code.write("")
         self.code.write(f"while getopts {optstring} f")
         self.code.write("do")
         self.code.indent()
@@ -58,7 +60,7 @@ class Snippet:
                 self.code.write(f"{v})  {v}arg=$OPTARG;;")
             else:
                 self.code.write(f"{v})  {v}flag=$f;;")
-        self.code.write("\\?) sed -En '2,/^[^#]/ s/# //p' \"$0\" >&2; exit 2;;")
+        self.code.write("\\?) usage; exit 2;;")
         self.code.write("esac")
         self.code.dedent()
         self.code.write("done")
