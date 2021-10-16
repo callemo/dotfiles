@@ -1,4 +1,5 @@
 set nocompatible
+
 set autoindent
 set autoread
 set backspace=indent,eol,start
@@ -41,7 +42,9 @@ set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 set statusline=%n:%<%f\ %y%m%r%=(%{fnamemodify(getcwd(),':t')})\ %-14.(%l,%c%V%)\ %P
+
 let mapleader = "\<Space>"
+
 if has('syntax') && has('eval')
 	packadd! matchit
 endif
@@ -103,7 +106,7 @@ function! FormatFile(...) abort
 endfunction
 
 function! Cmd(range, line1, line2, cmd) abort
-	let bufnr = bufnr("%")
+	let bufnr = bufnr('%')
 	let bufname = getcwd() . '/+Errors'
 	let winnr = bufwinnr('\m\C^' . bufname . '$')
 	if winnr < 0
