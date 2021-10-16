@@ -6,8 +6,8 @@ merge=
 while getopts m: opt
 do
   case $opt in
-    m) merge="$OPTARG" ;;
-    ?) echo "usage: $(basename "$0") [-m branch]" >&2; exit 2 ;;
+    m)  merge="$OPTARG" ;;
+    \?) echo "usage: $(basename "$0") [-m branch]" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))

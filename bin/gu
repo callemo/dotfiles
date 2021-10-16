@@ -1,3 +1,4 @@
 #!/bin/sh
 # Undo the last commit leaving all changes staged.
+
 git reset --soft HEAD^

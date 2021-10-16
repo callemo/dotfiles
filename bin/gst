@@ -1,8 +1,10 @@
 #!/bin/sh
+
 if [ "$1" = "-v" ]
 then
   set -- '--show-stash' "$@"
 else
   set -- '--short' '--branch' "$@"
 fi
+
 git status "$@"
