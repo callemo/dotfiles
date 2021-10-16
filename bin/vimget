@@ -1,49 +1,36 @@
 #!/bin/sh
-set -eu
+# usage: vimget [flags] url
+# Install vim plugins.
+# Flags:
+#  -o Optional.
 
-oflag=0
-rlag=0
-while getopts or opt
+usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+
+dest="$HOME/.vim/pack/default/start"
+while getopts :o f
 do
-  case $opt in
-    o) oflag=1 ;;
-    r) rlag=1 ;;
-    ?) echo "usage: $0 [-or] url" >&2; exit 2 ;;
-  esac
+	case $f in
+	o)  dest="$HOME/.vim/pack/default/opt";;
+	\?) usage; exit 2;;
+	esac
 done
 shift $((OPTIND - 1))
 
-if [ $# -lt 1 ]
-then
-  usage >&2
-  exit 1
-fi
-
-if [ $oflag = 1 ]
-then
-  PLUGIN_HOME="${HOME}/.vim/pack/default/opt"
-else
-  PLUGIN_HOME="${HOME}/.vim/pack/default/start"
-fi
+[ $# -ne 1 ] && { usage ; exit 1; }
 
 url=$1
-name=${url##*/}
-name=${name%.*}
-dir="${PLUGIN_HOME}/${name}"
-if [ ! -e "${dir}" ]
+name=${url##*/}; name=${name%.*}
+
+dir="$dest/$name"
+if [ -e "$dir" ]
 then
-  mkdir -p "${PLUGIN_HOME}"
-  if [ ${rlag} = 1 ]
-  then
-    git -C "${PLUGIN_HOME}" clone --recursive "${url}"
-  else
-    git -C "${PLUGIN_HOME}" clone "${url}"
-  fi
+	git -C "$dir" pull
 else
-  git -C "${dir}" pull
+	mkdir -p "$dest"
+	git -C "${dest}" clone "${url}"
 fi
 
-if [ -d "${dir}/doc" ]
+if [ -d "$dir/doc" ]
 then
-  vim -u NONE -c "helptags ${dir}/doc" -c q >/dev/null 2>&1
+	vim -u NONE -c "helptags $dir/doc" -c q >/dev/null 2>&1
 fi
