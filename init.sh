@@ -12,7 +12,6 @@ _merge_path() {
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 EDITOR=vim;                               export EDITOR
 HISTSIZE=100000;                          export HISTSIZE
-PYTHONUSERBASE="$HOME/python";            export PYTHONUSERBASE
 
 if [ -n "$ZSH_VERSION" ]
 then
@@ -23,9 +22,9 @@ else
     HISTFILESIZE="$HISTSIZE"; export HISTFILESIZE
 fi
 
-_merge_path '/usr/local/go/bin'
 _merge_path '/usr/local/node/bin'
-_merge_path "$PYTHONUSERBASE/bin"
+_merge_path '/usr/local/go/bin'
+_merge_path "$HOME/go/bin"
 _merge_path "$HOME/dotfiles/bin"
 _merge_path "$HOME/bin"
 export PATH

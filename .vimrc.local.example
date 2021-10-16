@@ -1,4 +1,0 @@
-packadd vim-projectionist
-let $PATH = 'node_modules/.bin:' . $PATH
-" if has('gui_macvim')
-" endif
