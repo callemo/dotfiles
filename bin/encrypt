@@ -1,13 +1,30 @@
 #!/bin/sh
-a=AES256
-p=~/.passphrase
-while getopts a:p: i
+# usage: encrypt [flags] [file]
+# A simple interface to GPG symmetric encryption.
+# Flags:
+#  -d Decrypt.
+#  -p Pass phrase file.
+#  -a Encryption algorithm.
+
+algo=AES256
+passfile=$HOME/.passphrase
+prog="$(basename "$0")"
+
+while getopts :dp:a: f
 do
-  case $i in
-  a) a="$OPTARG" ;;
-  p) p="$OPTARG" ;;
-  ?) echo "usage: $0 [-ap]" >&2; exit 2 ;;
-  esac
+	case $f in
+	d)  dflag=$f;;
+	p)  passfile=$OPTARG;;
+	a)  algo=$OPTARG;;
+	\?) sed -En '2,/^[^#]/ s/# //p' "$0" >&2; exit 2;;
+	esac
 done
 shift $((OPTIND - 1))
-exec gpg --symmetric --armor --batch --passphrase-file "$p" --cipher-algo "$a" "$@"
+
+if [ -z "$dflag" ] && [ "$prog" != decrypt ]
+then
+	exec gpg --batch --passphrase-file "$passfile" \
+		--symmetric --armor --cipher-algo "$algo" "$@"
+else
+	exec gpg --batch --passphrase-file "$passfile" --decrypt "$@"
+fi

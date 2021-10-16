@@ -1,11 +1,1 @@
-#!/bin/sh
-p=~/.passphrase
-while getopts p: i
-do
-  case $i in
-  p) p="$OPTARG" ;;
-  ?) echo "usage: $0 [-p]" >&2; exit 2 ;;
-  esac
-done
-shift $((OPTIND - 1))
-exec gpg --decrypt --batch --passphrase-file "$p" "$@"
+encrypt
