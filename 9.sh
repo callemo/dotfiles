@@ -1,3 +1,3 @@
-cd() {
-  command cd "$@" && awd "$sysname"
-}
+#!/bin/sh
+
+cd() { command cd "$@" && awd "$sysname"; }
