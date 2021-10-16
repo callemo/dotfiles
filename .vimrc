@@ -1,5 +1,4 @@
 set nocompatible
-
 set autoindent
 set autoread
 set backspace=indent,eol,start
@@ -34,53 +33,359 @@ set showcmd
 set splitbelow
 set splitright
 set switchbuf=useopen,split
-set tabline=%!dotfiles#TabLine()
+set tabline=%!TabLine()
 set textwidth=0
 set updatetime=300
 set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
-
 set statusline=%n:%<%f\ %y%m%r%=(%{fnamemodify(getcwd(),':t')})\ %-14.(%l,%c%V%)\ %P
-
 let mapleader = "\<Space>"
-
 if has('syntax') && has('eval')
-  packadd! matchit
+	packadd! matchit
 endif
-
 if has('mouse_sgr')
-  set ttymouse=sgr
+	set ttymouse=sgr
 endif
-
 runtime! ftplugin/man.vim
 if exists(':Man')
-  set keywordprg=:Man
+	set keywordprg=:Man
 endif
-
 filetype plugin on
 syntax on
 
+function! GetVisualText() abort
+	let reg = @"
+	exe 'normal! vgvy'
+	let text = @"
+	let @" = reg
+	return text
+endfunction
+
+function! LintFile() abort
+	let linters = {
+				\ 'bash': 'shellcheck -f gcc',
+				\ 'css': 'stylelint',
+				\ 'python': 'pylint',
+				\ 'scss': 'stylelint',
+				\ 'sh': 'shellcheck -f gcc',
+				\ }
+	let cmd = get(linters, &filetype, v:null)
+	if cmd == v:null
+		echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
+		return
+	endif
+	update
+	let out = systemlist(cmd . ' ' . expand('%:S'))
+	call setqflist([], 'r', {'title': cmd, 'lines': out})
+	checktime
+	botright cwindow
+	silent! cfirst
+endfunction
+
+function! FormatFile(...) abort
+	let fallback = 'prettier --write --print-width 88'
+	let formatters = {
+				\ 'c': 'clang-format -i',
+				\ 'cpp': 'clang-format -i',
+				\ 'go': 'gofmt -w',
+				\ 'java': 'clang-format -i',
+				\ 'python': 'black',
+				\ }
+	let cmd = a:0 > 0 ? a:1 : get(formatters, &filetype, fallback)
+	update
+	let out = system(cmd . ' ' . expand('%:S'))
+	if v:shell_error != 0
+		echo out
+	endif
+	checktime
+endfunction
+
+function! Cmd(range, line1, line2, cmd) abort
+	let bufnr = bufnr()
+	let bufname = getcwd() . '/+Errors'
+	let winnr = bufwinnr('\m\C^' . bufname . '$')
+	if winnr < 0
+		exe 'new ' . bufname
+		setl buftype=nofile noswapfile nonumber
+	else
+		exe winnr . 'wincmd w'
+	endif
+	if has('job') && has('channel')
+		let opts = { 'in_io': 'null', 'mode': 'raw',
+			\ 'out_io': 'buffer', 'out_name': bufname,
+			\ 'err_io': 'buffer', 'err_name': bufname,
+			\ 'exit_cb': 'HandleCmdExit' }
+		if a:range > 0
+			let opts.in_io = 'buffer'
+			let opts.in_buf = bufnr
+			let opts.in_top = a:line1
+			let opts.in_bot = a:line2
+		endif
+		call job_start([&sh, &shcf, a:cmd], opts)
+	else
+		let input = a:range > 0 ? getline(a:line1, a:line2) : []
+		silent let err = append(line('$') - 1, systemlist(a:cmd, input))
+		call cursor(line('$'), '.')
+	endif
+endfunction
+
+function! HandleCmdExit(job, code) abort
+	let prog = split(job_info(a:job).cmd[2])[0]
+	let msg = prog . ': exit ' . a:code
+	if a:code > 0
+		echohl ErrorMsg | echom msg | echohl None
+	else
+		echom msg
+	endif
+endfunction
+
+function! CmdVisual()
+	call Cmd(0, v:null, v:null, escape(GetVisualText(), '%#'))
+endfunction
+
+function! Send(range, start, end, ...) abort
+	if a:0 > 0
+		let buf = a:1
+	elseif exists('w:send_terminal_buf')
+		let buf = w:send_terminal_buf
+	else
+		echohl ErrorMsg | echo 'No terminal link' | echohl None
+		return
+	endif
+	let keys = join(getline(a:start, a:end), "\n")
+	call term_sendkeys(buf, keys)
+	if a:range
+		call term_sendkeys(buf, "\n")
+	endif
+	let w:send_terminal_buf = buf
+endfunction
+
+function! SetVisualSearch() abort
+	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
+endfunction
+function! TrimTrailingBlanks() abort
+	let last_pos = getcurpos()
+	let last_search = @/
+	silent! %s/\m\C\s\+$//e
+	let @/ = last_search
+	call setpos('.', last_pos)
+endfunction
+function! TabLine() abort
+	let s = ''
+	for i in range(1, tabpagenr('$'))
+		if i == tabpagenr()
+			let s .= '%#TabLineSel#'
+		else
+			let s .= '%#TabLine#'
+		endif
+		let s .= '%' . i . 'T'
+		let s .= ' %{TabLabel(' . i . ')} '
+	endfor
+	let s .= '%#TabLineFill#%T'
+	return s
+endfunction
+
+" TabLabel returns the a label string for the given tab number a:n. If t:label
+" exists then returns it instead.
+function! TabLabel(n) abort
+	let tabl = gettabvar(a:n, 'label')
+	if !empty(tabl)
+		return a:n . ':' . tabl
+	endif
+	let buflist = tabpagebuflist(a:n)
+	let winnr = tabpagewinnr(a:n)
+	let bufnr = buflist[winnr - 1]
+	let label = bufname(bufnr)
+	if empty(label)
+		let buftype = getbufvar(bufnr, '&buftype')
+		if empty(buftype)
+			return a:n . ':' . '[No Name]'
+		endif
+		return a:n . ':' . '[' . buftype . ']'
+	endif
+	if filereadable(label)
+		let label = fnamemodify(label, ':p:t')
+	elseif isdirectory(label)
+		let label = fnamemodify(label, ':p:~')
+	elseif label[-1:] == '/'
+		let label = split(label, '/')[-1] . '/'
+	else
+		let label = split(label, '/')[-1]
+	endif
+	let label = a:n . ':' . label
+	if getbufvar(bufnr, '&modified')
+		return label .'+'
+	endif
+	return label
+endfunction
+
+function! Rg(args) abort
+	let oprg = &grepprg
+	let &grepprg = 'rg --vimgrep'
+	exec 'grep' a:args
+	let &grepprg = oprg
+	botright cwindow
+	silent! cfirst
+endfunction
+
+function! Bx(regexp, command)
+	let prev = bufnr('%')
+	for b in getbufinfo({'buflisted': 1})
+		if b.name =~# a:regexp
+			exe 'buffer' b.bufnr
+			exe a:command
+		endif
+	endfor
+	exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
+endfunction
+
+function! By(regexp, command) abort
+	let prev = bufnr('%')
+	for b in getbufinfo({'buflisted': 1})
+		if b.name !~# a:regexp
+			exe 'buffer' b.bufnr
+			exe a:command
+		endif
+	endfor
+	exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
+endfunction
+
+augroup dotfiles
+	au!
+	au BufReadPost * exe "silent! norm! g'\""
+	au BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
+	au FileType c,cpp setl sw=2 sts=2 et path+=/usr/include
+	au FileType css,html,htmldjango,scss setl sw=2 sts=2 et iskeyword+=-
+	au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
+	au FileType go setl ts=4 sw=0
+	au FileType java,javascript,json,typescript,vim,xml,yaml setl sw=2 sts=2 et
+	au FileType markdown setl sw=4 sts=4 et
+	au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
+	au InsertEnter,WinLeave * setl nocursorline
+	au InsertLeave,WinEnter * setl cursorline
+	au OptionSet * if &diff | setl nocursorline | endif
+	if v:version > 800 && has('terminal')
+		au TerminalOpen * setl nonumber | noremap <buffer> q i
+	endif
+augroup END
+command -nargs=+ -complete=file -range Cmd
+	\ call Cmd(<range>, <line1>, <line2>, <q-args>)
+command -nargs=1 TabLabel let t:label = '<args>'
+if has('terminal')
+	command -nargs=? -range Send
+		\ call Send(<range>, <line1>, <line2>, <args>)
+endif
+command -nargs=1 Dash exe 'silent !open dash://<args>' | redraw!
+command Lint call LintFile()
+command -nargs=? Fmt call FormatFile(<f-args>)
+command Trim call TrimTrailingBlanks()
+command -nargs=* Rg call Rg(<q-args>)
+command -nargs=+ Bx call Bx(<f-args>)
+command -nargs=+ By call By(<f-args>)
+nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
+nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
+nmap <down> <c-e>
+nmap <up> <c-y>
+nnoremap <c-l> :nohlsearch \|
+	\ diffupdate \|
+	\ syntax sync fromstart<cr><c-l>
+nnoremap <leader>! :Cmd<space>
+nnoremap <leader>. :lcd %:p:h<cr>
+nnoremap <leader><cr> :Send<cr>
+nnoremap <leader>F :Fmt<cr>
+nnoremap <leader>L :Lint<cr>
+nnoremap <leader>b :buffers<cr>
+nnoremap <leader>cc :cclose<cr>
+nnoremap <leader>co :copen \| wincmd p<cr>
+nnoremap <leader>e :edit <c-r>=expand('%:h')<cr>/
+nnoremap <leader>f :let @"=expand('%:p') \| let @*=@"<cr>
+nnoremap <leader>gf :edit <cfile><cr>
+nnoremap <leader>p "*p
+nnoremap <leader>r :registers<cr>
+nnoremap <leader>y "*y
+nnoremap <leader>N :NERDTreeToggle<cr>
+if has('macunix')
+	nnoremap gx :silent !open '<cfile>'<cr>
+elseif has('unix')
+	nnoremap gx :silent !xdg-open '<cfile>'<cr>
+endif
+if !empty($TMUX)
+	nnoremap <expr> <silent> <c-j> winnr() == winnr('$') ?
+				\ ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
+	nnoremap <expr> <silent> <c-k> winnr() == 1 ?
+				\ ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
+else
+	nnoremap <silent> <c-j> :wincmd w<cr>
+	nnoremap <silent> <c-k> :wincmd W<cr>
+endif
+nnoremap ]a :next<cr>
+nnoremap [a :previous<cr>
+nnoremap ]b :bnext<cr>
+nnoremap [b :bprevious<cr>
+nnoremap ]l :lnext<cr>
+nnoremap [l :lprevious<cr>
+nnoremap ]q :cnext<cr>
+nnoremap [q :cprevious<cr>
+nnoremap ]t :tabnext<cr>
+nnoremap [t :tabprevious<cr>
+nnoremap yob :set background=<c-r>=&background == 'light' ? 'dark' : 'light'<cr><cr>
+nnoremap yoc :setl invcursorline<cr>
+nnoremap yoh :setl invhlsearch<cr>
+nnoremap yol :setl invlist<cr>
+nnoremap yon :setl invnumber<cr>
+nnoremap yop :setl invpaste<cr>
+nnoremap yor :setl invrelativenumber<cr>
+nnoremap yos :setl invspell<cr>
+nnoremap yow :setl invwrap<cr>
+vnoremap * :call SetVisualSearch()<cr>/<cr>
+vnoremap <leader>! :<c-u>call CmdVisual()<cr>
+vnoremap <leader><cr> :Send<cr>
+vnoremap <leader>p "*p
+vnoremap <leader>x "*x
+vnoremap <leader>y "*y
+inoremap <c-a> <home>
+inoremap <c-e> <end>
+cnoremap <c-a> <home>
+cnoremap <c-e> <end>
+cnoremap <c-n> <down>
+cnoremap <c-p> <up>
+if has('terminal')
+	tnoremap <c-r><c-r> <c-r>
+	tnoremap <c-w>+ <c-w>:exe 'resize ' . (winheight(0) * 3/2)<cr>
+	tnoremap <c-w>- <c-w>:exe 'resize ' . (winheight(0) * 2/3)<cr>
+	tnoremap <c-w><c-w> <c-w>.
+	tnoremap <c-w>[ <c-\><c-n>
+	tnoremap <scrollwheelup> <c-\><c-n>
+	tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
+	if !empty($TMUX)
+		tnoremap <expr> <silent> <c-j> winnr() == winnr('$') ?
+					\ '<c-w>:silent !tmux selectp -t :.+<cr>' : '<c-w>:wincmd w<cr>'
+		tnoremap <expr> <silent> <c-k> winnr() == 1 ?
+					\ '<c-w>:silent !tmux selectp -t :.-<cr>' : '<c-w>:wincmd W<cr>'
+	else
+		tnoremap <silent> <c-j> <c-w>:wincmd w<cr>
+		tnoremap <silent> <c-k> <c-w>:wincmd W<cr>
+	endif
+endif
+nnoremap <c-leftmouse> <leftmouse>gF
+nnoremap <c-rightmouse> <c-o>
+nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
+nnoremap <rightmouse> <leftmouse>*
+nmap <c-a-leftmouse> <middlemouse>
+vmap <c-a-leftmouse> <leader>!
+vmap <middlemouse> <leader>!
+vmap <rightmouse> *
 let g:loaded_netrw = 1
 let g:loaded_netrwPlugin = 1
 let NERDTreeShowHidden=1
-cnoreabbrev Show NERDTreeFind
-
-iabbr date] <C-r>=strftime('%Y-%m-%d')<CR><ESC>
-iabbr datet] <C-r>=strftime('%Y-%m-%dT%H:%M:%S')<CR><ESC>
-iabbr datew] <C-r>=strftime('%G-W%V')<CR><ESC>
-iabbr modeline] <C-r>=printf(&cms, printf('vi: set sw=%d sts=%d%s ft=%s fdm=%s:',
-  \ &sw, &sts, &et ? ' et' : '', &ft, &fdm))<CR><ESC>
-
 if $DOTFILES
-  set rtp+=$DOTFILES/vim
+	set rtp+=$DOTFILES/vim
 else
-  set rtp+=~/dotfiles/vim
+	set rtp+=~/dotfiles/vim
 endif
-
 colorscheme basic
-
 if filereadable(expand('~/.vimrc.local'))
-  source ~/.vimrc.local
+	source ~/.vimrc.local
 endif
