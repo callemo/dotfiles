@@ -1,9 +1,6 @@
 #!/bin/sh
 # Starts the Plan 9 from User Space windows with Go fonts and the dash(1) shell.
 
-readonly fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
-readonly varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
-
 for i in plumber fontsrv
 do
   if pgrep -q "$i"
@@ -18,9 +15,13 @@ EDITOR=E
 ENV="$DOTFILES/9.sh"
 PAGER=nobs
 SHELL=/bin/dash
+
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
+
+fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
+varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
 set +a
 
 "$PLAN9"/bin/9term -f "$fixfont" -W 1065x450
