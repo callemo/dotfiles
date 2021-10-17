@@ -21,6 +21,7 @@ set listchars=eol:$,tab:>\ ,space:.
 set mouse=nvi
 set nobackup
 set noequalalways
+set noexpandtab
 set nofoldenable
 set noswapfile
 set notimeout
@@ -29,19 +30,20 @@ set nowritebackup
 set nrformats-=octal
 set path=.,,
 set sessionoptions-=options
+set shiftwidth=4
 set shortmess=atI
 set showcmd
 set splitbelow
 set splitright
+set statusline=%n:%<%f\ %y%m%r%=(%{fnamemodify(getcwd(),':t')})\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,split
-set tabline=%!TabLine()
+set tabstop=4
 set textwidth=0
 set updatetime=300
 set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
-set statusline=%n:%<%f\ %y%m%r%=(%{fnamemodify(getcwd(),':t')})\ %-14.(%l,%c%V%)\ %P
 
 let mapleader = "\<Space>"
 
@@ -175,54 +177,6 @@ function! TrimTrailingBlanks() abort
 	let @/ = last_search
 	call setpos('.', last_pos)
 endfunction
-function! TabLine() abort
-	let s = ''
-	for i in range(1, tabpagenr('$'))
-		if i == tabpagenr()
-			let s .= '%#TabLineSel#'
-		else
-			let s .= '%#TabLine#'
-		endif
-		let s .= '%' . i . 'T'
-		let s .= ' %{TabLabel(' . i . ')} '
-	endfor
-	let s .= '%#TabLineFill#%T'
-	return s
-endfunction
-
-" TabLabel returns the a label string for the given tab number a:n. If t:label
-" exists then returns it instead.
-function! TabLabel(n) abort
-	let tabl = gettabvar(a:n, 'label')
-	if !empty(tabl)
-		return a:n . ':' . tabl
-	endif
-	let buflist = tabpagebuflist(a:n)
-	let winnr = tabpagewinnr(a:n)
-	let bufnr = buflist[winnr - 1]
-	let label = bufname(bufnr)
-	if empty(label)
-		let buftype = getbufvar(bufnr, '&buftype')
-		if empty(buftype)
-			return a:n . ':' . '[No Name]'
-		endif
-		return a:n . ':' . '[' . buftype . ']'
-	endif
-	if filereadable(label)
-		let label = fnamemodify(label, ':p:t')
-	elseif isdirectory(label)
-		let label = fnamemodify(label, ':p:~')
-	elseif label[-1:] == '/'
-		let label = split(label, '/')[-1] . '/'
-	else
-		let label = split(label, '/')[-1]
-	endif
-	let label = a:n . ':' . label
-	if getbufvar(bufnr, '&modified')
-		return label .'+'
-	endif
-	return label
-endfunction
 
 function! Rg(args) abort
 	let oprg = &grepprg
@@ -259,41 +213,39 @@ augroup dotfiles
 	au!
 	au BufReadPost * exe "silent! norm! g'\""
 	au BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
-	au FileType c,cpp setl sw=2 sts=2 et path+=/usr/include
-	au FileType css,html,htmldjango,scss setl sw=2 sts=2 et iskeyword+=-
-	au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	au FileType go setl ts=4 sw=0
-	au FileType java,javascript,json,typescript,vim,xml,yaml setl sw=2 sts=2 et
-	au FileType markdown setl sw=4 sts=4 et
 	au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	au InsertEnter,WinLeave * setl nocursorline
 	au InsertLeave,WinEnter * setl cursorline
 	au OptionSet * if &diff | setl nocursorline | endif
+
 	if v:version > 800 && has('terminal')
 		au TerminalOpen * setl nonumber | noremap <buffer> q i
 	endif
+
+	au FileType c,cpp setl path+=/usr/include
+	au FileType css,html,htmldjango,scss setl iskeyword+=-
+	au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
+	au FileType javascript,json,typescript setl sw=2 sts=2 et
+	au FileType markdown,python,yaml setl sw=4 sts=4 et
 augroup END
-command -nargs=+ -complete=file -range Cmd
-	\ call Cmd(<range>, <line1>, <line2>, <q-args>)
+
+command -nargs=+ -complete=file -range Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
 command -nargs=1 TabLabel let t:label = '<args>'
 if has('terminal')
-	command -nargs=? -range Send
-		\ call Send(<range>, <line1>, <line2>, <args>)
+	command -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
-command -nargs=1 Dash exe 'silent !open dash://<args>' | redraw!
 command Lint call LintFile()
 command -nargs=? Fmt call FormatFile(<f-args>)
 command Trim call TrimTrailingBlanks()
 command -nargs=* Rg call Rg(<q-args>)
 command -nargs=+ Bx call Bx(<f-args>)
 command -nargs=+ By call By(<f-args>)
+
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
-nnoremap <c-w>- :exe 'resize ' . (winheight(0) * 2/3)<cr>
-nmap <down> <c-e>
-nmap <up> <c-y>
-nnoremap <c-l> :nohlsearch \|
-	\ diffupdate \|
-	\ syntax sync fromstart<cr><c-l>
+nmap <down> <c-d>
+nmap <up> <c-u>
+
+nnoremap <c-l> :nohlsearch \| diffupdate \| syntax sync fromstart<cr><c-l>
 nnoremap <leader>! :Cmd<space>
 nnoremap <leader>. :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
@@ -357,7 +309,6 @@ cnoremap <c-p> <up>
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
 	tnoremap <c-w>+ <c-w>:exe 'resize ' . (winheight(0) * 3/2)<cr>
-	tnoremap <c-w>- <c-w>:exe 'resize ' . (winheight(0) * 2/3)<cr>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
 	tnoremap <scrollwheelup> <c-\><c-n>
@@ -380,15 +331,16 @@ nmap <c-a-leftmouse> <middlemouse>
 vmap <c-a-leftmouse> <leader>!
 vmap <middlemouse> <leader>!
 vmap <rightmouse> *
+
 let g:loaded_netrw = 1
 let g:loaded_netrwPlugin = 1
 let NERDTreeShowHidden=1
-if $DOTFILES
+
+if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
-else
-	set rtp+=~/dotfiles/vim
+	colorscheme basic
 endif
-colorscheme basic
+
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
 endif
