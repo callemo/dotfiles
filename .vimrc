@@ -210,36 +210,38 @@ function! By(regexp, command) abort
 endfunction
 
 augroup dotfiles
-	au!
-	au BufReadPost * exe "silent! norm! g'\""
-	au BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
-	au FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
-	au InsertEnter,WinLeave * setl nocursorline
-	au InsertLeave,WinEnter * setl cursorline
-	au OptionSet * if &diff | setl nocursorline | endif
+	autocmd!
+	autocmd BufReadPost * exe "silent! norm! g'\""
+	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
+	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
+	autocmd InsertEnter,WinLeave * setl nocursorline
+	autocmd InsertLeave,WinEnter * setl cursorline
+	autocmd OptionSet * if &diff | setl nocursorline | endif
 
 	if v:version > 800 && has('terminal')
-		au TerminalOpen * setl nonumber | noremap <buffer> q i
+		autocmd FileType perl setl et keywordprg=:terminal\ perldoc\ -f
+		autocmd FileType python setl keywordprg=:terminal\ pydoc3
+		autocmd TerminalOpen * setl nonumber | noremap <buffer> q i
 	endif
 
-	au FileType c,cpp setl path+=/usr/include
-	au FileType css,html,htmldjango,scss setl iskeyword+=-
-	au FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	au FileType javascript,json,typescript setl sw=2 sts=2 et
-	au FileType markdown,python,yaml setl sw=4 sts=4 et
+	autocmd FileType c,cpp setl path+=/usr/include
+	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
+	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
+	autocmd FileType javascript,json,typescript setl sw=2 sts=2 et
+	autocmd FileType markdown,python,yaml setl et
 augroup END
 
 command -nargs=+ -complete=file -range Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
-command -nargs=1 TabLabel let t:label = '<args>'
+command                                Lint call LintFile()
+command -nargs=?                       Fmt call FormatFile(<f-args>)
+command                                Trim call TrimTrailingBlanks()
+command -nargs=+                       Bx call Bx(<f-args>)
+command -nargs=+                       By call By(<f-args>)
+command -nargs=*                       Rg call Rg(<q-args>)
+
 if has('terminal')
 	command -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
-command Lint call LintFile()
-command -nargs=? Fmt call FormatFile(<f-args>)
-command Trim call TrimTrailingBlanks()
-command -nargs=* Rg call Rg(<q-args>)
-command -nargs=+ Bx call Bx(<f-args>)
-command -nargs=+ By call By(<f-args>)
 
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
 nmap <down> <c-d>
@@ -261,20 +263,21 @@ nnoremap <leader>p "*p
 nnoremap <leader>r :registers<cr>
 nnoremap <leader>y "*y
 nnoremap <leader>N :NERDTreeToggle<cr>
+
 if has('macunix')
 	nnoremap gx :silent !open '<cfile>'<cr>
 elseif has('unix')
 	nnoremap gx :silent !xdg-open '<cfile>'<cr>
 endif
+
 if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j> winnr() == winnr('$') ?
-				\ ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
-	nnoremap <expr> <silent> <c-k> winnr() == 1 ?
-				\ ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
+	nnoremap <expr> <silent> <c-j> winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
+	nnoremap <expr> <silent> <c-k> winnr() == 1 ? ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
 else
 	nnoremap <silent> <c-j> :wincmd w<cr>
 	nnoremap <silent> <c-k> :wincmd W<cr>
 endif
+
 nnoremap ]a :next<cr>
 nnoremap [a :previous<cr>
 nnoremap ]b :bnext<cr>
