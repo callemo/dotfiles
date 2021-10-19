@@ -1,16 +1,13 @@
 #!/bin/sh
 
 tmp="$(mktemp)"; trap 'rm "$tmp"' 0
-
-ext="${samfile##*.}"
-case $ext in
+type="${samfile##*.}"
+case $type in
 py) 9p read acme/$winid/body | black --stdin-filename "$samfile" -q - >"$tmp" || exit 1;;
 *)  9p read acme/$winid/body | prettier --stdin-filepath "$samfile" >"$tmp" || exit 1;;
 esac
 
 9p read acme/$winid/body | cmp -s - "$tmp" && exit
 
-printf nomark | 9p write acme/$winid/ctl
 printf , | 9p write acme/$winid/addr
 9p write acme/$winid/data <"$tmp"
-printf mark | 9p write acme/$winid/ctl
