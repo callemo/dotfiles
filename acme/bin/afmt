@@ -4,19 +4,13 @@ tmp="$(mktemp)"; trap 'rm "$tmp"' 0
 
 ext="${samfile##*.}"
 case $ext in
-py) 9p read acme/$winid/body | black --stdin-filename "$samfile" -q - >$tmp || exit 1;;
-*)  9p read acme/$winid/body | prettier --stdin-filepath "$samfile" >$tmp || exit 1;;
+py) 9p read acme/$winid/body | black --stdin-filename "$samfile" -q - >"$tmp" || exit 1;;
+*)  9p read acme/$winid/body | prettier --stdin-filepath "$samfile" >"$tmp" || exit 1;;
 esac
 
-if 9p read acme/$winid/body | cmp -s - "$tmp"
-then
-	exit
-fi
+9p read acme/$winid/body | cmp -s - "$tmp" && exit
 
 printf nomark | 9p write acme/$winid/ctl
 printf , | 9p write acme/$winid/addr
 9p write acme/$winid/data <"$tmp"
-printf '#0' | 9p write acme/$winid/addr
-printf dot=addr | 9p write acme/$winid/ctl
-printf show | 9p write acme/$winid/ctl
 printf mark | 9p write acme/$winid/ctl
