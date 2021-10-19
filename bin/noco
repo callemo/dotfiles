@@ -1,5 +1,5 @@
 #!/bin/sh
-# Noac copies the named files to standard output but removes all
+# Copies the named files to standard output but removes all
 # the ANSI colors (SGR parameters).
 
 sed 's/\[[0-9;]*m//g' "$@"
