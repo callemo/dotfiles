@@ -1,15 +1,14 @@
 #!/bin/sh
-# Automatic code formatting.
-
-test -f "$samfile" || { echo 'afmt: no input' >&2; exit 1; }
+# Automatic code reformatting. It depends on formatters being installed.
 
 printf put | 9p write "acme/$winid/ctl"
+test -f "$samfile" || { echo 'afmt: no input' >&2; exit 1; }
 
 type="${samfile##*.}"
 case $type in
-go) gofmt -w "$samfile" || { echo 'afmt: program unavailable' >&2; exit 1; };;
-py) black -q "$samfile" || { echo 'afmt: program unavailable' >&2; exit 1; };;
-*)  prettier --loglevel silent --write "$samfile" || { echo 'afmt: program unavailable' >&2; exit 1; };;
+go) gofmt -w "$samfile" || { echo 'afmt: gofmt error' >&2; exit 1; };;
+py) black -q "$samfile" || { echo 'afmt: black error' >&2; exit 1; };;
+*)  prettier --loglevel error --write "$samfile" || { echo 'afmt: prettier error' >&2; exit 1; };;
 esac
 
 printf get | 9p write "acme/$winid/ctl"
