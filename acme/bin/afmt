@@ -1,13 +1,15 @@
 #!/bin/sh
+# Automatic code formatting.
 
-tmp="$(mktemp)"; trap 'rm "$tmp"' 0
+test -f "$samfile" || { echo 'afmt: no input' >&2; exit 1; }
+
+printf put | 9p write "acme/$winid/ctl"
+
 type="${samfile##*.}"
 case $type in
-py) 9p read acme/$winid/body | black --stdin-filename "$samfile" -q - >"$tmp" || exit 1;;
-*)  9p read acme/$winid/body | prettier --stdin-filepath "$samfile" >"$tmp" || exit 1;;
+go) gofmt -w "$samfile" || { echo 'afmt: program unavailable' >&2; exit 1; };;
+py) black -q "$samfile" || { echo 'afmt: program unavailable' >&2; exit 1; };;
+*)  prettier --loglevel silent --write "$samfile" || { echo 'afmt: program unavailable' >&2; exit 1; };;
 esac
 
-9p read acme/$winid/body | cmp -s - "$tmp" && exit
-
-printf , | 9p write acme/$winid/addr
-9p write acme/$winid/data <"$tmp"
+printf get | 9p write "acme/$winid/ctl"
