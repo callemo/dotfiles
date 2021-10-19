@@ -1,14 +1,34 @@
 #!/bin/sh
 # Automatic code reformatting. It depends on formatters being installed.
 
-printf put | 9p write "acme/$winid/ctl"
-test -f "$samfile" || { echo 'afmt: no input' >&2; exit 1; }
+tmp="$(mktemp)"
+errtmp="$(mktemp)"
+trap 'rm "$tmp" "$errtmp"' 0
 
 type="${samfile##*.}"
 case $type in
-go) gofmt -w "$samfile" || { echo 'afmt: gofmt error' >&2; exit 1; };;
-py) black -q "$samfile" || { echo 'afmt: black error' >&2; exit 1; };;
-*)  prettier --loglevel error --write "$samfile" || { echo 'afmt: prettier error' >&2; exit 1; };;
+go)
+	9p read "acme/$winid/body" | goimports 2>"$errtmp" >"$tmp" || {
+		sed 's|<standard input>|'"$samfile"'|' "$errtmp" >&2
+		echo 'afmt: goimports error' >&2
+		exit 1
+	};;
+py)
+	9p read "acme/$winid/body" | black --stdin-filename "$samfile" -q - >"$tmp" || {
+		echo 'afmt: black error' >&2
+		exit 1
+	};;
+*)
+	9p read "acme/$winid/body" | prettier --stdin-filepath "$samfile" >"$tmp" || {
+		echo 'afmt: prettier error' >&2
+		exit 1
+	};;
 esac
 
-printf get | 9p write "acme/$winid/ctl"
+9p read "acme/$winid/body" | cmp -s - "$tmp" && exit
+
+printf mark | 9p write "acme/$winid/ctl"
+printf nomark | 9p write "acme/$winid/ctl"
+printf , | 9p write "acme/$winid/addr"
+9p write "acme/$winid/data" <"$tmp"
+printf mark | 9p write "acme/$winid/ctl"
