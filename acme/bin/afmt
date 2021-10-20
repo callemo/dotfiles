@@ -1,34 +1,54 @@
 #!/bin/sh
+# usage: afmt [-d]
 # Automatic code reformatting. It depends on formatters being installed.
+# Flags:
+#  -d Show differences.
 
-tmp="$(mktemp)"
-errtmp="$(mktemp)"
-trap 'rm "$tmp" "$errtmp"' 0
+for x
+do
+	case $x in
+	-d) dflag=$x
+	esac
+done
 
+in="$(mktemp)"
+out="$(mktemp)"
+err="$(mktemp)"
+trap 'rm "$in" "$out" "$err"' 0
+
+9p read "acme/$winid/body" >"$in"
 type="${samfile##*.}"
 case $type in
 go)
-	9p read "acme/$winid/body" | goimports 2>"$errtmp" >"$tmp" || {
-		sed 's|<standard input>|'"$samfile"'|' "$errtmp" >&2
+	goimports <"$in" >"$out" 2>"$err" || {
+		sed 's/<standard input>/'"$samfile"'/' "$err" >&2
 		echo 'afmt: goimports error' >&2
 		exit 1
 	};;
 py)
-	9p read "acme/$winid/body" | black --stdin-filename "$samfile" -q - >"$tmp" || {
+	black --stdin-filename "$samfile" -q - <"$in" >"$out" || {
 		echo 'afmt: black error' >&2
 		exit 1
 	};;
 *)
-	9p read "acme/$winid/body" | prettier --stdin-filepath "$samfile" >"$tmp" || {
+	prettier --stdin-filepath "$samfile" <"$in" >"$out" || {
 		echo 'afmt: prettier error' >&2
 		exit 1
 	};;
 esac
 
-9p read "acme/$winid/body" | cmp -s - "$tmp" && exit
+if [ -n "$dflag" ]
+then
+	diff -u "$in" "$out" && exit
+else
+	cmp -s "$in" "$out" && exit
+fi
 
 printf mark | 9p write "acme/$winid/ctl"
 printf nomark | 9p write "acme/$winid/ctl"
 printf , | 9p write "acme/$winid/addr"
-9p write "acme/$winid/data" <"$tmp"
+9p write "acme/$winid/data" <"$out"
 printf mark | 9p write "acme/$winid/ctl"
+printf '#0' | 9p write "acme/$winid/addr"
+printf dot=addr | 9p write "acme/$winid/ctl"
+printf show | 9p write "acme/$winid/ctl"
