@@ -1,3 +1,4 @@
 #!/bin/sh
 
+[ $# -eq 0 ] && set -- -
 shellcheck -f gcc "$@"
