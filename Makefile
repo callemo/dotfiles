@@ -20,9 +20,11 @@ $(HOME)/.gitignore: $(CURDIR)/.gitignore
 vim:
 	bin/vimget https://github.com/preservim/nerdtree
 	bin/vimget https://github.com/tpope/vim-commentary
+	bin/vimget https://github.com/tpope/vim-fugitive
 	bin/vimget https://github.com/tpope/vim-obsession
 	bin/vimget https://github.com/tpope/vim-repeat
 	bin/vimget https://github.com/tpope/vim-surround
+	bin/vimget https://github.com/tpope/vim-dispatch
 
 tmux:
 	@if [ -d ~/.tmux/plugins/tmux-resurrect ]; then \
