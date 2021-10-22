@@ -229,6 +229,7 @@ augroup dotfiles
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
 	autocmd FileType javascript,json,typescript setl sw=2 sts=2 et
 	autocmd FileType markdown,python,yaml setl et
+	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
 
 command -nargs=+ -complete=file -range Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
