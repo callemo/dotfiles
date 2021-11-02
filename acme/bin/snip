@@ -42,6 +42,12 @@ class Snippet:
     def expand(self):
         return getattr(self, "expand_" + self.name)()
 
+    def expand_shlog(self):
+        self.code.write('prefix="${0##*/}:"')
+        self.code.write('log() { echo "$prefix" "$@" >&2;  }')
+        self.code.write('fatal() { log "$@"; exit 1; }')
+        return self.code.text()
+
     def expand_shopts(self):
         optstring = self.args[0] if self.args else ":abc:"
         if optstring[0] != ":":
@@ -83,7 +89,7 @@ class Snippet:
 
     def expand_pyfilter(self):
         self.code.write("#!/usr/bin/env python3")
-        self.code.write("\"\"\"Command line filter.\"\"\"")
+        self.code.write('"""Command line filter."""')
         self.code.write("import argparse")
         self.code.write("import fileinput")
         self.code.write("import os")
@@ -92,13 +98,13 @@ class Snippet:
         self.code.write("def main():")
         self.code.indent()
         self.code.write("parser = argparse.ArgumentParser()")
-        self.code.write("parser.add_argument(\"files\", nargs=\"*\")")
+        self.code.write('parser.add_argument("files", nargs="*")')
         self.code.write("args = parser.parse_args()")
         self.code.write("with fileinput.input(files=args.files) as f:")
         self.code.indent()
         self.code.write("for line in f:")
         self.code.indent()
-        self.code.write("print(line, end=\"\")")
+        self.code.write('print(line, end="")')
         self.code.dedent()
         self.code.dedent()
         self.code.dedent()
@@ -110,7 +116,9 @@ class Snippet:
         self.code.dedent()
         self.code.write("except (BrokenPipeError, KeyboardInterrupt):")
         self.code.indent()
-        self.code.write("os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())")
+        self.code.write(
+            "os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())"
+        )
         return self.code.text()
 
 
