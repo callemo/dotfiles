@@ -44,7 +44,7 @@ class Snippet:
 
     def expand_shlog(self):
         self.code.write('prefix="${0##*/}:"')
-        self.code.write('log() { echo "$prefix" "$@" >&2;  }')
+        self.code.write('log() { echo "$prefix" "$@" >&2; }')
         self.code.write('fatal() { log "$@"; exit 1; }')
         return self.code.text()
 
