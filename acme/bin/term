@@ -1,0 +1,3 @@
+#!/bin/sh
+
+9term -f "$fixfont" -W 1065x450 "$@";

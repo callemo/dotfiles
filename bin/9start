@@ -11,20 +11,16 @@ do
 done
 
 set -a
-EDITOR=E
 ENV="$DOTFILES/9.sh"
-PAGER=nobs
 SHELL=/bin/dash
-
+EDITOR=E
+PAGER=nobs
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
-
 fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
 varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
 set +a
-
-"$PLAN9"/bin/9term -f "$fixfont" -W 1065x450
 
 PATH="$DOTFILES/acme/bin:$PATH" \
   exec "$PLAN9"/bin/acme -a -W 1200x720 -f "$varfont" -F "$fixfont" "$@"
