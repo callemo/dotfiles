@@ -73,7 +73,7 @@ then
     fi
     sqlite3 -separator ' ' "$db" <<EOF
 select '$hfile' || file || '$hend' || ':',
-    replace(snippet(files, 1, '$hstart', '$hend', '…', 10),
+    replace(snippet(files, 1, '$hstart', '$hend', '', 12),
             '
 ',
             ' ')
