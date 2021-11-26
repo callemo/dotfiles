@@ -11,10 +11,10 @@ do
 	esac
 done
 
-in="$(mktemp)"
-out="$(mktemp)"
-err="$(mktemp)"
-trap 'rm "$in" "$out" "$err"' 0
+in=/tmp/afmtin.$$
+out=/tmp/afmtout.$$
+err=/tmp/afmterr.$$
+trap 'rm -f "$in" "$out" "$err"; exit 1' 1 2 15
 
 9p read "acme/$winid/body" >"$in"
 type="${samfile##*.}"
@@ -52,3 +52,4 @@ printf mark | 9p write "acme/$winid/ctl"
 printf '#0' | 9p write "acme/$winid/addr"
 printf dot=addr | 9p write "acme/$winid/ctl"
 printf show | 9p write "acme/$winid/ctl"
+rm -f "$in" "$out" "$err"
