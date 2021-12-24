@@ -73,6 +73,10 @@ class Snippet:
         self.code.write("shift $((OPTIND - 1))")
         return self.code.text()
 
+    def expand_shdir(self):
+        self.code.write('progdir="$(cd "${0%/*}" && pwd -P)"')
+        return self.code.text()
+
     def expand_pyargs(self):
         optstring = self.args[0] if self.args else "abc:"
         self.code.write("parser = argparse.ArgumentParser()")
@@ -119,6 +123,10 @@ class Snippet:
         self.code.write(
             "os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())"
         )
+        return self.code.text()
+
+    def expand_pydir(self):
+        self.code.write("progdir = os.path.dirname(__file__)")
         return self.code.text()
 
 
