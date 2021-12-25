@@ -126,7 +126,7 @@ class Snippet:
         return self.code.text()
 
     def expand_pydir(self):
-        self.code.write("progdir = os.path.dirname(__file__)")
+        self.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
         return self.code.text()
 
 
