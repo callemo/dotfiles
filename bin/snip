@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Expand text snippets."""
 import argparse
+import sys
 
 
 class CodeGenerator:
@@ -25,6 +26,8 @@ class CodeGenerator:
 
 
 class Snippet:
+    """Expands and prints a snippet text."""
+
     def __init__(self, name, args=None, tab="\t"):
         if not args:
             args = []
@@ -42,8 +45,18 @@ class Snippet:
     def expand(self):
         return getattr(self, "expand_" + self.name)()
 
+    def expand_shlog(self):
+        self.code.write('prefix="${0##*/}:"')
+        self.code.write('log() { echo "$prefix" "$@" >&2; }')
+        self.code.write('fatal() { log "$@"; exit 1; }')
+        return self.code.text()
+
     def expand_shopts(self):
-        optstring = self.args[0] if self.args else "abc:"
+        optstring = self.args[0] if self.args else ":abc:"
+        if optstring[0] != ":":
+            optstring = ":" + optstring
+        self.code.write("usage() { sed -En '2,/^[^#]/ s/^# //p' \"$0\" >&2; }")
+        self.code.write("")
         self.code.write(f"while getopts {optstring} f")
         self.code.write("do")
         self.code.indent()
@@ -56,11 +69,15 @@ class Snippet:
                 self.code.write(f"{v})  {v}arg=$OPTARG;;")
             else:
                 self.code.write(f"{v})  {v}flag=$f;;")
-        self.code.write('\\?) echo "$USAGE"; exit 1;;')
+        self.code.write("\\?) usage; exit 2;;")
         self.code.write("esac")
         self.code.dedent()
         self.code.write("done")
         self.code.write("shift $((OPTIND - 1))")
+        return self.code.text()
+
+    def expand_shdir(self):
+        self.code.write('progdir="$(cd "${0%/*}" && pwd -P)"')
         return self.code.text()
 
     def expand_pyargs(self):
@@ -77,14 +94,63 @@ class Snippet:
         self.code.write("args = parser.parse_args()")
         return self.code.text()
 
+    def expand_pyfilter(self):
+        self.code.write("#!/usr/bin/env python3")
+        self.code.write('"""Command line filter."""')
+        self.code.write("import argparse")
+        self.code.write("import fileinput")
+        self.code.write("import os")
+        self.code.write("import sys")
+        self.code.write("\n")
+        self.code.write("def main():")
+        self.code.indent()
+        self.code.write("parser = argparse.ArgumentParser()")
+        self.code.write('parser.add_argument("files", nargs="*")')
+        self.code.write("args = parser.parse_args()")
+        self.code.write("with fileinput.input(files=args.files) as f:")
+        self.code.indent()
+        self.code.write("for line in f:")
+        self.code.indent()
+        self.code.write('print(line, end="")')
+        self.code.dedent()
+        self.code.dedent()
+        self.code.dedent()
+        self.code.write("\n")
+        self.code.write("try:")
+        self.code.indent()
+        self.code.write("main()")
+        self.code.write("sys.stdout.flush()")
+        self.code.dedent()
+        self.code.write("except (BrokenPipeError, KeyboardInterrupt):")
+        self.code.indent()
+        self.code.write(
+            "os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())"
+        )
+        return self.code.text()
+
+    def expand_pydir(self):
+        self.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
+        return self.code.text()
+
+
+class ArgumentParser(argparse.ArgumentParser):
+    def print_help(self, file=sys.stdout):
+        prefix = "expand_"
+        prefix_len = len(prefix)
+        snippets = [i[prefix_len:] for i in Snippet.__dict__ if i.startswith(prefix)]
+        super().print_help(file)
+        print("\nsnippets:", file=file)
+        for i in snippets:
+            print(f"  {i}", file=file)
+
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     parser.add_argument("-t", "--tab", default="\t", help="indent string")
     parser.add_argument("snippet")
     parser.add_argument("args", nargs="*")
     args = parser.parse_args()
-    print(Snippet(args.snippet, args.args, args.t))
+    print(Snippet(args.snippet, args.args, args.tab))
 
 
 main()
