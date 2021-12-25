@@ -38,8 +38,8 @@ line2%3A%20word1%20word2%20word3
 line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
 
 	echo
-	echo 'noac:'
-	./bin/noac <termcolors
+	echo 'noco:'
+	./bin/noco <termcolors
 
 	tsv='v_1_1	v_1__2	v_1___3
 v_2___3	v_2_1	v_2__2
@@ -92,7 +92,7 @@ line1: word1 word2 word3
 line2: word1 word2 word3
 line2: word1 word2 word3
 
-noac:
+noco:
 Black
 Red
 Green
