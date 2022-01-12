@@ -39,9 +39,9 @@ esac
 
 if [ -n "$dflag" ]
 then
-	diff -u "$in" "$out" && exit
+	diff -u "$in" "$out" && { rm -f "$in" "$out" "$err"; exit; }
 else
-	cmp -s "$in" "$out" && exit
+	cmp -s "$in" "$out" && { rm -f "$in" "$out" "$err"; exit; }
 fi
 
 printf mark | 9p write "acme/$winid/ctl"
