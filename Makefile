@@ -36,7 +36,7 @@ tmux:
 
 lab: $(HOME)/.virtualenvs/lab
 	$</bin/python3 -m pip install --upgrade \
-		numpy scipy matplotlib ipython jupyter pandas sympy nose scikit-learn
+		numpy scipy matplotlib ipython jupyterlab pandas sympy nose scikit-learn
 
 $(HOME)/.virtualenvs/lab:
 	python3 -m venv $@
