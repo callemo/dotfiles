@@ -1,26 +1,25 @@
 #!/bin/sh
-# Tabfmt formats tabulated data.
+# usage: tabfmt [-F fs -d ofs -p] [files...]
+# Tabfmt formats tabulated data into columns of constants width padded
+# with space.
 
-fs='	'
+fs='\t'
 ofs=' '
 pad=0
-while getopts F:d:p f
+
+usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+while getopts :F:d:p f
 do
 	case $f in
 	F) fs="$OPTARG" ;;
 	d) ofs="$OPTARG" ;;
 	p) pad=1 ;;
-	?) echo "usage: $0 [-F fs -d ofs -p] [files...]" >&2; exit 2 ;;
+	\?) usage; exit 2;;
 	esac
 done
 shift $((OPTIND - 1))
 
-awk '
-BEGIN {
-	FS = "'"$fs"'"
-	OFS = "'"$ofs"'"
-	pad = '"$pad"'
-}
+awk 'BEGIN { FS = "'"$fs"'"; OFS = "'"$ofs"'"; pad = '"$pad"' }
 {
 	for (i = 1; i <= NF; i++) {
 		values[NR, i] = $i
@@ -39,10 +38,11 @@ END {
 		for (j = 1; j <= n; j++) {
 			printf "%s", values[i, j]
 			if ((j < n) || pad)
-				printf "%s", substr(blanks, 1, widths[j] - length(values[i, j]))
+				printf "%s",
+					substr(blanks, 1, widths[j] - length(values[i, j]))
 			if (j < n)
 				printf OFS
 		}
-		printf ORS
+		print ""
 	}
 }' "$@"
