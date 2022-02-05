@@ -3,7 +3,7 @@ targets = $(sources:.%=$(HOME)/.%)
 
 .PHONY: all check dotfiles vim tmux lab
 
-all: dotfiles vim tmux
+all: dotfiles
 
 check:
 	./test
