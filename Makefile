@@ -18,13 +18,13 @@ $(HOME)/.gitignore: $(CURDIR)/.gitignore
 	git config --global core.excludesfile $@
 
 vim: tmux
-	bin/vimget https://github.com/preservim/nerdtree
-	bin/vimget https://github.com/tpope/vim-commentary
-	bin/vimget https://github.com/tpope/vim-fugitive
-	bin/vimget https://github.com/tpope/vim-obsession
-	bin/vimget https://github.com/tpope/vim-repeat
-	bin/vimget https://github.com/tpope/vim-surround
-	bin/vimget https://github.com/tpope/vim-dispatch
+	vim/get https://github.com/preservim/nerdtree
+	vim/get https://github.com/tpope/vim-commentary
+	vim/get https://github.com/tpope/vim-fugitive
+	vim/get https://github.com/tpope/vim-obsession
+	vim/get https://github.com/tpope/vim-repeat
+	vim/get https://github.com/tpope/vim-surround
+	vim/get https://github.com/tpope/vim-dispatch
 
 tmux:
 	@if [ -d ~/.tmux/plugins/tmux-resurrect ]; then git -C ~/.tmux/plugins/tmux-resurrect pull; \
