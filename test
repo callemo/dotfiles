@@ -1,32 +1,207 @@
 #!/bin/sh
 set -eu
 
-{
-  echo 'nobs:'
-  echo 'BBSS' | ./bin/nobs | od -c
+: "${DOTFILES:=$HOME/dotfiles}"
 
-  echo 'urlencode:'
-  echo | ./bin/urlencode
-  echo ' ' | ./bin/urlencode
-  echo '!#$%&'\''()*+,/:;=?@[]' | ./bin/urlencode
-  echo 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urlencode
-  echo 'abcdefghijklmnopqrstuvwxyz' | ./bin/urlencode
-  echo '0123456789-_.~' | ./bin/urlencode
-  echo '€äöå…' | ./bin/urlencode
+case "$PATH" in
+$DOTFILES/bin:*) ;;
+*)               PATH="$DOTFILES/bin:$PATH"; export PATH;;
+esac
+
+{
+	echo 'urlencode:'
+	printf '\n' | ./bin/urlencode; echo
+	printf ' ' | ./bin/urlencode; echo
+	printf '!#$%%&'\''()*+,/:;=?@[]' | ./bin/urlencode; echo
+	printf 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urlencode; echo
+	printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urlencode; echo
+	printf '0123456789-_.~' | ./bin/urlencode; echo
+	printf '€äöå…' | ./bin/urlencode; echo
+
+	echo 'urldecode:'
+	printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
+		./bin/urldecode; echo
+	printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
+		./bin/urlencode -d; echo
+	printf '!#$%%&'\''()*+,/:;=?@[]' | ./bin/urldecode; echo
+	printf 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urldecode; echo
+	printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urldecode; echo
+	printf '0123456789-_.~' | ./bin/urldecode; echo
+	printf '%%E2%%82%%AC%%C3%%A4%%C3%%B6%%C3%%A5%%E2%%80%%A6' | ./bin/urldecode; echo
+	echo | ./bin/urlencode -l
+	echo 'line1: word1 word2 word3
+line2: word1 word2 word3
+line2: word1 word2 word3' | ./bin/urlencode -l
+	echo | ./bin/urldecode -l
+	echo 'line1%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
+
+	echo
+	echo 'noco:'
+	cat <<'END' | ./bin/noco
+[30mBlack[0m
+[31mRed[0m
+[32mGreen[0m
+[33mYellow[0m
+[34mBlue[0m
+[35mMagenta[0m
+[36mCyan[0m
+[37mWhite[0m
+[90mBright black[0m
+[91mBright red[0m
+[92mBright green[0m
+[93mBright yellow[0m
+[94mBright blue[0m
+[95mBright magenta[0m
+[96mBright cyan[0m
+[97mBright white[0m
+END
+
+	tsv='v_1_1	v_1__2	v_1___3
+v_2___3	v_2_1	v_2__2
+v_3__2	v_3___3	v_3_1'
+	echo
+	echo 'tabfmt:'
+	echo "$tsv" | tabfmt
+	echo "$tsv" | tabfmt -p | sed 's/$/$/'
+	echo "$tsv" | tabfmt -p -d' | ' | sed 's/^/| /; s/$/ |/'
+	echo 'v_1_1 v_1_2 v_1_3' | tabfmt -d' | '
+	echo 'v_1_1 v_1_2 v_1_3' | tabfmt -F'[ \t][ \t]*' -d' | '
+
+	echo
+	echo 'tabmd:'
+	printf 'c_1	c__2	c___3\n%s\n' "$tsv" | tabmd
+	echo 'c0 | c_1,c__2,c___3
+v_1_1,v_1__2,v_1___3
+v_2___3,v_2_1,v_2__2
+v_3__2,v_3___3,v_3_1' | tabmd -F,
+
+	echo
+	echo 'csvtab:'
+	echo 'one,two,three
+one,"two ,","three "","""' | csvtab
+
+	echo
+	echo 'template:'
+	tmpl=/tmp/test1.$$
+	trap 'rm -r $tmpl' 0
+	cat <<-'END' >$tmpl
+	{
+	  "lang": "$1"
+	  1: "$2",
+	  2: "$3",
+	  3: "$4"
+	}
+	END
+	cat <<-'END' | template -F ' ' $tmpl
+	en one two three
+	es uno dos tres
+	it uno due tre
+	END
+	cat <<-'END' | template $tmpl
+	en	twenty one	twenty two	twenty three
+	END
 } >test.out
 
 cat <<'EOF' >test.exp
-nobs:
-0000000    B   S  \n                                                    
-0000003
 urlencode:
 %0A
-%20%0A
-%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D%0A
-ABCDEFGHIJKLMNOPQRSTUVWXYZ%0A
-abcdefghijklmnopqrstuvwxyz%0A
-0123456789-_.~%0A
-%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6%0A
+%20
+%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789-_.~
+%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6
+urldecode:
+!#$%&'()*+,/:;=?@[]
+!#$%&'()*+,/:;=?@[]
+!#$%&'()*+,/:;=?@[]
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789-_.~
+€äöå…
+
+line1%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+
+line1: word1 word2 word3
+line2: word1 word2 word3
+line2: word1 word2 word3
+
+noco:
+Black
+Red
+Green
+Yellow
+Blue
+Magenta
+Cyan
+White
+Bright black
+Bright red
+Bright green
+Bright yellow
+Bright blue
+Bright magenta
+Bright cyan
+Bright white
+
+tabfmt:
+v_1_1   v_1__2  v_1___3
+v_2___3 v_2_1   v_2__2
+v_3__2  v_3___3 v_3_1
+v_1_1   v_1__2  v_1___3$
+v_2___3 v_2_1   v_2__2 $
+v_3__2  v_3___3 v_3_1  $
+| v_1_1   | v_1__2  | v_1___3 |
+| v_2___3 | v_2_1   | v_2__2  |
+| v_3__2  | v_3___3 | v_3_1   |
+v_1_1 v_1_2 v_1_3
+v_1_1 | v_1_2 | v_1_3
+
+tabmd:
+| c\_1        | c\_\_2      | c\_\_\_3    |
+|-------------|-------------|-------------|
+| v\_1\_1     | v\_1\_\_2   | v\_1\_\_\_3 |
+| v\_2\_\_\_3 | v\_2\_1     | v\_2\_\_2   |
+| v\_3\_\_2   | v\_3\_\_\_3 | v\_3\_1     |
+| c0 &#124; c\_1 | c\_\_2      | c\_\_\_3    |
+|----------------|-------------|-------------|
+| v\_1\_1        | v\_1\_\_2   | v\_1\_\_\_3 |
+| v\_2\_\_\_3    | v\_2\_1     | v\_2\_\_2   |
+| v\_3\_\_2      | v\_3\_\_\_3 | v\_3\_1     |
+
+csvtab:
+one	two	three
+one	two ,	three ","
+
+template:
+{
+  "lang": "en"
+  1: "one",
+  2: "two",
+  3: "three"
+}
+{
+  "lang": "es"
+  1: "uno",
+  2: "dos",
+  3: "tres"
+}
+{
+  "lang": "it"
+  1: "uno",
+  2: "due",
+  3: "tre"
+}
+{
+  "lang": "en"
+  1: "twenty one",
+  2: "twenty two",
+  3: "twenty three"
+}
 EOF
 
-diff -u test.exp test.out >&2
+diff test.exp test.out >&2
