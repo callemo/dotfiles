@@ -1,0 +1,41 @@
+#!/bin/sh
+# usage: template [-F] tmpl [file ...]
+# Generates text using a template stored in a file.
+# Flags:
+#   -F    input field separator (default: "\t")
+
+prefix="${0##*/}:"
+log() { echo "$prefix" "$@" >&2; }
+fatal() { log "$@"; exit 1; }
+usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+
+fs='\t'
+while getopts :F: f
+do
+	case $f in
+	F)  fs=$OPTARG;;
+	\?) usage; exit 2;;
+	esac
+done
+shift $((OPTIND - 1))
+
+case $# in
+0)	usage; exit 2 ;;
+esac
+
+file="$1"; shift
+[ -r "$file" ] || fatal "unreadable template: $file"
+
+exec awk 'BEGIN {
+	FS = "'"$fs"'"
+	while (getline <"'"$file"'" > 0)
+		template[++n] = $0
+}
+{
+	for (i = 1; i <= n; i++) {
+		line = template[i]
+		for (j = 1; j <= NF; j++)
+			gsub("\\$"j, $j, line)
+		print line
+	}
+}' "$@"
