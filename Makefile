@@ -17,7 +17,7 @@ $(HOME)/.gitignore: $(CURDIR)/.gitignore
 	ln -s $< $@
 	git config --global core.excludesfile $@
 
-vim:
+vim: tmux
 	bin/vimget https://github.com/preservim/nerdtree
 	bin/vimget https://github.com/tpope/vim-commentary
 	bin/vimget https://github.com/tpope/vim-fugitive
@@ -27,11 +27,8 @@ vim:
 	bin/vimget https://github.com/tpope/vim-dispatch
 
 tmux:
-	@if [ -d ~/.tmux/plugins/tmux-resurrect ]; then \
-		git -C ~/.tmux/plugins/tmux-resurrect pull; \
-	else \
-		git clone https://github.com/tmux-plugins/tmux-resurrect.git \
-			~/.tmux/plugins/tmux-resurrect; \
+	@if [ -d ~/.tmux/plugins/tmux-resurrect ]; then git -C ~/.tmux/plugins/tmux-resurrect pull; \
+	else git clone https://github.com/tmux-plugins/tmux-resurrect.git ~/.tmux/plugins/tmux-resurrect; \
 	fi
 
 lab: $(HOME)/.virtualenvs/lab
