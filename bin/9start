@@ -18,11 +18,13 @@ PAGER=nobs
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
-devdrawretina=1
-fixfont=/usr/local/plan9/font/pelm/unicode.9.font,/mnt/font/Menlo-Regular/25a/font
-varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font
-# fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
+
+# devdrawretina=0
 # varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
+# fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
+varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font
+fixfont=/lib/font/bit/pelm/unicode.9.font,/mnt/font/Menlo-Regular/26a/font
+
 set +a
 
 PATH="$DOTFILES/acme/bin:$PATH" \
