@@ -88,10 +88,10 @@ one,"two ,","three "","""' | csvtab
 	trap 'rm -r $tmpl' 0
 	cat <<-'END' >$tmpl
 	{
-	  "lang": "$1"
-	  1: "$2",
-	  2: "$3",
-	  3: "$4"
+	  "lang": "{{1}}"
+	  1: "{{ 2}}",
+	  2: "{{3 }}",
+	  3: "{{ 4 }}"
 	}
 	END
 	cat <<-'END' | template -F ' ' $tmpl

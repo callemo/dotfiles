@@ -35,7 +35,7 @@ exec awk 'BEGIN {
 	for (i = 1; i <= n; i++) {
 		line = template[i]
 		for (j = 1; j <= NF; j++)
-			gsub("\\$"j, $j, line)
+			gsub("{{ *" j " *}}", $j, line)
 		print line
 	}
 }' "$@"
