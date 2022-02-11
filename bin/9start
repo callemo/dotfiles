@@ -23,7 +23,7 @@ user="$USER"
 # varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
 # fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
 varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font
-fixfont=/lib/font/bit/pelm/unicode.9.font,/mnt/font/Menlo-Regular/26a/font
+fixfont=/lib/font/bit/pelm/unicode.9.font,/mnt/font/Menlo-Regular/27a/font
 
 set +a
 
