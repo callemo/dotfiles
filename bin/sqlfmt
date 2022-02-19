@@ -1,0 +1,5 @@
+#!/bin/sh
+# sqlfmt: Formats and reindent SQL text.
+
+[ $# -lt 1 ] && set - -
+exec sqlformat -k upper -r "$@"
