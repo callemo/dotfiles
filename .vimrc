@@ -252,9 +252,9 @@ nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<cr><c-l
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
+nnoremap <leader>B    :NERDTreeToggle<cr>
 nnoremap <leader>F    :Fmt<cr>
 nnoremap <leader>L    :Lint<cr>
-nnoremap <leader>T    :NERDTreeToggle<cr>
 nnoremap <leader>b    :buffers<cr>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
@@ -262,7 +262,6 @@ nnoremap <leader>gf   :edit <cfile><cr>
 nnoremap <leader>p    "*p
 nnoremap <leader>r    :registers<cr>
 nnoremap <leader>y    "*y
-
 
 if has('macunix')
 	nnoremap gx :silent !open '<cfile>'<cr>
