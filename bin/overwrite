@@ -10,12 +10,12 @@ esac
 
 file=$1; shift
 new=/tmp/overwr1.$$; old=/tmp/overwr2.$$
-trap 'rm -f $new $old; exit 1' 1 2 15	# clean up files
+trap 'rm -f $new $old; exit 1' 1 2 15
 
-if PATH=$opath "$@" >$new		# collect input
+if PATH=$opath "$@" >$new
 then
-	cp "$file" $old	# save original file
-	trap '' 1 2 15	# we are committed; ignore signals
+	cp "$file" $old
+	trap '' 1 2 15
 	cp $new "$file"
 else
 	echo "overwrite: $1 failed, $file unchanged" 1>&2
