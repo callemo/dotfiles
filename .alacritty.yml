@@ -13,6 +13,7 @@ window:
     lines: 36
   padding:
     x: 4
+    y: 4
 font:
   # https://developer.apple.com/fonts/
   normal:
