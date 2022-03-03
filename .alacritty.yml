@@ -1,37 +1,49 @@
+# https://github.com/alacritty/alacritty/blob/master/alacritty.yml
 env:
   TERM: xterm-256color
   TERM_PROGRAM: Alacritty
+key_bindings:
+  - { key: Right, mods: Alt, chars: "\x1bf" }
+  - { key: Left, mods: Alt, chars: "\x1bb" }
+  - { key: N, mods: Command, action: CreateNewWindow }
 window:
+  title: TTY
   dimensions:
     columns: 120
-    lines: 38
+    lines: 36
+  padding:
+    x: 4
 font:
+  # https://developer.apple.com/fonts/
   normal:
-    family: SF Mono # https://developer.apple.com/fonts/
+    family: SF Mono
     style: Regular
   bold:
     family: SF Mono
     style: Medium
   size: 13
-colors: # https://github.com/alacritty/alacritty/wiki/Color-schemes (Monokai Pro)
+colors:
   primary:
-    background: "#2d2a2e"
-    foreground: "#fcfcfa"
+    foreground: "#64526F"
+    background: "#FAF7EE"
+  cursor:
+    cursor: "#64526F"
+    text: "#FAF7EE"
   normal:
-    black: "#403e41"
-    red: "#ff6188"
-    green: "#a9dc76"
-    yellow: "#ffd866"
-    blue: "#fc9867"
-    magenta: "#ab9df2"
-    cyan: "#78dce8"
-    white: "#fcfcfa"
+    black: "#FAF7EE"
+    red: "#DF201C"
+    green: "#29A0AD"
+    yellow: "#DB742E"
+    blue: "#3980C2"
+    magenta: "#2C9473"
+    cyan: "#6B3062"
+    white: "#64526F"
   bright:
-    black: "#727072"
-    red: "#ff6188"
-    green: "#a9dc76"
-    yellow: "#ffd866"
-    blue: "#fc9867"
-    magenta: "#ab9df2"
-    cyan: "#78dce8"
-    white: "#fcfcfa"
+    black: "#9F93A1"
+    red: "#DF201C"
+    green: "#29A0AD"
+    yellow: "#DB742E"
+    blue: "#3980C2"
+    magenta: "#2C9473"
+    cyan: "#6B3062"
+    white: "#64526F"
