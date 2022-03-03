@@ -1,0 +1,37 @@
+env:
+  TERM: xterm-256color
+  TERM_PROGRAM: Alacritty
+window:
+  dimensions:
+    columns: 120
+    lines: 38
+font:
+  normal:
+    family: SF Mono # https://developer.apple.com/fonts/
+    style: Regular
+  bold:
+    family: SF Mono
+    style: Medium
+  size: 13
+colors: # https://github.com/alacritty/alacritty/wiki/Color-schemes (Monokai Pro)
+  primary:
+    background: "#2d2a2e"
+    foreground: "#fcfcfa"
+  normal:
+    black: "#403e41"
+    red: "#ff6188"
+    green: "#a9dc76"
+    yellow: "#ffd866"
+    blue: "#fc9867"
+    magenta: "#ab9df2"
+    cyan: "#78dce8"
+    white: "#fcfcfa"
+  bright:
+    black: "#727072"
+    red: "#ff6188"
+    green: "#a9dc76"
+    yellow: "#ffd866"
+    blue: "#fc9867"
+    magenta: "#ab9df2"
+    cyan: "#78dce8"
+    white: "#fcfcfa"
