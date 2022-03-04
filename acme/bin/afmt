@@ -21,13 +21,19 @@ type="${samfile##*.}"
 case $type in
 go)
 	goimports <"$in" >"$out" 2>"$err" || {
-		sed 's/<standard input>/'"$samfile"'/' "$err" >&2
+		sed 's@<standard input>@'"$samfile"'@' "$err" >&2
 		echo 'afmt: goimports error' >&2
 		exit 1
 	};;
 py)
 	black --stdin-filename "$samfile" -q - <"$in" >"$out" || {
 		echo 'afmt: black error' >&2
+		exit 1
+	};;
+rs)
+	rustfmt <"$in" >"$out" 2>"$err" || {
+		sed 's@<stdin>@'"$samfile"'@' "$err" >&2
+		echo 'afmt: rustfmt error' >&2
 		exit 1
 	};;
 *)
