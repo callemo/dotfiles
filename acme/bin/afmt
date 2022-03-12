@@ -37,7 +37,7 @@ rs)
 		exit 1
 	};;
 *)
-	prettier --print-width 100 --tab-width 4 --stdin-filepath "$samfile" <"$in" >"$out" || {
+	prettier --stdin-filepath "$samfile" <"$in" >"$out" || {
 		echo 'afmt: prettier error' >&2
 		exit 1
 	};;

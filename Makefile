@@ -1,4 +1,4 @@
-sources = .pylintrc .tmux.conf .alacritty.yml .vimrc
+sources = .prettierrc .pylintrc .tmux.conf .alacritty.yml .vimrc
 targets = $(sources:.%=$(HOME)/.%)
 
 .PHONY: all check dotfiles vim tmux lab
