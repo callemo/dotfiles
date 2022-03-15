@@ -1,6 +1,7 @@
 *.iml
 *.pyc
 .DS_Store
+.env
 .idea/
 .ipynb_checkpoints/
 .venv/
