@@ -1,0 +1,6 @@
+#!/bin/sh
+# dotenv - loads a .env file before executing arguments.
+
+set -a
+[ -f .env ] && . ./.env
+exec "$@"
