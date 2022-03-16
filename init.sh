@@ -18,6 +18,7 @@ then
 	SAVEHIST="$HISTSIZE"; export SAVEHIST
 	: "${HISTFILE:=$HOME/.zsh_history}"
 	bindkey -e	# implicitly changed with EDITOR=vim
+	bindkey \^U backward-kill-line
 else
 	HISTFILESIZE="$HISTSIZE"; export HISTFILESIZE
 fi
