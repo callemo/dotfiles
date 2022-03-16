@@ -25,6 +25,12 @@ go)
 		echo 'afmt: goimports error' >&2
 		exit 1
 	};;
+pl|pm|t)
+	perltidy -st -se <"$in" >"$out" 2>"$err" || {
+		sed 's@<stdin>@'"$samfile"'@' "$err" >&2
+		echo 'afmt: perltidy error' >&2
+		exit 1
+	};;
 py)
 	black --stdin-filename "$samfile" -q - <"$in" >"$out" || {
 		echo 'afmt: black error' >&2
