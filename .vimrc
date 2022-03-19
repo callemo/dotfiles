@@ -72,6 +72,7 @@ function! LintFile() abort
 	let linters = {
 				\ 'bash': 'shellcheck -f gcc',
 				\ 'css': 'stylelint',
+				\ 'perl': 'perlcritic',
 				\ 'python': 'pylint',
 				\ 'scss': 'stylelint',
 				\ 'sh': 'shellcheck -f gcc',
@@ -96,6 +97,7 @@ function! FormatFile(...) abort
 				\ 'cpp': 'clang-format -i',
 				\ 'go': 'gofmt -w',
 				\ 'java': 'clang-format -i',
+				\ 'perl': 'perltidy -st -se',
 				\ 'python': 'black',
 				\ }
 	let cmd = a:0 > 0 ? a:1 : get(formatters, &filetype, fallback)
