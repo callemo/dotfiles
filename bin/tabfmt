@@ -19,7 +19,12 @@ do
 done
 shift $((OPTIND - 1))
 
-awk 'BEGIN { FS = "'"$fs"'"; OFS = "'"$ofs"'"; pad = '"$pad"' }
+awk '
+BEGIN {
+	FS = "'"$fs"'"
+	OFS = "'"$ofs"'"
+	pad = '"$pad"'
+}
 {
 	for (i = 1; i <= NF; i++) {
 		values[NR, i] = $i
@@ -27,13 +32,15 @@ awk 'BEGIN { FS = "'"$fs"'"; OFS = "'"$ofs"'"; pad = '"$pad"' }
 			widths[i] = w
 		if (w > maxwidth)
 			maxwidth = w
+		if (NF > maxnf)
+			maxnf = NF
 	}
 }
 END {
 	for (i = 1; i <= maxwidth; i++)
 		blanks = blanks " "
 	m = NR
-	n = length(widths)
+	n = maxnf
 	for (i = 1; i <= m; i++) {
 		for (j = 1; j <= n; j++) {
 			printf "%s", values[i, j]
