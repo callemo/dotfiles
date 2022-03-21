@@ -1,2 +1,2 @@
 #!/bin/sh
-exec git commit -v
+exec git commit -v "$@"
