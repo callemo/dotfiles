@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+# test: check programs in dotfiles
 
 : "${DOTFILES:=$HOME/dotfiles}"
 
@@ -83,7 +83,7 @@ v_3__2,v_3___3,v_3_1' | tabmd -F,
 one,"two ,","three "","""' | csvtab
 
 	echo
-	echo 'template:'
+	echo '--- template:'
 	tmpl=/tmp/test1.$$
 	trap 'rm -r $tmpl' 0
 	cat <<-'END' >$tmpl
@@ -99,9 +99,15 @@ one,"two ,","three "","""' | csvtab
 	es uno dos tres
 	it uno due tre
 	END
+	echo $?
 	cat <<-'END' | template $tmpl
 	en	twenty one	twenty two	twenty three
 	END
+	echo $?
+
+	echo '--- rfs:'
+	rfs '/(rfs|fts)$'
+	echo $?
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -177,7 +183,7 @@ csvtab:
 one	two	three
 one	two ,	three ","
 
-template:
+--- template:
 {
   "lang": "en"
   1: "one",
@@ -196,12 +202,18 @@ template:
   2: "due",
   3: "tre"
 }
+0
 {
   "lang": "en"
   1: "twenty one",
   2: "twenty two",
   3: "twenty three"
 }
+0
+--- rfs:
+bin/rfs
+bin/fts
+0
 EOF
 
-diff test.exp test.out >&2
+diff -u test.exp test.out >&2

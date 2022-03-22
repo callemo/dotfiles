@@ -1,4 +1,4 @@
 #!/bin/sh
-# rfs: recursive file path search
+# rfs: recursive file-system search with regexp
 
 exec du -aL | sed -E 's/^[0-9]+	.\///' | grep -E "$@"
