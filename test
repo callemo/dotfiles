@@ -105,8 +105,8 @@ one,"two ,","three "","""' | csvtab
 	END
 	echo $?
 
-	echo '--- rfs:'
-	rfs '/(rfs|fts)$'
+	echo '--- fsg:'
+	fsg '/(fsg|fts)$'
 	echo $?
 } >test.out
 
@@ -210,9 +210,9 @@ one	two ,	three ","
   3: "twenty three"
 }
 0
---- rfs:
-bin/rfs
+--- fsg:
 bin/fts
+bin/fsg
 0
 EOF
 
