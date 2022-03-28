@@ -72,6 +72,8 @@ Mouse 2	I	A	Iconify
 Mouse 2	FST	A	Menu Window-Ops2 Nop
 Mouse 3	TSIF	A	RaiseLower
 
+Key Tab A M WindowList Root c c NoDeskSort
+
 ######################## Initialization Functions ############################
 AddToFunc InitFunction 	  "I" Module FvwmPager 0 0
 #+ "I" exec /usr/X11R6/bin/xsetroot -mod 2 2 -fg \#554055 -bg \#705070
