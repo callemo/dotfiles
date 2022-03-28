@@ -3,29 +3,34 @@
 
 for i in plumber fontsrv
 do
-  if pgrep -q "$i"
-  then
-    continue
-  fi
-  "$i" &
+	if pgrep -q "$i"
+	then
+		continue
+	fi
+	"$i" &
 done
 
 set -a
+
 ENV="$DOTFILES/9.sh"
-SHELL=/bin/dash
 EDITOR=E
 PAGER=nobs
+
+case $(uname) in
+OpenBSD)
+	;;
+*)
+	SHELL=/bin/dash
+	;;
+esac
+
+
+varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font
+fixfont=/lib/font/bit/pelm/unicode.9.font,/mnt/font/Menlo-Regular/27a/font
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
 
-# devdrawretina=0
-# varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/GoRegular/30a/font
-# fixfont=/lib/font/bit/lucm/unicode.9.font,/mnt/font/GoMono/28a/font
-varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font
-fixfont=/lib/font/bit/pelm/unicode.9.font,/mnt/font/Menlo-Regular/27a/font
-
 set +a
 
-PATH="$DOTFILES/acme/bin:$PATH" \
-  exec "$PLAN9"/bin/acme -a -W 1200x720 -f "$varfont" -F "$fixfont" "$@"
+PATH="$DOTFILES/acme/bin:$PATH" exec "$PLAN9"/bin/acme -a -W 1200x720 -f "$varfont" -F "$fixfont" "$@"
