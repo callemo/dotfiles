@@ -16,6 +16,7 @@ ENV="$DOTFILES/9.sh"
 EDITOR=E
 PAGER=nobs
 
+font=/lib/font/bit/pelm/unicode.9.font
 varfont=/lib/font/bit/lucsans/euro.8.font
 fixfont=/lib/font/bit/lucm/unicode.9.font
 
