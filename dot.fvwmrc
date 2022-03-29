@@ -81,6 +81,7 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 # Menus
 AddToMenu RootMenu "Menu"    Title
 +                  "XTerm"   Exec exec xterm -T $PWD
++                  "Vim"     Exec exec sh -l -c 'exec xterm -geometry 100x36 -e vim'
 +                  "Firefox" Exec exec firefox
 +                  "" Nop
 +                  "Fvwm"    Popup Fvwm-Menu
