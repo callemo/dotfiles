@@ -1,6 +1,5 @@
 # .fvwm2rc
 
-# be sure to customize these paths for your installation:
 ModulePath /usr/X11R6/lib/X11/fvwm
 PixmapPath /usr/X11R6/include/X11/pixmaps
 IconPath   /usr/X11R6/include/X11/bitmaps
@@ -9,7 +8,6 @@ EdgeResistance 250 10
 EdgeScroll 100 100
 ClickTime 750
 
-# make sure these fonts exist on your system:
 WindowFont -b&h-lucida-bold-r-normal-sans-14-140-75-*-p-92-iso8859-*
 IconFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
 
@@ -21,7 +19,7 @@ DeskTopSize 3x3
 
 ColormapFocus FollowsMouse
 
-# default Styles:
+# Default Styles
 Style "*"           BorderWidth 7, HandleWidth 7
 Style "*"           Icon unknown1.xpm, Color black/#aeb2c3
 Style "*"           MWMFunctions, MWMDecor, HintOverride
@@ -30,14 +28,14 @@ Style "*"           IconBox 0 -10 -280 -1
 Style "*"           FocusFollowsMouse
 Style "*"           RandomPlacement, SmartPlacement
 
-# Styles for various Fvwm modules:
+# Styles for Fvwm modules
 Style "Fvwm*"       NoTitle,  Sticky, WindowListSkip
 Style "Fvwm*"       BorderWidth 2, CirculateSkipIcon, CirculateSkip
 Style "FvwmPager"   StaysOnTop
 Style "FvwmBanner"  StaysOnTop
 Style "FvwmButtons" Icon toolbox.xpm, ClickToFocus
 
-# Styles for various common programs:
+# Styles for programs
 Style "*lock"       NoTitle, NoHandles, Sticky, WindowListSkip, ClickToFocus
 Style "xbiff"       NoTitle, Sticky, WindowListSkip, ClickToFocus
 Style "xcalc"       Icon xcalc.xpm, NoButton 2,RandomPlacement,ClickToFocus
@@ -47,7 +45,6 @@ Style "xmag"	    Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 Style "xgraph"      Icon graphs.xpm, RandomPlacement, ClickToFocus
 Style "xmosaic"     Color Green/Yellow, ClickToFocus
 Style "xconsole"    Icon rterm.xpm, WindowListSkip, Sticky
-
 
 # some simple default key bindings:
 Key Next         A       SCM     Next [*] Focus
@@ -74,62 +71,59 @@ Mouse 3	TSIF	A	RaiseLower
 
 Key Tab A M WindowList Root c c NoDeskSort
 
-######################## Initialization Functions ############################
+# Initialization functions
 AddToFunc InitFunction 	  "I" Module FvwmPager 0 0
-#+ "I" exec /usr/X11R6/bin/xsetroot -mod 2 2 -fg \#554055 -bg \#705070
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
 AddToFunc RestartFunction "I" Module FvwmPager 0 0
-#+ "I" exec /usr/X11R6/bin/xsetroot -mod 2 2 -fg \#554055 -bg \#705070
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
+# Menus
+AddToMenu RootMenu "Menu"    Title
++                  "XTerm"   Exec exec xterm -T $PWD
++                  "Firefox" Exec exec firefox
++                  "" Nop
++                  "Fvwm"    Popup Fvwm-Menu
++                  "" Nop
++                  "Lock"    Exec exec xlock
++                  "Exit"    Module FvwmForm QuitVerify
 
-######################## Menus ###################
-AddToMenu RootMenu	"Menu"	Title
-+			"Terminal"		Exec exec xterm
-+			"Browser"		Exec exec firefox
-+			""		Nop
-+                       "Fvwm"  Popup Fvwm-Menu
-+			""		Nop
-+                       "Refresh Screen"   Refresh
-+                       "Recapture Screen" Recapture
-+			""		Nop
-+                       "Lock"         Exec exec xlock
-+                       "Exit"  Module FvwmForm QuitVerify
+AddToMenu Fvwm-Menu "Fvwm"                     Title
++                   "Sloppy Focus"             ChangeDefaultFocus SloppyFocus
++                   "Click To Focus"           ChangeDefaultFocus ClickToFocus
++                   "Focus Follows Mouse"      ChangeDefaultFocus FocusFollowsMouse
++                   "" Nop
++                   "Colormap Follows Mouse"   ColormapFocus FollowsMouse
++                   "Colormap Follows Focus"   ColormapFocus FollowsFocus
++                   "" Nop
++                   "Full Paging ON"           EdgeScroll 100 100
++                   "All Paging OFF"           EdgeScroll 0 0
++                   "Horizontal Paging Only"   EdgeScroll 100 0
++                   "Vertical Paging Only"     EdgeScroll 0 100
++                   "Partial Paging"           EdgeScroll 50 50
++                   "Full Paging && Edge Wrap" EdgeScroll 100000 100000
++                   "" Nop
++                   "Modules"                  Popup Module-Popup
++                   "" Nop
++                   "Refresh Screen"           Refresh
++                   "Recapture Screen"         Recapture
++                   "" Nop
++                   "Restart"                  Restart fvwm
 
-AddToMenu Fvwm-Menu "Fvwm" Title
-+                  "Sloppy Focus"        ChangeDefaultFocus SloppyFocus
-+                  "Click To Focus"      ChangeDefaultFocus ClickToFocus
-+                  "Focus Follows Mouse" ChangeDefaultFocus FocusFollowsMouse
-+                  "" Nop
-+                  "Colormap Follows Mouse" ColormapFocus FollowsMouse
-+                  "Colormap Follows Focus" ColormapFocus FollowsFocus
-+                  "" Nop
-+                  "Full Paging ON"         EdgeScroll 100 100
-+                  "All Paging OFF"         EdgeScroll 0 0
-+                  "Horizontal Paging Only" EdgeScroll 100 0
-+                  "Vertical Paging Only"   EdgeScroll 0 100
-+                  "Partial Paging"         EdgeScroll 50 50
-+                  "Full Paging && Edge Wrap" EdgeScroll 100000 100000
-+                  "" Nop
-+		   "Modules"	          Popup Module-Popup
-+                  "" Nop
-+                  "Restart"	Restart fvwm
-
-AddToMenu Window-Ops	"Window"	Title
-+			"Move"		Move
-+			"Resize"	Resize
-+			"Raise"		Raise
-+			"Lower"		Lower
-+		 	"(De)Iconify"	Iconify
-+			"(Un)Stick"	Stick
-+			"(Un)Maximize"	Maximize
-+			""		Nop
-+			"Delete"	Delete
-+			"Close"		Close
-+			"Destroy"	Destroy
-+			""		Nop
-+			"Refresh" RefreshWindow
+AddToMenu Window-Ops "Window"       Title
++                    "Move"         Move
++                    "Resize"       Resize
++                    "Raise"        Raise
++                    "Lower"        Lower
++                    "(De)Iconify"  Iconify
++                    "(Un)Stick"    Stick
++                    "(Un)Maximize" Maximize
++                    "" Nop
++                    "Delete"       Delete
++                    "Close"        Close
++                    "Destroy"      Destroy
++                    "" Nop
++                    "Refresh"      RefreshWindow
 
 AddToMenu Window-Ops2	"&Move"		Move
 +			"&Resize"	Resize
