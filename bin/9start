@@ -16,17 +16,19 @@ ENV="$DOTFILES/9.sh"
 EDITOR=E
 PAGER=nobs
 
+varfont=/lib/font/bit/lucsans/euro.8.font
+fixfont=/lib/font/bit/lucm/unicode.9.font
+
 case $(uname) in
 OpenBSD)
 	;;
-*)
+Darwin)
+	varfont="$varfont,/mnt/font/LucidaGrande/30a/font"
+	fixfont="$fixfont,/mnt/font/Menlo-Regular/28a/font"
 	SHELL=/bin/dash
 	;;
 esac
 
-
-varfont=/lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font
-fixfont=/lib/font/bit/pelm/unicode.9.font,/mnt/font/Menlo-Regular/27a/font
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
