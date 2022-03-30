@@ -15,7 +15,7 @@ HilightColor white #b24d7a
 MenuStyle * Foreground black Background #aeb2c3
 MenuStyle * Font -b&h-lucida-bold-r-normal-sans-14-140-75-*-p-92-iso8859-*
 
-DeskTopSize 3x3
+DeskTopSize 2x2
 
 ColormapFocus FollowsMouse
 
@@ -81,7 +81,8 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 # Menus
 AddToMenu RootMenu "Menu"    Title
 +                  "XTerm"   Exec exec xterm -T $PWD
-+                  "Vim"     Exec exec sh -l -c 'exec xterm -geometry 100x36 -e vim'
++                  "Acme"    Exec exec sh -l -c 'PATH="$DOTFILES/acme/bin:$PATH" 9 acme -f "$PLAN9/font/pelm/euro.9.font" -W 1350x658'
++                  "Vim"     Exec exec sh -l -c 'exec xterm -geometry 120x36 -e vim'
 +                  "Firefox" Exec exec firefox
 +                  "" Nop
 +                  "Fvwm"    Popup Fvwm-Menu
