@@ -25,7 +25,8 @@ Style "*"           Icon unknown1.xpm, Color black/#aeb2c3
 Style "*"           MWMFunctions, MWMDecor, HintOverride
 Style "*"           DecorateTransient, NoPPosition
 Style "*"           IconBox 0 -10 -280 -1
-Style "*"           FocusFollowsMouse
+#Style "*"           FocusFollowsMouse
+Style "*" SloppyFocus, MouseFocusClickRaises
 Style "*"           RandomPlacement, SmartPlacement
 
 # Styles for Fvwm modules
@@ -113,35 +114,29 @@ AddToMenu Fvwm-Menu "Fvwm"                     Title
 +                   "Restart"                  Restart fvwm
 
 AddToMenu Window-Ops "Window"       Title
-+                    "Move"         Move
-+                    "Resize"       Resize
-+                    "Raise"        Raise
-+                    "Lower"        Lower
-+                    "(De)Iconify"  Iconify
-+                    "(Un)Stick"    Stick
-+                    "(Un)Maximize" Maximize
-+                    "" Nop
-+                    "Delete"       Delete
-+                    "Close"        Close
-+                    "Destroy"      Destroy
-+                    "" Nop
-+                    "Refresh"      RefreshWindow
++ "Move"         Move
++ "Resize"       Resize
++ "Raise"        Raise
++ "Lower"        Lower
++ "(De)Iconify"  Iconify
++ "(Un)Stick"    Stick
++ "(Un)Maximize" Maximize
++ "" Nop
++ "Delete"       Delete
++ "Close"        Close
++ "Destroy"      Destroy
++ "" Nop
++ "Refresh"      RefreshWindow
 
-AddToMenu Window-Ops2	"&Move"		Move
-+			"&Resize"	Resize
-+			"R&aise"	Raise
-+			"&Lower"	Lower
-+			"(De)&Iconify"	Iconify
-+			"(Un)&Stick"	Stick
-+                       "(Un)Ma&ximize" Maximize
-+			""		Nop
-+			"&Delete"	Delete
-+			"&Close"	Close
-+			"Destroy"	Destroy
-+			""		Nop
-+			"ScrollBar" 	Module FvwmScroll 2 2
-+			"Print"         PrintFunction
-#+                       "Print Reverse" PrintReverseFunction
+AddToMenu Window-Ops2
++ "Close"    Close
++ "Iconify"  Iconify
++ "Maximize" Maximize
++ "Move"     Move
++ "Resize"   Resize
++ "Raise"    Raise
++ "Lower"    Lower
++ "Stick"    Stick
 
 AddToMenu Module-Popup	"Modules"	Title
 +			"Identify"	Module	FvwmIdent
