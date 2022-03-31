@@ -20,14 +20,15 @@ DeskTopSize 2x2
 ColormapFocus FollowsMouse
 
 # Default Styles
-Style "*"           BorderWidth 7, HandleWidth 7
-Style "*"           Icon unknown1.xpm, Color black/#aeb2c3
-Style "*"           MWMFunctions, MWMDecor, HintOverride
-Style "*"           DecorateTransient, NoPPosition
-Style "*"           IconBox 0 -10 -280 -1
-#Style "*"           FocusFollowsMouse
-Style "*" SloppyFocus, MouseFocusClickRaises
-Style "*"           RandomPlacement, SmartPlacement
+Style  "*" BorderWidth 7, HandleWidth 7
+Style  "*" Icon unknown1.xpm, Color black/#aeb2c3
+Style  "*" MWMFunctions, MWMDecor, HintOverride
+Style  "*" DecorateTransient, NoPPosition
+Style  "*" IconBox 0 -10 -280 -1
+#Style  "*" FocusFollowsMouse
+Style  "*" SloppyFocus, MouseFocusClickRaises
+Style  "*" RandomPlacement, SmartPlacement
+
 
 # Styles for Fvwm modules
 Style "Fvwm*"       NoTitle,  Sticky, WindowListSkip
@@ -82,7 +83,7 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 # Menus
 AddToMenu RootMenu "Menu"    Title
 +                  "XTerm"   Exec exec xterm -T $PWD
-+                  "Acme"    Exec exec sh -l -c 'PATH="$DOTFILES/acme/bin:$PATH" acme -f "$PLAN9/font/pelm/euro.9.font" -W 1350x658'
++                  "Acme"    Exec exec sh -l -c 'PATH="$DOTFILES/acme/bin:$PATH" acme -a -f "$PLAN9/font/pelm/euro.9.font" -W 1350x658'
 +                  "Vim"     Exec exec sh -l -c 'exec xterm -geometry 120x36 -e vim'
 +                  "Firefox" Exec exec firefox
 +                  "" Nop
@@ -116,27 +117,28 @@ AddToMenu Fvwm-Menu "Fvwm"                     Title
 AddToMenu Window-Ops "Window"       Title
 + "Move"         Move
 + "Resize"       Resize
++ "(De)Iconify"  Iconify
++ "(Un)Maximize" Maximize
 + "Raise"        Raise
 + "Lower"        Lower
-+ "(De)Iconify"  Iconify
 + "(Un)Stick"    Stick
-+ "(Un)Maximize" Maximize
 + "" Nop
-+ "Delete"       Delete
 + "Close"        Close
++ "Delete"       Delete
 + "Destroy"      Destroy
 + "" Nop
 + "Refresh"      RefreshWindow
 
 AddToMenu Window-Ops2
-+ "Close"    Close
-+ "Iconify"  Iconify
-+ "Maximize" Maximize
 + "Move"     Move
 + "Resize"   Resize
++ "Iconify"  Iconify
++ "Maximize" Maximize
 + "Raise"    Raise
 + "Lower"    Lower
 + "Stick"    Stick
++ "" Nop
++ "Close"    Close
 
 AddToMenu Module-Popup	"Modules"	Title
 +			"Identify"	Module	FvwmIdent
