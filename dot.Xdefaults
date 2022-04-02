@@ -1,0 +1,19 @@
+Xft.dpi: 100
+Xft.autohint: 0
+Xft.lcdfilter: lcddefault
+Xft.hintstyle: hintslight
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
+
+XTerm*loginShell:true
+XTerm*termName: xterm-256color
+XTerm*font: -*-fixed-medium-*-*-*-18-*-*-*-*-*-*-*
+XTerm*background: gray20
+XTerm*foreground: white
+
+!*Scrollbar.thumb: None
+*Scrollbar.translations: #override \n\
+	<Btn1Down>: StartScroll(Backward) \n\
+	<Btn3Down>: StartScroll(Forward) \n\
+	<BtnUp>:    NotifyScroll(Proportional) EndScroll()
