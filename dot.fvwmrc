@@ -83,9 +83,10 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 # Menus
 AddToMenu RootMenu "Menu"    Title
 +                  "XTerm"   Exec exec xterm -T $PWD
-+                  "Acme"    Exec exec sh -l -c 'PATH="$DOTFILES/acme/bin:$PATH" acme -a -f "$PLAN9/font/pelm/euro.9.font" -W 1350x658'
-+                  "Vim"     Exec exec sh -l -c 'exec xterm -geometry 120x36 -e vim'
++                  "" Nop
 +                  "Firefox" Exec exec firefox
++                  "Gimp"    Exec exec gimp
++                  "Vim"     Exec exec sh -l -c 'exec xterm -geometry 120x36 -e vim'
 +                  "" Nop
 +                  "Fvwm"    Popup Fvwm-Menu
 +                  "" Nop
