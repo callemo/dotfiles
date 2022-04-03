@@ -38,6 +38,7 @@ set splitbelow
 set splitright
 set statusline=%n:%<%f\ %y%m%r%=[%{fnamemodify(getcwd(),':t')}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,split
+set tabstop=4
 set textwidth=0
 set updatetime=300
 set viewoptions-=options
