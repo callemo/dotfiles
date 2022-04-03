@@ -36,7 +36,7 @@ set showcmd
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=%n:%<%f\ %y%m%r%=(%{fnamemodify(getcwd(),':t')})\ %-14.(%l,%c%V%)\ %P
+set statusline=%n:%<%f\ %y%m%r%=[%{fnamemodify(getcwd(),':t')}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,split
 set textwidth=0
 set updatetime=300
@@ -91,7 +91,7 @@ function! LintFile() abort
 endfunction
 
 function! FormatFile(...) abort
-	let fallback = 'prettier --write --print-width 88'
+	let fallback = 'prettier --write'
 	let formatters = {
 				\ 'c': 'clang-format -i',
 				\ 'cpp': 'clang-format -i',
@@ -265,10 +265,12 @@ nnoremap <leader>p    "*p
 nnoremap <leader>r    :registers<cr>
 nnoremap <leader>y    "*y
 
-if has('macunix')
-	nnoremap gx :silent !open '<cfile>'<cr>
-elseif has('unix')
-	nnoremap gx :silent !xdg-open '<cfile>'<cr>
+if has('job') && has('channel')
+    if has('macunix')
+	    nnoremap <silent> gx :call job_start(['open', expand('<cfile>')])<cr>
+    elseif has('unix')
+	    nnoremap <silent> gx :call job_start(['xdg-open', expand('<cfile>')])<cr>
+    endif
 endif
 
 if !empty($TMUX)
