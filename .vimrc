@@ -338,6 +338,8 @@ vmap <rightmouse> *
 
 let g:loaded_netrw = 1
 let g:loaded_netrwPlugin = 1
+let NERDTreeDirArrowCollapsible='-'
+let NERDTreeDirArrowExpandable='+'
 let NERDTreeShowHidden=1
 
 if exists('$DOTFILES')
