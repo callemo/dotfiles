@@ -84,7 +84,7 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 AddToMenu RootMenu "Menu"    Title
 +                  "XTerm"   Exec exec xterm
 +                  "" Nop
-+                  "Acme"    Exec exec sh -l -c 'PATH="$DOTFILES/acme/bin:$PATH" acme -a -f "$PLAN9/font/lucsans/typeunicode.9.font" -W 1350x658'
++                  "Acme"    Exec exec sh -l -c 'pgrep -q plumber || plumber; PATH="$DOTFILES/acme/bin:$PATH" acme -a -f "$PLAN9/font/lucsans/typeunicode.9.font" -W 1350x658'
 +                  "Firefox"  Exec exec firefox
 +                  "Gimp"     Exec exec gimp
 +                  "Inkscape" Exec exec inkscape
