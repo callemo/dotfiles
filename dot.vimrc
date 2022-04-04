@@ -61,6 +61,7 @@ endif
 filetype plugin on
 syntax on
 
+" GetVisualText() returns the text selected in visual mode.
 function! GetVisualText() abort
 	let reg = @"
 	exe 'normal! vgvy'
@@ -69,6 +70,78 @@ function! GetVisualText() abort
 	return text
 endfunction
 
+" SetVisualSearch() literal search of the selected text in visual mode. Any
+" regex special characters are escaped.
+function! SetVisualSearch() abort
+	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
+endfunction
+
+" Cmd() executes a command with an optional rage for input.
+function! Cmd(range, line1, line2, cmd) abort
+	if 0 && has('job') && has('channel')
+		call CmdAsync(a:range, a:line1, a:line2, a:cmd)
+	else
+		call CmdSync(a:range, a:line1, a:line2, a:cmd)
+	endif
+endfunction
+
+" CmdErrorWindow() creates or find a scratch window for the output of commands
+" run in the current directory. Returns the buffer name.
+function! CmdErrorWindow()
+	let bufname = getcwd() . '/+Errors'
+	let winnr = bufwinnr('\m\C^' . bufname . '$')
+	if winnr < 0
+		exe 'new ' . bufname
+		setl buftype=nofile noswapfile nonumber
+	else
+		exe winnr . 'wincmd w'
+	endif
+	return bufname
+endfunction
+
+" CmdSync() synchronously execute a command.
+function! CmdSync(range, line1, line2, cmd) abort
+	echom 'CmdSync: ' . a:cmd
+	let input = a:range > 0 ? getline(a:line1, a:line2) : []
+	call CmdErrorWindow()
+	silent let err = append(line('$') - 1, systemlist(a:cmd, input))
+	call cursor(line('$'), '.')
+endfunction
+
+" CmdAsync() asynchronously execute a command.
+function! CmdAsync(range, line1, line2, cmd)
+	echom 'CmdAsync: ' . a:cmd
+	let bufname = CmdErrorWindow()
+	let opts = { 'in_io': 'null', 'mode': 'raw',
+		\ 'out_io': 'buffer', 'out_name': bufname,
+		\ 'err_io': 'buffer', 'err_name': bufname,
+		\ 'exit_cb': 'CmdAsyncExitHandler' }
+	if a:range > 0
+		let opts.in_io = 'buffer'
+		let opts.in_buf = bufnr('%')
+		let opts.in_top = a:line1
+		let opts.in_bot = a:line2
+	endif
+	call job_start([&sh, &shcf, a:cmd], opts)
+endfunction
+
+" CmdAsyncExitHandler() shows a message with the command exit code.
+function! CmdAsyncExitHandler(job, code) abort
+	let prog = split(job_info(a:job).cmd[2])[0]
+	let msg = prog . ': exit ' . a:code
+	if a:code > 0
+		echohl ErrorMsg | echom msg | echohl None
+	else
+		echom msg
+	endif
+endfunction
+
+" CmdVisual() executes the selected visual text as the command.
+function! CmdVisual()
+	call Cmd(0, v:null, v:null, escape(GetVisualText(), '%#'))
+endfunction
+
+" LintFile() runs a linter for the current file.
 function! LintFile() abort
 	let linters = {
 				\ 'bash': 'shellcheck -f gcc',
@@ -91,6 +164,7 @@ function! LintFile() abort
 	silent! cfirst
 endfunction
 
+" FormatFile() runs a formatter for the current file.
 function! FormatFile(...) abort
 	let fallback = 'prettier --write'
 	let formatters = {
@@ -110,49 +184,8 @@ function! FormatFile(...) abort
 	checktime
 endfunction
 
-function! Cmd(range, line1, line2, cmd) abort
-	let bufnr = bufnr('%')
-	let bufname = getcwd() . '/+Errors'
-	let winnr = bufwinnr('\m\C^' . bufname . '$')
-	if winnr < 0
-		exe 'new ' . bufname
-		setl buftype=nofile noswapfile nonumber
-	else
-		exe winnr . 'wincmd w'
-	endif
-	if has('job') && has('channel')
-		let opts = { 'in_io': 'null', 'mode': 'raw',
-			\ 'out_io': 'buffer', 'out_name': bufname,
-			\ 'err_io': 'buffer', 'err_name': bufname,
-			\ 'exit_cb': 'HandleCmdExit' }
-		if a:range > 0
-			let opts.in_io = 'buffer'
-			let opts.in_buf = bufnr
-			let opts.in_top = a:line1
-			let opts.in_bot = a:line2
-		endif
-		call job_start([&sh, &shcf, a:cmd], opts)
-	else
-		let input = a:range > 0 ? getline(a:line1, a:line2) : []
-		silent let err = append(line('$') - 1, systemlist(a:cmd, input))
-		call cursor(line('$'), '.')
-	endif
-endfunction
-
-function! HandleCmdExit(job, code) abort
-	let prog = split(job_info(a:job).cmd[2])[0]
-	let msg = prog . ': exit ' . a:code
-	if a:code > 0
-		echohl ErrorMsg | echom msg | echohl None
-	else
-		echom msg
-	endif
-endfunction
-
-function! CmdVisual()
-	call Cmd(0, v:null, v:null, escape(GetVisualText(), '%#'))
-endfunction
-
+" Send() types the current line or range to a terminal buffer as it was typed
+" by the user.
 function! Send(range, start, end, ...) abort
 	if a:0 > 0
 		let buf = a:1
@@ -170,9 +203,7 @@ function! Send(range, start, end, ...) abort
 	let w:send_terminal_buf = buf
 endfunction
 
-function! SetVisualSearch() abort
-	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
-endfunction
+" TrimTrailingBlanks() remove tailing consecutive blanks.
 function! TrimTrailingBlanks() abort
 	let last_pos = getcurpos()
 	let last_search = @/
@@ -181,6 +212,7 @@ function! TrimTrailingBlanks() abort
 	call setpos('.', last_pos)
 endfunction
 
+" Rg() runs the ripgrep program loading the results in the quickfix.
 function! Rg(args) abort
 	let oprg = &grepprg
 	let &grepprg = 'rg --vimgrep'
@@ -235,16 +267,16 @@ augroup dotfiles
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
 
-command -nargs=+ -complete=file -range Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
-command                                Lint call LintFile()
-command -nargs=?                       Fmt call FormatFile(<f-args>)
-command                                Trim call TrimTrailingBlanks()
-command -nargs=+                       Bx call Bx(<f-args>)
-command -nargs=+                       By call By(<f-args>)
-command -nargs=*                       Rg call Rg(<q-args>)
+command! -nargs=+ -complete=file -range Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
+command!                                Lint call LintFile()
+command! -nargs=?                       Fmt call FormatFile(<f-args>)
+command!                                Trim call TrimTrailingBlanks()
+command! -nargs=+                       Bx call Bx(<f-args>)
+command! -nargs=+                       By call By(<f-args>)
+command! -nargs=*                       Rg call Rg(<q-args>)
 
 if has('terminal')
-	command -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
+	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
 
 nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
@@ -313,6 +345,7 @@ cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
+
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
 	tnoremap <c-w>+ <c-w>:exe 'resize ' . (winheight(0) * 3/2)<cr>
@@ -330,6 +363,7 @@ if has('terminal')
 		tnoremap <silent> <c-k> <c-w>:wincmd W<cr>
 	endif
 endif
+
 nnoremap <c-leftmouse> <leftmouse>gF
 nnoremap <c-rightmouse> <c-o>
 nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
