@@ -85,13 +85,13 @@ function! Cmd(range, line1, line2, cmd) abort
 	endif
 endfunction
 
-" CmdErrorWindow() creates or find a scratch window for the output of commands
-" run in the current directory. Returns the buffer name.
-function! CmdErrorWindow()
+" CmdErrWin() creates or find a scratch window for the output of commands run
+" in the current directory. Returns the buffer name.
+function! CmdErrWin()
 	let bufname = getcwd() . '/+Errors'
 	let winnr = bufwinnr('\m\C^' . bufname . '$')
 	if winnr < 0
-		exe 'new ' . bufname
+		silent exe 'new ' . bufname
 		setl buftype=nofile noswapfile nonumber
 	else
 		exe winnr . 'wincmd w'
@@ -101,17 +101,21 @@ endfunction
 
 " CmdSync() synchronously execute a command.
 function! CmdSync(range, line1, line2, cmd) abort
-	echom 'CmdSync: ' . a:cmd
 	let input = a:range > 0 ? getline(a:line1, a:line2) : []
-	call CmdErrorWindow()
-	silent let err = append(line('$') - 1, systemlist(a:cmd, input))
-	call cursor(line('$'), '.')
+	silent let output = systemlist(a:cmd, input)
+	if len(output) > 0
+		call CmdErrWin()
+		call append(line('$') - 1, output)
+		call cursor(line('$'), '.')
+	endif
+	let prog = split(a:cmd)[0]
+	echom prog . ': exit ' . v:shell_error
 endfunction
 
 " CmdAsync() asynchronously execute a command.
 function! CmdAsync(range, line1, line2, cmd)
 	echom 'CmdAsync: ' . a:cmd
-	let bufname = CmdErrorWindow()
+	let bufname = CmdErrWin()
 	let opts = { 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname,
 		\ 'err_io': 'buffer', 'err_name': bufname,
@@ -172,15 +176,12 @@ function! FormatFile(...) abort
 				\ 'cpp': 'clang-format -i',
 				\ 'go': 'gofmt -w',
 				\ 'java': 'clang-format -i',
-				\ 'perl': 'perltidy -st -se',
+				\ 'perl': 'perltidy -b -bext /',
 				\ 'python': 'black',
 				\ }
 	let cmd = a:0 > 0 ? a:1 : get(formatters, &filetype, fallback)
 	update
-	let out = system(cmd . ' ' . expand('%:S'))
-	if v:shell_error != 0
-		echo out
-	endif
+	call Cmd(0, v:null, v:null, cmd . ' ' . expand('%:S'))
 	checktime
 endfunction
 
