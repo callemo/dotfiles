@@ -64,14 +64,8 @@ then
 	fi
 
 	~/.virtualenvs/lab/bin/python3 -m pip install --upgrade \
-		ipython \
-		jupyterlab \
+		numpy \
 		matplotlib \
-		nose \
 		pandas \
-		pyarrow \
-		scikit-learn \
-		scipy \
-		sympy \
-	    numpy
+		notebook
 fi
