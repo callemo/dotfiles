@@ -9,6 +9,6 @@
 /tags
 /test.exp
 /test.out
-Session.vim
+Session.vim*
 __pycache__/
 node_modules/
