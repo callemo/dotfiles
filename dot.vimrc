@@ -46,7 +46,7 @@ set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 
-let mapleader = "\<Space>"
+let mapleader = ' '
 
 if has('syntax') && has('eval')
 	packadd! matchit
@@ -76,25 +76,29 @@ function! SetVisualSearch() abort
 	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
 endfunction
 
+let g:cmd_async = 1
+let g:cmd_async_tasks = {}
+
 " Cmd() executes a command with an optional rage for input.
 function! Cmd(range, line1, line2, cmd) abort
-	if 0 && has('job') && has('channel')
+	if g:cmd_async && exists('*job_start')
 		call CmdAsync(a:range, a:line1, a:line2, a:cmd)
 	else
 		call CmdSync(a:range, a:line1, a:line2, a:cmd)
 	endif
 endfunction
 
-" CmdErrWin() creates or find a scratch window for the output of commands run
-" in the current directory. Returns the buffer name.
-function! CmdErrWin()
+" CmdOutputBuf() Returns the buffer name for the command output. If the
+" activate option is true, it will active the window.
+function! CmdOutputBuf() abort
 	let bufname = getcwd() . '/+Errors'
-	let winnr = bufwinnr('\m\C^' . bufname . '$')
-	if winnr < 0
-		silent exe 'new ' . bufname
-		setl buftype=nofile noswapfile nonumber
-	else
-		exe winnr . 'wincmd w'
+	if !bufexists(bufname)
+		let bufnr = bufadd(bufname)
+		silent call bufload(bufnr)
+		call setbufvar(bufnr, '&buflisted', 1)
+		call setbufvar(bufnr, '&buftype', 'nofile' )
+		call setbufvar(bufnr, '&number', 0)
+		call setbufvar(bufnr, '&swapfile', 0)
 	endif
 	return bufname
 endfunction
@@ -103,22 +107,27 @@ endfunction
 function! CmdSync(range, line1, line2, cmd) abort
 	let input = a:range > 0 ? getline(a:line1, a:line2) : []
 	silent let output = systemlist(a:cmd, input)
-	if len(output) > 0
-		call CmdErrWin()
+	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
+	if len(output) > 0 || v:shell_error
+		let bufname = CmdOutputBuf()
+		exe 'sbuffer' bufname
 		call append(line('$') - 1, output)
+		if v:shell_error
+			call append(line('$') - 1, msg)
+		endif
 		call cursor(line('$'), '.')
 	endif
-	let prog = split(a:cmd)[0]
-	echom prog . ': exit ' . v:shell_error
+	echom msg
 endfunction
 
 " CmdAsync() asynchronously execute a command.
-function! CmdAsync(range, line1, line2, cmd)
-	echom 'CmdAsync: ' . a:cmd
-	let bufname = CmdErrWin()
+function! CmdAsync(range, line1, line2, cmd) abort
+	let bufname = CmdOutputBuf()
 	let opts = { 'in_io': 'null', 'mode': 'raw',
-		\ 'out_io': 'buffer', 'out_name': bufname,
-		\ 'err_io': 'buffer', 'err_name': bufname,
+		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
+		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
+		\ 'callback': 'CmdAsyncOutputHandler',
+		\ 'close_cb': 'CmdAsyncCloseHandler',
 		\ 'exit_cb': 'CmdAsyncExitHandler' }
 	if a:range > 0
 		let opts.in_io = 'buffer'
@@ -126,23 +135,65 @@ function! CmdAsync(range, line1, line2, cmd)
 		let opts.in_top = a:line1
 		let opts.in_bot = a:line2
 	endif
-	call job_start([&sh, &shcf, a:cmd], opts)
+	let job = job_start([&sh, &shcf, a:cmd], opts)
+	let pid = job_info(job).process
+	let name = split(a:cmd)[0]
+	let g:cmd_async_tasks[pid] = { 'name': name, 'output': 0, 'exited': -1, 'closed': 0 }
 endfunction
 
-" CmdAsyncExitHandler() shows a message with the command exit code.
-function! CmdAsyncExitHandler(job, code) abort
-	let prog = split(job_info(a:job).cmd[2])[0]
-	let msg = prog . ': exit ' . a:code
-	if a:code > 0
-		echohl ErrorMsg | echom msg | echohl None
-	else
-		echom msg
+" CmdAsyncOutputHandler() job output handler.
+function! CmdAsyncOutputHandler(channel, msg) abort
+	let job = ch_getjob(a:channel)
+	let pid = job_info(job).process
+	let g:cmd_async_tasks[pid].output += 1
+endfunction
+
+" CmdAsyncCloseHandler() channel close handler.
+function! CmdAsyncCloseHandler(channel) abort
+	let job = ch_getjob(a:channel)
+	let pid = job_info(job).process
+	let g:cmd_async_tasks[pid].closed = 1
+
+	if g:cmd_async_tasks[pid].exited != -1
+		call CmdAsyncDone(job)
 	endif
 endfunction
 
+" CmdAsyncExitHandler() job exit handler.
+function! CmdAsyncExitHandler(job, code) abort
+	let pid = job_info(a:job).process
+	echom g:cmd_async_tasks[pid].name . ': exit ' . a:code
+	let g:cmd_async_tasks[pid].exited = a:code
+
+	if g:cmd_async_tasks[pid].closed
+		call CmdAsyncDone(a:job)
+	endif
+endfunction
+
+" CmdAsyncDone() cleans up after close and exit have finished.
+function! CmdAsyncDone(job) abort
+	let pid = job_info(a:job).process
+	let name = g:cmd_async_tasks[pid].name
+	let code = g:cmd_async_tasks[pid].exited
+	if g:cmd_async_tasks[pid].output || code > 0
+		let bufnr = ch_getbufnr(a:job, 'out')
+		exe 'sbuffer' bufnr
+		if code > 0
+			let msg =  name . ': exit ' . code
+			if wordcount().bytes == 0
+				call setline(1, msg)
+			else
+				call append(line('$'), msg)
+			endif
+			call cursor(line('$'), '.')
+		endif
+	endif
+	call remove(g:cmd_async_tasks, pid)
+endfunction
+
 " CmdVisual() executes the selected visual text as the command.
-function! CmdVisual()
-	call Cmd(0, v:null, v:null, escape(GetVisualText(), '%#'))
+function! CmdVisual() abort
+	call Cmd(0, 0, 0, escape(GetVisualText(), '%#'))
 endfunction
 
 " LintFile() runs a linter for the current file.
@@ -151,7 +202,7 @@ function! LintFile() abort
 				\ 'bash': 'shellcheck -f gcc',
 				\ 'css': 'stylelint',
 				\ 'perl': 'perlcritic',
-				\ 'python': 'pylint',
+				\ 'python': 'pylint -s n',
 				\ 'scss': 'stylelint',
 				\ 'sh': 'shellcheck -f gcc',
 				\ }
@@ -161,11 +212,8 @@ function! LintFile() abort
 		return
 	endif
 	update
-	let out = systemlist(cmd . ' ' . expand('%:S'))
-	call setqflist([], 'r', {'title': cmd, 'lines': out})
+	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
 	checktime
-	botright cwindow
-	silent! cfirst
 endfunction
 
 " FormatFile() runs a formatter for the current file.
@@ -177,11 +225,11 @@ function! FormatFile(...) abort
 				\ 'go': 'gofmt -w',
 				\ 'java': 'clang-format -i',
 				\ 'perl': 'perltidy -b -bext /',
-				\ 'python': 'black',
+				\ 'python': 'black -q',
 				\ }
 	let cmd = a:0 > 0 ? a:1 : get(formatters, &filetype, fallback)
 	update
-	call Cmd(0, v:null, v:null, cmd . ' ' . expand('%:S'))
+	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
 	checktime
 endfunction
 
@@ -213,17 +261,7 @@ function! TrimTrailingBlanks() abort
 	call setpos('.', last_pos)
 endfunction
 
-" Rg() runs the ripgrep program loading the results in the quickfix.
-function! Rg(args) abort
-	let oprg = &grepprg
-	let &grepprg = 'rg --vimgrep'
-	exec 'grep' a:args
-	let &grepprg = oprg
-	botright cwindow
-	silent! cfirst
-endfunction
-
-function! Bx(regexp, command)
+function! Bx(regexp, command) abort
 	let prev = bufnr('%')
 	for b in getbufinfo({'buflisted': 1})
 		if b.name =~# a:regexp
@@ -234,20 +272,9 @@ function! Bx(regexp, command)
 	exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
 endfunction
 
-function! By(regexp, command) abort
-	let prev = bufnr('%')
-	for b in getbufinfo({'buflisted': 1})
-		if b.name !~# a:regexp
-			exe 'buffer' b.bufnr
-			exe a:command
-		endif
-	endfor
-	exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
-endfunction
-
 augroup dotfiles
 	autocmd!
-	autocmd BufReadPost * exe "silent! norm! g'\""
+	autocmd BufReadPost * exe 'silent! norm! g''"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
@@ -268,13 +295,13 @@ augroup dotfiles
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
 
-command! -nargs=+ -complete=file -range Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
-command!                                Lint call LintFile()
-command! -nargs=?                       Fmt call FormatFile(<f-args>)
-command!                                Trim call TrimTrailingBlanks()
-command! -nargs=+                       Bx call Bx(<f-args>)
-command! -nargs=+                       By call By(<f-args>)
-command! -nargs=*                       Rg call Rg(<q-args>)
+command! -nargs=+ -complete=file -range
+	\ Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
+
+command!          Lint call LintFile()
+command! -nargs=? Fmt call FormatFile(<f-args>)
+command!          Trim call TrimTrailingBlanks()
+command! -nargs=+ Bx call Bx(<f-args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -299,12 +326,10 @@ nnoremap <leader>p    "*p
 nnoremap <leader>r    :registers<cr>
 nnoremap <leader>y    "*y
 
-if has('job') && has('channel')
-    if has('macunix')
-	    nnoremap <silent> gx :call job_start(['open', expand('<cfile>')])<cr>
-    elseif has('unix')
-	    nnoremap <silent> gx :call job_start(['xdg-open', expand('<cfile>')])<cr>
-    endif
+if has('macunix')
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
+elseif has('unix')
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<cr>
 endif
 
 if !empty($TMUX)
@@ -349,7 +374,7 @@ cnoremap <c-p> <up>
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
-	tnoremap <c-w>+ <c-w>:exe 'resize ' . (winheight(0) * 3/2)<cr>
+	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<cr>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
 	tnoremap <scrollwheelup> <c-\><c-n>
@@ -374,7 +399,7 @@ vmap <c-a-leftmouse> <leader>!
 vmap <middlemouse> <leader>!
 vmap <rightmouse> *
 
-let g:loaded_netrw = 1
+let g:loaded_netrw = 1 " disable netrw
 let g:loaded_netrwPlugin = 1
 let NERDTreeDirArrowCollapsible='-'
 let NERDTreeDirArrowExpandable='+'
@@ -383,7 +408,9 @@ let NERDTreeShowHidden=1
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
 	colorscheme basic
-	let $PATH = $DOTFILES . '/acme/bin:' . $PATH
+elseif isdirectory(expand('~/dotfiles'))
+	set rtp+=~/dotfiles/vim
+	colorscheme basic
 endif
 
 if filereadable(expand('~/.vimrc.local'))
