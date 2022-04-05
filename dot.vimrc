@@ -82,19 +82,18 @@ let g:cmd_async_tasks = {}
 " Cmd() executes a command with an optional rage for input.
 function! Cmd(range, line1, line2, cmd) abort
 	if g:cmd_async && exists('*job_start')
-		call CmdAsync(a:range, a:line1, a:line2, a:cmd)
+		call StartAsyncCmd(a:range, a:line1, a:line2, a:cmd)
 	else
-		call CmdSync(a:range, a:line1, a:line2, a:cmd)
+		call RunShellCmd(a:range, a:line1, a:line2, a:cmd)
 	endif
 endfunction
 
-" CmdOutputBuf() Returns the buffer name for the command output. If the
-" activate option is true, it will active the window.
-function! CmdOutputBuf() abort
+" MakeTempBuffer() Creates a scratch buffer. Returns the buffer name.
+function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
 		let bufnr = bufadd(bufname)
-		silent call bufload(bufnr)
+		call bufload(bufnr)
 		call setbufvar(bufnr, '&buflisted', 1)
 		call setbufvar(bufnr, '&buftype', 'nofile' )
 		call setbufvar(bufnr, '&number', 0)
@@ -103,26 +102,25 @@ function! CmdOutputBuf() abort
 	return bufname
 endfunction
 
-" CmdSync() synchronously execute a command.
-function! CmdSync(range, line1, line2, cmd) abort
+" RunShellCmd() synchronously execute a command.
+function! RunShellCmd(range, line1, line2, cmd) abort
 	let input = a:range > 0 ? getline(a:line1, a:line2) : []
 	silent let output = systemlist(a:cmd, input)
 	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
 	if len(output) > 0 || v:shell_error
-		let bufname = CmdOutputBuf()
+		let bufname = MakeTempBuffer()
 		exe 'sbuffer' bufname
-		call append(line('$') - 1, output)
+		call UpdateCurrentWindow(output)
 		if v:shell_error
-			call append(line('$') - 1, msg)
+			call UpdateCurrentWindow(msg)
 		endif
-		call cursor(line('$'), '.')
 	endif
 	echom msg
 endfunction
 
-" CmdAsync() asynchronously execute a command.
-function! CmdAsync(range, line1, line2, cmd) abort
-	let bufname = CmdOutputBuf()
+" StartAsyncCmd() asynchronously execute a command.
+function! StartAsyncCmd(range, line1, line2, cmd) abort
+	let bufname = MakeTempBuffer()
 	let opts = { 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
@@ -178,21 +176,28 @@ function! CmdAsyncDone(job) abort
 	if g:cmd_async_tasks[pid].output || code > 0
 		let bufnr = ch_getbufnr(a:job, 'out')
 		exe 'sbuffer' bufnr
+		call cursor(line('$'), '.')
 		if code > 0
 			let msg =  name . ': exit ' . code
-			if wordcount().bytes == 0
-				call setline(1, msg)
-			else
-				call append(line('$'), msg)
-			endif
-			call cursor(line('$'), '.')
+			call UpdateCurrentWindow(msg)
 		endif
 	endif
 	call remove(g:cmd_async_tasks, pid)
 endfunction
 
-" CmdVisual() executes the selected visual text as the command.
-function! CmdVisual() abort
+" UpdateCurrentWindow() appends texts to the active buffer and moves the
+" cursor to the bottom.
+function! UpdateCurrentWindow(text) abort
+	if wordcount().bytes == 0
+		call setline(1, a:text)
+	else
+		call append(line('$'), a:text)
+	endif
+	call cursor(line('$'), '.')
+endfunction
+
+" ExecVisualText() executes the selected visual text as the command.
+function! ExecVisualText() abort
 	call Cmd(0, 0, 0, escape(GetVisualText(), '%#'))
 endfunction
 
@@ -307,7 +312,7 @@ if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
 
-nnoremap <c-w>+ :exe 'resize ' . (winheight(0) * 3/2)<cr>
+nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<cr>
 nmap <down> <c-d>
 nmap <up> <c-u>
 
@@ -360,7 +365,7 @@ nnoremap yor :setl invrelativenumber<cr>
 nnoremap yos :setl invspell<cr>
 nnoremap yow :setl invwrap<cr>
 vnoremap * :call SetVisualSearch()<cr>/<cr>
-vnoremap <leader>! :<c-u>call CmdVisual()<cr>
+vnoremap <leader>! :<c-u>call ExecVisualText()<cr>
 vnoremap <leader><cr> :Send<cr>
 vnoremap <leader>p "*p
 vnoremap <leader>x "*x
