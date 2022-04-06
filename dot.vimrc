@@ -63,11 +63,6 @@ let mapleader = ' '
 
 let g:loaded_netrw = 1 " disable netrw
 let g:loaded_netrwPlugin = 1
-
-let NERDTreeDirArrowCollapsible='-'
-let NERDTreeDirArrowExpandable='+'
-let NERDTreeShowHidden=1
-
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
@@ -115,7 +110,6 @@ nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<cr><c-l
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
-nnoremap <leader>B    :NERDTreeToggle<cr>
 nnoremap <leader>F    :Fmt<cr>
 nnoremap <leader>L    :Lint<cr>
 nnoremap <leader>b    :buffers<cr>
@@ -419,6 +413,11 @@ elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
 	colorscheme basic
 endif
+
+let NERDTreeDirArrowCollapsible=''
+let NERDTreeDirArrowExpandable=''
+let NERDTreeShowHidden=1
+nnoremap <leader>B :NERDTreeToggleVCS<cr>
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
