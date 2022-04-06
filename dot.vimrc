@@ -221,8 +221,7 @@ endfunction
 function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
-		let bufnr = bufadd(bufname)
-		call bufload(bufnr)
+		let bufnr = bufnr(bufname, 1)
 		call setbufvar(bufnr, '&buflisted', 1)
 		call setbufvar(bufnr, '&buftype', 'nofile' )
 		call setbufvar(bufnr, '&number', 0)
@@ -250,12 +249,14 @@ endfunction
 " StartAsyncCmd() asynchronously execute a command.
 function! StartAsyncCmd(range, line1, line2, cmd) abort
 	let bufname = MakeTempBuffer()
-	let opts = { 'in_io': 'null', 'mode': 'raw',
+	let opts = {
+		\ 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
 		\ 'callback': 'AsyncCmdOutputHandler',
 		\ 'close_cb': 'AsyncCmdCloseHandler',
-		\ 'exit_cb': 'AsyncCmdExitHandler' }
+		\ 'exit_cb': 'AsyncCmdExitHandler'
+		\ }
 	if a:range > 0
 		let opts.in_io = 'buffer'
 		let opts.in_buf = bufnr('%')
@@ -265,7 +266,15 @@ function! StartAsyncCmd(range, line1, line2, cmd) abort
 	let job = job_start([&sh, &shcf, a:cmd], opts)
 	let pid = job_info(job).process
 	let name = split(a:cmd)[0]
-	let g:cmd_async_tasks[pid] = { 'name': name, 'output': 0, 'exited': -1, 'closed': 0 }
+	if !exists('g:cmd_async_tasks')
+		let g:cmd_async_tasks = {}
+	endif
+	let g:cmd_async_tasks[pid] = {
+		\ 'name': name,
+		\ 'output': 0,
+		\ 'exited': -1,
+		\ 'closed': 0
+		\ }
 endfunction
 
 " AsyncCmdOutputHandler() job output handler.
