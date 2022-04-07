@@ -222,7 +222,7 @@ function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
 		let bufnr = bufnr(bufname, 1)
-		call setbufvar(bufnr, '&buflisted', 1)
+		call setbufvar(bufnr, '&buflisted', 0)
 		call setbufvar(bufnr, '&buftype', 'nofile' )
 		call setbufvar(bufnr, '&number', 0)
 		call setbufvar(bufnr, '&swapfile', 0)
