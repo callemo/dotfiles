@@ -1,39 +1,29 @@
 #!/bin/sh
-# Starts the Plan 9 from User Space windows with Go fonts and the dash(1) shell.
-
-for i in plumber fontsrv
-do
-	if pgrep -q "$i"
-	then
-		continue
-	fi
-	"$i" &
-done
+# Starts Plan 9's Acme.
 
 set -a
-
 ENV="$DOTFILES/9.sh"
 EDITOR=E
 PAGER=nobs
-
-font=/lib/font/bit/pelm/unicode.9.font
-varfont=/lib/font/bit/lucsans/euro.8.font
-fixfont=/lib/font/bit/lucm/unicode.9.font
-
-case $(uname) in
-OpenBSD)
-	;;
-Darwin)
-	varfont="$varfont,/mnt/font/LucidaGrande/30a/font"
-	fixfont="$fixfont,/mnt/font/Menlo-Regular/28a/font"
-	SHELL=/bin/dash
-	;;
-esac
-
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
-
 set +a
 
-PATH="$DOTFILES/acme/bin:$PATH" exec "$PLAN9"/bin/acme -a -W 1200x720 -f "$varfont" -F "$fixfont" "$@"
+set -- -a "$@"
+pgrep -q plumber || plumber &
+
+case $(uname) in
+Darwin)
+	export SHELL=/bin/dash
+	export acmeshell=/bin/dash
+	varfont=/lib/font/bit/lucsans/euro.8.font
+	fixfont=/lib/font/bit/lucm/unicode.9.font
+	varfont="$varfont,/mnt/font/LucidaGrande/30a/font"
+	fixfont="$fixfont,/mnt/font/Menlo-Regular/28a/font"
+	set -- -f "$varfont" -F "$fixfont" "$@"
+	pgrep -q fontsrv || fontsrv &
+	;;
+esac
+
+PATH="$DOTFILES/acme/bin:$PATH" exec "${PLAN9:-/usr/local/plan9}"/bin/acme "$@"
