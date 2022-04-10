@@ -95,7 +95,8 @@ command! -nargs=+ -complete=file -range
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
 command!          Trim call TrimTrailingBlanks()
-command! -nargs=+ Bx call Bx(<f-args>)
+command! -nargs=1 Bufdel call Bufdel(<args>)
+command! -nargs=1 Bufkeep call Bufkeep(<args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -104,7 +105,6 @@ endif
 nmap <down> <c-d>
 nmap <up> <c-u>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<cr>
-nnoremap gf :below wincmd F<cr>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<cr><c-l>
 nnoremap <leader>!    :Cmd<space>
@@ -112,10 +112,11 @@ nnoremap <leader>.    :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
 nnoremap <leader>F    :Fmt<cr>
 nnoremap <leader>L    :Lint<cr>
-nnoremap <leader>b    :buffers<cr>
+nnoremap <leader>b    :buffers!<cr>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
-nnoremap <leader>gf   :split <cfile><cr>
+nnoremap <leader>ge   :split <cfile><cr>
+nnoremap <leader>gf   :below wincmd F<cr>
 nnoremap <leader>p    "*p
 nnoremap <leader>r    :registers<cr>
 nnoremap <leader>y    "*y
@@ -184,12 +185,11 @@ if has('terminal')
 	endif
 endif
 
-nnoremap <c-leftmouse> <leftmouse>gF
-nnoremap <c-rightmouse> <c-o>
+nnoremap <a-rightmouse> <leftmouse><c-w>F
 nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
 nnoremap <rightmouse> <leftmouse>*
-nmap <c-a-leftmouse> <middlemouse>
-vmap <c-a-leftmouse> <leader>!
+nmap <a-leftmouse> <middlemouse>
+vmap <a-leftmouse> <leader>!
 vmap <middlemouse> <leader>!
 vmap <rightmouse> *
 
@@ -404,15 +404,34 @@ function! TrimTrailingBlanks() abort
 	call setpos('.', last_pos)
 endfunction
 
-function! Bx(regexp, command) abort
-	let prev = bufnr('%')
-	for b in getbufinfo({'buflisted': 1})
+" Bufdel() deletes buffers matching a given regular expression.
+function! Bufdel(regexp) abort
+	let buflist = []
+	for b in getbufinfo()
 		if b.name =~# a:regexp
-			exe 'buffer' b.bufnr
-			exe a:command
+			call add(buflist, b.bufnr)
 		endif
 	endfor
-	exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
+	if !empty(buflist)
+		let expr = 'bwipeout ' . join(buflist, ' ')
+		echo ':' . expr
+		exe expr
+	endif
+endfunction
+
+" Bufkeep() deletes buffers *not* matching a given regular expression.
+function! Bufkeep(regexp) abort
+	let buflist = []
+	for b in getbufinfo()
+		if b.name !~# a:regexp
+			call add(buflist, b.bufnr)
+		endif
+	endfor
+	if !empty(buflist)
+		let expr = 'bwipeout ' . join(buflist, ' ')
+		echo ':' . expr
+		exe expr
+	endif
 endfunction
 
 if exists('$DOTFILES')
