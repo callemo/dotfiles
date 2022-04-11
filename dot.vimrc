@@ -116,8 +116,7 @@ nnoremap <leader>L    :Lint<cr>
 nnoremap <leader>b    :buffers<cr>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
-nnoremap <leader>ge   :split <cfile><cr>
-nnoremap <leader>gf   :below wincmd F<cr>
+nnoremap <leader>gf   :drop <cfile><cr>
 nnoremap <leader>p    "*p
 nnoremap <leader>r    :registers<cr>
 nnoremap <leader>y    "*y
