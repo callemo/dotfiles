@@ -95,8 +95,9 @@ command! -nargs=+ -complete=file -range
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
 command!          Trim call TrimTrailingBlanks()
-command! -nargs=1 Bufdel call Bufdel(<args>)
-command! -nargs=1 Bufkeep call Bufkeep(<args>)
+
+command! -nargs=1 -bang Bdelete call Bdelete('<bang>', <args>)
+command! -nargs=1 -bang Bkeep call Bkeep('<bang>', <args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -112,7 +113,7 @@ nnoremap <leader>.    :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
 nnoremap <leader>F    :Fmt<cr>
 nnoremap <leader>L    :Lint<cr>
-nnoremap <leader>b    :buffers!<cr>
+nnoremap <leader>b    :buffers<cr>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>ge   :split <cfile><cr>
@@ -404,31 +405,37 @@ function! TrimTrailingBlanks() abort
 	call setpos('.', last_pos)
 endfunction
 
-" Bufdel() deletes buffers matching a given regular expression.
-function! Bufdel(regexp) abort
+" Bdelete() deletes buffers matching a given regular expression.
+" If called with ! it will wipeout all the matching buffers.
+function! Bdelete(bang, regexp) abort
 	let buflist = []
 	for b in getbufinfo()
-		if b.name =~# a:regexp
-			call add(buflist, b.bufnr)
+		if b.listed || a:bang == '!'
+			if b.name =~# a:regexp
+				call add(buflist, b.bufnr)
+			endif
 		endif
 	endfor
 	if !empty(buflist)
-		let expr = 'bwipeout ' . join(buflist, ' ')
+		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
 		echo ':' . expr
 		exe expr
 	endif
 endfunction
 
-" Bufkeep() deletes buffers *not* matching a given regular expression.
-function! Bufkeep(regexp) abort
+" Bkeep() deletes buffers *not* matching a given regular expression.
+" If called with ! it will wipeout all the non-matching buffers.
+function! Bkeep(bang, regexp) abort
 	let buflist = []
 	for b in getbufinfo()
-		if b.name !~# a:regexp
-			call add(buflist, b.bufnr)
+		if b.listed || a:bang == '!'
+			if b.name !~# a:regexp
+				call add(buflist, b.bufnr)
+			endif
 		endif
 	endfor
 	if !empty(buflist)
-		let expr = 'bwipeout ' . join(buflist, ' ')
+		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
 		echo ':' . expr
 		exe expr
 	endif
