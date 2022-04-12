@@ -1,21 +1,23 @@
 #!/bin/sh
-# usage: fts [flags] query
-# Provides full-text indexing and search for plain text and markdown files.
-# See https://www.sqlite.org/fts5.html#full_text_query_syntax for the complete syntax.
-# Flags:
-#   -H Highlight matches for terminal output.
-#   -i Rebuild the file index.
+# usage: fts [options] query
+# Provides full-text indexing and search for plain text and markdown
+# files.
+#
+# See https://www.sqlite.org/fts5.html#full_text_query_syntax for
+# the complete syntax.
+#
+# Options:
+#   -i Rebuild the index.
 #   -n Near search (approximately in the same paragraph).
+#
 
 readonly db=fts.db
 
-hflag=
 iflag=
 nflag=
-while getopts :Hin i
+while getopts :in i
 do
     case $i in
-    H)  hflag=1 ;;
     i)  iflag=1 ;;
     n)  nflag=1 ;;
     \?) sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; exit 2 ;;
@@ -30,14 +32,14 @@ fi
 
 if [ ! -e "$db" ]
 then
-    sqlite3 "$db" <<EOF
-create virtual table files
-    using fts5(file,
-               content,
-               indexed_at unindexed,
-               prefix='2 3 4',
-               tokenize='porter');
-EOF
+    sqlite3 "$db" <<-EOF
+	create virtual table files
+	    using fts5(file,
+	               content,
+	               indexed_at unindexed,
+	               prefix='2 3 4',
+	               tokenize='porter');
+	EOF
 fi
 
 if [ -n "$iflag" ]
@@ -46,39 +48,32 @@ then
     find . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
         while read -r i
         do
-            sqlite3 "$db" <<EOF
-insert into files(file, content, indexed_at)
-    values('$i',
-           '$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")',
-           '$d')
-EOF
+			sqlite3 "$db" <<-EOF
+			insert into files(file, content, indexed_at)
+			    values(
+					'$i',
+					'$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")',
+					'$d'
+				)
+			EOF
         done
 fi
 
 if [ $# -gt 0 ]
 then
-    hfile=
-    hstart=
-    hend=
-    if [ -n "$hflag" ]
-    then
-        hfile="$(tput bold)"
-        hstart="$(tput bold)$(tput setaf 1)"
-        hend="$(tput sgr0)"
-    fi
     q="$*"
     if [ -n "$nflag" ]
     then
         q="NEAR($q, 100)"
     fi
-    sqlite3 -separator ' ' "$db" <<EOF
-select '$hfile' || file || '$hend' || ':',
-    replace(snippet(files, 1, '$hstart', '$hend', '', 12),
-            '
-',
-            ' ')
-from files
-where files match '$q'
-order by rank;
+    sqlite3 -separator '' "$db" <<-EOF
+		select file || '
+		', replace(snippet(files, 1, '', '', '', 30),
+		'
+		', ' ') || '
+		'
+		from files
+		where files match '$q'
+		order by rank;
 EOF
 fi
