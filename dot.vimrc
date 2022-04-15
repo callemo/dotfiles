@@ -18,7 +18,6 @@ set hlsearch
 set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
-set mouse=nvi
 set nobackup
 set noequalalways
 set noexpandtab
@@ -48,9 +47,6 @@ set wildmenu
 
 if has('syntax') && has('eval')
 	packadd! matchit
-endif
-if has('mouse_sgr')
-	set ttymouse=sgr
 endif
 runtime! ftplugin/man.vim
 if exists(':Man')
@@ -128,8 +124,10 @@ elseif has('unix')
 endif
 
 if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j> winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
-	nnoremap <expr> <silent> <c-k> winnr() == 1 ? ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
+	nnoremap <expr> <silent> <c-j> 
+		\ winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
+	nnoremap <expr> <silent> <c-k> 
+		\ winnr() == 1 ? ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
 else
 	nnoremap <silent> <c-j> :wincmd w<cr>
 	nnoremap <silent> <c-k> :wincmd W<cr>
@@ -145,7 +143,7 @@ nnoremap ]q :cnext<cr>
 nnoremap [q :cprevious<cr>
 nnoremap ]t :tabnext<cr>
 nnoremap [t :tabprevious<cr>
-nnoremap yob :set background=<c-r>=&background == 'light' ? 'dark' : 'light'<cr><cr>
+nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<cr><cr>
 nnoremap yoc :setl invcursorline<cr>
 nnoremap yoh :setl invhlsearch<cr>
 nnoremap yol :setl invlist<cr>
@@ -185,13 +183,20 @@ if has('terminal')
 	endif
 endif
 
-nnoremap <a-rightmouse> <leftmouse><c-w>F
+" Mouse
+set mouse=nv
+if has('mouse_sgr')
+	set ttymouse=sgr
+endif
+
 nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
-nnoremap <rightmouse> <leftmouse>*
-nmap <a-leftmouse> <middlemouse>
-vmap <a-leftmouse> <leader>!
 vmap <middlemouse> <leader>!
+nmap <a-leftmouse> <middlemouse>
+vmap <a-leftmouse> <middlemouse>
+
+nnoremap <rightmouse> <leftmouse>*
 vmap <rightmouse> *
+vmap <a-leftmouse> <leader>!
 
 " GetVisualText() returns the text selected in visual mode.
 function! GetVisualText() abort
