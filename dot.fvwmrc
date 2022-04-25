@@ -85,6 +85,7 @@ AddToMenu RootMenu "Menu"    Title
 +                  "XTerm"   Exec exec xterm
 +                  "" Nop
 +                  "Acme"    Exec exec sh -l -c '9start -f "$PLAN9/font/lucsans/typeunicode.9.font"'
++                  "Chrome"  Exec exec chrome
 +                  "Firefox"  Exec exec firefox
 +                  "" Nop
 +                  "Fvwm"    Popup Fvwm-Menu
