@@ -15,14 +15,13 @@ window:
     x: 4
     y: 4
 font:
-  # https://developer.apple.com/fonts/
   normal:
-    family: SF Mono
+    family: Triplicate A Code
     style: Regular
   bold:
-    family: SF Mono
+    family: Triplicate A Code
     style: Medium
-  size: 13
+  size: 14
 colors:
   primary:
     foreground: "#64526F"
