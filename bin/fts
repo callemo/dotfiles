@@ -30,34 +30,31 @@ then
     rm "$db"
 fi
 
-if [ ! -e "$db" ]
-then
-    sqlite3 "$db" <<-EOF
-	create virtual table files
-	    using fts5(file,
-	               content,
-	               indexed_at unindexed,
-	               prefix='2 3 4',
-	               tokenize='porter');
-	EOF
-fi
+{
+	if [ ! -e "$db" ]
+	then
+	    cat <<-EOF
+		CREATE VIRTUAL TABLE files USING fts5(FILE,
+		                                      content,
+		                                      indexed_at unindexed,
+		                                      PREFIX='2 3 4',
+		                                      tokenize='porter');
+		EOF
+	fi
 
-if [ -n "$iflag" ]
-then
-    d="$(date +%s)"
-    find . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
-        while read -r i
-        do
-			sqlite3 "$db" <<-EOF
-			insert into files(file, content, indexed_at)
-			    values(
-					'$i',
-					'$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")',
-					'$d'
-				)
-			EOF
-        done
-fi
+	if [ -n "$iflag" ]
+	then
+	    d="$(date +%s)"
+	    find . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
+	        while read -r i
+	        do
+				cat <<-EOF
+				INSERT INTO files(FILE, content, indexed_at)
+				VALUES('$i', '$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")', '$d');
+				EOF
+	        done
+	fi
+} | sqlite3 "$db"
 
 if [ $# -gt 0 ]
 then
@@ -66,14 +63,15 @@ then
     then
         q="NEAR($q, 100)"
     fi
+
     sqlite3 -separator '' "$db" <<-EOF
-		select file || '
-		', replace(snippet(files, 1, '', '', '', 30),
-		'
-		', ' ') || '
-		'
-		from files
-		where files match '$q'
-		order by rank;
-EOF
+	SELECT FILE || '
+			',
+	               replace(snippet(files, 1, '', '', '', 30), '
+			', ' ') || '
+			'
+	FROM files
+	WHERE files MATCH '$q'
+	ORDER BY rank;
+	EOF
 fi
