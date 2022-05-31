@@ -64,7 +64,7 @@ then
         q="NEAR($q, 100)"
     fi
 
-    sqlite3 -separator '' "$db" <<-EOF
+    sqlite3 -separator '' "$db" <<-EOF | fold -s
 	SELECT FILE || '
 			',
 	               replace(snippet(files, 1, '', '', '', 30), '
