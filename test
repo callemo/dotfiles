@@ -38,8 +38,8 @@ line2%3A%20word1%20word2%20word3
 line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
 
 	echo
-	echo 'noco:'
-	cat <<'END' | ./bin/noco
+	echo 'nocolor:'
+	cat <<'END' | ./bin/nocolor
 [30mBlack[0m
 [31mRed[0m
 [32mGreen[0m
@@ -136,7 +136,7 @@ line1: word1 word2 word3
 line2: word1 word2 word3
 line2: word1 word2 word3
 
-noco:
+nocolor:
 Black
 Red
 Green
