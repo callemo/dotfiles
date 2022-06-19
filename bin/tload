@@ -1,0 +1,12 @@
+#!/bin/sh
+# tload: loads a tmux dump
+
+f="${1:-$HOME/tmux.dump}"
+awk 'BEGIN { l = -1 }
+     NR == 1 { printf("tmux new-session -c '\''%s'\''\n", $1) }
+     NR > 1  { if (l != $1 ) {
+                   printf("tmux new-window -c '\''%s'\''\n", $3)
+                   l = $1
+               } else {
+                   printf("tmux split-window -c '\''%s'\''\n", $3)
+               } }' "$f"
