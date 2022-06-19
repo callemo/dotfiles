@@ -18,11 +18,12 @@ set hlsearch
 set laststatus=2
 set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
-set mouse=nvi
 set nobackup
 set noequalalways
 set noexpandtab
 set nofoldenable
+set noshowcmd
+set noshowmode
 set noswapfile
 set notimeout
 set nottimeout
@@ -32,7 +33,6 @@ set path=.,,
 set sessionoptions-=options
 set shiftwidth=4
 set shortmess=atI
-set showcmd
 set softtabstop=4
 set splitbelow
 set splitright
@@ -49,9 +49,6 @@ set wildmenu
 if has('syntax') && has('eval')
 	packadd! matchit
 endif
-if has('mouse_sgr')
-	set ttymouse=sgr
-endif
 runtime! ftplugin/man.vim
 if exists(':Man')
 	set keywordprg=:Man
@@ -63,17 +60,12 @@ let mapleader = ' '
 
 let g:loaded_netrw = 1 " disable netrw
 let g:loaded_netrwPlugin = 1
-
-let NERDTreeDirArrowCollapsible='-'
-let NERDTreeDirArrowExpandable='+'
-let NERDTreeShowHidden=1
-
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
 augroup dotfiles
 	autocmd!
-	autocmd BufReadPost * exe 'silent! norm! g''"'
+	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
@@ -100,7 +92,9 @@ command! -nargs=+ -complete=file -range
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
 command!          Trim call TrimTrailingBlanks()
-command! -nargs=+ Bx call Bx(<f-args>)
+
+command! -nargs=1 -bang Bdelete call Bdelete('<bang>', <args>)
+command! -nargs=1 -bang Bkeep call Bkeep('<bang>', <args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -109,22 +103,22 @@ endif
 nmap <down> <c-d>
 nmap <up> <c-u>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<cr>
-nnoremap gf :below wincmd F<cr>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<cr><c-l>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<cr>
 nnoremap <leader><cr> :Send<cr>
-nnoremap <leader>B    :NERDTreeToggle<cr>
 nnoremap <leader>F    :Fmt<cr>
 nnoremap <leader>L    :Lint<cr>
 nnoremap <leader>b    :buffers<cr>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
-nnoremap <leader>gf   :split <cfile><cr>
-nnoremap <leader>p    "*p
+nnoremap <leader>gf   :drop <cfile><cr>
 nnoremap <leader>r    :registers<cr>
-nnoremap <leader>y    "*y
+
+noremap <leader>p :r!tmux show-buffer
+noremap <leader>x !'mtmux load-buffer -
+noremap <leader>y !'mtmux load-buffer -u
 
 if has('macunix')
 	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
@@ -133,8 +127,10 @@ elseif has('unix')
 endif
 
 if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j> winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
-	nnoremap <expr> <silent> <c-k> winnr() == 1 ? ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
+	nnoremap <expr> <silent> <c-j> 
+		\ winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
+	nnoremap <expr> <silent> <c-k> 
+		\ winnr() == 1 ? ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
 else
 	nnoremap <silent> <c-j> :wincmd w<cr>
 	nnoremap <silent> <c-k> :wincmd W<cr>
@@ -150,7 +146,7 @@ nnoremap ]q :cnext<cr>
 nnoremap [q :cprevious<cr>
 nnoremap ]t :tabnext<cr>
 nnoremap [t :tabprevious<cr>
-nnoremap yob :set background=<c-r>=&background == 'light' ? 'dark' : 'light'<cr><cr>
+nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<cr><cr>
 nnoremap yoc :setl invcursorline<cr>
 nnoremap yoh :setl invhlsearch<cr>
 nnoremap yol :setl invlist<cr>
@@ -190,19 +186,25 @@ if has('terminal')
 	endif
 endif
 
-nnoremap <c-leftmouse> <leftmouse>gF
-nnoremap <c-rightmouse> <c-o>
+" Mouse
+set mouse=nv
+if has('mouse_sgr')
+	set ttymouse=sgr
+endif
+
 nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
-nnoremap <rightmouse> <leftmouse>*
-nmap <c-a-leftmouse> <middlemouse>
-vmap <c-a-leftmouse> <leader>!
 vmap <middlemouse> <leader>!
+nmap <a-leftmouse> <middlemouse>
+vmap <a-leftmouse> <middlemouse>
+
+nnoremap <rightmouse> <leftmouse>*
 vmap <rightmouse> *
+vmap <a-leftmouse> <leader>!
 
 " GetVisualText() returns the text selected in visual mode.
 function! GetVisualText() abort
 	let reg = @"
-	exe 'normal! vgvy'
+	silent normal! vgvy
 	let text = @"
 	let @" = reg
 	return text
@@ -227,9 +229,8 @@ endfunction
 function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
-		let bufnr = bufadd(bufname)
-		call bufload(bufnr)
-		call setbufvar(bufnr, '&buflisted', 1)
+		let bufnr = bufnr(bufname, 1)
+		call setbufvar(bufnr, '&buflisted', 0)
 		call setbufvar(bufnr, '&buftype', 'nofile' )
 		call setbufvar(bufnr, '&number', 0)
 		call setbufvar(bufnr, '&swapfile', 0)
@@ -256,12 +257,14 @@ endfunction
 " StartAsyncCmd() asynchronously execute a command.
 function! StartAsyncCmd(range, line1, line2, cmd) abort
 	let bufname = MakeTempBuffer()
-	let opts = { 'in_io': 'null', 'mode': 'raw',
+	let opts = {
+		\ 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
 		\ 'callback': 'AsyncCmdOutputHandler',
 		\ 'close_cb': 'AsyncCmdCloseHandler',
-		\ 'exit_cb': 'AsyncCmdExitHandler' }
+		\ 'exit_cb': 'AsyncCmdExitHandler'
+		\ }
 	if a:range > 0
 		let opts.in_io = 'buffer'
 		let opts.in_buf = bufnr('%')
@@ -271,7 +274,15 @@ function! StartAsyncCmd(range, line1, line2, cmd) abort
 	let job = job_start([&sh, &shcf, a:cmd], opts)
 	let pid = job_info(job).process
 	let name = split(a:cmd)[0]
-	let g:cmd_async_tasks[pid] = { 'name': name, 'output': 0, 'exited': -1, 'closed': 0 }
+	if !exists('g:cmd_async_tasks')
+		let g:cmd_async_tasks = {}
+	endif
+	let g:cmd_async_tasks[pid] = {
+		\ 'name': name,
+		\ 'output': 0,
+		\ 'exited': -1,
+		\ 'closed': 0
+		\ }
 endfunction
 
 " AsyncCmdOutputHandler() job output handler.
@@ -401,15 +412,40 @@ function! TrimTrailingBlanks() abort
 	call setpos('.', last_pos)
 endfunction
 
-function! Bx(regexp, command) abort
-	let prev = bufnr('%')
-	for b in getbufinfo({'buflisted': 1})
-		if b.name =~# a:regexp
-			exe 'buffer' b.bufnr
-			exe a:command
+" Bdelete() deletes buffers matching a given regular expression.
+" If called with ! it will wipeout all the matching buffers.
+function! Bdelete(bang, regexp) abort
+	let buflist = []
+	for b in getbufinfo()
+		if b.listed || a:bang == '!'
+			if b.name =~# a:regexp
+				call add(buflist, b.bufnr)
+			endif
 		endif
 	endfor
-	exe buflisted(prev) ? 'buffer ' . prev : 'bfirst'
+	if !empty(buflist)
+		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
+		echo ':' . expr
+		exe expr
+	endif
+endfunction
+
+" Bkeep() deletes buffers *not* matching a given regular expression.
+" If called with ! it will wipeout all the non-matching buffers.
+function! Bkeep(bang, regexp) abort
+	let buflist = []
+	for b in getbufinfo()
+		if b.listed || a:bang == '!'
+			if b.name !~# a:regexp
+				call add(buflist, b.bufnr)
+			endif
+		endif
+	endfor
+	if !empty(buflist)
+		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
+		echo ':' . expr
+		exe expr
+	endif
 endfunction
 
 if exists('$DOTFILES')
@@ -419,6 +455,11 @@ elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
 	colorscheme basic
 endif
+
+let NERDTreeDirArrowCollapsible=''
+let NERDTreeDirArrowExpandable=''
+let NERDTreeShowHidden=1
+nnoremap <leader>B :NERDTreeToggleVCS<cr>
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
