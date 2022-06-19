@@ -22,6 +22,8 @@ set nobackup
 set noequalalways
 set noexpandtab
 set nofoldenable
+set noshowcmd
+set noshowmode
 set noswapfile
 set notimeout
 set nottimeout
@@ -31,7 +33,6 @@ set path=.,,
 set sessionoptions-=options
 set shiftwidth=4
 set shortmess=atI
-set showcmd
 set softtabstop=4
 set splitbelow
 set splitright
@@ -64,7 +65,7 @@ let g:cmd_async_tasks = {}
 
 augroup dotfiles
 	autocmd!
-	autocmd BufReadPost * exe 'silent! norm! g''"'
+	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
@@ -113,9 +114,11 @@ nnoremap <leader>b    :buffers<cr>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>gf   :drop <cfile><cr>
-nnoremap <leader>p    "*p
 nnoremap <leader>r    :registers<cr>
-nnoremap <leader>y    "*y
+
+noremap <leader>p :r!tmux show-buffer
+noremap <leader>x !'mtmux load-buffer -
+noremap <leader>y !'mtmux load-buffer -u
 
 if has('macunix')
 	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
@@ -201,7 +204,7 @@ vmap <a-leftmouse> <leader>!
 " GetVisualText() returns the text selected in visual mode.
 function! GetVisualText() abort
 	let reg = @"
-	exe 'normal! vgvy'
+	silent normal! vgvy
 	let text = @"
 	let @" = reg
 	return text

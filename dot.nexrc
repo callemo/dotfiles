@@ -1,0 +1,10 @@
+set autoindent
+set cedit=
+set extended
+set shiftwidth=4
+set tabstop=4
+
+map  p :r!tmux show-buffer
+map  x !'mtmux load-buffer -
+map  y !'mtmux load-buffer -u
+map * 

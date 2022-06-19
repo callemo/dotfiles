@@ -1,4 +1,5 @@
 XTerm*loginShell:true
+XTerm*allowMouseOps: true
 
 !XTerm*font: -*-fixed-medium-*-*-*-18-*-*-*-*-*-*-*
 !XTerm*background: gray20
