@@ -1,17 +1,21 @@
 #!/bin/sh
-# tdump: dumps tmux's session windows, and panes.
+# tdump: dumps tmux's session windows, and panes
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
 
 f="${1:-$HOME/tmux.dump}"
+t=/tmp/tdump.$$
+
+trap 'rm -f "$t"' 0
 
 {
-	tmux display -p '#S	#{session_path}' || fatal 'no session'
+	tmux display -p '#{session_path}' || fatal 'no session'
 	tmux list-windows -F '#{window_index}' | awk '
-	BEGIN { f = "#{window_index}	#{window_name}	#{pane_index}" \
+	BEGIN { f = "#{window_index}	#{pane_index}" \
 				"	#{pane_current_path}" }
 		  { system("tmux list-panes -t " $1 " -F '\''" f "'\''") }'
-} >"$f"
+} >"$t"
+mv "$t" "$f"
 
