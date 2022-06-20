@@ -1,5 +1,5 @@
 #!/bin/sh
-# tdump: dumps tmux's session windows, and panes
+# tmux-dump: saves a tmux session
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }

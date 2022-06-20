@@ -1,0 +1,15 @@
+#!/bin/sh
+# tmux-load: loads a tmux session
+
+f="${1:-$HOME/tmux.dump}"
+awk 'BEGIN   { last = -1 }
+     NR == 1 { cmd = sprintf("tmux new -c '\''%s'\''", $1) }
+     NR > 1  { if (last != $1 ) {
+                   if (last != 0 )
+                       cmd = cmd sprintf(" \\; neww -c '\''%s'\''", $3)
+                   last = $1
+               } else {
+                   cmd = cmd sprintf(" \\; splitw -c '\''%s'\''", $3)
+               } }
+     END     { cmd = cmd " \\; selectw -t 0"
+               system(cmd) }' "$f"
