@@ -9,14 +9,18 @@ f="${1:-$HOME/tmux.dump}"
 t=/tmp/tmux-dump.$$
 trap 'rm -f "$t"' 0
 
+d='          '
 {
 	tmux display -p '#{session_path}' || fatal 'no session'
 
-    tmux lsw -F '#{window_index}	#{window_flags}	#{window_name}	#{window_layout}' |
-        awk 'BEGIN { FS = OFS = "\t" }
-        	{ "tmux show -w -v -t " $1 " automatic-rename" | getline ar
-        	print "w", $1, $2, $3, ar, $4 }' |
-        awk 'BEGIN { f = "#{window_index}	#{pane_index}	#{pane_current_path}" }
-		    { system("tmux lsp -t " $2 " -F '\''" f "'\''") }'
+    tmux lsw -F '#{window_index}'"$d"'#{window_flags}'"$d"'#{window_name}'"$d"'#{window_layout}' |
+        awk 'BEGIN { FS = OFS = "'"$d"'" }
+             { "tmux show -w -v -t " $1 " automatic-rename" | getline ar
+               print "w", $1, $2, $3, ar, $4 }' |
+        awk 'BEGIN { f = "p'"$d"'#{window_index}'"$d"'#{pane_index}'"$d"'#{pane_current_path}" }
+		     { windows[NR] = $0
+		       system("tmux lsp -t " $2 " -F '\''" f "'\''") }
+		     END { for (i = 1; i <= NR; i++)
+		               print(windows[i]) }'
 } >"$t"
 cat "$t" >"$f"
