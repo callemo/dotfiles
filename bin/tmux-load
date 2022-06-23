@@ -5,18 +5,22 @@ f="${1:-$HOME/tmux.dump}"
 d='          '
 
 awk '
-BEGIN   { FS = "'"$d"'"; last = -1 }
-NR == 1 { cmd = sprintf("tmux new -c '\''%s'\''", $1) }
+BEGIN   { FS = "'"$d"'"; prev = -1 }
+NR == 1 { spath = $0 }
+NR == 2 { sname = $0
+          cmd = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''", sname, spath)  }
 
 $1 == "p"  {
     win = $2
 
-    if (win == last )
-        cmd = cmd sprintf(" \\; splitw -c '\''%s'\''", $4)
-    else
-        cmd = cmd sprintf(" \\; neww -c '\''%s'\''", $4)
+    if (win != 0) {
+        if (win == prev )
+            cmd = cmd sprintf(" \\; splitw -d -c '\''%s'\''", $4)
+        else
+            cmd = cmd sprintf(" \\; neww -d -c '\''%s'\''", $4)
+    }
 
-    last = win
+    prev = win
 }
 
 $1 == "w" {
@@ -31,5 +35,5 @@ $1 == "w" {
     # cmd = cmd sprintf(" \\; selectl -t %d '\''%s'\''", win, $6)
 }
 
-END     { cmd = cmd " \\; selectw -t " active
+END     { cmd = cmd " \\; selectw -t " active " \\; attach"
           system(cmd) }' "$f"
