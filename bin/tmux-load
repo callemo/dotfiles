@@ -7,32 +7,30 @@ awk '
 BEGIN   { FS = "'"$d"'"; prev = -1 }
 NR == 1 { spath = $0 }
 NR == 2 { sname = $0
-          cmd1 = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''", sname, spath)
+          cmd1 = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''\\;", sname, spath)
           cmd2 = "tmux"  }
 
 $1 == "p"  {
-    win = $2; pane = $3
-
-    if (win != 0) {
-        if (win == prev )
-            cmd1 = cmd1 sprintf(" \\; splitw -d -c '\''%s'\''", $4)
-        else
-            cmd1 = cmd1 sprintf(" \\; neww -d -c '\''%s'\''", $4)
+    win = $2
+    if (win == 0) {
+        prev = 0
+        next
     }
-
+    if (win == prev)
+        cmd1 = cmd1 sprintf(" splitw -d -t %d -c '\''%s'\''\\;", win, $4)
+    else
+        cmd1 = cmd1 sprintf(" neww -d -c '\''%s'\''\\;", $4)
     prev = win
 }
 
 $1 == "w" {
     win = $2
-
     if ($3 ~ /\*/)
         active = win
-
     if ($5 == "off")
-        cmd1 = cmd1 sprintf(" \\; renamew -t %d '\''%s'\''", win, $4)
-
-    cmd2 = cmd2 sprintf(" selectl -t %d '\''%s'\''\\;", win, $6)
+        cmd1 = cmd1 sprintf(" renamew -t %d '\''%s'\''\\;", win, $4)
+    if (win != 0)
+        cmd2 = cmd2 sprintf(" selectl -t %d '\''%s'\''\\;", win, $6)
 }
 
 END     { cmd1 = cmd1 " \\; selectw -t " active
