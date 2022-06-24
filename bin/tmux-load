@@ -3,21 +3,21 @@
 
 f="${1:-$HOME/tmux.dump}"
 d='          '
-
 awk '
 BEGIN   { FS = "'"$d"'"; prev = -1 }
 NR == 1 { spath = $0 }
 NR == 2 { sname = $0
-          cmd = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''", sname, spath)  }
+          cmd1 = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''", sname, spath)
+          cmd2 = "tmux"  }
 
 $1 == "p"  {
-    win = $2
+    win = $2; pane = $3
 
     if (win != 0) {
         if (win == prev )
-            cmd = cmd sprintf(" \\; splitw -d -c '\''%s'\''", $4)
+            cmd1 = cmd1 sprintf(" \\; splitw -d -c '\''%s'\''", $4)
         else
-            cmd = cmd sprintf(" \\; neww -d -c '\''%s'\''", $4)
+            cmd1 = cmd1 sprintf(" \\; neww -d -c '\''%s'\''", $4)
     }
 
     prev = win
@@ -30,10 +30,12 @@ $1 == "w" {
         active = win
 
     if ($5 == "off")
-        cmd = cmd sprintf(" \\; renamew -t %d '\''%s'\''", win, $4)
+        cmd1 = cmd1 sprintf(" \\; renamew -t %d '\''%s'\''", win, $4)
 
-    # cmd = cmd sprintf(" \\; selectl -t %d '\''%s'\''", win, $6)
+    cmd2 = cmd2 sprintf(" selectl -t %d '\''%s'\''\\;", win, $6)
 }
 
-END     { cmd = cmd " \\; selectw -t " active " \\; attach"
-          system(cmd) }' "$f"
+END     { cmd1 = cmd1 " \\; selectw -t " active
+          cmd2 = cmd2 " attach"
+          system(cmd1)
+          system(cmd2) }' "$f"
