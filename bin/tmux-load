@@ -7,9 +7,9 @@ awk '
 BEGIN   { FS = "'"$d"'"; prev = -1 }
 NR == 1 { spath = $0 }
 NR == 2 { sname = $0
-          cmd1 = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''\\;", sname, spath)
+          cmd1 = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''\\;",
+                         sname, spath)
           cmd2 = "tmux"  }
-
 $1 == "p"  {
     win = $2
     if (win == 0) {
@@ -22,7 +22,6 @@ $1 == "p"  {
         cmd1 = cmd1 sprintf(" neww -d -c '\''%s'\''\\;", $4)
     prev = win
 }
-
 $1 == "w" {
     win = $2
     if ($3 ~ /\*/)
@@ -32,8 +31,7 @@ $1 == "w" {
     if (win != 0)
         cmd2 = cmd2 sprintf(" selectl -t %d '\''%s'\''\\;", win, $6)
 }
-
-END     { cmd1 = cmd1 " \\; selectw -t " active
+END     { cmd1 = cmd1 " selectw -t " active
           cmd2 = cmd2 " attach"
           system(cmd1)
           system(cmd2) }' "$f"
