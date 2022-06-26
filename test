@@ -106,7 +106,7 @@ one,"two ,","three "","""' | csvtab
 	echo $?
 
 	echo '--- fsg:'
-	fsg '/(fsg|fts)$'
+	fsg '/(fsg|fts)$' | sort
 	echo $?
 } >test.out
 
@@ -211,8 +211,8 @@ one	two ,	three ","
 }
 0
 --- fsg:
-bin/fts
 bin/fsg
+bin/fts
 0
 EOF
 
