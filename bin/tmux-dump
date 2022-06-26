@@ -5,13 +5,17 @@ prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
 
+fs='          '
+wfmt="w$fs#{window_index}$fs#{window_flags}$fs#{automatic-rename}$fs#{window_name}$fs#{window_layout}"
+pfmt="p$fs#{window_index}$fs#{pane_index}$fs#{pane_current_path}"
 f="${1:-$HOME/tmux.dump}"
-
 t=/tmp/tmux-dump.$$
+
 trap 'rm -f "$t"' 0
 
 path=$(tmux display -p '#{session_path}')
 [ -z "$path" ] && fatal 'no session path'
+
 name=$(tmux display -p '#{session_name}')
 [ -z "$name" ] && fatal 'no session name'
 
@@ -19,14 +23,9 @@ name=$(tmux display -p '#{session_name}')
 	echo "$path"
 	echo "$name"
 
-    d='          '
-    tmux lsw -F '#{window_index}'"$d"'#{window_flags}'"$d"'#{window_name}'"$d"'#{window_layout}' |
-        awk 'BEGIN { FS = OFS = "'"$d"'" }
-             { "tmux show -w -v -t '"$name"':" $1 " automatic-rename" | getline ar
-               print "w", $1, $2, $3, ar, $4 }' |
-        awk 'BEGIN { f = "p'"$d"'#{window_index}'"$d"'#{pane_index}'"$d"'#{pane_current_path}" }
-		     { windows[NR] = $0
-		       system("tmux lsp -t " $2 " -F '\''" f "'\''") }
+    tmux lsw -F "$wfmt" |
+        awk '{ windows[NR] = $0
+		       system("tmux lsp -t " $2 " -F '\'"$pfmt"\''") }
 		     END { for (i = 1; i <= NR; i++)
 		               print(windows[i]) }'
 } >"$t"

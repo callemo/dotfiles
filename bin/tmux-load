@@ -1,10 +1,8 @@
 #!/bin/sh
 # tmux-load: loads a tmux session
 
-f="${1:-$HOME/tmux.dump}"
-d='          '
-awk '
-BEGIN   { FS = "'"$d"'"; prev = -1 }
+awk -F'          ' '
+BEGIN   { prev = -1 }
 NR == 1 { spath = $0 }
 NR == 2 { sname = $0
           cmd1 = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''\\;",
@@ -26,12 +24,12 @@ $1 == "w" {
     win = $2
     if ($3 ~ /\*/)
         active = win
-    if ($5 == "off")
-        cmd1 = cmd1 sprintf(" renamew -t %d '\''%s'\''\\;", win, $4)
+    if ($4 == 0)
+        cmd1 = cmd1 sprintf(" renamew -t %d '\''%s'\''\\;", win, $5)
     if (win != 0)
         cmd2 = cmd2 sprintf(" selectl -t %d '\''%s'\''\\;", win, $6)
 }
-END     { cmd1 = cmd1 " selectw -t " active
-          cmd2 = cmd2 " attach"
-          system(cmd1)
-          system(cmd2) }' "$f"
+END {
+    system(cmd1 " selectw -t " active)
+    system(cmd2 " attach")
+}' "${1:-$HOME/tmux.dump}"
