@@ -1,11 +1,8 @@
 XTerm*loginShell:true
 XTerm*allowMouseOps: true
 
-!XTerm*font: -*-fixed-medium-*-*-*-18-*-*-*-*-*-*-*
-!XTerm*background: gray20
-!XTerm*foreground: white
+XTerm*font: -*-fixed-*-*-*-*-18-*-*-*-*-*-*-*
 XTerm*termName: xterm-256color
-XTerm*faceName: Dejavu Sans Mono:size=11
 XTerm*background: #fff7e9
 
 *Scrollbar.translations: #override \n\
