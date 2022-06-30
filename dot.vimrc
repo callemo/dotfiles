@@ -8,20 +8,18 @@ set commentstring=#%s
 set complete-=i
 set completeopt-=preview
 set confirm
-set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
-set hlsearch
 set laststatus=2
-set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
 set noequalalways
 set noexpandtab
 set nofoldenable
+set noincsearch
 set noshowcmd
 set noshowmode
 set noswapfile
@@ -30,6 +28,7 @@ set nottimeout
 set nowritebackup
 set nrformats-=octal
 set path=.,,
+set scrolloff=0
 set sessionoptions-=options
 set shiftwidth=4
 set shortmess=atI
@@ -116,9 +115,9 @@ nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>gf   :drop <cfile><cr>
 nnoremap <leader>r    :registers<cr>
 
-noremap <leader>p :r!tmux show-buffer
-noremap <leader>x !'mtmux load-buffer -
-noremap <leader>y !'mtmux load-buffer -u
+noremap <leader>p :r!tmux showb
+noremap <leader>x !'mtmux loadb -
+noremap <leader>y !'mtmux loadb -u
 
 if has('macunix')
 	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
@@ -128,9 +127,9 @@ endif
 
 if !empty($TMUX)
 	nnoremap <expr> <silent> <c-j> 
-		\ winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
+		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<cr>' : ':wincmd w<cr>'
 	nnoremap <expr> <silent> <c-k> 
-		\ winnr() == 1 ? ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
+		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<cr>' : ':wincmd W<cr>'
 else
 	nnoremap <silent> <c-j> :wincmd w<cr>
 	nnoremap <silent> <c-k> :wincmd W<cr>
@@ -176,10 +175,10 @@ if has('terminal')
 	tnoremap <scrollwheelup> <c-\><c-n>
 	tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
 	if !empty($TMUX)
-		tnoremap <expr> <silent> <c-j> winnr() == winnr('$') ?
-					\ '<c-w>:silent !tmux selectp -t :.+<cr>' : '<c-w>:wincmd w<cr>'
-		tnoremap <expr> <silent> <c-k> winnr() == 1 ?
-					\ '<c-w>:silent !tmux selectp -t :.-<cr>' : '<c-w>:wincmd W<cr>'
+		tnoremap <expr> <silent> <c-j>
+					\ winnr() == winnr('$') ? '<c-w>:call system("tmux selectp -t :.+")<cr>' : '<c-w>:wincmd w<cr>'
+		tnoremap <expr> <silent> <c-k>
+					\ winnr() == 1 ?'<c-w>:call system("tmux selectp -t :.-")<cr>' : '<c-w>:wincmd W<cr>'
 	else
 		tnoremap <silent> <c-j> <c-w>:wincmd w<cr>
 		tnoremap <silent> <c-k> <c-w>:wincmd W<cr>
