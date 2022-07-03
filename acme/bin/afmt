@@ -17,7 +17,14 @@ err=/tmp/afmterr.$$
 trap 'rm -f "$in" "$out" "$err"; exit 1' 1 2 15
 
 9p read "acme/$winid/body" >"$in"
-type="${samfile##*.}"
+
+if [ $# -gt 0 ]
+then
+	type="$1"
+else
+	type="${samfile##*.}"
+fi
+
 case $type in
 go)
 	goimports <"$in" >"$out" 2>"$err" || {
