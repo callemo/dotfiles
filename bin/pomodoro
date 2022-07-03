@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""pomodoro: Pomodoro timer"""
+
+import time
+
+MAX = 8
+
+
+def output(msg):
+    print(msg, end="", flush=True)
+
+
+def run():
+    for i in range(1, MAX + 1):
+        output(f"{i}\t")
+        for _ in range(25):
+            time.sleep(60)
+            output(".")
+        output("\x07")
+        input()
+        output("\t")
+        for _ in range(5):
+            time.sleep(60)
+            output(".")
+        output("\x07")
+        input()
+
+
+try:
+    run()
+except KeyboardInterrupt:
+    pass
