@@ -66,6 +66,7 @@ augroup dotfiles
 	autocmd!
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
+	autocmd BufWritePre * :call TrimTrailingBlanks()
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
 	autocmd InsertLeave,WinEnter * setl cursorline
@@ -90,7 +91,6 @@ command! -nargs=+ -complete=file -range
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
-command!          Trim call TrimTrailingBlanks()
 
 command! -nargs=1 -bang Bdelete call Bdelete('<bang>', <args>)
 command! -nargs=1 -bang Bkeep call Bkeep('<bang>', <args>)
@@ -126,9 +126,9 @@ elseif has('unix')
 endif
 
 if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j> 
+	nnoremap <expr> <silent> <c-j>
 		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<cr>' : ':wincmd w<cr>'
-	nnoremap <expr> <silent> <c-k> 
+	nnoremap <expr> <silent> <c-k>
 		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<cr>' : ':wincmd W<cr>'
 else
 	nnoremap <silent> <c-j> :wincmd w<cr>
@@ -229,7 +229,7 @@ function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
 		let bufnr = bufnr(bufname, 1)
-		call setbufvar(bufnr, '&buflisted', 0)
+		call setbufvar(bufnr, '&buflisted', 1)
 		call setbufvar(bufnr, '&buftype', 'nofile' )
 		call setbufvar(bufnr, '&number', 0)
 		call setbufvar(bufnr, '&swapfile', 0)
