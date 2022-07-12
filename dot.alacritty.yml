@@ -14,14 +14,16 @@ window:
   padding:
     x: 4
     y: 4
+
+# https://levien.com/type/myfonts/inconsolata.html
 font:
   normal:
-    family: Triplicate A Code
-    style: Regular
-  bold:
-    family: Triplicate A Code
+    family: Inconsolata
     style: Medium
-  size: 14
+  bold:
+    family: Inconsolata
+    style: Bold
+  size: 15
 
 # https://github.com/aarowill/base16-alacritty/blob/master/colors/base16-default-dark-256.yml
 colors:
