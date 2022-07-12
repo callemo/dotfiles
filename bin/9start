@@ -17,15 +17,15 @@ case $(uname) in
 Darwin)
 	export SHELL=/bin/dash
 	export acmeshell=/bin/dash
+	pgrep -q fontsrv || fontsrv &
 	varfont="/lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font"
-	if 9p ls font | grep -Eq '^SFMono-Medium$'
+	if fontsrv -p . | grep -Eq '^SFMono-Medium/?$'
 	then
 		fixfont="/lib/font/bit/lucm/unicode.9.font,/mnt/font/SFMono-Medium/28a/font"
 	else
 		fixfont="/lib/font/bit/lucm/unicode.9.font,/mnt/font/Menlo-Regular/28a/font"
 	fi
 	set -- -f "$varfont" -F "$fixfont" "$@"
-	pgrep -q fontsrv || fontsrv &
 	;;
 esac
 
