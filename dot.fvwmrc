@@ -81,38 +81,38 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
 # Menus
-AddToMenu RootMenu "Menu"    Title
+AddToMenu RootMenu "Fvwm"    Title
++                  "9term"   Exec exec sh -l -c 'exec 9term'
++                  "Acme"    Exec exec sh -l -c 'exec 9start -f "$PLAN9/font/lucm/unicode.9.font"'
++                  "Chrome"  Exec exec chrome
 +                  "XTerm"   Exec exec xterm
 +                  "" Nop
-+                  "Acme"    Exec exec sh -l -c '9start -f "$PLAN9/font/lucm/unicode.9.font"'
-+                  "Chrome"  Exec exec chrome
-+                  "" Nop
-+                  "Fvwm"    Popup Fvwm-Menu
-+                  "" Nop
++                  "Restart fvwm" Restart fvwm
 +                  "Lock"    Exec exec xlock
 +                  "Exit"    Module FvwmForm QuitVerify
 
-AddToMenu Fvwm-Menu "Fvwm"                     Title
-+                   "Sloppy Focus"             ChangeDefaultFocus SloppyFocus
-+                   "Click To Focus"           ChangeDefaultFocus ClickToFocus
-+                   "Focus Follows Mouse"      ChangeDefaultFocus FocusFollowsMouse
-+                   "" Nop
-+                   "Colormap Follows Mouse"   ColormapFocus FollowsMouse
-+                   "Colormap Follows Focus"   ColormapFocus FollowsFocus
-+                   "" Nop
-+                   "Full Paging ON"           EdgeScroll 100 100
-+                   "All Paging OFF"           EdgeScroll 0 0
-+                   "Horizontal Paging Only"   EdgeScroll 100 0
-+                   "Vertical Paging Only"     EdgeScroll 0 100
-+                   "Partial Paging"           EdgeScroll 50 50
-+                   "Full Paging && Edge Wrap" EdgeScroll 100000 100000
-+                   "" Nop
-+                   "Modules"                  Popup Module-Popup
-+                   "" Nop
-+                   "Refresh Screen"           Refresh
-+                   "Recapture Screen"         Recapture
-+                   "" Nop
-+                   "Restart"                  Restart fvwm
+
+# AddToMenu Fvwm-Menu "Fvwm"                     Title
+# +                   "Sloppy Focus"             ChangeDefaultFocus SloppyFocus
+# +                   "Click To Focus"           ChangeDefaultFocus ClickToFocus
+# +                   "Focus Follows Mouse"      ChangeDefaultFocus FocusFollowsMouse
+# +                   "" Nop
+# +                   "Colormap Follows Mouse"   ColormapFocus FollowsMouse
+# +                   "Colormap Follows Focus"   ColormapFocus FollowsFocus
+# +                   "" Nop
+# +                   "Full Paging ON"           EdgeScroll 100 100
+# +                   "All Paging OFF"           EdgeScroll 0 0
+# +                   "Horizontal Paging Only"   EdgeScroll 100 0
+# +                   "Vertical Paging Only"     EdgeScroll 0 100
+# +                   "Partial Paging"           EdgeScroll 50 50
+# +                   "Full Paging && Edge Wrap" EdgeScroll 100000 100000
+# +                   "" Nop
+# +                   "Modules"                  Popup Module-Popup
+# +                   "" Nop
+# +                   "Refresh Screen"           Refresh
+# +                   "Recapture Screen"         Recapture
+# +                   "" Nop
+# +                   "Restart"                  Restart fvwm
 
 AddToMenu Window-Ops "Window"       Title
 + "Move"         Move
