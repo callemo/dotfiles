@@ -1,7 +1,6 @@
 #!/bin/sh
-# tmux-yank: copies buffer to the terminal's clipboard using the OSC 52
-# ANSI escape sequence
+# tmux-yank: copies buffer contents to the clipboard
 
 tty="$(tmux display -p '#{pane_tty}')"
 data="$(tmux showb | base64 | tr -d '\n')"
-printf '\033Ptmux;\033\033]52;c;'"$data"'\a\033\\' >"$tty"
+printf '\033Ptmux;\033\033]52;c;%s\a\033\\' "$data" >"$tty"
