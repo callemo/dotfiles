@@ -82,7 +82,6 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 
 # Menus
 AddToMenu RootMenu "Fvwm"    Title
-+                  "9term"   Exec exec sh -l -c 'exec 9term'
 +                  "Acme"    Exec exec sh -l -c 'exec 9start -f "$PLAN9/font/lucm/unicode.9.font"'
 +                  "Chrome"  Exec exec chrome
 +                  "XTerm"   Exec exec xterm
