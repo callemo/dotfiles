@@ -17,7 +17,7 @@ $1 == "p"  {
     if (win == prev)
         cmd1 = cmd1 sprintf(" splitw -d -t %d -c '\''%s'\''\\;", win, $4)
     else
-        cmd1 = cmd1 sprintf(" neww -d -c '\''%s'\''\\;", $4)
+        cmd1 = cmd1 sprintf(" neww -d -t %d -c '\''%s'\''\\;", win, $4)
     prev = win
 }
 $1 == "w" {
