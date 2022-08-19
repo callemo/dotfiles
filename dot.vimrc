@@ -92,8 +92,7 @@ command! -nargs=+ -complete=file -range
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
 
-command! -nargs=1 -bang Bdelete call Bdelete('<bang>', <args>)
-command! -nargs=1 -bang Bkeep call Bkeep('<bang>', <args>)
+command! -nargs=1 -bang Bdelete call Bdelete('<bang>', <q-args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -115,9 +114,8 @@ nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>gf   :drop <cfile><cr>
 nnoremap <leader>r    :registers<cr>
 
-noremap <leader>p :r!tmux showb
-noremap <leader>x !'mtmux loadb -
-noremap <leader>y !'mtmux loadb -u
+nnoremap <leader>p    "*p
+nnoremap <leader>yy    "*yy
 
 if has('macunix')
 	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
@@ -429,24 +427,6 @@ function! Bdelete(bang, regexp) abort
 	endif
 endfunction
 
-" Bkeep() deletes buffers *not* matching a given regular expression.
-" If called with ! it will wipeout all the non-matching buffers.
-function! Bkeep(bang, regexp) abort
-	let buflist = []
-	for b in getbufinfo()
-		if b.listed || a:bang == '!'
-			if b.name !~# a:regexp
-				call add(buflist, b.bufnr)
-			endif
-		endif
-	endfor
-	if !empty(buflist)
-		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
-		echo ':' . expr
-		exe expr
-	endif
-endfunction
-
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
 	colorscheme basic
@@ -458,7 +438,6 @@ endif
 let NERDTreeDirArrowCollapsible=''
 let NERDTreeDirArrowExpandable=''
 let NERDTreeShowHidden=1
-nnoremap <leader>B :NERDTreeToggleVCS<cr>
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
