@@ -4,7 +4,7 @@
 set -a
 ENV="$DOTFILES/9.sh"
 EDITOR=E
-PAGER='9 p'
+PAGER=nobs
 acmeshell="$SHELL"
 home="$HOME"
 user="$USER"
