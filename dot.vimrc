@@ -29,7 +29,6 @@ set nowritebackup
 set nrformats-=octal
 set path=.,,
 set scrolloff=0
-set sessionoptions-=options
 set shiftwidth=4
 set shortmess=atI
 set softtabstop=4
@@ -113,6 +112,7 @@ nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>gf   :drop <cfile><cr>
 nnoremap <leader>r    :registers<cr>
+nnoremap <leader>t    :call Tmux()<cr>
 
 nnoremap <leader>p    "*p
 nnoremap <leader>yy    "*yy
@@ -342,6 +342,13 @@ endfunction
 " ExecVisualText() executes the selected visual text as the command.
 function! ExecVisualText() abort
 	call Cmd(0, 0, 0, escape(GetVisualText(), '%#'))
+endfunction
+
+" Tmux() swaps the unnamed register with the tmux buffer.
+function! Tmux() abort
+	silent let tmp = system('tmux showb')
+	silent call system('tmux loadb -', @")
+	let @" = tmp
 endfunction
 
 " LintFile() runs a linter for the current file.
