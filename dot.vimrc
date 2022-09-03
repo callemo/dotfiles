@@ -115,7 +115,10 @@ nnoremap <leader>r    :registers<cr>
 nnoremap <leader>t    :call Tmux()<cr>
 
 nnoremap <leader>p    "*p
-nnoremap <leader>yy    "*yy
+nnoremap <leader>y    "*y
+
+nnoremap m<cr> :Cmd make<cr>
+nnoremap m<space> :Cmd make<space>
 
 if has('macunix')
 	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
