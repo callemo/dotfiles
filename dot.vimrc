@@ -108,6 +108,7 @@ nnoremap <leader><cr> :Send<cr>
 nnoremap <leader>F    :Fmt<cr>
 nnoremap <leader>L    :Lint<cr>
 nnoremap <leader>b    :buffers<cr>
+nnoremap <leader>d    :bwipeout<cr>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
 nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
 nnoremap <leader>gf   :drop <cfile><cr>
