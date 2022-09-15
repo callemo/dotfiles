@@ -34,7 +34,7 @@ set shortmess=atI
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=%n:%<%f\ %y%m%r%=[%{fnamemodify(getcwd('%'),':t')}]\ %-14.(%l,%c%V%)\ %P
+set statusline=%n:%<%F\ %y%m%r%=[%{fnamemodify(getcwd('%'),':t')}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,split
 set tabstop=4
 set textwidth=0
