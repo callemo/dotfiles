@@ -1,6 +1,0 @@
-#!/bin/sh
-# tmux-yank: copies buffer contents to the clipboard
-
-tty="$(tmux display -p '#{pane_tty}')"
-data="$(tmux showb | base64 | tr -d '\n')"
-printf '\033Ptmux;\033\033]52;c;%s\a\033\\' "$data" >"$tty"
