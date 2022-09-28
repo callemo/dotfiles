@@ -87,7 +87,7 @@ AddToMenu RootMenu "Fvwm"    Title
 +                  "XTerm"   Exec exec xterm
 +                  "" Nop
 +                  "Restart fvwm" Restart fvwm
-+                  "Lock"    Exec exec xlock -mode matrix
++                  "Lock"    Exec exec xlock -mode lisa
 +                  "Exit"    Module FvwmForm QuitVerify
 
 
