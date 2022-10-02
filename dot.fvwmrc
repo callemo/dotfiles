@@ -8,12 +8,12 @@ EdgeResistance 250 10
 EdgeScroll 100 100
 ClickTime 750
 
-WindowFont -b&h-lucida-bold-r-normal-sans-14-140-75-*-p-92-iso8859-*
+WindowFont -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
 IconFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
 
 HilightColor white #b24d7a
 MenuStyle * Foreground black Background #aeb2c3
-MenuStyle * Font -b&h-lucida-bold-r-normal-sans-14-140-75-*-p-92-iso8859-*
+MenuStyle * Font -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
 
 DeskTopSize 2x2
 
