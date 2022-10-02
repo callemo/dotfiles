@@ -1,7 +1,7 @@
 XTerm*loginShell:true
 XTerm*allowMouseOps: true
 
-XTerm*font: -*-fixed-*-*-*-*-18-*-*-*-*-*-*-*
+XTerm*font: -b&h-lucidatypewriter-bold-r-*-*-14-140-*-*-*-*-iso8859-*
 XTerm*termName: xterm-256color
 XTerm*background: #fff7e9
 

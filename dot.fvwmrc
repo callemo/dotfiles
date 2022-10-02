@@ -83,7 +83,7 @@ AddToFunc RestartFunction "I" Module FvwmPager 0 0
 # Menus
 AddToMenu RootMenu "Fvwm"    Title
 +                  "Acme"    Exec exec sh -l -c 'exec 9start -f "$PLAN9/font/lucm/unicode.9.font"'
-+                  "Chrome"  Exec exec chrome
++                  "Firefox" Exec exec firefox
 +                  "XTerm"   Exec exec xterm
 +                  "" Nop
 +                  "Restart fvwm" Restart fvwm
