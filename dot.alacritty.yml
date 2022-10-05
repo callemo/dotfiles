@@ -30,7 +30,6 @@ selection:
 colors:
   primary:
     background: '#000000'
-    foreground: '#dddddd'
   cursor:
     text: '#000000'
     cursor: '#ffffff'
