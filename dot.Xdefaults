@@ -1,0 +1,21 @@
+XTerm*loginShell:true
+XTerm*allowMouseOps: true
+XTerm*font: -b&h-lucidatypewriter-bold-r-*-*-14-140-*-*-*-*-iso10646-*
+XTerm*termName: xterm-256color
+XTerm*background: #fff7e9
+XTerm*vt100.translations: #override \n\
+    Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
+    Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
+
+*Scrollbar.translations: #override \n\
+    <Btn1Down>:         StartScroll(Backward) \n\
+    <Btn3Down>:         StartScroll(Forward) \n\
+    <BtnUp>:            NotifyScroll(Proportional) EndScroll()
+
+Xft.dpi: 100
+Xft.autohint: 0
+Xft.lcdfilter: lcddefault
+Xft.hintstyle: hintslight
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
