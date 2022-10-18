@@ -35,24 +35,10 @@ fi
 
 if [ "$vim" -eq 1 ]
 then
-	./vim/get https://github.com/preservim/nerdtree
-	./vim/get https://github.com/tpope/vim-commentary
-	./vim/get https://github.com/tpope/vim-dispatch
-	./vim/get https://github.com/tpope/vim-eunuch
-	./vim/get https://github.com/tpope/vim-fugitive
-	./vim/get https://github.com/tpope/vim-obsession
-	./vim/get https://github.com/tpope/vim-repeat
-	./vim/get https://github.com/tpope/vim-surround
-
-	if [ -d ~/.tmux/plugins/tmux-resurrect ]
-	then
-		log "updating tmux-resurrect"
-		git -C ~/.tmux/plugins/tmux-resurrect pull
-	else
-		log "installing tmux-resurrect"
-		git clone https://github.com/tmux-plugins/tmux-resurrect \
-			~/.tmux/plugins/tmux-resurrect
-	fi
+	$progdir/vim/get https://github.com/tpope/vim-commentary
+	$progdir/vim/get https://github.com/tpope/vim-fugitive
+	$progdir/vim/get https://github.com/tpope/vim-repeat
+	$progdir/vim/get https://github.com/tpope/vim-surround
 fi
 
 if [ "$lab" -eq 1 ]
