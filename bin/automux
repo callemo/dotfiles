@@ -1,0 +1,26 @@
+#!/bin/sh
+# autotmux: connect to a remote tmux session automatically
+
+if [ $# -lt 1 ]
+then
+	echo 'usage: automux [ssh_options] destination' >&2
+	exit 1
+fi
+
+cmd='
+if tmux ls; then
+    tmux attach
+elif [ -e $HOME/tmux.dump ]; then
+    $HOME/dotfiles/bin/tmux-load
+else
+    tmux new
+fi'
+
+set -x
+
+while true
+do
+	ssh -t "$@" "$cmd"
+	sleep 5
+done
+
