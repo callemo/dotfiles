@@ -2,7 +2,6 @@ XTerm*loginShell:true
 XTerm*allowMouseOps: true
 XTerm*font: -b&h-lucidatypewriter-bold-r-*-*-14-140-*-*-*-*-iso10646-*
 XTerm*termName: xterm-256color
-XTerm*background: #fff7e9
 XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
