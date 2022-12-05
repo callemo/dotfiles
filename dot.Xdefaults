@@ -1,3 +1,26 @@
+! dot.Xdefaults
+*color0: #073642
+*color1: #dc322f
+*color10: #586e75
+*color11: #657b83
+*color12: #839496
+*color13: #6c71c4
+*color14: #93a1a1
+*color15: #fdf6e3
+*color2: #859900
+*color3: #b58900
+*color4: #268bd2
+*color5: #d33682
+*color6: #2aa198
+*color7: #eee8d5
+*color8: #002b36
+*color9: #cb4b16
+
+*Scrollbar.translations: #override \n\
+    <Btn1Down>:         StartScroll(Backward) \n\
+    <Btn3Down>:         StartScroll(Forward) \n\
+    <BtnUp>:            NotifyScroll(Proportional) EndScroll()
+
 XTerm*loginShell:true
 XTerm*allowMouseOps: true
 XTerm*font: -b&h-lucidatypewriter-bold-r-*-*-14-140-*-*-*-*-iso10646-*
@@ -5,11 +28,6 @@ XTerm*termName: xterm-256color
 XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
-
-*Scrollbar.translations: #override \n\
-    <Btn1Down>:         StartScroll(Backward) \n\
-    <Btn3Down>:         StartScroll(Forward) \n\
-    <BtnUp>:            NotifyScroll(Proportional) EndScroll()
 
 Xft.dpi: 100
 Xft.autohint: 0
