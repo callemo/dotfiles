@@ -1,12 +1,11 @@
 # dot.cwmrc
 borderwidth 4
 color       activeborder black
-color       inactiveborder gray
+color       inactiveborder gray50
 fontname    "-b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*"
 snapdist    4
 
-autogroup   2 acme
-autogroup   3 firefox
+autogroup   1 acme
 
 command     Acme    "/bin/sh -lc 'exec 9start -f $PLAN9/font/lucm/unicode.9.font'"
 command     Firefox firefox
