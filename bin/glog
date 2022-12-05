@@ -1,2 +1,2 @@
 #!/bin/sh
-git log --graph --stat --relative-date "$@"
+git log --graph --stat --date=human "$@"
