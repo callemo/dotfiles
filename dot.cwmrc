@@ -5,11 +5,46 @@ color       inactiveborder gray50
 fontname    "-b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*"
 snapdist    4
 
-autogroup   1 acme
-
-command     Acme    "/bin/sh -lc 'exec 9start -f $PLAN9/font/lucm/unicode.9.font'"
-command     Firefox firefox
+# Applications
+command Acme       "/bin/sh -lc 'exec 9start -f $PLAN9/font/lucm/unicode.9.font'"
+command Clock      xclock
+command Console    "xconsole -geometry 600x130-0-0 -verbose -exitOnFail"
+command Firefox    firefox
+command Python     "xterm -e python3"
 
 ignore xclock
 ignore xconsole
 ignore xload
+
+autogroup 1 acme
+
+# Keyboard
+unbind-key all
+bind-key C4-q     lock
+bind-key S4-q     quit
+bind-key C4-r     restart
+bind-key 4-w      window-close
+bind-key 4-h      window-hide
+bind-key 4-l      window-menu-label
+bind-key 4-Tab    window-cycle
+bind-key S4-Tab   window-rcycle
+bind-key 4-k      menu-ssh
+bind-key 4-n      terminal
+bind-key S4-n     menu-exec
+bind-key 4-slash  menu-window
+bind-key S4-slash menu-cmd
+bind-key 4-K      window-snap-up
+bind-key 4-J      window-snap-down
+bind-key 4-L      window-snap-right
+bind-key 4-H      window-snap-left
+bind-key S4-Up    window-vmaximize
+bind-key S4-Left  window-hmaximize
+
+# Mouse
+unbind-mouse all
+bind-mouse 4-1  window-move
+bind-mouse 4-2  window-resize
+bind-mouse S4-2 window-maximize
+bind-mouse 4-3  window-lower
+bind-mouse S4-3 window-hide
+
