@@ -2,6 +2,10 @@
 borderwidth 4
 color       activeborder black
 color       inactiveborder gray50
+color       font black
+color       selfont white
+color       menubg "#e0e0ff"
+color       menufg "#d0d0ff"
 fontname    "-b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*"
 snapdist    4
 
@@ -38,10 +42,13 @@ bind-key 4-J      window-snap-down
 bind-key 4-L      window-snap-right
 bind-key 4-H      window-snap-left
 bind-key S4-Up    window-vmaximize
+bind-key S4-Down  window-vmaximize
 bind-key S4-Left  window-hmaximize
+bind-key S4-Right window-hmaximize
 
 # Mouse
 unbind-mouse all
+bind-mouse "3"  menu-window
 bind-mouse 4-1  window-move
 bind-mouse 4-2  window-resize
 bind-mouse S4-2 window-maximize
