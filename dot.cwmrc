@@ -1,13 +1,14 @@
 # dot.cwmrc
 borderwidth 4
-color       activeborder "#008888"
-color       inactiveborder "#AAFFFF"
-color       font "#000000"
-color       selfont "#FFFFFF"
-color       menubg "#EEFFEE"
-color       menufg "#448844"
 fontname    "-b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*"
 snapdist    5
+
+color activeborder   "#008888"
+color inactiveborder "#AAFFFF"
+color font           "#000000"
+color selfont        "#FFFFFF"
+color menubg         "#EEFFEE"
+color menufg         "#448844"
 
 # Applications
 command Acme       "/bin/sh -lc 'exec 9start -f $PLAN9/font/lucm/unicode.9.font'"
