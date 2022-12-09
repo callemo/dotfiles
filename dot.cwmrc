@@ -16,6 +16,7 @@ command Clock      xclock
 command Console    "xconsole -geometry 600x130-0-0 -verbose -exitOnFail"
 command Firefox    firefox
 command Python     "xterm -e python3"
+command Stats      "/bin/sh -lc 'exec stats -Cb >/dev/null'"
 
 # Keyboard
 unbind-key all
