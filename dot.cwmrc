@@ -25,6 +25,7 @@ bind-key S4-q     quit
 bind-key C4-r     restart
 bind-key 4-w      window-close
 bind-key 4-h      window-hide
+bind-key 4-f      window-fullscreen
 bind-key 4-l      window-menu-label
 bind-key 4-Tab    window-cycle
 bind-key S4-Tab   window-rcycle
