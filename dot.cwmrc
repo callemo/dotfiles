@@ -11,7 +11,7 @@ color menubg         "#EEFFEE"
 color menufg         "#448844"
 
 # Applications
-command Acme       "/bin/sh -lc 'exec 9start -f $PLAN9/font/lucm/unicode.9.font'"
+command Acme       "/bin/sh -lc 'exec 9start'"
 command Clock      xclock
 command Console    "xconsole -geometry 600x130-0-0 -verbose -exitOnFail"
 command Firefox    firefox
