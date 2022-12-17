@@ -31,9 +31,9 @@ bind-key 4-Tab    window-cycle
 bind-key S4-Tab   window-rcycle
 bind-key 4-k      menu-ssh
 bind-key 4-n      terminal
-bind-key S4-n     menu-exec
+bind-key C4-n     menu-exec
+bind-key S4-n     menu-cmd
 bind-key 4-slash  menu-window
-bind-key S4-slash menu-cmd
 bind-key 4-K      window-snap-up
 bind-key 4-J      window-snap-down
 bind-key 4-L      window-snap-right
