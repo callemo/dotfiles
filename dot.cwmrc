@@ -1,7 +1,7 @@
 # dot.cwmrc
 borderwidth 4
 fontname    "-b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*"
-snapdist    5
+snapdist    8
 
 color activeborder   "#008888"
 color inactiveborder "#AAFFFF"
@@ -42,6 +42,8 @@ bind-key S4-Up    window-vmaximize
 bind-key S4-Down  window-vmaximize
 bind-key S4-Left  window-hmaximize
 bind-key S4-Right window-hmaximize
+bind-key 4-F7     "bin/dock"
+bind-key S4-F7    "bin/undock"
 
 # Mouse
 unbind-mouse all
