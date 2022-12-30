@@ -11,15 +11,13 @@ color menubg         "#EEFFEE"
 color menufg         "#448844"
 
 # Applications
-command Acme       "/bin/sh -lc 'exec 9start'"
-command Clock      xclock
-command Console    "xconsole -geometry 600x130-0-0 -verbose -exitOnFail"
-command Firefox    firefox
-command Python     "xterm -e python3"
-command Stats      "/bin/sh -lc 'exec stats -Cb >/dev/null'"
+command acme       "/bin/sh -lc 'exec 9start'"
+command console    "xconsole -geometry 600x130-0-0 -verbose -exitOnFail"
+command firefox    firefox
 
 # Keyboard
 unbind-key all
+
 bind-key C4-q     lock
 bind-key S4-q     quit
 bind-key C4-r     restart
@@ -34,6 +32,7 @@ bind-key 4-n      terminal
 bind-key C4-n     menu-exec
 bind-key S4-n     menu-cmd
 bind-key 4-slash  menu-window
+
 bind-key 4-K      window-snap-up
 bind-key 4-J      window-snap-down
 bind-key 4-L      window-snap-right
@@ -42,14 +41,35 @@ bind-key S4-Up    window-vmaximize
 bind-key S4-Down  window-vmaximize
 bind-key S4-Left  window-hmaximize
 bind-key S4-Right window-hmaximize
+
 bind-key F7       "bin/dock"
 bind-key S-F7     "bin/undock"
 
 # Mouse
 unbind-mouse all
+
 bind-mouse 4-1  window-move
 bind-mouse 4-2  window-resize
 bind-mouse S4-2 window-maximize
 bind-mouse 4-3  window-lower
 bind-mouse S4-3 window-hide
 
+# Groups
+sticky yes
+
+bind-key 4-Left  group-rcycle
+bind-key 4-Right group-cycle
+bind-key 4-g     menu-group
+bind-key C4-g    window-group
+
+bind-key 4-1      group-only-1
+bind-key 4-2      group-only-2
+bind-key 4-3      group-only-3
+bind-key 4-4      group-only-4
+bind-key 4-5      group-only-5
+bind-key 4-6      group-only-6
+bind-key 4-7      group-only-7
+bind-key 4-8      group-only-8
+bind-key 4-9      group-only-9
+
+autogroup 2 acme
