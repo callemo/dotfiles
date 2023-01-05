@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Expand text snippets."""
 import argparse
+import datetime
 import sys
 
 
@@ -130,6 +131,25 @@ class Snippet:
 
     def expand_pydir(self):
         self.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
+        return self.code.text()
+
+    def expand_n(self):
+        date = datetime.datetime.today().isoformat(timespec="seconds")
+        title = self.args[0] if self.args else ""
+        self.code.write("---")
+        self.code.write(f"Date: {date}")
+        self.code.write(f"Title: {title}")
+        self.code.write("ISBN:")
+        self.code.write("Author:")
+        self.code.write("Year:")
+        self.code.write("Month:")
+        self.code.write("Tags:")
+        self.code.write("---")
+        self.code.write("")
+        if title:
+            self.code.write(title)
+            self.code.write("-" * len(title))
+            self.code.write("")
         return self.code.text()
 
 
