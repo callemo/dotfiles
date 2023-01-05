@@ -148,7 +148,7 @@ class Snippet:
         self.code.write("")
         if title:
             self.code.write(title)
-            self.code.write("-" * len(title))
+            self.code.write("=" * len(title))
             self.code.write("")
         return self.code.text()
 
