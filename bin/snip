@@ -139,11 +139,12 @@ class Snippet:
         self.code.write("---")
         self.code.write(f"Date: {date}")
         self.code.write(f"Title: {title}")
+        self.code.write("Tags:")
         self.code.write("ISBN:")
+        self.code.write("URL:")
         self.code.write("Author:")
         self.code.write("Year:")
         self.code.write("Month:")
-        self.code.write("Tags:")
         self.code.write("---")
         self.code.write("")
         if title:
