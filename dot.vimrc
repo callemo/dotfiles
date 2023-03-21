@@ -43,6 +43,7 @@ set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
+set wildmode=list:full
 
 if has('syntax') && has('eval')
 	packadd! matchit
