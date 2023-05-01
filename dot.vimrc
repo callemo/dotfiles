@@ -447,10 +447,6 @@ elseif isdirectory(expand('~/dotfiles'))
 	colorscheme basic
 endif
 
-let NERDTreeDirArrowCollapsible=''
-let NERDTreeDirArrowExpandable=''
-let NERDTreeShowHidden=1
-
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
 endif
