@@ -16,13 +16,13 @@ def run():
         for _ in range(25):
             time.sleep(60)
             output(".")
-        output("\x07")
+        output("!\x07")
         input()
         output("\t")
         for _ in range(5):
             time.sleep(60)
             output(".")
-        output("\x07")
+        output("!\x07")
         input()
 
 
