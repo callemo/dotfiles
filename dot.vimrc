@@ -21,7 +21,6 @@ set noexpandtab
 set nofoldenable
 set noincsearch
 set noshowcmd
-set noshowmode
 set noswapfile
 set notimeout
 set nottimeout
@@ -43,7 +42,7 @@ set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
-set wildmode=list:full
+set wildmode=list:longest
 
 if has('syntax') && has('eval')
 	packadd! matchit
@@ -91,8 +90,6 @@ command! -nargs=+ -complete=file -range
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
-
-command! -nargs=1 -bang Bdelete call Bdelete('<bang>', <q-args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -419,24 +416,6 @@ function! TrimTrailingBlanks() abort
 	silent! %s/\m\C\s\+$//e
 	let @/ = last_search
 	call setpos('.', last_pos)
-endfunction
-
-" Bdelete() deletes buffers matching a given regular expression.
-" If called with ! it will wipeout all the matching buffers.
-function! Bdelete(bang, regexp) abort
-	let buflist = []
-	for b in getbufinfo()
-		if b.listed || a:bang == '!'
-			if b.name =~# a:regexp
-				call add(buflist, b.bufnr)
-			endif
-		endif
-	endfor
-	if !empty(buflist)
-		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
-		echo ':' . expr
-		exe expr
-	endif
 endfunction
 
 if exists('$DOTFILES')
