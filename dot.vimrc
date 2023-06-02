@@ -353,17 +353,19 @@ function! Tmux() abort
 	let @" = tmp
 endfunction
 
+let g:linters = {
+			\ 'bash': 'shellcheck -f gcc',
+			\ 'css': 'stylelint',
+			\ 'go': 'go vet',
+			\ 'perl': 'perlcritic',
+			\ 'python': 'pylint -s n',
+			\ 'scss': 'stylelint',
+			\ 'sh': 'shellcheck -f gcc',
+			\ }
+
 " LintFile() runs a linter for the current file.
 function! LintFile() abort
-	let linters = {
-				\ 'bash': 'shellcheck -f gcc',
-				\ 'css': 'stylelint',
-				\ 'perl': 'perlcritic',
-				\ 'python': 'pylint -s n',
-				\ 'scss': 'stylelint',
-				\ 'sh': 'shellcheck -f gcc',
-				\ }
-	let cmd = get(linters, &filetype, v:null)
+	let cmd = get(g:linters, &filetype, v:null)
 	if cmd == v:null
 		echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
 		return
@@ -373,18 +375,19 @@ function! LintFile() abort
 	checktime
 endfunction
 
+let g:formatters = {
+			\ 'c': 'clang-format -i',
+			\ 'cpp': 'clang-format -i',
+			\ 'go': 'goimports -w',
+			\ 'java': 'clang-format -i',
+			\ 'perl': 'perltidy -b -bext /',
+			\ 'python': 'black -q',
+			\ }
+
 " FormatFile() runs a formatter for the current file.
 function! FormatFile(...) abort
 	let fallback = 'prettier --write --loglevel warn'
-	let formatters = {
-				\ 'c': 'clang-format -i',
-				\ 'cpp': 'clang-format -i',
-				\ 'go': 'gofmt -w',
-				\ 'java': 'clang-format -i',
-				\ 'perl': 'perltidy -b -bext /',
-				\ 'python': 'black -q',
-				\ }
-	let cmd = a:0 > 0 ? a:1 : get(formatters, &filetype, fallback)
+	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
 	update
 	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
 	checktime
