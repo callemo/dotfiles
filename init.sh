@@ -11,17 +11,23 @@ _merge_path() {
 
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 EDITOR=vim; export EDITOR
-HISTSIZE=100000; export HISTSIZE
 
-if [ -n "$ZSH_VERSION" ]
-then
-	SAVEHIST="$HISTSIZE"; export SAVEHIST
+case "${SHELL##*/}" in
+ksh)
+	: "${HISTFILE:=$HOME/.ksh_history}"
+	HISTSIZE=10000; export HISTSIZE
+	set -o emacs
+	;;
+zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
-	bindkey -e	# implicitly changed with EDITOR=vim
+	SAVEHIST=10000; export SAVEHIST
+	bindkey -e
 	bindkey \^U backward-kill-line
-else
-	HISTFILESIZE="$HISTSIZE"; export HISTFILESIZE
-fi
+	;;
+bash)
+	HISTFILESIZE=10000; export HISTFILESIZE
+	;;
+esac
 
 _merge_path '/usr/local/node/bin'
 _merge_path '/usr/local/go/bin'
