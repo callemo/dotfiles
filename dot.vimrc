@@ -61,6 +61,9 @@ let g:loaded_netrwPlugin = 1
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
+let g:go_def_mode='gopls'
+let g:go_info_mode='gopls'
+
 augroup dotfiles
 	autocmd!
 	autocmd BufReadPost * exe 'silent! normal! g`"'

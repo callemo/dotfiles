@@ -36,9 +36,11 @@ fi
 if [ "$vim" -eq 1 ]
 then
 	$progdir/vim/get https://github.com/tpope/vim-commentary
+	$progdir/vim/get https://github.com/tpope/vim-eunuch
 	$progdir/vim/get https://github.com/tpope/vim-fugitive
 	$progdir/vim/get https://github.com/tpope/vim-repeat
 	$progdir/vim/get https://github.com/tpope/vim-surround
+
 	$progdir/vim/get -o https://github.com/fatih/vim-go
 fi
 
