@@ -6,7 +6,7 @@ set backspace=indent,eol,start
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
-set completeopt-=preview
+set completeopt=noselect,menu
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
@@ -42,7 +42,7 @@ set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
-set wildmode=list:longest
+set wildmode=longest,list
 
 if has('syntax') && has('eval')
 	packadd! matchit
