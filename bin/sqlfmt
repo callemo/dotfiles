@@ -1,0 +1,7 @@
+#!/bin/sh
+# sqlfmt: Formats and reindent SQL text.
+# Requires https://pypi.org/project/sqlparse/
+# which provides sqlformat
+
+[ $# -lt 1 ] && set - -
+exec sqlformat -k upper -r "$@"
