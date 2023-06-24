@@ -6,7 +6,6 @@ set backspace=indent,eol,start
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
-set completeopt=noinsert,menuone,preview
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
