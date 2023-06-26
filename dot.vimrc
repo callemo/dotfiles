@@ -60,6 +60,15 @@ let g:loaded_netrwPlugin = 1
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
+let g:NERDTreeMapJumpNextSibling=''
+let g:NERDTreeMapJumpPrevSibling=''
+let g:NERDTreeMapToggleFilters=''
+let g:NERDTreeMapActivateNode='gf'
+let g:NERDTreeMapOpenSplit='<C-w>f'
+let g:NERDTreeMapOpenInTab='<C-w>t'
+let g:NERDTreeMapOpenRecursively="o"
+let g:NERDTreeMapCloseChildren="c"
+
 let g:go_def_mode='gopls'
 let g:go_info_mode='gopls'
 
@@ -99,66 +108,67 @@ endif
 
 nmap <down> <c-d>
 nmap <up> <c-u>
-nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<cr>
+nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
 
-nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<cr><c-l>
+nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <leader>!    :Cmd<space>
-nnoremap <leader>.    :lcd %:p:h<cr>
-nnoremap <leader><cr> :Send<cr>
-nnoremap <leader>F    :Fmt<cr>
-nnoremap <leader>L    :Lint<cr>
-nnoremap <leader>b    :buffers<cr>
-nnoremap <leader>d    :bwipeout<cr>
-nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
-nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
-nnoremap <leader>gf   :drop <cfile><cr>
-nnoremap <leader>r    :registers<cr>
-nnoremap <leader>t    :call Tmux()<cr>
+nnoremap <leader>.    :lcd %:p:h<CR>
+nnoremap <leader>F    :Fmt<CR>
+nnoremap <leader>L    :Lint<CR>
+nnoremap <leader>b    :buffers<CR>
+nnoremap <leader><CR> :Send<CR>
+nnoremap <leader>d    :bwipeout<CR>
+nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
+nnoremap <leader>f    :let @"=expand('%:p')<CR>
+nnoremap <leader>gf   :drop <cfile><CR>
+nnoremap <leader>n    :NERDTreeFocus<CR>
+nnoremap <leader>r    :registers<CR>
+nnoremap <leader>t    :call Tmux()<CR>
 
 nnoremap <leader>p    "*p
 nnoremap <leader>y    "*y
 
-nnoremap m<cr> :make<cr>
+nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
 
 if has('macunix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<CR>
 elseif has('unix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<cr>
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<CR>
 endif
 
 if !empty($TMUX)
 	nnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<cr>' : ':wincmd w<cr>'
+		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
 	nnoremap <expr> <silent> <c-k>
-		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<cr>' : ':wincmd W<cr>'
+		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
 else
-	nnoremap <silent> <c-j> :wincmd w<cr>
-	nnoremap <silent> <c-k> :wincmd W<cr>
+	nnoremap <silent> <c-j> :wincmd w<CR>
+	nnoremap <silent> <c-k> :wincmd W<CR>
 endif
 
-nnoremap ]a :next<cr>
-nnoremap [a :previous<cr>
-nnoremap ]b :bnext<cr>
-nnoremap [b :bprevious<cr>
-nnoremap ]l :lnext<cr>
-nnoremap [l :lprevious<cr>
-nnoremap ]q :cnext<cr>
-nnoremap [q :cprevious<cr>
-nnoremap ]t :tabnext<cr>
-nnoremap [t :tabprevious<cr>
-nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<cr><cr>
-nnoremap yoc :setl invcursorline<cr>
-nnoremap yoh :setl invhlsearch<cr>
-nnoremap yol :setl invlist<cr>
-nnoremap yon :setl invnumber<cr>
-nnoremap yop :setl invpaste<cr>
-nnoremap yor :setl invrelativenumber<cr>
-nnoremap yos :setl invspell<cr>
-nnoremap yow :setl invwrap<cr>
-vnoremap * :call SetVisualSearch()<cr>/<cr>
-vnoremap <leader>! :<c-u>call ExecVisualText()<cr>
-vnoremap <leader><cr> :Send<cr>
+nnoremap ]a :next<CR>
+nnoremap [a :previous<CR>
+nnoremap ]b :bnext<CR>
+nnoremap [b :bprevious<CR>
+nnoremap ]l :lnext<CR>
+nnoremap [l :lprevious<CR>
+nnoremap ]q :cnext<CR>
+nnoremap [q :cprevious<CR>
+nnoremap ]t :tabnext<CR>
+nnoremap [t :tabprevious<CR>
+nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
+nnoremap yoc :setl invcursorline<CR>
+nnoremap yoh :setl invhlsearch<CR>
+nnoremap yol :setl invlist<CR>
+nnoremap yon :setl invnumber<CR>
+nnoremap yop :setl invpaste<CR>
+nnoremap yor :setl invrelativenumber<CR>
+nnoremap yos :setl invspell<CR>
+nnoremap yow :setl invwrap<CR>
+vnoremap * :call SetVisualSearch()<CR>/<CR>
+vnoremap <leader>! :<c-u>call ExecVisualText()<CR>
+vnoremap <leader><CR> :Send<CR>
 vnoremap <leader>p "*p
 vnoremap <leader>x "*x
 vnoremap <leader>y "*y
@@ -171,19 +181,19 @@ cnoremap <c-p> <up>
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
-	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<cr>
+	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<CR>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
 	tnoremap <scrollwheelup> <c-\><c-n>
 	tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
 	if !empty($TMUX)
 		tnoremap <expr> <silent> <c-j>
-					\ winnr() == winnr('$') ? '<c-w>:call system("tmux selectp -t :.+")<cr>' : '<c-w>:wincmd w<cr>'
+					\ winnr() == winnr('$') ? '<c-w>:call system("tmux selectp -t :.+")<CR>' : '<c-w>:wincmd w<CR>'
 		tnoremap <expr> <silent> <c-k>
-					\ winnr() == 1 ?'<c-w>:call system("tmux selectp -t :.-")<cr>' : '<c-w>:wincmd W<cr>'
+					\ winnr() == 1 ?'<c-w>:call system("tmux selectp -t :.-")<CR>' : '<c-w>:wincmd W<CR>'
 	else
-		tnoremap <silent> <c-j> <c-w>:wincmd w<cr>
-		tnoremap <silent> <c-k> <c-w>:wincmd W<cr>
+		tnoremap <silent> <c-j> <c-w>:wincmd w<CR>
+		tnoremap <silent> <c-k> <c-w>:wincmd W<CR>
 	endif
 endif
 
@@ -193,7 +203,7 @@ if has('mouse_sgr')
 	set ttymouse=sgr
 endif
 
-nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
+nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
 vmap <middlemouse> <leader>!
 nmap <a-leftmouse> <middlemouse>
 vmap <a-leftmouse> <middlemouse>
@@ -425,9 +435,11 @@ endfunction
 
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
+	let $PATH=$DOTFILES . '/acme/bin:' . $PATH
 	colorscheme basic
 elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
+	let $PATH='~/dotfiles/acme/bin:' . $PATH
 	colorscheme basic
 endif
 
