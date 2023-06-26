@@ -6,37 +6,33 @@ set backspace=indent,eol,start
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
-set completeopt-=preview
 set confirm
-set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
-set hlsearch
 set laststatus=2
-set lazyredraw
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
 set noequalalways
 set noexpandtab
 set nofoldenable
+set noincsearch
 set noshowcmd
-set noshowmode
 set noswapfile
 set notimeout
 set nottimeout
 set nowritebackup
 set nrformats-=octal
 set path=.,,
-set sessionoptions-=options
+set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=%n:%<%f\ %y%m%r%=[%{fnamemodify(getcwd(),':t')}]\ %-14.(%l,%c%V%)\ %P
+set statusline=%n:%<%F\ %y%m%r%=[%{fnamemodify(getcwd('%'),':t')}]\ %-14.(%l,%c%V%)\ %P
 set switchbuf=useopen,split
 set tabstop=4
 set textwidth=0
@@ -45,6 +41,7 @@ set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
+set wildmode=longest,list
 
 if has('syntax') && has('eval')
 	packadd! matchit
@@ -63,10 +60,23 @@ let g:loaded_netrwPlugin = 1
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
+let g:NERDTreeMapJumpNextSibling=''
+let g:NERDTreeMapJumpPrevSibling=''
+let g:NERDTreeMapToggleFilters=''
+let g:NERDTreeMapActivateNode='gf'
+let g:NERDTreeMapOpenSplit='<C-w>f'
+let g:NERDTreeMapOpenInTab='<C-w>t'
+let g:NERDTreeMapOpenRecursively="o"
+let g:NERDTreeMapCloseChildren="c"
+
+let g:go_def_mode='gopls'
+let g:go_info_mode='gopls'
+
 augroup dotfiles
 	autocmd!
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
+	autocmd BufWritePre * :call TrimTrailingBlanks()
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
 	autocmd InsertLeave,WinEnter * setl cursorline
@@ -91,10 +101,6 @@ command! -nargs=+ -complete=file -range
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
-command!          Trim call TrimTrailingBlanks()
-
-command! -nargs=1 -bang Bdelete call Bdelete('<bang>', <args>)
-command! -nargs=1 -bang Bkeep call Bkeep('<bang>', <args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -102,62 +108,67 @@ endif
 
 nmap <down> <c-d>
 nmap <up> <c-u>
-nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<cr>
+nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
 
-nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<cr><c-l>
+nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <leader>!    :Cmd<space>
-nnoremap <leader>.    :lcd %:p:h<cr>
-nnoremap <leader><cr> :Send<cr>
-nnoremap <leader>F    :Fmt<cr>
-nnoremap <leader>L    :Lint<cr>
-nnoremap <leader>b    :buffers<cr>
-nnoremap <leader>e    :edit <c-r>=expand('%:h')<cr>/
-nnoremap <leader>f    :let @"=expand('%:p') \| let @*=@"<cr>
-nnoremap <leader>gf   :drop <cfile><cr>
-nnoremap <leader>r    :registers<cr>
+nnoremap <leader>.    :lcd %:p:h<CR>
+nnoremap <leader>F    :Fmt<CR>
+nnoremap <leader>L    :Lint<CR>
+nnoremap <leader>b    :buffers<CR>
+nnoremap <leader><CR> :Send<CR>
+nnoremap <leader>d    :bwipeout<CR>
+nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
+nnoremap <leader>f    :let @"=expand('%:p')<CR>
+nnoremap <leader>gf   :drop <cfile><CR>
+nnoremap <leader>n    :NERDTreeFocus<CR>
+nnoremap <leader>r    :registers<CR>
+nnoremap <leader>t    :call Tmux()<CR>
 
-noremap <leader>p :r!tmux show-buffer
-noremap <leader>x !'mtmux load-buffer -
-noremap <leader>y !'mtmux load-buffer -u
+nnoremap <leader>p    "*p
+nnoremap <leader>y    "*y
+
+nnoremap m<CR> :make<CR>
+nnoremap m<space> :make<space>
 
 if has('macunix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<cr>
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<CR>
 elseif has('unix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<cr>
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<CR>
 endif
 
 if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j> 
-		\ winnr() == winnr('$') ? ':silent !tmux selectp -t :.+<cr>' : ':wincmd w<cr>'
-	nnoremap <expr> <silent> <c-k> 
-		\ winnr() == 1 ? ':silent !tmux selectp -t :.-<cr>' : ':wincmd W<cr>'
+	nnoremap <expr> <silent> <c-j>
+		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
+	nnoremap <expr> <silent> <c-k>
+		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
 else
-	nnoremap <silent> <c-j> :wincmd w<cr>
-	nnoremap <silent> <c-k> :wincmd W<cr>
+	nnoremap <silent> <c-j> :wincmd w<CR>
+	nnoremap <silent> <c-k> :wincmd W<CR>
 endif
 
-nnoremap ]a :next<cr>
-nnoremap [a :previous<cr>
-nnoremap ]b :bnext<cr>
-nnoremap [b :bprevious<cr>
-nnoremap ]l :lnext<cr>
-nnoremap [l :lprevious<cr>
-nnoremap ]q :cnext<cr>
-nnoremap [q :cprevious<cr>
-nnoremap ]t :tabnext<cr>
-nnoremap [t :tabprevious<cr>
-nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<cr><cr>
-nnoremap yoc :setl invcursorline<cr>
-nnoremap yoh :setl invhlsearch<cr>
-nnoremap yol :setl invlist<cr>
-nnoremap yon :setl invnumber<cr>
-nnoremap yop :setl invpaste<cr>
-nnoremap yor :setl invrelativenumber<cr>
-nnoremap yos :setl invspell<cr>
-nnoremap yow :setl invwrap<cr>
-vnoremap * :call SetVisualSearch()<cr>/<cr>
-vnoremap <leader>! :<c-u>call ExecVisualText()<cr>
-vnoremap <leader><cr> :Send<cr>
+nnoremap ]a :next<CR>
+nnoremap [a :previous<CR>
+nnoremap ]b :bnext<CR>
+nnoremap [b :bprevious<CR>
+nnoremap ]l :lnext<CR>
+nnoremap [l :lprevious<CR>
+nnoremap ]q :cnext<CR>
+nnoremap [q :cprevious<CR>
+nnoremap ]t :tabnext<CR>
+nnoremap [t :tabprevious<CR>
+nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
+nnoremap yoc :setl invcursorline<CR>
+nnoremap yoh :setl invhlsearch<CR>
+nnoremap yol :setl invlist<CR>
+nnoremap yon :setl invnumber<CR>
+nnoremap yop :setl invpaste<CR>
+nnoremap yor :setl invrelativenumber<CR>
+nnoremap yos :setl invspell<CR>
+nnoremap yow :setl invwrap<CR>
+vnoremap * :call SetVisualSearch()<CR>/<CR>
+vnoremap <leader>! :<c-u>call ExecVisualText()<CR>
+vnoremap <leader><CR> :Send<CR>
 vnoremap <leader>p "*p
 vnoremap <leader>x "*x
 vnoremap <leader>y "*y
@@ -170,19 +181,19 @@ cnoremap <c-p> <up>
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
-	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<cr>
+	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<CR>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
 	tnoremap <scrollwheelup> <c-\><c-n>
 	tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
 	if !empty($TMUX)
-		tnoremap <expr> <silent> <c-j> winnr() == winnr('$') ?
-					\ '<c-w>:silent !tmux selectp -t :.+<cr>' : '<c-w>:wincmd w<cr>'
-		tnoremap <expr> <silent> <c-k> winnr() == 1 ?
-					\ '<c-w>:silent !tmux selectp -t :.-<cr>' : '<c-w>:wincmd W<cr>'
+		tnoremap <expr> <silent> <c-j>
+					\ winnr() == winnr('$') ? '<c-w>:call system("tmux selectp -t :.+")<CR>' : '<c-w>:wincmd w<CR>'
+		tnoremap <expr> <silent> <c-k>
+					\ winnr() == 1 ?'<c-w>:call system("tmux selectp -t :.-")<CR>' : '<c-w>:wincmd W<CR>'
 	else
-		tnoremap <silent> <c-j> <c-w>:wincmd w<cr>
-		tnoremap <silent> <c-k> <c-w>:wincmd W<cr>
+		tnoremap <silent> <c-j> <c-w>:wincmd w<CR>
+		tnoremap <silent> <c-k> <c-w>:wincmd W<CR>
 	endif
 endif
 
@@ -192,7 +203,7 @@ if has('mouse_sgr')
 	set ttymouse=sgr
 endif
 
-nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><cr>
+nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
 vmap <middlemouse> <leader>!
 nmap <a-leftmouse> <middlemouse>
 vmap <a-leftmouse> <middlemouse>
@@ -230,7 +241,7 @@ function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
 		let bufnr = bufnr(bufname, 1)
-		call setbufvar(bufnr, '&buflisted', 0)
+		call setbufvar(bufnr, '&buflisted', 1)
 		call setbufvar(bufnr, '&buftype', 'nofile' )
 		call setbufvar(bufnr, '&number', 0)
 		call setbufvar(bufnr, '&swapfile', 0)
@@ -347,17 +358,26 @@ function! ExecVisualText() abort
 	call Cmd(0, 0, 0, escape(GetVisualText(), '%#'))
 endfunction
 
+" Tmux() swaps the unnamed register with the tmux buffer.
+function! Tmux() abort
+	silent let tmp = system('tmux showb')
+	silent call system('tmux loadb -', @")
+	let @" = tmp
+endfunction
+
+let g:linters = {
+			\ 'bash': 'shellcheck -f gcc',
+			\ 'css': 'stylelint',
+			\ 'go': 'go vet',
+			\ 'perl': 'perlcritic',
+			\ 'python': 'pylint -s n',
+			\ 'scss': 'stylelint',
+			\ 'sh': 'shellcheck -f gcc',
+			\ }
+
 " LintFile() runs a linter for the current file.
 function! LintFile() abort
-	let linters = {
-				\ 'bash': 'shellcheck -f gcc',
-				\ 'css': 'stylelint',
-				\ 'perl': 'perlcritic',
-				\ 'python': 'pylint -s n',
-				\ 'scss': 'stylelint',
-				\ 'sh': 'shellcheck -f gcc',
-				\ }
-	let cmd = get(linters, &filetype, v:null)
+	let cmd = get(g:linters, &filetype, v:null)
 	if cmd == v:null
 		echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
 		return
@@ -367,18 +387,19 @@ function! LintFile() abort
 	checktime
 endfunction
 
+let g:formatters = {
+			\ 'c': 'clang-format -i',
+			\ 'cpp': 'clang-format -i',
+			\ 'go': 'goimports -w',
+			\ 'java': 'clang-format -i',
+			\ 'perl': 'perltidy -b -bext /',
+			\ 'python': 'black -q',
+			\ }
+
 " FormatFile() runs a formatter for the current file.
 function! FormatFile(...) abort
 	let fallback = 'prettier --write --loglevel warn'
-	let formatters = {
-				\ 'c': 'clang-format -i',
-				\ 'cpp': 'clang-format -i',
-				\ 'go': 'gofmt -w',
-				\ 'java': 'clang-format -i',
-				\ 'perl': 'perltidy -b -bext /',
-				\ 'python': 'black -q',
-				\ }
-	let cmd = a:0 > 0 ? a:1 : get(formatters, &filetype, fallback)
+	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
 	update
 	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
 	checktime
@@ -412,54 +433,15 @@ function! TrimTrailingBlanks() abort
 	call setpos('.', last_pos)
 endfunction
 
-" Bdelete() deletes buffers matching a given regular expression.
-" If called with ! it will wipeout all the matching buffers.
-function! Bdelete(bang, regexp) abort
-	let buflist = []
-	for b in getbufinfo()
-		if b.listed || a:bang == '!'
-			if b.name =~# a:regexp
-				call add(buflist, b.bufnr)
-			endif
-		endif
-	endfor
-	if !empty(buflist)
-		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
-		echo ':' . expr
-		exe expr
-	endif
-endfunction
-
-" Bkeep() deletes buffers *not* matching a given regular expression.
-" If called with ! it will wipeout all the non-matching buffers.
-function! Bkeep(bang, regexp) abort
-	let buflist = []
-	for b in getbufinfo()
-		if b.listed || a:bang == '!'
-			if b.name !~# a:regexp
-				call add(buflist, b.bufnr)
-			endif
-		endif
-	endfor
-	if !empty(buflist)
-		let expr = (a:bang == '!' ? 'bwipeout ' : 'bdelete ') . join(buflist, ' ')
-		echo ':' . expr
-		exe expr
-	endif
-endfunction
-
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
+	let $PATH=$DOTFILES . '/acme/bin:' . $PATH
 	colorscheme basic
 elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
+	let $PATH='~/dotfiles/acme/bin:' . $PATH
 	colorscheme basic
 endif
-
-let NERDTreeDirArrowCollapsible=''
-let NERDTreeDirArrowExpandable=''
-let NERDTreeShowHidden=1
-nnoremap <leader>B :NERDTreeToggleVCS<cr>
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
