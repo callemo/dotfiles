@@ -109,6 +109,7 @@ endif
 nmap <down> <c-d>
 nmap <up> <c-u>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
+nnoremap <c-w>z :resize<CR>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <leader>!    :Cmd<space>
@@ -182,6 +183,7 @@ cnoremap <c-p> <up>
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
 	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<CR>
+	tnoremap <c-w>z <c-w>:resize<CR>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
 	tnoremap <scrollwheelup> <c-\><c-n>
