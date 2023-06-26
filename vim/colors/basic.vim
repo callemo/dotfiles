@@ -22,7 +22,7 @@ hi SpellBad ctermbg=DarkRed ctermfg=White cterm=bold gui=undercurl
 hi SpellCap ctermbg=DarkBlue ctermfg=White cterm=bold gui=undercurl
 hi SpellLocal ctermbg=DarkCyan ctermfg=White cterm=bold gui=undercurl
 hi SpellRare ctermbg=DarkMagenta ctermfg=White cterm=bold gui=undercurl
-hi StatusLine gui=bold,reverse cterm=bold,reverse
+hi StatusLine ctermbg=73 ctermfg=Black gui=bold cterm=bold
 hi TabLineSel gui=reverse,bold cterm=reverse,bold
 hi Title gui=bold cterm=bold
 hi WarningMsg guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
