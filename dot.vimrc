@@ -32,7 +32,7 @@ set shortmess=atI
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=%{fnamemodify(getcwd('%'),':t')}:\ %f:%l:%-2c\ %M%R%Y
+set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
 set switchbuf=useopen,split
 set tabstop=4
 set textwidth=0
@@ -63,11 +63,15 @@ let g:cmd_async_tasks = {}
 let g:NERDTreeMapJumpNextSibling=''
 let g:NERDTreeMapJumpPrevSibling=''
 let g:NERDTreeMapToggleFilters=''
+let g:NERDTreeMapJumpParent=''
+let g:NERDTreeDirArrowCollapsible='-'
+let g:NERDTreeDirArrowExpandable='+'
+let g:NERDTreeMapOpenRecursively="+"
+let g:NERDTreeMapCloseChildren="-"
+let g:NERDTreeMapPreview='p'
 let g:NERDTreeMapActivateNode='gf'
 let g:NERDTreeMapOpenSplit='<C-w>f'
 let g:NERDTreeMapOpenInTab='<C-w>t'
-let g:NERDTreeMapOpenRecursively="o"
-let g:NERDTreeMapCloseChildren="c"
 
 let g:go_def_mode='gopls'
 let g:go_info_mode='gopls'
