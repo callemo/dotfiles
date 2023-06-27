@@ -55,17 +55,21 @@ syntax on
 
 let mapleader = ' '
 
-let g:loaded_netrw = 1 " disable netrw
+" Disable netrw
+let g:loaded_netrw = 1
 let g:loaded_netrwPlugin = 1
+
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
+let g:NERDTreeDirArrowExpandable='+'
+let g:NERDTreeDirArrowCollapsible='-'
+let g:NERDTreeShowHidden=1
+let g:NERDTreeSortHiddenFirst=1
 let g:NERDTreeMapJumpNextSibling=''
 let g:NERDTreeMapJumpPrevSibling=''
 let g:NERDTreeMapToggleFilters=''
 let g:NERDTreeMapJumpParent=''
-let g:NERDTreeDirArrowCollapsible='-'
-let g:NERDTreeDirArrowExpandable='+'
 let g:NERDTreeMapOpenRecursively="+"
 let g:NERDTreeMapCloseChildren="-"
 let g:NERDTreeMapPreview='p'
