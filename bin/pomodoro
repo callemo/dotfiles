@@ -13,10 +13,10 @@ def output(msg):
 def run():
     for i in range(1, MAX + 1):
         output(f"{i}\t")
-        for _ in range(25):
+        for j in range(25):
             time.sleep(60)
-            output(".")
-        output("!\x07")
+            output(f"{25 - j} ")
+        output("\x07!")
         input()
         output("\t")
         for _ in range(5):
