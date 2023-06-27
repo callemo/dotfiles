@@ -133,9 +133,14 @@ class Snippet:
         self.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
         return self.code.text()
 
-    def expand_n(self):
+    def expand_nfile(self):
+        note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
+        title = "_".join(self.args)
+        return note_id + "-" + title
+
+    def expand_nmeta(self):
         date = datetime.datetime.today().isoformat(timespec="seconds")
-        title = self.args[0] if self.args else ""
+        title = " ".join(self.args)
         self.code.write("---")
         self.code.write(f"Date: {date}")
         self.code.write(f"Title: {title}")

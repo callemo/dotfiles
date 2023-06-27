@@ -1,3 +1,0 @@
-#!/bin/sh
-# nid: generate a note identifier
-exec date +%Y%m%d%H%M | tr -d \\n
