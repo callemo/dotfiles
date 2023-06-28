@@ -12,6 +12,7 @@ set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
+set hlsearch
 set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
@@ -19,7 +20,6 @@ set noequalalways
 set noexpandtab
 set nofoldenable
 set noincsearch
-set noshowcmd
 set noswapfile
 set notimeout
 set nottimeout
@@ -30,8 +30,6 @@ set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
 set softtabstop=4
-set splitbelow
-set splitright
 set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
 set switchbuf=useopen,split
 set tabstop=4
@@ -47,9 +45,6 @@ if has('syntax') && has('eval')
 	packadd! matchit
 endif
 runtime! ftplugin/man.vim
-if exists(':Man')
-	set keywordprg=:Man
-endif
 filetype plugin on
 syntax on
 
@@ -117,25 +112,23 @@ endif
 nmap <down> <c-d>
 nmap <up> <c-u>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
+nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>z :resize<CR>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
+nnoremap <leader><CR> :Send<CR>
 nnoremap <leader>F    :Fmt<CR>
 nnoremap <leader>L    :Lint<CR>
 nnoremap <leader>b    :buffers<CR>
-nnoremap <leader><CR> :Send<CR>
 nnoremap <leader>d    :bwipeout<CR>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
-nnoremap <leader>f    :let @"=expand('%:p')<CR>
 nnoremap <leader>gf   :drop <cfile><CR>
 nnoremap <leader>n    :NERDTreeFocus<CR>
+nnoremap <leader>p    :let @"=expand('%:p')<CR>
 nnoremap <leader>r    :registers<CR>
 nnoremap <leader>t    :call Tmux()<CR>
-
-nnoremap <leader>p    "*p
-nnoremap <leader>y    "*y
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
@@ -178,9 +171,6 @@ nnoremap yow :setl invwrap<CR>
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap <leader>! :<c-u>call ExecVisualText()<CR>
 vnoremap <leader><CR> :Send<CR>
-vnoremap <leader>p "*p
-vnoremap <leader>x "*x
-vnoremap <leader>y "*y
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
@@ -191,6 +181,7 @@ cnoremap <c-p> <up>
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
 	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<CR>
+	tnoremap <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
 	tnoremap <c-w>z <c-w>:resize<CR>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>

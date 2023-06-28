@@ -1,5 +1,5 @@
 #!/bin/sh
-# autotmux: connect to a remote tmux session automatically
+# automux: connect to a remote tmux session automatically
 
 if [ $# -lt 1 ]
 then
@@ -7,8 +7,8 @@ then
 	exit 1
 fi
 
-cmd='
-if tmux ls; then
+cmd='if tmux ls
+then
     tmux attach
 elif [ -e $HOME/tmux.dump ]; then
     $HOME/dotfiles/bin/tmux-load
@@ -23,4 +23,3 @@ do
 	ssh -t "$@" "$cmd"
 	sleep 5
 done
-
