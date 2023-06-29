@@ -23,7 +23,7 @@ hi SpellCap ctermbg=DarkBlue ctermfg=White cterm=bold gui=undercurl
 hi SpellLocal ctermbg=DarkCyan ctermfg=White cterm=bold gui=undercurl
 hi SpellRare ctermbg=DarkMagenta ctermfg=White cterm=bold gui=undercurl
 hi StatusLine ctermbg=73 ctermfg=Black gui=bold cterm=bold
-hi TabLineSel gui=reverse,bold cterm=reverse,bold
+hi TabLineSel ctermbg=73 ctermfg=Black gui=bold cterm=bold
 hi Title gui=bold cterm=bold
 hi WarningMsg guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
 hi WildMenu gui=bold cterm=bold

@@ -32,6 +32,7 @@ set shortmess=atI
 set softtabstop=4
 set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
 set switchbuf=useopen,split
+set tabline=%!TabLine()
 set tabstop=4
 set textwidth=0
 set updatetime=300
@@ -432,6 +433,69 @@ function! TrimTrailingBlanks() abort
 	silent! %s/\m\C\s\+$//e
 	let @/ = last_search
 	call setpos('.', last_pos)
+endfunction
+
+function! TabLine() abort
+	let s = ''
+	for i in range(1, tabpagenr('$'))
+		if i == tabpagenr()
+			let s .= '%#TabLineSel#'
+		else
+			let s .= '%#TabLine#'
+		endif
+		let s .= '%' . i . 'T'
+		let s .= ' %{TabLabel(' . i . ')} '
+	endfor
+	let s .= '%#TabLineFill#%T'
+	return s
+endfunction
+
+" TabLabel returns the a label string for the given tab number a:n. If t:label
+" exists then returns it instead.
+function! TabLabel(n) abort
+	let tabl = gettabvar(a:n, 'label')
+	if !empty(tabl)
+		return tabl
+	endif
+
+	let buflist = tabpagebuflist(a:n)
+	let winnr = tabpagewinnr(a:n)
+	let bufnr = buflist[winnr - 1]
+	let filetype = getbufvar(bufnr, '&filetype')
+	let buftype = getbufvar(bufnr, '&buftype')
+	let label = bufname(bufnr)
+
+	if filetype == 'fugitive'
+		return '-Fugitive'
+	elseif filetype == 'git'
+		return '-Git'
+	endif
+
+	if empty(label)
+		if empty(buftype)
+			return '-'
+		endif
+		return '-' . buftype
+	endif
+
+	if filereadable(label)
+		let label = fnamemodify(label, ':p:t')
+		if filetype == 'help'
+			let label = '-help:' . label
+		endif
+	elseif isdirectory(label)
+		let label = fnamemodify(label, ':p:~')
+	elseif label[-1:] == '/'
+		let label = split(label, '/')[-1] . '/'
+	else
+		let label = split(label, '/')[-1]
+	endif
+
+	if buftype == 'terminal'
+		return '-terminal:' . label
+	endif
+
+	return label
 endfunction
 
 if exists('$DOTFILES')
