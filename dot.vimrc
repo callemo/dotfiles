@@ -125,6 +125,7 @@ nnoremap <leader>L    :Lint<CR>
 nnoremap <leader>b    :buffers<CR>
 nnoremap <leader>d    :bwipeout<CR>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
+nnoremap <leader>f    :NERDTreeFind<CR>
 nnoremap <leader>gf   :drop <cfile><CR>
 nnoremap <leader>n    :NERDTreeFocus<CR>
 nnoremap <leader>p    :let @"=expand('%:p')<CR>
