@@ -99,6 +99,7 @@ augroup dotfiles
 	autocmd FileType javascript,json,typescript setl sw=2 sts=2 et
 	autocmd FileType markdown,python,yaml setl et
 	autocmd FileType sh setl noet sw=0 sts=0
+	autocmd FileType text,markdown nnoremap <buffer> <Enter> :call WikiLink(expand('<cword>'))<CR>
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -132,6 +133,7 @@ nnoremap <leader>n    :NERDTreeFocus<CR>
 nnoremap <leader>p    :let @"=expand('%:p')<CR>
 nnoremap <leader>r    :registers<CR>
 nnoremap <leader>t    :call Tmux()<CR>
+nnoremap <leader>w    :call WikiLink(expand('<cword>'))<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
@@ -498,6 +500,10 @@ function! TabLabel(n) abort
 	endif
 
 	return label
+endfunction
+
+function! WikiLink(name) abort
+	silent exe 'edit' fnameescape(trim(system('wlnk ' . shellescape(a:name))))
 endfunction
 
 if exists('$DOTFILES')
