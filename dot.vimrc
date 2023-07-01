@@ -12,6 +12,7 @@ set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
+set hlsearch
 set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
@@ -19,7 +20,6 @@ set noequalalways
 set noexpandtab
 set nofoldenable
 set noincsearch
-set noshowcmd
 set noswapfile
 set notimeout
 set nottimeout
@@ -29,11 +29,11 @@ set path=.,,
 set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
+set showcmd
 set softtabstop=4
-set splitbelow
-set splitright
-set statusline=%n:%<%F\ %y%m%r%=[%{fnamemodify(getcwd('%'),':t')}]\ %-14.(%l,%c%V%)\ %P
+set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
 set switchbuf=useopen,split
+set tabline=%!TabLine()
 set tabstop=4
 set textwidth=0
 set updatetime=300
@@ -47,27 +47,32 @@ if has('syntax') && has('eval')
 	packadd! matchit
 endif
 runtime! ftplugin/man.vim
-if exists(':Man')
-	set keywordprg=:Man
-endif
 filetype plugin on
 syntax on
 
 let mapleader = ' '
 
-let g:loaded_netrw = 1 " disable netrw
+" Disable netrw
+let g:loaded_netrw = 1
 let g:loaded_netrwPlugin = 1
+
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
+let g:NERDTreeDirArrowExpandable='+'
+let g:NERDTreeDirArrowCollapsible='-'
+let g:NERDTreeShowHidden=1
+let g:NERDTreeSortHiddenFirst=1
 let g:NERDTreeMapJumpNextSibling=''
 let g:NERDTreeMapJumpPrevSibling=''
 let g:NERDTreeMapToggleFilters=''
+let g:NERDTreeMapJumpParent=''
+let g:NERDTreeMapOpenRecursively="+"
+let g:NERDTreeMapCloseChildren="-"
+let g:NERDTreeMapPreview='p'
 let g:NERDTreeMapActivateNode='gf'
 let g:NERDTreeMapOpenSplit='<C-w>f'
 let g:NERDTreeMapOpenInTab='<C-w>t'
-let g:NERDTreeMapOpenRecursively="o"
-let g:NERDTreeMapCloseChildren="c"
 
 let g:go_def_mode='gopls'
 let g:go_info_mode='gopls'
@@ -109,24 +114,24 @@ endif
 nmap <down> <c-d>
 nmap <up> <c-u>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
+nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
+nnoremap <c-w>z :resize<CR>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
+nnoremap <leader><CR> :Send<CR>
 nnoremap <leader>F    :Fmt<CR>
 nnoremap <leader>L    :Lint<CR>
 nnoremap <leader>b    :buffers<CR>
-nnoremap <leader><CR> :Send<CR>
 nnoremap <leader>d    :bwipeout<CR>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
-nnoremap <leader>f    :let @"=expand('%:p')<CR>
+nnoremap <leader>f    :NERDTreeFind<CR>
 nnoremap <leader>gf   :drop <cfile><CR>
 nnoremap <leader>n    :NERDTreeFocus<CR>
+nnoremap <leader>p    :let @"=expand('%:p')<CR>
 nnoremap <leader>r    :registers<CR>
 nnoremap <leader>t    :call Tmux()<CR>
-
-nnoremap <leader>p    "*p
-nnoremap <leader>y    "*y
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
@@ -169,9 +174,6 @@ nnoremap yow :setl invwrap<CR>
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap <leader>! :<c-u>call ExecVisualText()<CR>
 vnoremap <leader><CR> :Send<CR>
-vnoremap <leader>p "*p
-vnoremap <leader>x "*x
-vnoremap <leader>y "*y
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
@@ -182,6 +184,8 @@ cnoremap <c-p> <up>
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
 	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<CR>
+	tnoremap <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
+	tnoremap <c-w>z <c-w>:resize<CR>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
 	tnoremap <scrollwheelup> <c-\><c-n>
@@ -431,6 +435,69 @@ function! TrimTrailingBlanks() abort
 	silent! %s/\m\C\s\+$//e
 	let @/ = last_search
 	call setpos('.', last_pos)
+endfunction
+
+function! TabLine() abort
+	let s = ''
+	for i in range(1, tabpagenr('$'))
+		if i == tabpagenr()
+			let s .= '%#TabLineSel#'
+		else
+			let s .= '%#TabLine#'
+		endif
+		let s .= '%' . i . 'T'
+		let s .= ' %{TabLabel(' . i . ')} '
+	endfor
+	let s .= '%#TabLineFill#%T'
+	return s
+endfunction
+
+" TabLabel returns the a label string for the given tab number a:n. If t:label
+" exists then returns it instead.
+function! TabLabel(n) abort
+	let tabl = gettabvar(a:n, 'label')
+	if !empty(tabl)
+		return tabl
+	endif
+
+	let buflist = tabpagebuflist(a:n)
+	let winnr = tabpagewinnr(a:n)
+	let bufnr = buflist[winnr - 1]
+	let filetype = getbufvar(bufnr, '&filetype')
+	let buftype = getbufvar(bufnr, '&buftype')
+	let label = bufname(bufnr)
+
+	if filetype == 'fugitive'
+		return '-Fugitive'
+	elseif filetype == 'git'
+		return '-Git'
+	endif
+
+	if empty(label)
+		if empty(buftype)
+			return '-'
+		endif
+		return '-' . buftype
+	endif
+
+	if filereadable(label)
+		let label = fnamemodify(label, ':p:t')
+		if filetype == 'help'
+			let label = '-help:' . label
+		endif
+	elseif isdirectory(label)
+		let label = fnamemodify(label, ':p:~')
+	elseif label[-1:] == '/'
+		let label = split(label, '/')[-1] . '/'
+	else
+		let label = split(label, '/')[-1]
+	endif
+
+	if buftype == 'terminal'
+		return '-terminal:' . label
+	endif
+
+	return label
 endfunction
 
 if exists('$DOTFILES')
