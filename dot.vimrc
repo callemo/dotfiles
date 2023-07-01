@@ -29,6 +29,7 @@ set path=.,,
 set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
+set showcmd
 set softtabstop=4
 set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
 set switchbuf=useopen,split

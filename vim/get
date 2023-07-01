@@ -27,7 +27,7 @@ then
 	git -C "$dir" pull
 else
 	mkdir -p "$dest"
-	git -C "${dest}" clone "${url}"
+	git -C "${dest}" clone --depth 1 "${url}"
 fi
 
 if [ -d "$dir/doc" ]

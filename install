@@ -39,6 +39,7 @@ then
 	$progdir/vim/get https://github.com/tpope/vim-commentary
 	$progdir/vim/get https://github.com/tpope/vim-eunuch
 	$progdir/vim/get https://github.com/tpope/vim-fugitive
+	$progdir/vim/get https://github.com/tpope/vim-obsession
 	$progdir/vim/get https://github.com/tpope/vim-repeat
 	$progdir/vim/get https://github.com/tpope/vim-surround
 
