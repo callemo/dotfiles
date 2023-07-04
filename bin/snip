@@ -2,6 +2,7 @@
 """Expand text snippets."""
 import argparse
 import datetime
+import re
 import sys
 
 
@@ -136,7 +137,8 @@ class Snippet:
     def expand_nfile(self):
         note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
         title = "_".join(self.args)
-        return note_id + "-" + title
+        title = re.sub("[^A-Za-z_-]", "", title)
+        return note_id + "-" + title.lower() + ".txt"
 
     def expand_nmeta(self):
         date = datetime.datetime.today().isoformat(timespec="seconds")
