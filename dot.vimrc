@@ -107,6 +107,7 @@ command! -nargs=+ -complete=file -range
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
+command! -nargs=* Rg call Rg(<q-args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -500,6 +501,16 @@ function! TabLabel(n) abort
 	endif
 
 	return label
+endfunction
+
+" Rg() runs the ripgrep program loading the results in the quickfix.
+function! Rg(args)
+	let oprg = &grepprg
+	let &grepprg = 'rg --vimgrep'
+	exec 'grep' a:args
+	let &grepprg = oprg
+	botright cwindow
+	silent! cfirst
 endfunction
 
 function! WikiLink(name) abort
