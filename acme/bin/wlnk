@@ -1,4 +1,4 @@
 #!/bin/sh
 # wlnk: Prints the relative path for a given wiki link.
 exec du -aL 2>/dev/null | sed -E 's/^[0-9]+	.\/?//' |
-	grep -E "(^|/)$1[^/]*$" | sort | sed 1q
+	grep -Ei "(^|/)$1[^/]*$" | sort | sed 1q
