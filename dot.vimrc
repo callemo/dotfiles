@@ -111,6 +111,7 @@ command! -nargs=+ -complete=file -range
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
+command! -nargs=* Fts call Fts(<q-args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -524,6 +525,14 @@ function! WikiLink(name, split) abort
 		return
 	endif
 	silent exe cmd fnameescape(found)
+endfunction
+
+function! Fts(query) abort
+	call setqflist([], 'r', {
+		\ 'title' : 'Fts ' . a:query,
+		\ 'lines' : systemlist('fts ' . a:query . ' | cut -f 1,2'),
+		\ 'efm': '%f	%m' })
+	cwindow
 endfunction
 
 if exists('$DOTFILES')
