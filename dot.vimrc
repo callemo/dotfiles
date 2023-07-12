@@ -221,7 +221,7 @@ nnoremap <rightmouse> <leftmouse>*
 vmap <rightmouse> *
 vmap <a-leftmouse> <leader>!
 
-" GetVisualText() returns the text selected in visual mode.
+" GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
 	let reg = @"
 	silent normal! vgvy
@@ -230,13 +230,13 @@ function! GetVisualText() abort
 	return text
 endfunction
 
-" SetVisualSearch() literal search of the selected text in visual mode. Any
+" SetVisualSearch literal search of the selected text in visual mode. Any
 " regex special characters are escaped.
 function! SetVisualSearch() abort
 	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
 endfunction
 
-" Cmd() executes a command with an optional rage for input.
+" Cmd executes a command with an optional rage for input.
 function! Cmd(range, line1, line2, cmd) abort
 	if g:cmd_async && exists('*job_start')
 		call StartAsyncCmd(a:range, a:line1, a:line2, a:cmd)
@@ -245,7 +245,7 @@ function! Cmd(range, line1, line2, cmd) abort
 	endif
 endfunction
 
-" MakeTempBuffer() Creates a scratch buffer. Returns the buffer name.
+" MakeTempBuffer Creates a scratch buffer. Returns the buffer name.
 function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
@@ -258,7 +258,7 @@ function! MakeTempBuffer() abort
 	return bufname
 endfunction
 
-" RunShellCmd() synchronously execute a command.
+" RunShellCmd synchronously execute a command.
 function! RunShellCmd(range, line1, line2, cmd) abort
 	let input = a:range > 0 ? getline(a:line1, a:line2) : []
 	silent let output = systemlist(a:cmd, input)
@@ -274,7 +274,7 @@ function! RunShellCmd(range, line1, line2, cmd) abort
 	echom msg
 endfunction
 
-" StartAsyncCmd() asynchronously execute a command.
+" StartAsyncCmd asynchronously execute a command.
 function! StartAsyncCmd(range, line1, line2, cmd) abort
 	let bufname = MakeTempBuffer()
 	let opts = {
@@ -305,14 +305,14 @@ function! StartAsyncCmd(range, line1, line2, cmd) abort
 		\ }
 endfunction
 
-" AsyncCmdOutputHandler() job output handler.
+" AsyncCmdOutputHandler job output handler.
 function! AsyncCmdOutputHandler(channel, msg) abort
 	let job = ch_getjob(a:channel)
 	let pid = job_info(job).process
 	let g:cmd_async_tasks[pid].output += 1
 endfunction
 
-" AsyncCmdCloseHandler() channel close handler.
+" AsyncCmdCloseHandler channel close handler.
 function! AsyncCmdCloseHandler(channel) abort
 	let job = ch_getjob(a:channel)
 	let pid = job_info(job).process
@@ -323,7 +323,7 @@ function! AsyncCmdCloseHandler(channel) abort
 	endif
 endfunction
 
-" AsyncCmdExitHandler() job exit handler.
+" AsyncCmdExitHandler job exit handler.
 function! AsyncCmdExitHandler(job, code) abort
 	let pid = job_info(a:job).process
 	echom g:cmd_async_tasks[pid].name . ': exit ' . a:code
@@ -334,7 +334,7 @@ function! AsyncCmdExitHandler(job, code) abort
 	endif
 endfunction
 
-" AsyncCmdDone() cleans up after close and exit have finished.
+" AsyncCmdDone cleans up after close and exit have finished.
 function! AsyncCmdDone(job) abort
 	let pid = job_info(a:job).process
 	let name = g:cmd_async_tasks[pid].name
@@ -351,7 +351,7 @@ function! AsyncCmdDone(job) abort
 	call remove(g:cmd_async_tasks, pid)
 endfunction
 
-" UpdateCurrentWindow() appends texts to the active buffer and moves the
+" UpdateCurrentWindow appends texts to the active buffer and moves the
 " cursor to the bottom.
 function! UpdateCurrentWindow(text) abort
 	if wordcount().bytes == 0
@@ -362,12 +362,12 @@ function! UpdateCurrentWindow(text) abort
 	call cursor(line('$'), '.')
 endfunction
 
-" ExecVisualText() executes the selected visual text as the command.
+" ExecVisualText executes the selected visual text as the command.
 function! ExecVisualText() abort
 	call Cmd(0, 0, 0, escape(GetVisualText(), '%#'))
 endfunction
 
-" Tmux() swaps the unnamed register with the tmux buffer.
+" Tmux swaps the unnamed register with the tmux buffer.
 function! Tmux() abort
 	silent let tmp = system('tmux showb')
 	silent call system('tmux loadb -', @")
@@ -384,7 +384,7 @@ let g:linters = {
 			\ 'sh': 'shellcheck -f gcc',
 			\ }
 
-" LintFile() runs a linter for the current file.
+" LintFile runs a linter for the current file.
 function! LintFile() abort
 	let cmd = get(g:linters, &filetype, v:null)
 	if cmd == v:null
@@ -405,7 +405,7 @@ let g:formatters = {
 			\ 'python': 'black -q',
 			\ }
 
-" FormatFile() runs a formatter for the current file.
+" FormatFile runs a formatter for the current file.
 function! FormatFile(...) abort
 	let fallback = 'prettier --write --loglevel warn'
 	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
@@ -414,7 +414,7 @@ function! FormatFile(...) abort
 	checktime
 endfunction
 
-" Send() types the current line or range to a terminal buffer as it was typed
+" Send types the current line or range to a terminal buffer as it was typed
 " by the user.
 function! Send(range, start, end, ...) abort
 	if a:0 > 0
@@ -433,7 +433,7 @@ function! Send(range, start, end, ...) abort
 	let w:send_terminal_buf = buf
 endfunction
 
-" TrimTrailingBlanks() remove tailing consecutive blanks.
+" TrimTrailingBlanks remove tailing consecutive blanks.
 function! TrimTrailingBlanks() abort
 	let last_pos = getcurpos()
 	let last_search = @/
@@ -505,7 +505,7 @@ function! TabLabel(n) abort
 	return label
 endfunction
 
-" Rg() runs the ripgrep program loading the results in the quickfix.
+" Rg executes the ripgrep program loading its results on the quickfix window.
 function! Rg(args)
 	let oprg = &grepprg
 	let &grepprg = 'rg --vimgrep'
@@ -515,6 +515,7 @@ function! Rg(args)
 	silent! cfirst
 endfunction
 
+" WikiLink searches a wiki node and opens it if found.
 function! WikiLink(name, split) abort
 	let cmd = a:split ? 'split' : 'edit'
 	let found = trim(system('wlnk ' . shellescape(a:name)))
