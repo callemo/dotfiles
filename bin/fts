@@ -33,25 +33,26 @@ fi
 {
 	if [ ! -e "$db" ]
 	then
-	    cat <<-EOF
-		CREATE VIRTUAL TABLE files USING fts5(FILE,
-		                                      content,
-		                                      indexed_at unindexed,
-		                                      PREFIX='2 3 4',
-		                                      tokenize='porter');
-		EOF
+	    cat <<EOF
+CREATE VIRTUAL TABLE files USING fts5 (
+  file,
+  content,
+  indexed_at unindexed,
+  PREFIX = '2 3 4',
+  tokenize = 'porter'
+);
+EOF
 	fi
 
 	if [ -n "$iflag" ]
 	then
-	    d="$(date +%s)"
 	    find . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
 	        while read -r i
 	        do
-				cat <<-EOF
-				INSERT INTO files(FILE, content, indexed_at)
-				VALUES('$i', '$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")', '$d');
-				EOF
+				cat <<EOF
+INSERT INTO files(file, content, indexed_at)
+VALUES('$i', '$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")', CURRENT_TIMESTAMP);
+EOF
 	        done
 	fi
 } | sqlite3 "$db"
@@ -64,14 +65,11 @@ then
         q="NEAR($q, 100)"
     fi
 
-    sqlite3 -separator '' "$db" <<-EOF | fold -s
-	SELECT FILE || '
-			',
-	               replace(snippet(files, 1, '', '', '', 30), '
-			', ' ') || '
-			'
-	FROM files
-	WHERE files MATCH '$q'
-	ORDER BY rank;
-	EOF
+    sqlite3 -separator '' "$db" <<EOF
+SELECT file || '	' || replace(snippet(files, 1, '', '', '', 25), '
+', ' ') || '	' || datetime(indexed_at)
+FROM files
+WHERE files MATCH '$q'
+ORDER BY rank;
+EOF
 fi
