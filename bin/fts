@@ -1,0 +1,75 @@
+#!/bin/sh
+# usage: fts [options] query
+# Provides full-text indexing and search for plain text and markdown
+# files.
+#
+# See https://www.sqlite.org/fts5.html#full_text_query_syntax for
+# the complete syntax.
+#
+# Options:
+#   -i Rebuild the index.
+#   -n Near search (approximately in the same paragraph).
+#
+
+readonly db=fts.db
+
+iflag=
+nflag=
+while getopts :in i
+do
+    case $i in
+    i)  iflag=1 ;;
+    n)  nflag=1 ;;
+    \?) sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; exit 2 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [ -n "$iflag" ] && [ -e "$db" ]
+then
+    rm "$db"
+fi
+
+{
+	if [ ! -e "$db" ]
+	then
+	    cat <<EOF
+CREATE VIRTUAL TABLE files USING fts5 (
+  file,
+  content,
+  indexed_at unindexed,
+  PREFIX = '2 3 4',
+  tokenize = 'porter'
+);
+EOF
+	fi
+
+	if [ -n "$iflag" ]
+	then
+	    find . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
+	        while read -r i
+	        do
+				cat <<EOF
+INSERT INTO files(file, content, indexed_at)
+VALUES('$i', '$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")', CURRENT_TIMESTAMP);
+EOF
+	        done
+	fi
+} | sqlite3 "$db"
+
+if [ $# -gt 0 ]
+then
+    q="$*"
+    if [ -n "$nflag" ]
+    then
+        q="NEAR($q, 100)"
+    fi
+
+    sqlite3 -separator '' "$db" <<EOF
+SELECT file || '	' || replace(snippet(files, 1, '', '', '', 25), '
+', ' ') || '	' || datetime(indexed_at)
+FROM files
+WHERE files MATCH '$q'
+ORDER BY rank;
+EOF
+fi
