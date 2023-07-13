@@ -117,8 +117,8 @@ if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
 
-nmap <down> <c-d>
-nmap <up> <c-u>
+nmap <down> <c-e>
+nmap <up> <c-y>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
 nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>z :resize<CR>
@@ -423,7 +423,7 @@ function! Send(range, start, end, ...) abort
 	elseif exists('w:send_terminal_buf')
 		let buf = w:send_terminal_buf
 	else
-		echohl ErrorMsg | echo 'No terminal link' | echohl None
+		echohl ErrorMsg | echo 'no terminal link' | echohl None
 		return
 	endif
 	let keys = join(getline(a:start, a:end), "\n")
@@ -521,7 +521,9 @@ function! WikiLink(name, split) abort
 	let cmd = a:split ? 'split' : 'edit'
 	let found = trim(system('wlnk ' . shellescape(a:name)))
 	if empty(found)
-		echomsg 'broken wiki link: ' . a:name
+		echohl ErrorMsg
+		echo 'broken wiki link: ' . a:name
+		echohl None
 		return
 	endif
 	silent exe cmd fnameescape(found)
