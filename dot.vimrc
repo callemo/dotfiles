@@ -208,7 +208,7 @@ if has('terminal')
 endif
 
 " Mouse
-set mouse=nv
+set mouse=nvi
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
