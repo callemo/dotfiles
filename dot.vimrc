@@ -117,8 +117,10 @@ if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
 
-nmap <down> <c-e>
-nmap <up> <c-y>
+nnoremap <down> <c-e>
+nnoremap <up> <c-y>
+inoremap <down> <c-o><c-e>
+inoremap <up> <c-o><c-y>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
 nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>z :resize<CR>
@@ -141,22 +143,6 @@ nnoremap <leader>t    :call Tmux()<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
-
-if has('macunix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<CR>
-elseif has('unix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<CR>
-endif
-
-if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
-	nnoremap <expr> <silent> <c-k>
-		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
-else
-	nnoremap <silent> <c-j> :wincmd w<CR>
-	nnoremap <silent> <c-k> :wincmd W<CR>
-endif
 
 nnoremap ]a :next<CR>
 nnoremap [a :previous<CR>
@@ -186,6 +172,22 @@ cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
+
+if has('macunix')
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<CR>
+elseif has('unix')
+	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<CR>
+endif
+
+if !empty($TMUX)
+	nnoremap <expr> <silent> <c-j>
+		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
+	nnoremap <expr> <silent> <c-k>
+		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
+else
+	nnoremap <silent> <c-j> :wincmd w<CR>
+	nnoremap <silent> <c-k> :wincmd W<CR>
+endif
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
