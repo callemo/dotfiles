@@ -1,0 +1,7 @@
+#!/bin/sh
+# dname: dump DNS records for a name
+set -eu
+for t in SOA NS MX TXT A AAAA
+do
+	dig "$1" $t
+done | grep -E -v '^$' | grep -E -v '^;'
