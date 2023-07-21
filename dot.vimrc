@@ -99,10 +99,6 @@ augroup dotfiles
 	autocmd FileType javascript,json,typescript setl sw=2 sts=2 et
 	autocmd FileType markdown,python,yaml setl et
 	autocmd FileType sh setl noet sw=0 sts=0
-	autocmd FileType text,markdown nnoremap <buffer> <Enter>
-		\ :call WikiLink(expand('<cword>'), 0)<CR>
-	autocmd FileType text,markdown nnoremap <buffer> <C-w><Enter>
-		\ :call WikiLink(expand('<cword>'), 1)<CR>
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -517,6 +513,13 @@ endfunction
 
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
+	" Follow link
+	if a:data =~# '^\[\[[A-Za-z0-9\-_]\+\]\]$'
+		call WikiLink(a:data[2:-3])
+		return
+	endif
+
+	" Search
 	if get(a:attr, 'visual', 0)
 		if search(substitute('\m\C' . escape(a:data, '\.$*~'), "\n$", '', ''))
 			let c = getcurpos()
@@ -530,8 +533,7 @@ function! Plumb(wdir, attr, data) abort
 endfunction
 
 " WikiLink searches a wiki node and opens it if found.
-function! WikiLink(name, split) abort
-	let cmd = a:split ? 'split' : 'edit'
+function! WikiLink(name) abort
 	let found = trim(system('wlnk ' . shellescape(a:name)))
 	if empty(found)
 		echohl ErrorMsg
@@ -539,7 +541,7 @@ function! WikiLink(name, split) abort
 		echohl None
 		return
 	endif
-	silent exe cmd fnameescape(found)
+	silent exe 'sbuffer' fnameescape(found)
 endfunction
 
 function! Fts(query) abort
