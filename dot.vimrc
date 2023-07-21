@@ -214,15 +214,10 @@ set mouse=nvi
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-
-nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
-vmap <middlemouse> <leader>!
-nmap <a-leftmouse> <middlemouse>
-vmap <a-leftmouse> <middlemouse>
-
-nnoremap <rightmouse> <leftmouse>*
-vmap <rightmouse> *
-vmap <a-leftmouse> <leader>!
+nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
+nnoremap <silent> <rightmouse>  <leftmouse>:call Plumb(expand('<cword>'), {}, expand('%:h'))<CR>
+vmap     <silent> <middlemouse> <leader>!
+vmap     <silent> <rightmouse>  :<c-u>call Plumb(GetVisualText(), {'visual':1}, expand('%:h'))<CR>
 
 " GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
@@ -516,6 +511,20 @@ function! Rg(args)
 	let &grepprg = oprg
 	botright cwindow
 	silent! cfirst
+endfunction
+
+" Plumb dispatches the handling of an acquisition gesture.
+function! Plumb(msg, attrs, wdir) abort
+	if get(a:attrs, 'visual', 0)
+		if search(substitute('\m\C' . escape(a:msg, '\.$*~'), "\n$", '', ''))
+			let c = getcurpos()
+			call setpos("'<", [0, c[1], c[2], 0])
+			call setpos("'>", [0, c[1], c[2] + strchars(a:msg) - 1, 0])
+			normal! gv
+		endif
+	else
+		call search('\<' . a:msg . '\>', 'w')
+	endif
 endfunction
 
 " WikiLink searches a wiki node and opens it if found.
