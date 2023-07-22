@@ -514,34 +514,63 @@ endfunction
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
 	" Follow link
-	if a:data =~# '^\[\[[A-Za-z0-9\-_]\+\]\]$'
+	if a:data =~# '^\[\[[a-zA-Z0-9_\-./ ]\+\]\]$'
 		call WikiLink(a:data[2:-3])
 		return
 	endif
 
+	" File address
+	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):')
+	if len(m)
+		let f = a:wdir . '/' . m[1]
+		if filereadable(f)
+			if bufexists(f)
+				silent exe 'sbuffer' '+' . m[2] fnameescape(f)
+			else
+				silent exe 'split' '+' . m[2] fnameescape(f)
+			endif
+			return
+		endif
+	endif
+
+	" File
+	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\)')
+	if len(m)
+		let f = a:wdir . '/' . m[1]
+		if filereadable(f)
+			if bufexists(f)
+				silent exe 'sbuffer' fnameescape(f)
+			else
+				silent exe 'split' fnameescape(f)
+			endif
+			return
+		endif
+	endif
+
 	" Search
 	if get(a:attr, 'visual', 0)
-		if search(substitute('\m\C' . escape(a:data, '\.$*~'), "\n$", '', ''))
-			let c = getcurpos()
-			call setpos("'<", [0, c[1], c[2], 0])
-			call setpos("'>", [0, c[1], c[2] + strchars(a:data) - 1, 0])
-			normal! gv
-		endif
+		let @/ = substitute('\m\C' . escape(a:data, '\.$*~'), "\n", '\\n', 'g')
+		call feedkeys("/\<CR>")
 	elseif has_key(a:attr, 'word')
-		call search('\<' . a:attr['word'] . '\>', 'w')
+		let @/ = '\<' . a:attr['word'] . '\>'
+		call feedkeys("/\<CR>")
 	endif
 endfunction
 
 " WikiLink searches a wiki node and opens it if found.
 function! WikiLink(name) abort
-	let found = trim(system('wlnk ' . shellescape(a:name)))
-	if empty(found)
+	let f = trim(system('wlnk ' . shellescape(a:name)))
+	if empty(f)
 		echohl ErrorMsg
 		echo 'broken wiki link: ' . a:name
 		echohl None
 		return
 	endif
-	silent exe 'sbuffer' fnameescape(found)
+	if bufexists(f)
+		silent exe 'sbuffer' fnameescape(f)
+	else
+		silent exe 'split' fnameescape(f)
+	endif
 endfunction
 
 function! Fts(query) abort
