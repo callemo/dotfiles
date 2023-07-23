@@ -124,7 +124,7 @@ nnoremap <c-w>z :resize<CR>
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
-nnoremap <leader><CR> :Send<CR>
+nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <leader>F    :Fmt<CR>
 nnoremap <leader>L    :Lint<CR>
 nnoremap <leader>b    :buffers<CR>
@@ -160,8 +160,8 @@ nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 vnoremap * :call SetVisualSearch()<CR>/<CR>
-vnoremap <leader>! :<c-u>call ExecVisualText()<CR>
-vnoremap <leader><CR> :Send<CR>
+vnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
+vnoremap <silent> <leader><CR> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
@@ -210,12 +210,10 @@ set mouse=nvi
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
-nnoremap <silent> <rightmouse>  <leftmouse>:call Plumb(expand('%:h'),
-	\ {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-vmap     <silent> <middlemouse> <leader>!
-vmap     <silent> <rightmouse>  :<c-u>call Plumb(expand('%:h'),
-	\ {'visual':1}, GetVisualText())<CR>
+nmap <silent> <middlemouse> <leftmouse><leader>!<c-r><c-w><CR>
+nmap <silent> <rightmouse>  <leftmouse><leader><CR>
+vmap <silent> <middlemouse> <leader>!
+vmap <silent> <rightmouse>  <leader><CR>
 
 " GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
@@ -522,7 +520,7 @@ function! Plumb(wdir, attr, data) abort
 	" File address
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):')
 	if len(m)
-		let f = a:wdir . '/' . m[1]
+		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
 		if filereadable(f)
 			if bufexists(f)
 				silent exe 'sbuffer' '+' . m[2] fnameescape(f)
@@ -536,7 +534,7 @@ function! Plumb(wdir, attr, data) abort
 	" File
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\)')
 	if len(m)
-		let f = a:wdir . '/' . m[1]
+		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
 		if filereadable(f)
 			if bufexists(f)
 				silent exe 'sbuffer' fnameescape(f)
