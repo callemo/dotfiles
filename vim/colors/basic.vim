@@ -17,21 +17,19 @@ endfor
 
 hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
 hi Pmenu ctermbg=DarkGray ctermfg=White
-hi PmenuSel ctermbg=73 ctermfg=Black gui=bold cterm=bold
-hi SpellBad ctermbg=DarkRed ctermfg=White cterm=bold gui=undercurl
-hi SpellCap ctermbg=DarkBlue ctermfg=White cterm=bold gui=undercurl
-hi SpellLocal ctermbg=DarkCyan ctermfg=White cterm=bold gui=undercurl
-hi SpellRare ctermbg=DarkMagenta ctermfg=White cterm=bold gui=undercurl
-hi StatusLine ctermbg=73 ctermfg=Black gui=bold cterm=bold
-hi TabLineSel ctermbg=73 ctermfg=Black gui=bold cterm=bold
-hi Title gui=bold cterm=bold
+hi PmenuSel ctermbg=73 ctermfg=Black
+hi SpellBad ctermbg=DarkRed ctermfg=White gui=undercurl
+hi SpellCap ctermbg=DarkBlue ctermfg=White gui=undercurl
+hi SpellLocal ctermbg=DarkCyan ctermfg=White gui=undercurl
+hi SpellRare ctermbg=DarkMagenta ctermfg=White gui=undercurl
+hi StatusLine ctermbg=73 ctermfg=Black
+hi TabLineSel ctermbg=73 ctermfg=Black
 hi WarningMsg guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
-hi WildMenu gui=bold cterm=bold
 
 if &background ==# 'light'
 	hi Comment guifg=#707f8b ctermfg=241
 	hi CursorLine guibg=#e8f2ff
-	hi CursorLineNr guifg=#000000 ctermfg=16 gui=bold cterm=bold
+	hi CursorLineNr guifg=#000000 ctermfg=16
 	hi DiffAdd guibg=#e6ffee ctermbg=194
 	hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
 	hi DiffDelete guibg=#ffeef0 ctermbg=225
@@ -39,12 +37,12 @@ if &background ==# 'light'
 	hi ErrorMsg guibg=#f74a4a ctermbg=203
 	hi Folded guifg=#6c6c6c guibg=#d9d9d9 ctermfg=59 ctermbg=188
 	hi Function guifg=#077cae ctermfg=31
-	hi Keyword guifg=#9b2393 ctermfg=90 gui=bold cterm=bold
+	hi Keyword guifg=#9b2393 ctermfg=90
 	hi NonText guifg=#a6a6a6 ctermfg=145
 	hi Normal guifg=#000000 guibg=#ffffff
 	hi Number guifg=#1c00cf ctermfg=20
 	hi PreProc guifg=#78492d ctermfg=94
-	hi Search guifg=#262626 guibg=#e5e5e5 ctermfg=235 ctermbg=254 gui=bold cterm=bold
+	hi Search guifg=#262626 guibg=#e5e5e5 ctermfg=235 ctermbg=254
 	hi StatusLineNC guifg=#a6a6a6 ctermfg=145 gui=reverse cterm=reverse
 	hi String guifg=#d13121 ctermfg=124
 	hi Visual guibg=#b2d7fd ctermbg=153
@@ -52,19 +50,19 @@ if &background ==# 'light'
 else  " background is dark
 	hi Comment guifg=#7f8c97 ctermfg=102
 	hi CursorLine guibg=#2f3239
-	hi CursorLineNr guifg=#ffffff gui=bold cterm=bold
+	hi CursorLineNr guifg=#ffffff
 	hi DiffAdd guibg=#113a1d ctermbg=22
 	hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
 	hi DiffDelete guibg=#450c0f ctermbg=52
 	hi DiffText guifg=#000000 guibg=#d4edf4 ctermfg=16 ctermbg=195
 	hi Folded guifg=#a4a5a7 guibg=#494a4f ctermfg=145 ctermbg=59
 	hi Function guifg=#4fb0ca ctermfg=74
-	hi Keyword guifg=#fe7bb1 ctermfg=211 gui=bold cterm=bold
+	hi Keyword guifg=#fe7bb1 ctermfg=211
 	hi NonText guifg=#747478 ctermfg=102
 	hi Normal guifg=#ffffff guibg=#292a30
 	hi Number guifg=#d9c981 ctermfg=186
 	hi PreProc guifg=#ffa157 ctermfg=215
-	hi Search guifg=#ffffff guibg=#545558 ctermfg=231 ctermbg=59 gui=bold cterm=bold
+	hi Search guifg=#ffffff guibg=#545558 ctermfg=231 ctermbg=59
 	hi StatusLineNC guifg=#747478 ctermfg=102 gui=reverse cterm=reverse
 	hi String guifg=#ff8272 ctermfg=203
 	hi Visual guibg=#646f82 ctermbg=60
