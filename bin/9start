@@ -1,17 +1,36 @@
 #!/bin/sh
-set -a
+# Starts Plan 9's Acme.
 
-EDITOR=E
-PAGER=nobs
-home="$HOME"
-user="$USER"
+export ENV="$DOTFILES/9.sh"
+export EDITOR=E
+export PAGER=nobs
+export acmeshell="$SHELL"
+export home="$HOME"
+export user="$USER"
 
-for i in plumber fontsrv
-do
-  if pgrep "$i"
-  then
-    continue
-  fi
-  $i &
-done
-exec 9 acme -a -W 1200x600 "$@"
+set -- -a "$@"
+pgrep -q plumber || plumber &
+
+default_var='/lib/font/bit/lucsans/euro.8.font'
+default_fix='/lib/font/bit/lucm/unicode.9.font'
+
+case $(uname) in
+Darwin)
+	export SHELL=/bin/dash
+	export acmeshell=/bin/dash
+	pgrep -q fontsrv || fontsrv &
+	varfont="$default_var,/mnt/font/LucidaGrande/30a/font"
+	if fontsrv -p . | grep -Eq '^SFMono-Medium/?$'
+	then
+		fixfont="$default_fix,/mnt/font/SFMono-Medium/28a/font"
+	else
+		fixfont="$default_fix,/mnt/font/Menlo-Regular/28a/font"
+	fi
+	set -- -f "$varfont" -F "$fixfont" "$@"
+	;;
+OpenBSD)
+	set -- -f "$default_fix" -F "$default_var" "$@"
+	;;
+esac
+
+PATH="$DOTFILES/acme/bin:$PATH" exec "${PLAN9:-/usr/local/plan9}"/bin/acme "$@"
