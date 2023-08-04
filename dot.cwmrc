@@ -28,8 +28,9 @@ bind-key 4-Tab    window-cycle
 bind-key S4-Tab   window-rcycle
 bind-key 4-k      menu-ssh
 bind-key 4-n      terminal
+bind-key S4-n     firefox
 bind-key C4-n     menu-exec
-bind-key S4-n     menu-cmd
+bind-key 4-a      menu-cmd
 bind-key 4-slash  menu-window
 
 bind-key 4-K      window-snap-up
