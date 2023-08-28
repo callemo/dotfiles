@@ -401,7 +401,7 @@ let g:formatters = {
 
 " FormatFile runs a formatter for the current file.
 function! FormatFile(...) abort
-	let fallback = 'prettier --write --loglevel warn'
+	let fallback = 'prettier --write --log-level warn'
 	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
 	update
 	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
