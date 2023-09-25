@@ -48,6 +48,10 @@ bind-key S-F7 "bin/undock"
 # Mouse
 unbind-mouse all
 
+bind-mouse 1 menu-window
+bind-mouse 2 menu-group
+bind-mouse 3 menu-cmd
+
 bind-mouse 4-1  window-move
 bind-mouse 4-2  window-resize
 bind-mouse S4-2 window-maximize
