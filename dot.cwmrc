@@ -4,15 +4,20 @@ fontname    "-b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*"
 snapdist    8
 
 color activeborder   "#008888"
-color inactiveborder "#AAFFFF"
+color inactiveborder "#aaffff"
 color font           "#000000"
-color selfont        "#FFFFFF"
-color menubg         "#EEFFEE"
+color selfont        "#ffffff"
+color menubg         "#eeffee"
 color menufg         "#448844"
+color groupborder    "#8888cc"
+color ungroupborder  "#aaffff"
 
 # Applications
-command console    "xconsole -geometry 600x130-0-0 -verbose -exitOnFail"
 command firefox    firefox
+
+ignore xclock
+ignore xconsole
+ignore xload
 
 # Keyboard
 unbind-key all
