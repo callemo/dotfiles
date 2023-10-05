@@ -66,8 +66,8 @@ then
     fi
 
     sqlite3 -separator '' "$db" <<EOF
-SELECT file || '	' || replace(snippet(files, 1, '', '', '', 25), '
-', ' ') || '	' || datetime(indexed_at)
+SELECT file || '	' || replace(snippet(files, 1, '', '', '', 10), '
+', ' ')
 FROM files
 WHERE files MATCH '$q'
 ORDER BY rank;
