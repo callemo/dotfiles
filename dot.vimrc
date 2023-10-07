@@ -512,8 +512,9 @@ endfunction
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
 	" Follow link
-	if a:data =~# '^\[\[[a-zA-Z0-9_\-./ ]\+\]\]$'
-		call WikiLink(a:data[2:-3])
+	let m = matchlist(a:data, '^\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
+	if len(m)
+		call WikiLink(m[1])
 		return
 	endif
 
@@ -557,7 +558,7 @@ endfunction
 
 " WikiLink searches a wiki node and opens it if found.
 function! WikiLink(name) abort
-	let f = trim(system('wlnk ' . shellescape(a:name)))
+	let f = trim(system('wkln ' . shellescape(a:name)))
 	if empty(f)
 		echohl ErrorMsg
 		echo 'broken wiki link: ' . a:name
