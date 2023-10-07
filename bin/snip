@@ -141,17 +141,22 @@ class Snippet:
         return note_id + "-" + title.lower() + ".txt"
 
     def expand_nmeta(self):
+        biblio = False
+        if self.args and self.args[0] == "-b":
+            self.args.pop(0)
+            biblio = True
         date = datetime.datetime.today().isoformat(timespec="seconds")
         title = " ".join(self.args)
         self.code.write("---")
         self.code.write(f"Date: {date}")
         self.code.write(f"Title: {title}")
         self.code.write("Tags:")
-        self.code.write("ISBN:")
-        self.code.write("URL:")
-        self.code.write("Author:")
-        self.code.write("Year:")
-        self.code.write("Month:")
+        if biblio:
+            self.code.write("ISBN:")
+            self.code.write("URL:")
+            self.code.write("Author:")
+            self.code.write("Year:")
+            self.code.write("Month:")
         self.code.write("---")
         self.code.write("")
         if title:
