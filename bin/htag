@@ -1,0 +1,24 @@
+#!/bin/sh
+# htag: searches hashtags in lines that start with "Tags:"
+# usage: htag [hashtag]
+
+find . -type f -print0 |
+	xargs -0 egrep -H '^[ 	]*Tags:' |
+	awk '
+BEGIN { FS = ":"; OFS = "\t"; query = "'"$1"'" }
+{
+	sub("^\./", "", $1)
+	gsub("[ 	#]+", " ", $3)
+	split($3, a, " ")
+	for (i in a) {
+		if (query == "")
+			tags[tolower(a[i])] += 1
+		else if (tolower(a[i]) == tolower(query))
+			print $1
+	}
+}
+END {
+	if (query == "")
+		for (i in tags)
+			print tags[i], i |"sort -k2"
+}'
