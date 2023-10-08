@@ -549,7 +549,7 @@ function! Plumb(wdir, attr, data) abort
 
 	" Text search
 	if get(a:attr, 'visual', 0)
-		let @/ = substitute('\m\C' . escape(a:data, '\.$*~'), "\n", '\\n', 'g')
+		let @/ = substitute('\m\C' . escape(a:data, '\.^$[]*~'), "\n", '\\n', 'g')
 		call feedkeys("/\<CR>")
 	elseif has_key(a:attr, 'word')
 		let @/ = '\<' . a:attr['word'] . '\>'
