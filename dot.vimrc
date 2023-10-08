@@ -169,12 +169,6 @@ cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
-if has('macunix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<CR>
-elseif has('unix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<CR>
-endif
-
 if !empty($TMUX)
 	nnoremap <expr> <silent> <c-j>
 		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
@@ -233,13 +227,13 @@ endfunction
 " Cmd executes a command with an optional rage for input.
 function! Cmd(range, line1, line2, cmd) abort
 	if g:cmd_async && exists('*job_start')
-		call StartAsyncCmd(a:range, a:line1, a:line2, a:cmd)
+		call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
 	else
-		call RunShellCmd(a:range, a:line1, a:line2, a:cmd)
+		call RunCmd(a:range, a:line1, a:line2, a:cmd)
 	endif
 endfunction
 
-" MakeTempBuffer Creates a scratch buffer. Returns the buffer name.
+" MakeTempBuffer creates a scratch buffer returning its name
 function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
@@ -252,8 +246,8 @@ function! MakeTempBuffer() abort
 	return bufname
 endfunction
 
-" RunShellCmd synchronously execute a command.
-function! RunShellCmd(range, line1, line2, cmd) abort
+" RunCmd executes a shell command
+function! RunCmd(range, line1, line2, cmd) abort
 	let input = a:range > 0 ? getline(a:line1, a:line2) : []
 	silent let output = systemlist(a:cmd, input)
 	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
@@ -268,8 +262,8 @@ function! RunShellCmd(range, line1, line2, cmd) abort
 	echom msg
 endfunction
 
-" StartAsyncCmd asynchronously execute a command.
-function! StartAsyncCmd(range, line1, line2, cmd) abort
+" RunCmdAsync asynchronously executes a shell command.
+function! RunCmdAsync(range, line1, line2, cmd) abort
 	let bufname = MakeTempBuffer()
 	let opts = {
 		\ 'in_io': 'null', 'mode': 'raw',
@@ -511,14 +505,21 @@ endfunction
 
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
-	" Follow link
-	let m = matchlist(a:data, '^\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
+	" URLs
+	let m = matchlist(a:data, '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+\([.:][a-zA-Z0-9_@\-]+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
 	if len(m)
-		call WikiLink(m[1])
+		call OpenURL(m[0])
 		return
 	endif
 
-	" File address
+	" Wiki link
+	let m = matchlist(a:data, '\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
+	if len(m)
+		call OpenWikilink(m[1])
+		return
+	endif
+
+	" File with address
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):')
 	if len(m)
 		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
@@ -546,7 +547,7 @@ function! Plumb(wdir, attr, data) abort
 		endif
 	endif
 
-	" Search
+	" Text search
 	if get(a:attr, 'visual', 0)
 		let @/ = substitute('\m\C' . escape(a:data, '\.$*~'), "\n", '\\n', 'g')
 		call feedkeys("/\<CR>")
@@ -556,15 +557,26 @@ function! Plumb(wdir, attr, data) abort
 	endif
 endfunction
 
-" WikiLink searches a wiki node and opens it if found.
-function! WikiLink(name) abort
+" OpenURL opens the given URL
+function! OpenURL(url) abort
+	echom 'url:' a:url
+	if has('mac')
+		call system('open ''' . a:url . '''')
+	else
+		call system('xdg-open ''' . a:url . '''')
+	endif
+endfunction
+
+" OpenWikilink searches for a file path and opens it.
+function! OpenWikilink(name) abort
 	let f = trim(system('wkln ' . shellescape(a:name)))
 	if empty(f)
 		echohl ErrorMsg
-		echo 'broken wiki link: ' . a:name
+		echo 'wikilink: not found:' . a:name
 		echohl None
 		return
 	endif
+	echom 'wikilink:' f
 	if bufexists(f)
 		silent exe 'sbuffer' fnameescape(f)
 	else
