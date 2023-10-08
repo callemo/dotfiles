@@ -6,25 +6,24 @@ import re
 import sys
 
 
-class CodeGenerator:
-    def __init__(self, tab="\t"):
-        self.tab = tab
-        self.level = 0
-        self.lines = []
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--tab", default="\t", help="indent string")
+    parser.add_argument("snippet")
+    parser.add_argument("args", nargs="*")
+    args = parser.parse_args()
+    print(Snippet(args.snippet, args.args, args.tab))
 
-    def write(self, line):
-        self.lines.append(self.tab * self.level + line)
 
-    def indent(self):
-        self.level += 1
-
-    def dedent(self):
-        if self.level < 1:
-            raise IndentationError("code generator line: {len(self.lines)}")
-        self.level -= 1
-
-    def text(self):
-        return "\n".join(self.lines)
+class ArgumentParser(argparse.ArgumentParser):
+    def print_help(self, file=sys.stdout):
+        prefix = "expand_"
+        prefix_len = len(prefix)
+        snippets = [i[prefix_len:] for i in Snippet.__dict__ if i.startswith(prefix)]
+        super().print_help(file)
+        print("\nsnippets:", file=file)
+        for i in snippets:
+            print(f"  {i}", file=file)
 
 
 class Snippet:
@@ -151,6 +150,7 @@ class Snippet:
         self.code.write(f"Date: {date}")
         self.code.write(f"Title: {title}")
         self.code.write("Tags:")
+        self.code.write("References:")
         if biblio:
             self.code.write("ISBN:")
             self.code.write("URL:")
@@ -165,24 +165,25 @@ class Snippet:
         return self.code.text()
 
 
-class ArgumentParser(argparse.ArgumentParser):
-    def print_help(self, file=sys.stdout):
-        prefix = "expand_"
-        prefix_len = len(prefix)
-        snippets = [i[prefix_len:] for i in Snippet.__dict__ if i.startswith(prefix)]
-        super().print_help(file)
-        print("\nsnippets:", file=file)
-        for i in snippets:
-            print(f"  {i}", file=file)
+class CodeGenerator:
+    def __init__(self, tab="\t"):
+        self.tab = tab
+        self.level = 0
+        self.lines = []
 
+    def write(self, line):
+        self.lines.append(self.tab * self.level + line)
 
-def main():
-    parser = ArgumentParser()
-    parser.add_argument("-t", "--tab", default="\t", help="indent string")
-    parser.add_argument("snippet")
-    parser.add_argument("args", nargs="*")
-    args = parser.parse_args()
-    print(Snippet(args.snippet, args.args, args.tab))
+    def indent(self):
+        self.level += 1
+
+    def dedent(self):
+        if self.level < 1:
+            raise IndentationError("code generator line: {len(self.lines)}")
+        self.level -= 1
+
+    def text(self):
+        return "\n".join(self.lines)
 
 
 main()
