@@ -132,7 +132,7 @@ nnoremap <leader>d    :bwipeout<CR>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
 nnoremap <leader>f    :NERDTreeFind<CR>
 nnoremap <leader>gf   :drop <cfile><CR>
-nnoremap <leader>n    :NERDTreeFocus<CR>
+nnoremap <leader>n    :NERDTreeToggle<CR>
 nnoremap <leader>p    :let @"=expand('%:p')<CR>
 nnoremap <leader>r    :registers<CR>
 nnoremap <leader>t    :call Tmux()<CR>
