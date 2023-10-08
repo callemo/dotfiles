@@ -1,4 +1,4 @@
 #!/bin/sh
 multimarkdown |
-sed -E 's/^<p>(.)/<p>\n\1/
-s!(.)</p>!\1\n</p>!'
+	sed -E 's/^<p>(.)/<p>\n\1/
+		s!(.)</p>!\1\n</p>!'

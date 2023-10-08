@@ -1,6 +1,8 @@
 #!/bin/sh
 # Starts Plan 9's Acme.
 
+set -eu
+
 export ENV="$DOTFILES/9.sh"
 export EDITOR=E
 export PAGER=nobs
@@ -8,29 +10,43 @@ export acmeshell="$SHELL"
 export home="$HOME"
 export user="$USER"
 
-set -- -a "$@"
-pgrep -q plumber || plumber &
+varfont='/lib/font/bit/lucsans/euro.8.font'
+fixfont='/lib/font/bit/lucm/unicode.9.font'
 
-default_var='/lib/font/bit/lucsans/euro.8.font'
-default_fix='/lib/font/bit/lucm/unicode.9.font'
+set -- -a "$@"
+
+pgrep -q plumber || plumber &
 
 case $(uname) in
 Darwin)
+	: "${START_HIRES:=1}"
+	: "${START_FIXED:=0}"
 	export SHELL=/bin/dash
 	export acmeshell=/bin/dash
-	pgrep -q fontsrv || fontsrv &
-	varfont="$default_var,/mnt/font/LucidaGrande/30a/font"
-	if fontsrv -p . | grep -Eq '^SFMono-Medium/?$'
-	then
-		fixfont="$default_fix,/mnt/font/SFMono-Medium/28a/font"
-	else
-		fixfont="$default_fix,/mnt/font/Menlo-Regular/28a/font"
-	fi
-	set -- -f "$varfont" -F "$fixfont" "$@"
 	;;
 OpenBSD)
-	set -- -f "$default_fix" -F "$default_var" "$@"
+	START_HIRES=0
+	: "${START_FIXED:=1}"
 	;;
 esac
+
+if [ "$START_HIRES" -eq 1 ]
+then
+	pgrep -q fontsrv || fontsrv &
+	varfont="$varfont,/mnt/font/LucidaGrande/30a/font"
+	if fontsrv -p . | grep -Eq '^SFMono-Medium/?$'
+	then
+		fixfont="$fixfont,/mnt/font/SFMono-Medium/28a/font"
+	else
+		fixfont="$fixfont,/mnt/font/Menlo-Regular/28a/font"
+	fi
+fi
+
+if [ "$START_FIXED" -eq 1 ]
+then
+	set -- -f "$fixfont" -F "$varfont" "$@"
+else
+	set -- -f "$varfont" -F "$fixfont" "$@"
+fi
 
 PATH="$DOTFILES/acme/bin:$PATH" exec "${PLAN9:-/usr/local/plan9}"/bin/acme "$@"
