@@ -46,7 +46,7 @@ EOF
 
 	if [ -n "$iflag" ]
 	then
-	    find . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
+	    find -L . -type f | grep -E '\.(txt|md)$' | sed 's/^\.\///' |
 	        while read -r i
 	        do
 				cat <<EOF

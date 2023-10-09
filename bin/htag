@@ -2,7 +2,7 @@
 # htag: searches hashtags in lines that start with "Tags:"
 # usage: htag [hashtag]
 
-find . -type f -print0 |
+find -L . -type f -print0 |
 	xargs -0 egrep -H '^[ 	]*Tags:' |
 	awk '
 BEGIN { FS = ":"; OFS = "\t"; query = "'"$1"'" }
