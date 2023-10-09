@@ -1,4 +1,3 @@
 #!/bin/sh
 # unsqz: split sentences, one per line.
-sed -E 's/([.?!])[ ^I]+/\1\n/g'
-
+sed -E 's/([.?!])[ 	]+/\1\n/g'
