@@ -5,6 +5,8 @@ key_bindings:
     - { key: Right, mods: Alt, chars: "\x1bf" }
     - { key: Left, mods: Alt, chars: "\x1bb" }
     - { key: N, mods: Command, action: CreateNewWindow }
+mouse_bindings:
+    - { mouse: Right, mods: Command, action: Paste }
 window:
     dimensions:
         columns: 120
@@ -15,7 +17,7 @@ window:
 font:
     normal:
         family: IBM Plex Mono
-        style: Regular
+        style: Text
     bold:
         family: IBM Plex Mono
         style: Bold
