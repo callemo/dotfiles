@@ -1,0 +1,50 @@
+env:
+    TERM: xterm-256color
+    TERM_PROGRAM: Alacritty
+key_bindings:
+    - { key: Right, mods: Alt, chars: "\x1bf" }
+    - { key: Left, mods: Alt, chars: "\x1bb" }
+    - { key: N, mods: Command, action: CreateNewWindow }
+window:
+    dimensions:
+        columns: 120
+        lines: 36
+    padding:
+        x: 4
+        y: 4
+font:
+    normal:
+        family: IBM Plex Mono
+        style: Regular
+    bold:
+        family: IBM Plex Mono
+        style: Bold
+    size: 13
+
+selection:
+    save_to_clipboard: true
+colors:
+    primary:
+        background: "0xffffff"
+        foreground: "0x24292f"
+    normal:
+        black: "0x24292e"
+        red: "0xd73a49"
+        green: "0x28a745"
+        yellow: "0xdbab09"
+        blue: "0x0366d6"
+        magenta: "0x5a32a3"
+        cyan: "0x0598bc"
+        white: "0x6a737d"
+    bright:
+        black: "0x959da5"
+        red: "0xcb2431"
+        green: "0x22863a"
+        yellow: "0xb08800"
+        blue: "0x005cc5"
+        magenta: "0x5a32a3"
+        cyan: "0x3192aa"
+        white: "0xd1d5da"
+    indexed_colors:
+        - { index: 16, color: "0xd18616" }
+        - { index: 17, color: "0xcb2431" }
