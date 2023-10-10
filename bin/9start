@@ -33,8 +33,13 @@ esac
 if [ "$START_HIRES" -eq 1 ]
 then
 	pgrep -q fontsrv || fontsrv &
+
 	varfont="$varfont,/mnt/font/LucidaGrande/30a/font"
-	if fontsrv -p . | grep -Eq '^SFMono-Medium/?$'
+
+	if fontsrv -p . | grep -Eq '^IBMPlexMono-Text/?$'
+	then
+		fixfont="$fixfont,/mnt/font/IBMPlexMono-Text/28a/font"
+	elif fontsrv -p . | grep -Eq '^SFMono-Medium/?$'
 	then
 		fixfont="$fixfont,/mnt/font/SFMono-Medium/28a/font"
 	else
