@@ -22,13 +22,12 @@ font:
         family: IBM Plex Mono
         style: Bold
     size: 13
-
 selection:
     save_to_clipboard: true
 colors:
     primary:
         background: "0xffffff"
-        foreground: "0x24292f"
+        foreground: "0x000000"
     normal:
         black: "0x24292e"
         red: "0xd73a49"
@@ -47,6 +46,3 @@ colors:
         magenta: "0x5a32a3"
         cyan: "0x3192aa"
         white: "0xd1d5da"
-    indexed_colors:
-        - { index: 16, color: "0xd18616" }
-        - { index: 17, color: "0xcb2431" }
