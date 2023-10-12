@@ -1,8 +1,19 @@
 #!/bin/sh
 # rgsub: recursive search regexp and replace with text
-# usage: rgsub <regexp> <text>
+# usage: rgsub [-n] <regexp> <text>
+# options:
+# 	-n	Run without making changes (dry run).
 
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+
+while getopts :n f
+do
+	case $f in
+	n)  nflag=$f;;
+	\?) usage; exit 2;;
+	esac
+done
+shift $((OPTIND - 1))
 
 if [ $# -lt 2 ]
 then
@@ -10,8 +21,23 @@ then
 	exit 2
 fi
 
-grep -E -R -I -l "$1" |
-	sed 's/"/\\"/
-		s/^/"/
-		s/$/"/' |
-	xargs sed -E -i '' -e 's/'"$1"'/'"$2"'/g'
+r="$1"
+t="$2"
+
+case "$(uname)" in
+OpenBSD)
+	set -- sed -E -e 's/'"$r"'/'"$t"'/g' -i''
+	;;
+*)
+	set -- sed -E -e 's/'"$r"'/'"$t"'/g' -i ''
+	;;
+esac
+
+if [ -n "$nflag" ]
+then
+	set -- echo "$@"
+fi
+
+grep -E -R -I -l "$r" . |
+	grep -E -v '(^|/)\.git' |
+	xargs "$@"
