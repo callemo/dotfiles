@@ -100,8 +100,8 @@ augroup dotfiles
 	autocmd FileType c,cpp setl path+=/usr/include
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	autocmd FileType javascript,json,typescript setl sw=2 sts=2 et
-	autocmd FileType markdown,python,yaml setl et
+	autocmd FileType javascript,json,typescript setl sw=4 sts=4 et
+	autocmd FileType markdown,python,yaml setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
 
