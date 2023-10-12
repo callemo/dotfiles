@@ -23,6 +23,10 @@ zsh)
 	SAVEHIST=10000; export SAVEHIST
 	bindkey -e
 	bindkey \^U backward-kill-line
+	if [ "$TERM_PROGRAM" = Alacritty ]
+	then
+		precmd() { printf '\e]0;%s %s\b' "$SHELL" "$$" }
+	fi
 	;;
 bash)
 	HISTFILESIZE=10000; export HISTFILESIZE
