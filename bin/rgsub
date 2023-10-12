@@ -1,0 +1,17 @@
+#!/bin/sh
+# rgsub: recursive search regexp and replace with text
+# usage: rgsub <regexp> <text>
+
+usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+
+if [ $# -lt 2 ]
+then
+	usage
+	exit 2
+fi
+
+grep -E -R -I -l "$1" |
+	sed 's/"/\\"/
+		s/^/"/
+		s/$/"/' |
+	xargs sed -E -i '' -e 's/'"$1"'/'"$2"'/g'
