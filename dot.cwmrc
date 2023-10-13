@@ -14,7 +14,7 @@ color ungroupborder  "#aaffff"
 
 # Applications
 command firefox    firefox
-command vim        "xterm -geometry 120x36 -e vim"
+command vim        "xterm -geometry 120x36 -T vim -n vim -e sh -c '. $HOME/.profile && vim'"
 
 ignore xclock
 ignore xconsole
