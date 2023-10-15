@@ -1,4 +1,25 @@
 #!/bin/sh
+# md: processes files with Markdown and Pikchr
+cat "$@" |
+awk '
+$1 == "```pikchr" {
+	inpik = 1
+	next
+}
+$1 == "```" {
+	if (inpik) {
+		inpik = 0
+		next
+	}
+}
+{
+	if(inpik)
+		print | "pikchr --svg-only -"
+	else
+		print
+}' |
 multimarkdown |
-	sed -E 's/^<p>(.)/<p>\n\1/
-		s!(.)</p>!\1\n</p>!'
+sed -E 's/^<p>(.)/<p>\
+\1/
+		s!(.)</p>!\1\
+</p>!'
