@@ -1,0 +1,23 @@
+#!/bin/sh
+# upref: updates references meta field from existing wikilinks
+grep -ERI '\[\[[A-Za-z0-9_/.-]+\]\]' . |
+sed -E 's/^\.\///' |
+awk 'BEGIN {
+	FS = ":"
+	OFS = "\t"
+}
+$2 ~ /^References/ { next }
+{
+	split($1, a, /[.-]/)
+	s = "[[" a[1] "]]"
+	l = $0
+	while(match(l, /\[\[[A-Za-z0-9_/]+\]\]/)) {
+		t = substr(l, RSTART, RLENGTH)
+		ref[t] = ref[t] " " s
+		l = substr(l, RSTART+RLENGTH)
+	}
+}
+END {
+	for (i in ref)
+		printf "%s: %s\n", i, ref[i]
+}'
