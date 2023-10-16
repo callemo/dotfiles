@@ -1,7 +1,6 @@
 #!/bin/sh
-# upref: updates references meta field from existing wikilinks
+# xref: updates the cross references
 grep -ERI '\[\[[A-Za-z0-9_/.-]+\]\]' . |
-sed -E 's/^\.\///' |
 awk '
 BEGIN {
 	FS = ":"
@@ -13,8 +12,7 @@ function files(    f,k) {
 	while (("find . -type f" | getline f) > 0) {
 		k = f
 		sub(/^\.\/(R\/)?/, "", k)
-		sub(/[^A-Za-z0-9/].*$/, "", k)
-		k = "[[" k "]]"
+		sub(/[^A-Za-z0-9\/].*$/, "", k)
 		file[k] = f
 	}
 	close("find . -type f")
@@ -23,17 +21,19 @@ function files(    f,k) {
 $2 ~ /^References/ { next }
 
 {
-	split($1, a, /[.-]/)
-	s = "[[" a[1] "]]"
+	s = $1
+	sub(/^\.\/(R\/)?/, "", s)
+	sub(/[^A-Za-z0-9\/].*$/, "", s)
+
 	l = $0
-	while(match(l, /\[\[[A-Za-z0-9_/]+\]\]/)) {
-		t = substr(l, RSTART, RLENGTH)
-		ref[t] = ref[t] " " s
+	while(match(l, /\[\[[A-Za-z0-9_\/]+\]\]/)) {
+		t = substr(l, RSTART+2, RLENGTH-4)
+		xref[t] = xref[t] " [[" s "]]"
 		l = substr(l, RSTART+RLENGTH)
 	}
 }
 
 END {
-	for (i in ref)
-		print file[i], ref[i]
+	for (i in xref)
+		print file[i], xref[i]
 }'
