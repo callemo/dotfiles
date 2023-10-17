@@ -3,8 +3,8 @@
 # usage: htag [hashtag]
 
 find -L . -type f -print0 |
-	xargs -0 egrep -H '^[ 	]*Tags:' |
-	awk '
+xargs -0 grep -E -H '^[ 	]*Tags:' |
+awk '
 BEGIN { FS = ":"; OFS = "\t"; query = "'"$1"'" }
 {
 	sub("^\./", "", $1)
