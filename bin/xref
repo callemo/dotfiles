@@ -1,6 +1,17 @@
 #!/bin/sh
-# xref: updates the cross references
+# xref: update cross references
+
+prefix="${0##*/}:"
+log() { echo "$prefix" "$@" >&2; }
+fatal() { log "$@"; exit 1; }
+
+if [ "${PWD##*/}" != Z ]
+then
+	fatal 'not in the Z directory'
+fi
+
 grep -ERI '\[\[[A-Za-z0-9_/.-]+\]\]' . |
+sort |
 awk '
 BEGIN {
 	FS = ":"
@@ -36,4 +47,9 @@ $2 ~ /^References/ { next }
 END {
 	for (i in xref)
 		print file[i], xref[i]
-}'
+}' |
+while IFS='	' read -r f r
+do
+	sed -E -e '/^---/,/^---/s@^References:.*@References:'"$r"'@' -i.bak "$f" &&
+		rm "$f".bak
+done
