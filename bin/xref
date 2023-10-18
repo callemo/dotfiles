@@ -11,6 +11,7 @@ then
 fi
 
 grep -ERI '\[\[[A-Za-z0-9_/.-]+\]\]' . |
+grep -Ev '^[^:]+:References:' |
 sort |
 awk '
 BEGIN {
@@ -28,8 +29,6 @@ function files(    f,k) {
 	}
 	close("find . -type f")
 }
-
-$2 ~ /^References/ { next }
 
 {
 	s = $1
