@@ -106,7 +106,7 @@ augroup dotfiles
 augroup END
 
 command! -nargs=+ -complete=file -range
-	\ Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
+	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
@@ -229,7 +229,7 @@ function! SetVisualSearch() abort
 endfunction
 
 " Cmd executes a command with an optional rage for input.
-function! Cmd(range, line1, line2, cmd) abort
+function! Cmd(cmd, range, line1, line2) abort
 	if g:cmd_async && exists('*job_start')
 		call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
 	else
@@ -356,7 +356,7 @@ endfunction
 
 " ExecVisualText executes the selected visual text as the command.
 function! ExecVisualText() abort
-	call Cmd(0, 0, 0, escape(GetVisualText(), '%#'))
+	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
 endfunction
 
 " Tmux swaps the unnamed register with the tmux buffer.
@@ -384,7 +384,7 @@ function! LintFile() abort
 		return
 	endif
 	update
-	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
+	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
 endfunction
 
@@ -402,7 +402,7 @@ function! FormatFile(...) abort
 	let fallback = 'prettier --write --log-level warn'
 	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
 	update
-	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
+	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
 endfunction
 
@@ -565,9 +565,9 @@ endfunction
 function! OpenURL(url) abort
 	echom 'url:' a:url
 	if has('mac')
-		call Cmd(0, 0, 0, 'open ''' . a:url . '''')
+		call Cmd('open ''' . a:url . '''', 0, 0, 0)
 	else
-		call Cmd(0, 0, 0, 'xdg-open ''' . a:url . '''')
+		call Cmd('xdg-open ''' . a:url . '''', 0, 0, 0)
 	endif
 endfunction
 
