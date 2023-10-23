@@ -565,9 +565,9 @@ endfunction
 function! OpenURL(url) abort
 	echom 'url:' a:url
 	if has('mac')
-		call system('open ''' . a:url . '''')
+		call Cmd(0, 0, 0, 'open ''' . a:url . '''')
 	else
-		call system('xdg-open ''' . a:url . '''')
+		call Cmd(0, 0, 0, 'xdg-open ''' . a:url . '''')
 	endif
 endfunction
 
