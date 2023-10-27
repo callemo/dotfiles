@@ -14,6 +14,8 @@ color ungroupborder  "#aaffff"
 
 # Applications
 command firefox    firefox
+command gimp       gimp
+command inkscape   inkscape
 command xterm      "xterm -geometry 120x36"
 
 ignore xclock
