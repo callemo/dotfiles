@@ -49,6 +49,9 @@ END {
 }' |
 while IFS='	' read -r f r
 do
-	sed -E -e '/^---/,/^---/s@^References:.*@References:'"$r"'@' -i.bak "$f" &&
-		rm "$f".bak
+	if ! sed -E -e '/^---/,/^---/s@^References:.*@References:'"$r"'@' -i.bak "$f"
+	then
+		printf "xref: error updating file \"%s\" with ref \"%s\"\n" "$f" "$r" >&2
+	fi
+	rm -f "$f".bak
 done
