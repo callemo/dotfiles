@@ -23,7 +23,7 @@ BEGIN {
 function files(    f,k) {
 	while (("find . -type f" | getline f) > 0) {
 		k = f
-		sub(/^\.\/(R\/)?/, "", k)
+		sub(/^\.\/(R\/|R\/n\/)?/, "", k)
 		sub(/[^A-Za-z0-9\/].*$/, "", k)
 		file[k] = f
 	}
@@ -32,7 +32,7 @@ function files(    f,k) {
 
 {
 	s = $1
-	sub(/^\.\/(R\/)?/, "", s)
+	sub(/^\.\/(R\/|R\/n\/)?/, "", s)
 	sub(/[^A-Za-z0-9\/].*$/, "", s)
 
 	l = $0
@@ -44,8 +44,13 @@ function files(    f,k) {
 }
 
 END {
-	for (i in xref)
+	for (i in xref) {
+		if (file[i] == "") {
+			printf "xref: file not found for ref: %s\n", i >"/dev/stderr"
+			exit(1)
+		}
 		print file[i], xref[i]
+	}
 }' |
 while IFS='	' read -r f r
 do
