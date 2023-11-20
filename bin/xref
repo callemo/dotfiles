@@ -1,5 +1,6 @@
 #!/bin/sh
 # xref: update cross references
+set -eu
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
@@ -7,7 +8,12 @@ fatal() { log "$@"; exit 1; }
 
 if [ "${PWD##*/}" != Z ]
 then
-	fatal 'not in the Z directory'
+	if [ -d ./Z ]
+	then
+		cd ./Z
+	else
+		fatal 'no Z directory'
+	fi
 fi
 
 grep -ERI '\[\[[A-Za-z0-9_/.-]+\]\]' . |
