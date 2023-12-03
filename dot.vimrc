@@ -602,7 +602,7 @@ if exists('$DOTFILES')
 	colorscheme basic
 elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
-	let $PATH='~/dotfiles/acme/bin:' . $PATH
+	let $PATH=$HOME . '/acme/bin:' . $PATH
 	colorscheme basic
 endif
 
