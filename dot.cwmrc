@@ -16,6 +16,7 @@ color ungroupborder  "#000000"
 command firefox    firefox
 command gimp       gimp
 command inkscape   inkscape
+command mutt        "xterm -geometry 90x35 -e mutt"
 command vim        "xterm -geometry 120x30 -e /bin/ksh -l -c vim"
 command xterm      "xterm -geometry 120x30"
 
