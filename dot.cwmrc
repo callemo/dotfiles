@@ -13,12 +13,9 @@ color groupborder    "#8888cc"
 color ungroupborder  "#000000"
 
 # Applications
+command acme       "xterm -geometry 80x8 -title 9start -e /bin/ksh -l -c '. $HOME/dotfiles/init.sh; 9start'"
 command firefox    firefox
-command gimp       gimp
-command inkscape   inkscape
-command mutt        "xterm -geometry 90x35 -e mutt"
-command vim        "xterm -geometry 120x30 -e /bin/ksh -l -c vim"
-command xterm      "xterm -geometry 120x30"
+command vim        "xterm -geometry 100x30 -e /bin/ksh -l -c '. $HOME/dotfiles/init.sh; vim'"
 
 ignore xclock
 ignore xconsole
@@ -85,5 +82,3 @@ bind-key 4-6 group-only-6
 bind-key 4-7 group-only-7
 bind-key 4-8 group-only-8
 bind-key 4-9 group-only-9
-
-autogroup 2 acme
