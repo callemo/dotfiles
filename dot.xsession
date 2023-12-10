@@ -1,8 +1,8 @@
 export LC_CTYPE=en_US.UTF-8
 xsetroot -solid black &
-xterm &
-xconsole -geometry 500x100+0+0 -verbose -exitOnFail &
+xconsole -geometry 460x60+0+0 -verbose -saveLines 1000 -exitOnFail &
 setxkbmap -option 'ctrl:nocaps' &
+xterm &
 feh --bg-fill bg.jpg
 redshift -l 53:6 -t 6500:3700 &
 cwm
