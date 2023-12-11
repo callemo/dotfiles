@@ -36,7 +36,7 @@ bind-key 4-Tab    window-cycle
 bind-key S4-Tab   window-rcycle
 bind-key 4-k      menu-ssh
 bind-key 4-n      terminal
-bind-key S4-n     firefox
+bind-key S4-n     menu-exec
 bind-key C4-n     menu-exec
 bind-key 4-a      menu-cmd
 bind-key 4-slash  menu-window
@@ -83,3 +83,7 @@ bind-key 4-6 group-only-6
 bind-key 4-7 group-only-7
 bind-key 4-8 group-only-8
 bind-key 4-9 group-only-9
+
+ignore xconsole
+autogroup 0 xconsole
+gap 36 0 0 0

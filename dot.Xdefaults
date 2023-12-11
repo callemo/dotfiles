@@ -7,6 +7,12 @@ XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
 
+XConsole*geometry:    683x36-0+0
+XConsole*foreground:  rgb:ff/b0/00
+XConsole*background:  rgb:40/40/40
+XConsole*cursorColor: rgb:ff/b0/00
+XConsole*saveLines:   8
+
 *font: -b&h-lucidatypewriter-bold-r-*-*-14-140-*-*-*-*-iso10646-*
 
 *Scrollbar.translations: #override \n\
@@ -31,10 +37,3 @@ XTerm*vt100.translations: #override \n\
 *color14: #00e5e5
 *color15: #e5e5e5
 
-Xft.dpi:       100
-Xft.autohint:  0
-Xft.lcdfilter: lcddefault
-Xft.hintstyle: hintslight
-Xft.hinting:   1
-Xft.antialias: 1
-Xft.rgba:      rgb

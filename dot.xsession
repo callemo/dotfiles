@@ -1,6 +1,6 @@
 export LC_CTYPE=en_US.UTF-8
 xsetroot -solid black &
-xconsole -geometry 460x60+0+0 -verbose -saveLines 1000 -exitOnFail &
+xconsole -verbose -exitOnFail &
 setxkbmap -option 'ctrl:nocaps' &
 xterm &
 feh --bg-fill bg.jpg
