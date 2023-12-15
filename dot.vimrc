@@ -6,6 +6,8 @@ set backspace=indent,eol,start
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
+set completeopt=menuone,popup
+set completepopup=border:off
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
@@ -43,9 +45,14 @@ set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 set wildmode=longest,list
 
+if has('mac')
+	set clipboard=autoselect
+endif
+
 if has('syntax') && has('eval')
 	packadd! matchit
 endif
+
 runtime! ftplugin/man.vim
 filetype plugin on
 syntax on

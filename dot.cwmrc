@@ -50,8 +50,9 @@ bind-key S4-Down  window-vmaximize
 bind-key S4-Left  window-hmaximize
 bind-key S4-Right window-hmaximize
 
-bind-key F7   "bin/dock"
-bind-key S-F7 "bin/undock"
+bind-key F7   "/bin/sh -c 'bin/dock >/dev/console 2>&1'"
+bind-key S-F7 "/bin/sh -c 'bin/undock >/dev/console 2>&1'"
+bind-key F10  "/bin/sh -c 'exec bin/constat >/dev/console 2>&1'"
 
 # Mouse
 unbind-mouse all
