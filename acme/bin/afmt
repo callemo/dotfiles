@@ -1,8 +1,11 @@
 #!/bin/sh
 # usage: afmt [-d]
-# Automatic code reformatting. It depends on formatters being installed.
+# Automatic code reformatting. It depends on formatters being
+# installed.
+#
 # Flags:
 #  -d Show differences.
+#
 
 for x
 do
@@ -16,14 +19,14 @@ out=/tmp/afmtout.$$
 err=/tmp/afmterr.$$
 trap 'rm -f "$in" "$out" "$err"; exit 1' 1 2 15
 
-9p read "acme/$winid/body" >"$in"
-
 if [ $# -gt 0 ]
 then
 	type="$1"
 else
 	type="${samfile##*.}"
 fi
+
+9p read "acme/$winid/body" >"$in"
 
 case $type in
 go)
@@ -63,12 +66,24 @@ else
 	cmp -s "$in" "$out" && { rm -f "$in" "$out" "$err"; exit; }
 fi
 
-printf mark | 9p write "acme/$winid/ctl"
-printf nomark | 9p write "acme/$winid/ctl"
+echo nomark | 9p write "acme/$winid/ctl"
+
+# We need to keep addr open to get the cursor position.
+addr="$(perl -e '
+    open $input, "|-", "9p rdwr acme/$ARGV[0]/addr >/dev/null"
+        || die "afmt: opening pipe: $!";
+    system("echo addr=dot | 9p write acme/$ARGV[0]/ctl && \
+        9p read acme/$ARGV[0]/addr");
+    close $input || die "afmt: closing pipe: $!";' -- "$winid" |
+    awk '{ printf "#%d", $1 }')"
+
+
 printf , | 9p write "acme/$winid/addr"
 9p write "acme/$winid/data" <"$out"
-printf mark | 9p write "acme/$winid/ctl"
-printf '#0' | 9p write "acme/$winid/addr"
-printf dot=addr | 9p write "acme/$winid/ctl"
-printf show | 9p write "acme/$winid/ctl"
+
+echo mark | 9p write "acme/$winid/ctl"
+
+printf "%s" "$addr" | 9p write "acme/$winid/addr"
+printf 'dot=addr\nshow\n' | 9p write "acme/$winid/ctl"
+
 rm -f "$in" "$out" "$err"
