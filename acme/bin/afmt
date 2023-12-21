@@ -69,13 +69,10 @@ fi
 echo nomark | 9p write "acme/$winid/ctl"
 
 # We need to keep addr open to get the cursor position.
-addr="$(perl -e '
-    open $input, "|-", "9p rdwr acme/$ARGV[0]/addr >/dev/null"
-        || die "afmt: opening pipe: $!";
-    system("echo addr=dot | 9p write acme/$ARGV[0]/ctl && \
-        9p read acme/$ARGV[0]/addr");
-    close $input || die "afmt: closing pipe: $!";' -- "$winid" |
-    awk '{ printf "#%d", $1 }')"
+cur="$(perl -e '
+    open $pipe, "|-", "9p rdwr acme/$ARGV[0]/addr >/dev/null" || die $!;
+    system("echo addr=dot | 9p write acme/$ARGV[0]/ctl && 9p read acme/$ARGV[0]/addr");
+    close $pipe || die $!;' -- "$winid" | awk '{ printf "#%d", $1 }')"
 
 
 printf , | 9p write "acme/$winid/addr"
@@ -83,7 +80,7 @@ printf , | 9p write "acme/$winid/addr"
 
 echo mark | 9p write "acme/$winid/ctl"
 
-printf "%s" "$addr" | 9p write "acme/$winid/addr"
+printf "%s" "$cur" | 9p write "acme/$winid/addr"
 printf 'dot=addr\nshow\n' | 9p write "acme/$winid/ctl"
 
 rm -f "$in" "$out" "$err"
