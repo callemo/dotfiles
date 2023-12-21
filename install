@@ -1,20 +1,8 @@
 #!/bin/sh
-
 progdir="$(cd "${0%/*}" && pwd -P)"
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
-
-vim=0
-lab=0
-for a
-do
-	case $a in
-	vim) vim=1 ;;
-	lab) lab=1 ;;
-	\?) fatal "usage: $0 [vim][lab]"
-	esac
-done
 
 cd "$progdir" || fatal "can't change to dir: $progdir"
 
@@ -23,40 +11,23 @@ do
 	t="$HOME/${i#dot}"
 	if [ ! -e "$t" ]
 	then
+		log "linking: $t"
 		ln -s "$progdir/$i" "$t"
 	fi
 done
 
 if [ ! -e "$HOME/.gitignore" ]
 then
+	log 'configuring git global excludesfile'
 	ln -s "$progdir/.gitignore" "$HOME/.gitignore"
 	git config --global core.excludesfile "$HOME/.gitignore"
 fi
 
-if [ "$vim" -eq 1 ]
-then
-	$progdir/vim/get https://github.com/preservim/nerdtree
-	$progdir/vim/get https://github.com/tpope/vim-commentary
-	$progdir/vim/get https://github.com/tpope/vim-eunuch
-	$progdir/vim/get https://github.com/tpope/vim-fugitive
-	$progdir/vim/get https://github.com/tpope/vim-obsession
-	$progdir/vim/get https://github.com/tpope/vim-repeat
-	$progdir/vim/get https://github.com/tpope/vim-surround
-
-	$progdir/vim/get -o https://github.com/fatih/vim-go
-fi
-
-if [ "$lab" -eq 1 ]
-then
-	if [ ! -d ~/.virtualenvs/lab ]
-	then
-		log "creating lab virtualenv"
-		python3 -m venv ~/.virtualenvs/lab
-	fi
-
-	~/.virtualenvs/lab/bin/python3 -m pip install --upgrade \
-		numpy \
-		matplotlib \
-		pandas \
-		notebook
-fi
+./vim/get    https://github.com/preservim/nerdtree
+./vim/get    https://github.com/tpope/vim-commentary
+./vim/get    https://github.com/tpope/vim-eunuch
+./vim/get    https://github.com/tpope/vim-fugitive
+./vim/get    https://github.com/tpope/vim-obsession
+./vim/get    https://github.com/tpope/vim-repeat
+./vim/get    https://github.com/tpope/vim-surround
+./vim/get -o https://github.com/fatih/vim-go
