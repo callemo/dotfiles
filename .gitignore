@@ -11,4 +11,5 @@
 /test.out
 Session.vim*
 __pycache__/
+acme.dump
 node_modules/
