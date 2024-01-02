@@ -72,8 +72,7 @@ echo nomark | 9p write "acme/$winid/ctl"
 cur="$(perl -e '
     open $pipe, "|-", "9p rdwr acme/$ARGV[0]/addr >/dev/null" || die $!;
     system("echo addr=dot | 9p write acme/$ARGV[0]/ctl && 9p read acme/$ARGV[0]/addr");
-    close $pipe || die $!;' -- "$winid" | awk '{ printf "#%d", $1 }')"
-
+    close $pipe || die $!;' -- "$winid" | awk '{ printf "#%d,#%d", $1, $2 }')"
 
 printf , | 9p write "acme/$winid/addr"
 9p write "acme/$winid/data" <"$out"
