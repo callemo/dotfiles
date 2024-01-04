@@ -17,6 +17,10 @@ ksh)
 	: "${HISTFILE:=$HOME/.ksh_history}"
 	HISTSIZE=10000; export HISTSIZE
 	set -o emacs
+	if command -v fzf >/dev/null
+	then
+		bind -m '^r'=eval\ \`fzf\ --no-sort\ --tac\ \<$HOME/.ksh_history\`^J
+	fi
 	;;
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
