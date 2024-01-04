@@ -15,11 +15,20 @@ EDITOR=vim; export EDITOR
 case "${SHELL##*/}" in
 ksh)
 	: "${HISTFILE:=$HOME/.ksh_history}"
-	HISTSIZE=10000; export HISTSIZE
+	export HISTSIZE=10000
+	export HISTCONTROL=ignoredups:ignorespace
 	set -o emacs
 	if command -v fzf >/dev/null
 	then
-		bind -m '^r'=eval\ \`fzf\ --no-sort\ --tac\ \<$HOME/.ksh_history\`^J
+		_hist() {
+			local cmd
+			cmd="$(fzf --tac --no-sort <"$HISTFILE")"
+			if [ -n "$cmd" ]
+			then
+				eval "$cmd"
+			fi
+		}
+		bind -m ^R=\ _hist^J
 	fi
 	;;
 zsh)
