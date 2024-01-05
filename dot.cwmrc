@@ -14,10 +14,12 @@ color ungroupborder  "#000000"
 
 # Applications
 command acme       "xterm -geometry 80x8 -title 9start -e /bin/ksh -l -c '. $HOME/dotfiles/init.sh; 9start'"
+command dict       "xterm -e '/usr/local/plan9/bin/9 dict'"
 command firefox    firefox
 command mutt       "xterm -title mutt -e /bin/ksh -l -c '. $HOME/dotfiles/init.sh; mutt'"
 command top        "xterm -title top -e /bin/ksh -l -c '. $HOME/dotfiles/init.sh; top'"
 command vim        "xterm -title vim -e /bin/ksh -l -c '. $HOME/dotfiles/init.sh; vim'"
+command xterm      xterm
 
 ignore xclock
 ignore xconsole
