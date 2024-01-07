@@ -133,6 +133,7 @@ nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>z :resize<CR>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
@@ -611,6 +612,10 @@ elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
 	let $PATH=$HOME . '/acme/bin:' . $PATH
 	colorscheme basic
+endif
+
+if filereadable('go.mod')
+	packadd vim-go
 endif
 
 if filereadable(expand('~/.vimrc.local'))
