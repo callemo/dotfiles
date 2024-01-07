@@ -82,11 +82,16 @@ let g:NERDTreeMapOpenRecursively="+"
 let g:NERDTreeMapCloseChildren="-"
 let g:NERDTreeMapPreview='p'
 let g:NERDTreeMapActivateNode='gf'
-let g:NERDTreeMapOpenSplit='<C-w>f'
-let g:NERDTreeMapOpenInTab='<C-w>t'
+let g:NERDTreeMapOpenSplit='<C-x>'
+let g:NERDTreeMapOpenInTab='<C-t>'
 
-let g:go_def_mode='gopls'
-let g:go_info_mode='gopls'
+let g:go_def_mode         = 'gopls'
+let g:go_info_mode        = 'gopls'
+let g:go_auto_type_info   = 1
+let g:go_doc_popup_window = 1
+let g:go_term_enabled     = 1
+let g:go_term_mode        = 'split'
+let g:go_term_reuse       = 0
 
 augroup dotfiles
 	autocmd!
