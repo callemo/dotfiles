@@ -85,13 +85,15 @@ let g:NERDTreeMapActivateNode='gf'
 let g:NERDTreeMapOpenSplit='<C-x>'
 let g:NERDTreeMapOpenInTab='<C-t>'
 
-let g:go_def_mode         = 'gopls'
-let g:go_info_mode        = 'gopls'
-let g:go_auto_type_info   = 1
-let g:go_doc_popup_window = 1
-let g:go_term_enabled     = 1
-let g:go_term_mode        = 'split'
-let g:go_term_reuse       = 0
+let g:go_def_mode           = 'gopls'
+let g:go_info_mode          = 'gopls'
+let g:go_auto_type_info     = 1
+let g:go_decls_mode         = 'fzf'
+let g:go_doc_popup_window   = 1
+let g:go_term_close_on_exit = 0
+let g:go_term_enabled       = 1
+let g:go_term_mode          = 'split'
+let g:go_term_reuse         = 1
 
 augroup dotfiles
 	autocmd!
@@ -112,6 +114,8 @@ augroup dotfiles
 	autocmd FileType c,cpp setl path+=/usr/include
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
+	autocmd FileType go nnoremap <buffer> <leader>o :GoDeclsDir<CR>
+	autocmd FileType go nnoremap <buffer> <leader>t :GoTest -v<CR>
 	autocmd FileType javascript,json,typescript setl sw=4 sts=4 et
 	autocmd FileType markdown,python,yaml setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
@@ -142,17 +146,15 @@ nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>F    :Fmt<CR>
-nnoremap <leader>L    :Lint<CR>
-nnoremap <leader>b    :buffers<CR>
-nnoremap <leader>d    :bwipeout<CR>
+nnoremap <leader>B    :buffers<CR>
+nnoremap <leader>D    :bwipeout<CR>
+nnoremap <leader>F    :NERDTreeFind<CR>
+nnoremap <leader>R    :registers<CR>
+nnoremap <leader>T    :call Tmux()<CR>
+nnoremap <leader>b    :NERDTreeToggle<CR>
 nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
-nnoremap <leader>f    :NERDTreeFind<CR>
-nnoremap <leader>gf   :drop <cfile><CR>
-nnoremap <leader>n    :NERDTreeToggle<CR>
-nnoremap <leader>p    :let @"=expand('%:p')<CR>
-nnoremap <leader>r    :registers<CR>
-nnoremap <leader>t    :call Tmux()<CR>
+nnoremap <leader>f    :Fmt<CR>
+nnoremap <leader>l    :Lint<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
