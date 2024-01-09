@@ -54,4 +54,4 @@ else
 	set -- -f "$varfont" -F "$fixfont" "$@"
 fi
 
-PATH="$DOTFILES/acme/bin:$PATH" exec "${PLAN9:-/usr/local/plan9}"/bin/acme "$@"
+PATH="$DOTFILES/acme:$PATH" exec "${PLAN9:-/usr/local/plan9}"/bin/acme "$@"

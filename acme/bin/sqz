@@ -1,3 +1,0 @@
-#!/bin/sh
-# sqz: squeeze white-space characters.
-tr -s ' \t\n' ' ' "$@"

@@ -1,0 +1,4 @@
+#!/bin/sh
+exec acme-lsp -hidediag \
+	-server 'go\.mod$@go.mod,go\.sum$@go.sum,\.go$@go:gopls' \
+	-workspaces "$PWD"

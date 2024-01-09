@@ -613,11 +613,11 @@ endfunction
 
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
-	let $PATH=$DOTFILES . '/acme/bin:' . $PATH
+	let $PATH=$DOTFILES . '/acme:' . $PATH
 	colorscheme basic
 elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
-	let $PATH=$HOME . '/acme/bin:' . $PATH
+	let $PATH=$HOME . '/acme:' . $PATH
 	colorscheme basic
 endif
 

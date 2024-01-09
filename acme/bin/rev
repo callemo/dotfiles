@@ -1,4 +1,0 @@
-#!/bin/sh
-# rev: reverse lines
-
-cat "$@" | nl -ba | sort -nr | cut -f 2-
