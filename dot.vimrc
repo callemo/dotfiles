@@ -23,8 +23,6 @@ set noexpandtab
 set nofoldenable
 set noincsearch
 set noswapfile
-set notimeout
-set nottimeout
 set nowritebackup
 set nrformats-=octal
 set path=.,,
