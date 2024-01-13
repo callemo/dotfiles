@@ -146,13 +146,10 @@ nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B    :buffers<CR>
+nnoremap <leader>B    :NERDTreeFind<CR>
 nnoremap <leader>D    :bwipeout<CR>
-nnoremap <leader>F    :NERDTreeFind<CR>
-nnoremap <leader>R    :registers<CR>
-nnoremap <leader>T    :call Tmux()<CR>
+nnoremap <leader>N    :new <c-r>=expand('%:h')<CR>/
 nnoremap <leader>b    :NERDTreeToggle<CR>
-nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
 nnoremap <leader>f    :Fmt<CR>
 nnoremap <leader>l    :Lint<CR>
 
@@ -219,7 +216,7 @@ if has('terminal')
 endif
 
 " Mouse
-set mouse=nvi
+set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
