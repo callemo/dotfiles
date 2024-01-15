@@ -22,6 +22,7 @@ set noequalalways
 set noexpandtab
 set nofoldenable
 set noincsearch
+set nojoinspaces
 set noswapfile
 set nowritebackup
 set nrformats-=octal
