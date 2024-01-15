@@ -6,6 +6,8 @@ set backspace=indent,eol,start
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
+set completeopt=menuone,popup
+set completepopup=border:off
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
@@ -20,9 +22,8 @@ set noequalalways
 set noexpandtab
 set nofoldenable
 set noincsearch
+set nojoinspaces
 set noswapfile
-set notimeout
-set nottimeout
 set nowritebackup
 set nrformats-=octal
 set path=.,,
@@ -43,9 +44,14 @@ set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 set wildmode=longest,list
 
+if has('mac')
+	set clipboard=autoselect
+endif
+
 if has('syntax') && has('eval')
 	packadd! matchit
 endif
+
 runtime! ftplugin/man.vim
 filetype plugin on
 syntax on
@@ -63,6 +69,10 @@ let g:NERDTreeDirArrowExpandable='+'
 let g:NERDTreeDirArrowCollapsible='-'
 let g:NERDTreeShowHidden=1
 let g:NERDTreeSortHiddenFirst=1
+let g:NERDTreeWinPos='right'
+let g:NERDTreeWinSize=40
+let g:NERDTreeMinimalMenu=1
+let g:NERDTreeAutoDeleteBuffer=1
 let g:NERDTreeMapJumpNextSibling=''
 let g:NERDTreeMapJumpPrevSibling=''
 let g:NERDTreeMapToggleFilters=''
@@ -71,11 +81,18 @@ let g:NERDTreeMapOpenRecursively="+"
 let g:NERDTreeMapCloseChildren="-"
 let g:NERDTreeMapPreview='p'
 let g:NERDTreeMapActivateNode='gf'
-let g:NERDTreeMapOpenSplit='<C-w>f'
-let g:NERDTreeMapOpenInTab='<C-w>t'
+let g:NERDTreeMapOpenSplit='<C-x>'
+let g:NERDTreeMapOpenInTab='<C-t>'
 
-let g:go_def_mode='gopls'
-let g:go_info_mode='gopls'
+let g:go_def_mode           = 'gopls'
+let g:go_info_mode          = 'gopls'
+let g:go_auto_type_info     = 1
+let g:go_decls_mode         = 'fzf'
+let g:go_doc_popup_window   = 1
+let g:go_term_close_on_exit = 0
+let g:go_term_enabled       = 1
+let g:go_term_mode          = 'split'
+let g:go_term_reuse         = 1
 
 augroup dotfiles
 	autocmd!
@@ -96,61 +113,47 @@ augroup dotfiles
 	autocmd FileType c,cpp setl path+=/usr/include
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	autocmd FileType javascript,json,typescript setl sw=2 sts=2 et
-	autocmd FileType markdown,python,yaml setl et
+	autocmd FileType go nnoremap <buffer> <leader>o :GoDeclsDir<CR>
+	autocmd FileType go nnoremap <buffer> <leader>t :GoTest -v<CR>
+	autocmd FileType javascript,json,typescript setl sw=4 sts=4 et
+	autocmd FileType markdown,python,yaml setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
 
 command! -nargs=+ -complete=file -range
-	\ Cmd call Cmd(<range>, <line1>, <line2>, <q-args>)
+	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
+command! -nargs=* Rg call Rg(<q-args>)
+command! -nargs=* Fts call Fts(<q-args>)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
 
-nmap <down> <c-d>
-nmap <up> <c-u>
+nnoremap <down> <c-e>
+nnoremap <up> <c-y>
+inoremap <down> <c-o><c-e>
+inoremap <up> <c-o><c-y>
 nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
 nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>z :resize<CR>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
-nnoremap <leader><CR> :Send<CR>
-nnoremap <leader>F    :Fmt<CR>
-nnoremap <leader>L    :Lint<CR>
-nnoremap <leader>b    :buffers<CR>
-nnoremap <leader>d    :bwipeout<CR>
-nnoremap <leader>e    :edit <c-r>=expand('%:h')<CR>/
-nnoremap <leader>f    :NERDTreeFind<CR>
-nnoremap <leader>gf   :drop <cfile><CR>
-nnoremap <leader>n    :NERDTreeFocus<CR>
-nnoremap <leader>p    :let @"=expand('%:p')<CR>
-nnoremap <leader>r    :registers<CR>
-nnoremap <leader>t    :call Tmux()<CR>
+nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+nnoremap <leader>B    :NERDTreeFind<CR>
+nnoremap <leader>D    :bwipeout<CR>
+nnoremap <leader>N    :new <c-r>=expand('%:h')<CR>/
+nnoremap <leader>b    :NERDTreeToggle<CR>
+nnoremap <leader>f    :Fmt<CR>
+nnoremap <leader>l    :Lint<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
-
-if has('macunix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'open ' . expand('<cfile>'))<CR>
-elseif has('unix')
-	nnoremap <silent> gx :call Cmd(0, 0, 0, 'xdg-open ' . expand('<cfile>'))<CR>
-endif
-
-if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
-	nnoremap <expr> <silent> <c-k>
-		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
-else
-	nnoremap <silent> <c-j> :wincmd w<CR>
-	nnoremap <silent> <c-k> :wincmd W<CR>
-endif
 
 nnoremap ]a :next<CR>
 nnoremap [a :previous<CR>
@@ -172,14 +175,24 @@ nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 vnoremap * :call SetVisualSearch()<CR>/<CR>
-vnoremap <leader>! :<c-u>call ExecVisualText()<CR>
-vnoremap <leader><CR> :Send<CR>
+vnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
+vnoremap <silent> <leader><CR> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
+
+if !empty($TMUX)
+	nnoremap <expr> <silent> <c-j>
+		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
+	nnoremap <expr> <silent> <c-k>
+		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
+else
+	nnoremap <silent> <c-j> :wincmd w<CR>
+	nnoremap <silent> <c-k> :wincmd W<CR>
+endif
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
@@ -206,17 +219,12 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
+nmap <silent> <middlemouse> <leftmouse><leader>!<c-r><c-w><CR>
+nmap <silent> <rightmouse>  <leftmouse><leader><CR>
+vmap <silent> <middlemouse> <leader>!
+vmap <silent> <rightmouse>  <leader><CR>
 
-nnoremap <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
-vmap <middlemouse> <leader>!
-nmap <a-leftmouse> <middlemouse>
-vmap <a-leftmouse> <middlemouse>
-
-nnoremap <rightmouse> <leftmouse>*
-vmap <rightmouse> *
-vmap <a-leftmouse> <leader>!
-
-" GetVisualText() returns the text selected in visual mode.
+" GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
 	let reg = @"
 	silent normal! vgvy
@@ -225,22 +233,22 @@ function! GetVisualText() abort
 	return text
 endfunction
 
-" SetVisualSearch() literal search of the selected text in visual mode. Any
+" SetVisualSearch literal search of the selected text in visual mode. Any
 " regex special characters are escaped.
 function! SetVisualSearch() abort
 	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
 endfunction
 
-" Cmd() executes a command with an optional rage for input.
-function! Cmd(range, line1, line2, cmd) abort
+" Cmd executes a command with an optional rage for input.
+function! Cmd(cmd, range, line1, line2) abort
 	if g:cmd_async && exists('*job_start')
-		call StartAsyncCmd(a:range, a:line1, a:line2, a:cmd)
+		call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
 	else
-		call RunShellCmd(a:range, a:line1, a:line2, a:cmd)
+		call RunCmd(a:range, a:line1, a:line2, a:cmd)
 	endif
 endfunction
 
-" MakeTempBuffer() Creates a scratch buffer. Returns the buffer name.
+" MakeTempBuffer creates a scratch buffer returning its name
 function! MakeTempBuffer() abort
 	let bufname = getcwd() . '/+Errors'
 	if !bufexists(bufname)
@@ -253,8 +261,8 @@ function! MakeTempBuffer() abort
 	return bufname
 endfunction
 
-" RunShellCmd() synchronously execute a command.
-function! RunShellCmd(range, line1, line2, cmd) abort
+" RunCmd executes a shell command
+function! RunCmd(range, line1, line2, cmd) abort
 	let input = a:range > 0 ? getline(a:line1, a:line2) : []
 	silent let output = systemlist(a:cmd, input)
 	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
@@ -269,8 +277,8 @@ function! RunShellCmd(range, line1, line2, cmd) abort
 	echom msg
 endfunction
 
-" StartAsyncCmd() asynchronously execute a command.
-function! StartAsyncCmd(range, line1, line2, cmd) abort
+" RunCmdAsync asynchronously executes a shell command.
+function! RunCmdAsync(range, line1, line2, cmd) abort
 	let bufname = MakeTempBuffer()
 	let opts = {
 		\ 'in_io': 'null', 'mode': 'raw',
@@ -300,14 +308,14 @@ function! StartAsyncCmd(range, line1, line2, cmd) abort
 		\ }
 endfunction
 
-" AsyncCmdOutputHandler() job output handler.
+" AsyncCmdOutputHandler job output handler.
 function! AsyncCmdOutputHandler(channel, msg) abort
 	let job = ch_getjob(a:channel)
 	let pid = job_info(job).process
 	let g:cmd_async_tasks[pid].output += 1
 endfunction
 
-" AsyncCmdCloseHandler() channel close handler.
+" AsyncCmdCloseHandler channel close handler.
 function! AsyncCmdCloseHandler(channel) abort
 	let job = ch_getjob(a:channel)
 	let pid = job_info(job).process
@@ -318,7 +326,7 @@ function! AsyncCmdCloseHandler(channel) abort
 	endif
 endfunction
 
-" AsyncCmdExitHandler() job exit handler.
+" AsyncCmdExitHandler job exit handler.
 function! AsyncCmdExitHandler(job, code) abort
 	let pid = job_info(a:job).process
 	echom g:cmd_async_tasks[pid].name . ': exit ' . a:code
@@ -329,7 +337,7 @@ function! AsyncCmdExitHandler(job, code) abort
 	endif
 endfunction
 
-" AsyncCmdDone() cleans up after close and exit have finished.
+" AsyncCmdDone cleans up after close and exit have finished.
 function! AsyncCmdDone(job) abort
 	let pid = job_info(a:job).process
 	let name = g:cmd_async_tasks[pid].name
@@ -346,7 +354,7 @@ function! AsyncCmdDone(job) abort
 	call remove(g:cmd_async_tasks, pid)
 endfunction
 
-" UpdateCurrentWindow() appends texts to the active buffer and moves the
+" UpdateCurrentWindow appends texts to the active buffer and moves the
 " cursor to the bottom.
 function! UpdateCurrentWindow(text) abort
 	if wordcount().bytes == 0
@@ -357,12 +365,12 @@ function! UpdateCurrentWindow(text) abort
 	call cursor(line('$'), '.')
 endfunction
 
-" ExecVisualText() executes the selected visual text as the command.
+" ExecVisualText executes the selected visual text as the command.
 function! ExecVisualText() abort
-	call Cmd(0, 0, 0, escape(GetVisualText(), '%#'))
+	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
 endfunction
 
-" Tmux() swaps the unnamed register with the tmux buffer.
+" Tmux swaps the unnamed register with the tmux buffer.
 function! Tmux() abort
 	silent let tmp = system('tmux showb')
 	silent call system('tmux loadb -', @")
@@ -379,7 +387,7 @@ let g:linters = {
 			\ 'sh': 'shellcheck -f gcc',
 			\ }
 
-" LintFile() runs a linter for the current file.
+" LintFile runs a linter for the current file.
 function! LintFile() abort
 	let cmd = get(g:linters, &filetype, v:null)
 	if cmd == v:null
@@ -387,7 +395,7 @@ function! LintFile() abort
 		return
 	endif
 	update
-	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
+	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
 endfunction
 
@@ -400,16 +408,16 @@ let g:formatters = {
 			\ 'python': 'black -q',
 			\ }
 
-" FormatFile() runs a formatter for the current file.
+" FormatFile runs a formatter for the current file.
 function! FormatFile(...) abort
-	let fallback = 'prettier --write --loglevel warn'
+	let fallback = 'prettier --write --log-level warn'
 	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
 	update
-	call Cmd(0, 0, 0, cmd . ' ' . expand('%:S'))
+	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
 endfunction
 
-" Send() types the current line or range to a terminal buffer as it was typed
+" Send types the current line or range to a terminal buffer as it was typed
 " by the user.
 function! Send(range, start, end, ...) abort
 	if a:0 > 0
@@ -417,7 +425,7 @@ function! Send(range, start, end, ...) abort
 	elseif exists('w:send_terminal_buf')
 		let buf = w:send_terminal_buf
 	else
-		echohl ErrorMsg | echo 'No terminal link' | echohl None
+		echohl ErrorMsg | echo 'no terminal link' | echohl None
 		return
 	endif
 	let keys = join(getline(a:start, a:end), "\n")
@@ -428,7 +436,7 @@ function! Send(range, start, end, ...) abort
 	let w:send_terminal_buf = buf
 endfunction
 
-" TrimTrailingBlanks() remove tailing consecutive blanks.
+" TrimTrailingBlanks remove tailing consecutive blanks.
 function! TrimTrailingBlanks() abort
 	let last_pos = getcurpos()
 	let last_search = @/
@@ -500,14 +508,117 @@ function! TabLabel(n) abort
 	return label
 endfunction
 
+" Rg executes the ripgrep program loading its results on the quickfix window.
+function! Rg(args)
+	let oprg = &grepprg
+	let &grepprg = 'rg --vimgrep'
+	exec 'grep' a:args
+	let &grepprg = oprg
+	botright cwindow
+	silent! cfirst
+endfunction
+
+" Plumb dispatches the handling of an acquisition gesture.
+function! Plumb(wdir, attr, data) abort
+	" URLs
+	let m = matchlist(a:data, '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+\([.:][a-zA-Z0-9_@\-]+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
+	if len(m)
+		call OpenURL(m[0])
+		return
+	endif
+
+	" Wiki link
+	let m = matchlist(a:data, '\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
+	if len(m)
+		call OpenWikilink(m[1])
+		return
+	endif
+
+	" File with address
+	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):')
+	if len(m)
+		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
+		if filereadable(f)
+			if bufexists(f)
+				silent exe 'sbuffer' '+' . m[2] fnameescape(f)
+			else
+				silent exe 'split' '+' . m[2] fnameescape(f)
+			endif
+			return
+		endif
+	endif
+
+	" File
+	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\)')
+	if len(m)
+		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
+		if filereadable(f)
+			if bufexists(f)
+				silent exe 'sbuffer' fnameescape(f)
+			else
+				silent exe 'split' fnameescape(f)
+			endif
+			return
+		endif
+	endif
+
+	" Text search
+	if get(a:attr, 'visual', 0)
+		let @/ = substitute('\m\C' . escape(a:data, '\.^$[]*~'), "\n", '\\n', 'g')
+		call feedkeys("/\<CR>")
+	elseif has_key(a:attr, 'word')
+		let @/ = '\<' . a:attr['word'] . '\>'
+		call feedkeys("/\<CR>")
+	endif
+endfunction
+
+" OpenURL opens the given URL
+function! OpenURL(url) abort
+	echom 'url:' a:url
+	if has('mac')
+		call Cmd('open ''' . a:url . '''', 0, 0, 0)
+	else
+		call Cmd('xdg-open ''' . a:url . '''', 0, 0, 0)
+	endif
+endfunction
+
+" OpenWikilink searches for a file path and opens it.
+function! OpenWikilink(name) abort
+	let f = trim(system('wkln ' . shellescape(a:name)))
+	if empty(f)
+		echohl ErrorMsg
+		echo 'wikilink: not found:' . a:name
+		echohl None
+		return
+	endif
+	echom 'wikilink:' f
+	if bufexists(f)
+		silent exe 'sbuffer' fnameescape(f)
+	else
+		silent exe 'split' fnameescape(f)
+	endif
+endfunction
+
+function! Fts(query) abort
+	call setqflist([], 'r', {
+		\ 'title' : 'Fts ' . a:query,
+		\ 'lines' : systemlist('fts ' . a:query . ' | cut -f 1,2'),
+		\ 'efm': '%f	%m' })
+	cwindow
+endfunction
+
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
-	let $PATH=$DOTFILES . '/acme/bin:' . $PATH
+	let $PATH=$DOTFILES . '/acme:' . $PATH
 	colorscheme basic
 elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
-	let $PATH='~/dotfiles/acme/bin:' . $PATH
+	let $PATH=$HOME . '/acme:' . $PATH
 	colorscheme basic
+endif
+
+if filereadable('go.mod')
+	packadd vim-go
 endif
 
 if filereadable(expand('~/.vimrc.local'))
