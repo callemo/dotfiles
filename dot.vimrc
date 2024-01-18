@@ -45,7 +45,7 @@ set wildmenu
 set wildmode=longest,list
 
 if has('mac')
-	set clipboard=autoselect
+	set clipboard=unnamed
 endif
 
 if has('syntax') && has('eval')
