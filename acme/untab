@@ -1,2 +1,2 @@
 #!/bin/sh
-exec unexpand -t 4 "$@"
+exec expand -t 4 "$@"
