@@ -14,7 +14,6 @@ set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
-set hlsearch
 set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
@@ -115,6 +114,7 @@ augroup dotfiles
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
 	autocmd FileType go nnoremap <buffer> <leader>o :GoDeclsDir<CR>
 	autocmd FileType go nnoremap <buffer> <leader>t :GoTest -v<CR>
+	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json,typescript setl sw=4 sts=4 et
 	autocmd FileType markdown,python,yaml setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
