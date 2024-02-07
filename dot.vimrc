@@ -617,6 +617,10 @@ elseif isdirectory(expand('~/dotfiles'))
 	colorscheme basic
 endif
 
+if isdirectory(expand('~/.fzf'))
+	set rtp+=~/.fzf
+endif
+
 if filereadable('go.mod')
 	packadd vim-go
 endif

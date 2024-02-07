@@ -9,6 +9,7 @@ $1 == "```pikchr" {
 $1 == "```" {
 	if (inpik) {
 		inpik = 0
+		close("pikchr --svg-only -")
 		next
 	}
 }
