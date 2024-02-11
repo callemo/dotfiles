@@ -18,18 +18,6 @@ ksh)
 	export HISTSIZE=10000
 	export HISTCONTROL=ignoredups:ignorespace
 	set -o emacs
-	if command -v fzf >/dev/null
-	then
-		_hist() {
-			local cmd
-			cmd="$(fzf --tac --no-sort <"$HISTFILE")"
-			if [ -n "$cmd" ]
-			then
-				eval "$cmd"
-			fi
-		}
-		bind -m ^R=\ _hist^J
-	fi
 	;;
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
@@ -45,6 +33,18 @@ bash)
 	HISTFILESIZE=10000; export HISTFILESIZE
 	;;
 esac
+
+if command -v fzf >/dev/null
+then
+	fzf_hist() {
+		local cmd
+		cmd="$(fzf --tac --no-sort <"$HISTFILE")"
+		if [ -n "$cmd" ]
+		then
+			eval "$cmd"
+		fi
+	}
+fi
 
 _merge_path '/usr/local/node/bin'
 _merge_path '/usr/local/go/bin'
