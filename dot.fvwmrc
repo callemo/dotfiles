@@ -1,54 +1,42 @@
-# .fvwm2rc
-
+# dot.fvwmrc
+IconPath   /usr/X11R6/include/X11/bitmaps
 ModulePath /usr/X11R6/lib/X11/fvwm
 PixmapPath /usr/X11R6/include/X11/pixmaps
-IconPath   /usr/X11R6/include/X11/bitmaps
 
+ClickTime      750
+ColormapFocus  FollowsMouse
+DeskTopSize    4x1
 EdgeResistance 250 10
-EdgeScroll 100 100
-ClickTime 750
+EdgeScroll     100 100
+HilightColor   white #b24d7a
 OpaqueMoveSize 100
 SnapAttraction 10
 
+IconFont   -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
 WindowFont -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
-IconFont -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
 
-HilightColor white #b24d7a
-MenuStyle * Foreground black Background #aeb2c3
 MenuStyle * Font -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
+MenuStyle * Foreground black Background #aeb2c3
 
-DeskTopSize 4x1
-
-ColormapFocus FollowsMouse
-
-# Default Styles
 Style  "*" BorderWidth 7, HandleWidth 7
-Style  "*" Icon unknown1.xpm, Color black/#aeb2c3
-Style  "*" MWMFunctions, MWMDecor, HintOverride
 Style  "*" DecorateTransient, NoPPosition
+Style  "*" Icon unknown1.xpm, Color black/#aeb2c3
 Style  "*" IconBox 0 -10 -280 -1
-#Style  "*" FocusFollowsMouse
+Style  "*" MWMFunctions, MWMDecor, HintOverride
 Style  "*" SloppyFocus, MouseFocusClickRaises
 Style  "*" SmartPlacement, RandomPlacement
 
-
-# Styles for Fvwm modules
-Style "Fvwm*"		NoTitle,  Sticky, WindowListSkip
-Style "Fvwm*"		BorderWidth 2, CirculateSkipIcon, CirculateSkip
-Style "FvwmPager"	StaysOnTop
-Style "FvwmBanner"	StaysOnTop
+Style "*lock"       NoTitle, NoHandles, Sticky, WindowListSkip, ClickToFocus
+Style "Fvwm*"       BorderWidth 2, CirculateSkipIcon, CirculateSkip
+Style "Fvwm*"       NoTitle, Sticky, WindowListSkip
+Style "FvwmBanner"  StaysOnTop
 Style "FvwmButtons" Icon toolbox.xpm, ClickToFocus
+Style "FvwmPager"   StaysOnTop
 
-# Styles for programs
-Style "*lock"		NoTitle, NoHandles, Sticky, WindowListSkip, ClickToFocus
-Style "xbiff"		NoTitle, Sticky, WindowListSkip, ClickToFocus
-Style "xcalc"		Icon xcalc.xpm, NoButton 2,RandomPlacement,ClickToFocus
-Style "xmh"			Icon mail1.xpm, NoIconTitle,StickyIcon
-Style "xmh"		RandomPlacement, NoButton 2
-Style "xmag"		Icon mag_glass.xpm, RandomPlacement, ClickToFocus
-Style "xgraph"		Icon graphs.xpm, RandomPlacement, ClickToFocus
-Style "xmosaic"		Color Green/Yellow, ClickToFocus
-Style "xconsole"	Icon rterm.xpm, WindowListSkip, Sticky
+Style "xbiff"    NoTitle, Sticky, WindowListSkip, ClickToFocus
+Style "xcalc"    Icon xcalc.xpm, NoButton 2,RandomPlacement, ClickToFocus
+Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
+Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 
 # some simple default key bindings:
 Key Next		 A		 SCM	 Next [*] Focus
@@ -82,14 +70,14 @@ AddToFunc InitFunction	  "I" Module FvwmPager 0 0
 AddToFunc RestartFunction "I" Module FvwmPager 0 0
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
-# Menus
 AddToMenu RootMenu "Fvwm"	 Title
-+				"Firefox" exec firefox
-+				"XTerm"	 exec xterm
-+				"" Nop
-+				"Restart fvwm" Restart fvwm
-+				"Lock"	 exec xlock -echokeys -echokey \*
-+				"Exit"	 Module FvwmForm QuitVerify
++ "Firefox"      exec firefox
++ "XTerm"        exec xterm
++ ""             Nop
++ "Restart fvwm" Restart fvwm
++ ""             Nop
++ "Lock screen"  exec xlock -echokeys -echokey \*
++ "Exit session" Module FvwmForm QuitVerify
 
 AddToMenu Window-Ops "Window"		Title
 + "Move"		 Move
@@ -222,7 +210,7 @@ Key F8		A	M	CirculateDown
 *FvwmPagerFore white
 *FvwmPagerHilight #2d2d2d
 *FvwmPagerGeometry 200x50-1-1
-*FvwmPagerLabel 0 "OpenBSD"
+*FvwmPagerLabel 0 "Pager"
 *FvwmPagerLabel 1 Maker
 *FvwmPagerLabel 2 Mail
 *FvwmPagerLabel 3 Matlab
