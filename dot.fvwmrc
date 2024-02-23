@@ -1,4 +1,6 @@
 # dot.fvwmrc
+# See fvwm(1) and examples in /usr/X11R6/lib/X11/fvwm
+
 IconPath   /usr/X11R6/include/X11/bitmaps
 ModulePath /usr/X11R6/lib/X11/fvwm
 PixmapPath /usr/X11R6/include/X11/pixmaps
@@ -12,12 +14,16 @@ HilightColor   white #b24d7a
 OpaqueMoveSize 100
 SnapAttraction 10
 
-IconFont   -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
-WindowFont -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
+IconFont   -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+WindowFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 
-MenuStyle * Font -b&h-lucida-bold-r-*-*-14-140-*-*-*-*-iso10646-*
+MenuStyle * Font -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 MenuStyle * Foreground black Background #aeb2c3
 
+AddToFunc StartFunction "I" Module FvwmPager 0 0
++ "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
+
+# Styles {{{
 Style  "*" BorderWidth 7, HandleWidth 7
 Style  "*" DecorateTransient, NoPPosition
 Style  "*" Icon unknown1.xpm, Color black/#aeb2c3
@@ -37,7 +43,9 @@ Style "xbiff"    NoTitle, Sticky, WindowListSkip, ClickToFocus
 Style "xcalc"    Icon xcalc.xpm, NoButton 2,RandomPlacement, ClickToFocus
 Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
 Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
+# }}}
 
+# Bindings {{{
 # some simple default key bindings:
 Key Next		 A		 SCM	 Next [*] Focus
 Key Prior		 A		 SCM	 Prev [*] Focus
@@ -63,76 +71,6 @@ Mouse 3	TSIF	A	RaiseLower
 
 Key Tab A M WindowList Root c c NoDeskSort
 
-# Initialization functions
-AddToFunc InitFunction	  "I" Module FvwmPager 0 0
-+ "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
-
-AddToFunc RestartFunction "I" Module FvwmPager 0 0
-+ "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
-
-AddToMenu RootMenu "Fvwm"	 Title
-+ "Firefox"      exec firefox
-+ "XTerm"        exec xterm
-+ ""             Nop
-+ "Restart fvwm" Restart fvwm
-+ ""             Nop
-+ "Lock screen"  exec xlock -echokeys -echokey \*
-+ "Exit session" Module FvwmForm QuitVerify
-
-AddToMenu Window-Ops "Window"		Title
-+ "Move"		 Move
-+ "Resize"		 Resize
-+ "(De)Iconify"  Iconify
-+ "(Un)Maximize" Maximize
-+ "Raise"		 Raise
-+ "Lower"		 Lower
-+ "(Un)Stick"	 Stick
-+ "" Nop
-+ "Close"		 Close
-+ "Delete"		 Delete
-+ "Destroy"		 Destroy
-+ "" Nop
-+ "Refresh"		 RefreshWindow
-
-AddToMenu Window-Ops2
-+ "Move"	 Move
-+ "Resize"	 Resize
-+ "Iconify"  Iconify
-+ "Maximize" Maximize
-+ "Raise"	 Raise
-+ "Lower"	 Lower
-+ "Stick"	 Stick
-+ "" Nop
-+ "Close"	 Close
-
-######################## Sample Functions ##########################
-
-AddToFunc Move-or-Raise		"I" Raise
-+				"M" Move
-+				"D" Lower
-
-AddToFunc Maximize-Func		"M" Maximize	 0 100
-+				"C" Maximize	 0 80
-+				"D" Maximize	 100 100
-
-AddToFunc Move-or-Iconify	"I" Raise
-+				"M" Move
-+				"D" Iconify
-
-AddToFunc Resize-or-Raise	"I" Raise
-+				"M" Resize
-+				"D" Lower
-
-AddToFunc FocusAndWarp "I" Focus
-+					   "I" WarpToWindow 2p 2p
-
-AddToFunc DeiconifyFocusAndWarp "I" Iconify -1
-+								"I" FocusAndWarp
-
-AddToFunc ChangeDefaultFocus "I" Style "*" $0
-+							 "I" Recapture
-
-############################################################################
 # Now some keyboard shortcuts.
 
 # Arrow Keys
@@ -180,6 +118,88 @@ Key F8		A	M	CirculateDown
 #Key Prior	A		C		Scroll -100000 0
 #Key Prior	R		N		Scroll -100000 0
 
+# }}}
+
+# Menus {{{
+AddToMenu RootMenu "Fvwm"	 Title
++ "Clock"        exec xclock
++ "Firefox"      exec firefox
++ "Mutt"         exec xterm -T Mutt -n Mutt -e mutt
++ "Top"          exec xterm -T Top -n Top -e top
++ "XTerm"        exec xterm
++ ""             Nop
++ "Restart fvwm" Restart fvwm
++ ""             Nop
++ "Lock"         exec xlock -echokeys -echokey \*
++ "Exit"         Module FvwmForm QuitVerify
+
+AddToMenu Window-Ops "Window"		Title
++ "Move"		 Move
++ "Resize"		 Resize
++ "(De)Iconify"  Iconify
++ "(Un)Maximize" Maximize
++ "Raise"		 Raise
++ "Lower"		 Lower
++ "(Un)Stick"	 Stick
++ "" Nop
++ "Close"		 Close
++ "Delete"		 Delete
++ "Destroy"		 Destroy
++ "" Nop
++ "Refresh"		 RefreshWindow
+
+AddToMenu Window-Ops2
++ "Move"	 Move
++ "Resize"	 Resize
++ "Iconify"  Iconify
++ "Maximize" Maximize
++ "Raise"	 Raise
++ "Lower"	 Lower
++ "Stick"	 Stick
++ "" Nop
++ "Close"	 Close
+# }}}
+
+# Functions {{{
+######################## Sample Functions ##########################
+
+AddToFunc Move-or-Raise		"I" Raise
++				"M" Move
++				"D" Lower
+
+AddToFunc Maximize-Func		"M" Maximize	 0 100
++				"C" Maximize	 0 80
++				"D" Maximize	 100 100
+
+AddToFunc Move-or-Iconify	"I" Raise
++				"M" Move
++				"D" Iconify
+
+AddToFunc Resize-or-Raise	"I" Raise
++				"M" Resize
++				"D" Lower
+
+AddToFunc FocusAndWarp "I" Focus
++					   "I" WarpToWindow 2p 2p
+
+AddToFunc DeiconifyFocusAndWarp "I" Iconify -1
++								"I" FocusAndWarp
+
+AddToFunc ChangeDefaultFocus "I" Style "*" $0
++							 "I" Recapture
+
+############################################################################
+# }}}
+
+# Pager {{{
+*FvwmPagerFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
+*FvwmPagerBack #63639c
+*FvwmPagerFore white
+*FvwmPagerHilight black
+*FvwmPagerGeometry 250x60-0-0
+*FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-8-*-*-*-*-*-iso10646-*
+# }}}
+
 ################## FvwmButtons button-bar ################################
 *FvwmButtonsBack bisque3
 *FvwmButtons(Frame 2 Padding 2 2 Container(Rows 2 Frame 1 Padding 10 0 \
@@ -203,18 +223,6 @@ Key F8		A	M	CirculateDown
 *FvwmIdentBack MidnightBlue
 *FvwmIdentFore Yellow
 *FvwmIdentFont -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
-
-########################### Pager #########################################
-*FvwmPagerFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
-*FvwmPagerBack darkblue
-*FvwmPagerFore white
-*FvwmPagerHilight #2d2d2d
-*FvwmPagerGeometry 200x50-1-1
-*FvwmPagerLabel 0 "Pager"
-*FvwmPagerLabel 1 Maker
-*FvwmPagerLabel 2 Mail
-*FvwmPagerLabel 3 Matlab
-*FvwmPagerSmallFont 5x8
 
 ##########################FvwmWinList##################################
 *FvwmWinListBack #908090

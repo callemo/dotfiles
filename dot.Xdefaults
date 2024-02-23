@@ -13,8 +13,8 @@ XConsole*background:  rgb:40/40/40
 XConsole*cursorColor: rgb:ff/b0/00
 XConsole*saveLines:   8
 
-*font: -b&h-lucidatypewriter-bold-r-*-*-14-140-*-*-*-*-iso10646-*
-
+*font: -b&h-lucidatypewriter-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*background: #fff7e9
 *Scrollbar.translations: #override \n\
     <Btn1Down>:         StartScroll(Backward) \n\
     <Btn3Down>:         StartScroll(Forward) \n\
