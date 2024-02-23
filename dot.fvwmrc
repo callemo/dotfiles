@@ -44,7 +44,6 @@ Style "xcalc"    Icon xcalc.xpm, NoButton 2,RandomPlacement, ClickToFocus
 Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
 Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 # }}}
-
 # Bindings {{{
 # some simple default key bindings:
 Key Next		 A		 SCM	 Next [*] Focus
@@ -53,11 +52,11 @@ Key Prior		 A		 SCM	 Prev [*] Focus
 # some simple default mouse bindings:
 #	for the root window:
 Mouse 1	R		A		Menu RootMenu Nop
-Mouse 2	R		A		Menu Window-Ops Nop
+Mouse 2	R		A		Menu GlobalWindowOps Nop
 Mouse 3	R		A		WindowList
 
 #	for the title bar buttons:
-Mouse 0	1		A		Menu Window-Ops2 Close
+Mouse 0	1		A		Menu ContextWindowOps Close
 Mouse 0	2		A		Maximize-Func
 Mouse 0	4		A		Iconify
 
@@ -66,7 +65,7 @@ Mouse 1	F	A	Resize-or-Raise
 Mouse 1	TS	A	Move-or-Raise
 Mouse 1	I	A	Move-or-Iconify
 Mouse 2	I	A	Iconify
-Mouse 2	FST	A	Menu Window-Ops2 Nop
+Mouse 2	FST	A	Menu ContextWindowOps Nop
 Mouse 3	TSIF	A	RaiseLower
 
 Key Tab A M WindowList Root c c NoDeskSort
@@ -100,7 +99,7 @@ Key Down	A	SM	CursorMove +0	+10
 
 # Keyboard accelerators
 Key F1		A	M	Menu RootMenu
-Key F2		A	M	Menu Window-Ops
+Key F2		A	M	Menu GlobalWindowOps
 Key F3		A	M	WindowList FvwmWinList
 Key F4		A	M	Iconify
 Key F5		A	M	Move
@@ -119,7 +118,6 @@ Key F8		A	M	CirculateDown
 #Key Prior	R		N		Scroll -100000 0
 
 # }}}
-
 # Menus {{{
 AddToMenu RootMenu "Fvwm"	 Title
 + "Clock"        exec xclock
@@ -128,12 +126,12 @@ AddToMenu RootMenu "Fvwm"	 Title
 + "Top"          exec xterm -T Top -n Top -e top
 + "XTerm"        exec xterm
 + ""             Nop
-+ "Restart fvwm" Restart fvwm
++ "Restart"      Restart fvwm
 + ""             Nop
 + "Lock"         exec xlock -echokeys -echokey \*
 + "Exit"         Module FvwmForm QuitVerify
 
-AddToMenu Window-Ops "Window"		Title
+AddToMenu GlobalWindowOps "Window"		Title
 + "Move"		 Move
 + "Resize"		 Resize
 + "(De)Iconify"  Iconify
@@ -148,18 +146,13 @@ AddToMenu Window-Ops "Window"		Title
 + "" Nop
 + "Refresh"		 RefreshWindow
 
-AddToMenu Window-Ops2
-+ "Move"	 Move
-+ "Resize"	 Resize
-+ "Iconify"  Iconify
-+ "Maximize" Maximize
-+ "Raise"	 Raise
-+ "Lower"	 Lower
-+ "Stick"	 Stick
-+ "" Nop
-+ "Close"	 Close
+AddToMenu ContextWindowOps
++ "Info"      Module FvwmIdent
++ "Iconify"   Iconify
++ "Maximize"  Maximize
++ "Stick"	  Stick
++ "Close"	  Close
 # }}}
-
 # Functions {{{
 ######################## Sample Functions ##########################
 
@@ -190,7 +183,7 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 
 ############################################################################
 # }}}
-
+# Modules {{{
 # Pager {{{
 *FvwmPagerFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
 *FvwmPagerBack #63639c
@@ -198,6 +191,12 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *FvwmPagerHilight black
 *FvwmPagerGeometry 250x60-0-0
 *FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-8-*-*-*-*-*-iso10646-*
+# }}}
+# Ident {{{
+*FvwmIdentBack #fff7e9
+*FvwmIdentFore Black
+*FvwmIdentFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+# }}}
 # }}}
 
 ################## FvwmButtons button-bar ################################
@@ -217,12 +216,6 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *FvwmButtons(End)
 *FvwmButtons(End)
 
-
-########################## Window-Identifier ###############################
-# Just choose colors and a fonts
-*FvwmIdentBack MidnightBlue
-*FvwmIdentFore Yellow
-*FvwmIdentFont -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
 
 ##########################FvwmWinList##################################
 *FvwmWinListBack #908090
