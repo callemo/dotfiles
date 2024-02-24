@@ -113,17 +113,19 @@ Key F8		A	M	CirculateDown
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Fvwm"	 Title
-+ "Clock"        exec xclock
-+ "Firefox"      exec firefox
-+ "Mutt"         exec xterm -T Mutt -n Mutt -e mutt
-+ "Top"          exec xterm -T Top -n Top -e top
-+ "XTerm"        exec xterm
-+ ""             Nop
-+ "Talk"         Module FvwmTalk
-+ "Restart"      Restart fvwm
-+ ""             Nop
++ "Clock"                exec xclock
++ "Firefox"              exec firefox
++ "Mutt"                 exec xterm -T Mutt -n Mutt -e mutt
++ "Top"                  exec xterm -T Top -n Top -e top
++ "XTerm"                exec xterm
++ ""                     Nop
++ "Connect to server..." FvwmForm ConnectToServer
++ ""                     Nop
++ "Talk"                 Module FvwmTalk
++ "Restart"              Restart fvwm
++ ""                     Nop
 + "Lock Display"         exec xlock -echokeys -echokey \*
-+ "Log out..."         Module FvwmForm LogOut
++ "Log out..."           Module FvwmForm LogOut
 
 AddToMenu GlobalWindowOps "Window"		Title
 + "Move"		 Move
@@ -203,50 +205,27 @@ Style "FvwmPager"   StaysOnTop, NoHandles
 *LogOutLine       left
 *LogOutText       "and log out now?"
 *LogOutLine       right
-*LogOutButton     quit	  "Cancel"
+*LogOutButton     quit "Cancel" ^[
 *LogOutCommand    Nop
-*LogOutButton     quit	  "Log Out"
+*LogOutButton     quit "Log Out" ^M
 *LogOutCommand    Quit
 Style "LogOut" NoTitle, NoHandles
 # }}}
-# Ssh {{{
-*SshWarpPointer
-*SshFont		 *helvetica*m*r*n*12*
-*SshButtonFont	 *helvetica*m*o*n*12*
-*SshInputFont	 *cour*m*r*n*12*
-*SshFore		 Black
-*SshBack		 White
-*SshItemFore	 Black
-*SshItemBack	 Wheat
-# begin items
-*SshLine		 center
-*SshText		 "Login to Remote Host"
-*SshLine		 center
-*SshText		 "Host:"
-*SshInput		 HostName  30	""
-*SshLine		 center
-*SshSelection	 meth single
-*SshChoice		 TN TN off "telnet"
-*SshChoice		 RL RL on "ssh"
-*SshSelection	 UserSel   single
-#*SshChoice		  Default	Default   on   "same user"
-#*SshChoice		  Custom	Custom	  off  "user:"
-*SshText		 "(Userid:"
-*SshInput		 UserName  10	""
-*SshText		 ")"
-*SshLine		 center
-*SshText		 "FG:"
-*SshInput		 FgColor 15 ""
-*SshText		 "BG:"
-*SshInput		 BgColor 15 ""
-*SshLine		 expand
-*SshButton		 quit "Login" ^M
-*SshCommand Exec xterm	$(FgColor?-fg $(FgColor)) $(BgColor?-bg $(BgColor)) -T xterm@$(HostName) -e $(RL?ssh) $(TN?telnet) $(HostName) $(UserName?-l $(UserName))
-*SshButton		 restart   "Clear"
-*SshCommand Beep
-*SshButton		 quit "Cancel"
-*SshCommand Nop
+# ConnectToServer {{{
+*ConnectToServerWarpPointer
+*ConnectToServerFont		 -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerButtonFont	 -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerInputFont	 -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerLine		 center
+*ConnectToServerText		 "Connect To Server"
+*ConnectToServerLine		 left
+*ConnectToServerInput		 Server  30	""
+*ConnectToServerLine		 right
+*ConnectToServerButton		 quit "Cancel" ^[
+*ConnectToServerCommand      Nop
+*ConnectToServerButton		 quit "Connect" ^M
+*ConnectToServerCommand      exec xterm -T "xterm: $(Server)" -e ssh $(Server)
+Style "ConnectToServer" NoTitle, NoHandles
 # }}}
 # }}}
 # }}}
-
