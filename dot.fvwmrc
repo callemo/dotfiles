@@ -119,7 +119,7 @@ AddToMenu RootMenu "Fvwm"    Title
 + "Top"                  exec xterm -T Top -n Top -e top
 + "XTerm"                exec xterm
 + ""                     Nop
-+ "Run..."               FvwmForm Run
++ "Run..."               FvwmForm RunCommand
 + "Connect to server..." FvwmForm ConnectToServer
 + ""                     Nop
 + "Talk"                 Module FvwmTalk
@@ -220,7 +220,7 @@ Style "LogOut" NoTitle, NoHandles
 *ConnectToServerLine         center
 *ConnectToServerText         "Connect To Server"
 *ConnectToServerLine         left
-*ConnectToServerInput        Server  30 ""
+*ConnectToServerInput        Server  64 ""
 *ConnectToServerLine         right
 *ConnectToServerButton       quit "Cancel" ^[
 *ConnectToServerCommand      Nop
@@ -228,21 +228,21 @@ Style "LogOut" NoTitle, NoHandles
 *ConnectToServerCommand      exec xterm -T "xterm: $(Server)" -e ssh $(Server)
 Style "ConnectToServer" NoTitle, NoHandles
 # }}}
-# Run {{{
-*RunWarpPointer
-*RunFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
-*RunLine       center
-*RunText       "Run"
-*RunLine       left
-*RunInput      Cmd  30 ""
-*RunLine       right
-*RunButton     quit "Cancel" ^[
-*RunCommand    Nop
-*RunButton     quit "Run" ^M
-*RunCommand    exec $(Cmd)
-Style "Run" NoTitle, NoHandles
+# RunCommand {{{
+*RunCommandWarpPointer
+*RunCommandFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*RunCommandButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*RunCommandInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*RunCommandLine       center
+*RunCommandText       "Run"
+*RunCommandLine       left
+*RunCommandInput      Cmd  64 ""
+*RunCommandLine       right
+*RunCommandButton     quit "Cancel" ^[
+*RunCommandCommand    Nop
+*RunCommandButton     quit "Run" ^M
+*RunCommandCommand    exec $(Cmd)
+Style "RunCommand" NoTitle, NoHandles
 # }}}
 # }}}
 # }}}
