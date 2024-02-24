@@ -10,14 +10,13 @@ ColormapFocus  FollowsMouse
 DeskTopSize    4x1
 EdgeResistance 250 10
 EdgeScroll     100 100
-HilightColor   white #b24d7a
 OpaqueMoveSize 100
 SnapAttraction 10
 
-IconFont   -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-WindowFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 
-MenuStyle * Font -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+HilightColor white #b24d7a
+
 MenuStyle * Foreground black Background #aeb2c3
 
 AddToFunc StartFunction "I" Module FvwmPager 0 0
@@ -130,7 +129,7 @@ AddToMenu RootMenu "Fvwm"	 Title
 + "Restart"      Restart fvwm
 + ""             Nop
 + "Lock"         exec xlock -echokeys -echokey \*
-+ "Exit"         Module FvwmForm QuitVerify
++ "Exit"         Module FvwmForm LogOut
 
 AddToMenu GlobalWindowOps "Window"		Title
 + "Move"		 Move
@@ -199,24 +198,18 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *FvwmIdentFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 # }}}
 # Form {{{
-# QuitVerify {{{
-*QuitVerifyGrabServer
-*QuitVerifyWarpPointer
-*QuitVerifyFont			 *helvetica*m*r*n*14*
-#*QuitVerifyButtonFont	  *helvetica*m*o*n*14*
-*QuitVerifyButtonFont	 7x13bold
-*QuitVerifyFore			 Black
-*QuitVerifyBack			 Light Gray
-*QuitVerifyItemFore Wheat
-*QuitVerifyItemBack Gray50
-# begin items
-*QuitVerifyLine			 center
-*QuitVerifyText			 "Do you really want to exit FVWM?"
-*QuitVerifyLine			 expand
-*QuitVerifyButton	quit	  " Exit "
-*QuitVerifyCommand	Quit
-*QuitVerifyButton	quit	  "Cancel"
-*QuitVerifyCommand	Nop
+# LogOut {{{
+*LogOutGrabServer
+*LogOutWarpPointer
+*LogOutFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*LogOutButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*LogOutLine       center
+*LogOutText       "Are you sure you want to quit all applications and log out now?"
+*LogOutLine       expand
+*LogOutButton     quit	  "Cancel"
+*LogOutCommand    Nop
+*LogOutButton     quit	  "Log Out"
+*LogOutCommand    Quit
 # }}}
 # Ssh {{{
 *SshWarpPointer
