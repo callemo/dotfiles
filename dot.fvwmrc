@@ -126,6 +126,7 @@ AddToMenu RootMenu "Fvwm"	 Title
 + "Top"          exec xterm -T Top -n Top -e top
 + "XTerm"        exec xterm
 + ""             Nop
++ "Talk"         Module FvwmTalk
 + "Restart"      Restart fvwm
 + ""             Nop
 + "Lock"         exec xlock -echokeys -echokey \*
@@ -197,90 +198,27 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *FvwmIdentFore Black
 *FvwmIdentFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 # }}}
+# Form {{{
+# QuitVerify {{{
+*QuitVerifyGrabServer
+*QuitVerifyWarpPointer
+*QuitVerifyFont			 *helvetica*m*r*n*14*
+#*QuitVerifyButtonFont	  *helvetica*m*o*n*14*
+*QuitVerifyButtonFont	 7x13bold
+*QuitVerifyFore			 Black
+*QuitVerifyBack			 Light Gray
+*QuitVerifyItemFore Wheat
+*QuitVerifyItemBack Gray50
+# begin items
+*QuitVerifyLine			 center
+*QuitVerifyText			 "Do you really want to exit FVWM?"
+*QuitVerifyLine			 expand
+*QuitVerifyButton	quit	  " Exit "
+*QuitVerifyCommand	Quit
+*QuitVerifyButton	quit	  "Cancel"
+*QuitVerifyCommand	Nop
 # }}}
-
-################## FvwmButtons button-bar ################################
-*FvwmButtonsBack bisque3
-*FvwmButtons(Frame 2 Padding 2 2 Container(Rows 2 Frame 1 Padding 10 0 \
-										   Swallow(Respawn)))
-*FvwmButtons(NoSize Title Close, Icon bomb.xpm, Action Close)
-*FvwmButtons(Title Resize Icon mini.resize.xpm Back bisque4 Action Resize)
-*FvwmButtons(Frame -3 Swallow(Respawn,NoHints) xclock \
-	   `Exec exec xclock -bg darkolivegreen -padding 0 -geometry +2000+0`)
-*FvwmButtons(3x1 Back darkolivegreen Fore white Frame 2 Padding 2 2 \
-				 Container(Rows 1 Frame -2 Padding 1 1 Back darkolivegreen))
-*FvwmButtons(Frame 2 Title(Side,Right) Mail Fore white \
-		 Swallow(UseOld,NoRespawn)\
-		 xbiff `Exec exec xbiff -bg darkolivegreen -geometry +200+200`)
-*FvwmButtons(2x1 Swallow (NoHints) "FvwmTalk" "FvwmTalk")
-*FvwmButtons(End)
-*FvwmButtons(End)
-
-
-##########################FvwmWinList##################################
-*FvwmWinListBack #908090
-*FvwmWinListFore Black
-*FvwmWinListFont -adobe-helvetica-bold-r-*-*-10-*-*-*-*-*-*-*
-*FvwmWinListAction Click1 Iconify -1,Focus
-*FvwmWinListAction Click2 Iconify
-*FvwmWinListAction Click3 Module "FvwmIdent" FvwmIdent
-*FvwmWinListUseSkipList
-*FvwmWinListGeometry +0-1
-
-
-*FvwmBackerDesk 0 -solid steelblue
-*FvwmBackerDesk 1 -solid midnightblue
-
-*FvwmScrollBack grey40
-*FvwmScrollFore green
-
-############################################################
-############################################################
-# Note that icons are shown in the module
-#	 only if NoIcon commnand is applied.
-#Style	   "*"	NoIcon
-
-############################################################
-*FvwmIconBoxIconBack	#cfcfcf
-*FvwmIconBoxIconHiFore	black
-*FvwmIconBoxIconHiBack	LightSkyBlue
-*FvwmIconBoxBack		#5f9ea0
-#*FvwmIconBoxFore		blue
-*FvwmIconBoxGeometry	5x1+0+0
-*FvwmIconBoxMaxIconSize 64x38
-*FvwmIconBoxFont		-adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
-*FvwmIconBoxSortIcons	IconName
-*FvwmIconBoxPadding		4
-*FvwmIconBoxLines		10
-*FvwmIconBoxSBWidth		11
-*FvwmIconBoxPlacement	Left Top
-*FvwmIconBoxPixmap		fvwm.xpm
-#*FvwmIconBoxHideSC Horizontal
-*FvwmIconBoxSetWMIconSize
-*FvwmIconBoxHilightFocusWin
-#*FvwmIconBoxResolution			 Desk
-*FvwmIconBoxMouse		1		Click			RaiseLower
-*FvwmIconBoxMouse		1		DoubleClick		Iconify
-*FvwmIconBoxMouse		2		Click			Iconify -1, Focus
-*FvwmIconBoxMouse		3		Click			Module FvwmIdent
-*FvwmIconBoxKey			r		RaiseLower
-*FvwmIconBoxKey			space	Iconify
-*FvwmIconBoxKey			d		Close
-*FvwmIconBoxKey			n		Next
-*FvwmIconBoxKey			p		Prev
-*FvwmIconBoxKey			h		Left
-*FvwmIconBoxKey			j		Down
-*FvwmIconBoxKey			k		Up
-*FvwmIconBoxKey			l		Right
-#
-# Icon file specifications
-#
-# Mostly, you don't have to specify icon files, as FvwmIconBox now
-# reads icon files specified in Style commands.
-#
-*FvwmIconBox			"Fvwm*"			-
-
-# FvwmForm alias - ssh or telnet to host via xterm
+# Ssh {{{
 *SshWarpPointer
 *SshFont		 *helvetica*m*r*n*12*
 *SshButtonFont	 *helvetica*m*o*n*12*
@@ -317,67 +255,7 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *SshCommand Beep
 *SshButton		 quit "Cancel"
 *SshCommand Nop
+# }}}
+# }}}
+# }}}
 
-# FvwmForm alias - query exit ala mwm
-*QuitVerifyGrabServer
-*QuitVerifyWarpPointer
-*QuitVerifyFont			 *helvetica*m*r*n*14*
-#*QuitVerifyButtonFont	  *helvetica*m*o*n*14*
-*QuitVerifyButtonFont	 7x13bold
-*QuitVerifyFore			 Black
-*QuitVerifyBack			 Light Gray
-*QuitVerifyItemFore Wheat
-*QuitVerifyItemBack Gray50
-# begin items
-*QuitVerifyLine			 center
-*QuitVerifyText			 "Do you really want to exit FVWM?"
-*QuitVerifyLine			 expand
-*QuitVerifyButton	quit	  " Exit "
-*QuitVerifyCommand	Quit
-*QuitVerifyButton	quit	  "Cancel"
-*QuitVerifyCommand	Nop
-
-# MyTalk & MyFvwmTalk from Dave Goldberg
-# MyTalk Form - dissappears after use
-*MyTalkWarpPointer
-*MyTalkFont *helvetica*m*r*n*14*
-*MyTalkButtonFont *helvetica*m*o*n*14*
-*MyTalkInputFont *cour*m*r*n*14*
-*MyTalkFore Red
-*MyTalkBack Gray
-*MyTalkItemFore Blue
-*MyTalkItemBack Gray
-*MyTalkLine center
-*MyTalkText "Fvwm Function"
-*MyTalkInput Func 40 ""
-*MyTalkLine expand
-*MyTalkButton quit "Run" ^M
-*MyTalkCommand $(Func)
-*MyTalkButton restart "Clear" ^R
-*MyTalkButton quit "Cancel" ^C
-*MyTalkCommand Nop
-# MyFvwmTalk Form - sticks around
-*MyFvwmTalkWarpPointer
-*MyFvwmTalkFont *helvetica*m*r*n*14*
-*MyFvwmTalkButtonFont *helvetica*m*o*n*14*
-*MyFvwmTalkInputFont *cour*m*r*n*14*
-*MyFvwmTalkFore Red
-*MyFvwmTalkBack Gray
-*MyFvwmTalkItemFore Blue
-*MyFvwmTalkItemBack Gray
-*MyFvwmTalkLine center
-*MyFvwmTalkText "Fvwm Function"
-*MyFvwmTalkInput Func 40 ""
-*MyFvwmTalkLine expand
-*MyFvwmTalkButton restart "Run" ^M
-*MyFvwmTalkCommand $(Func)
-*MyFvwmTalkButton restart "Clear" ^R
-*MyFvwmTalkCommand Nop
-*MyFvwmTalkButton restart "Iconify" ^Z
-*MyFvwmTalkCommand Next [MyFvwmTalk] Iconify
-*MyFvwmTalkButton quit "Quit" ^C
-*MyFvwmTalkCommand Nop
-
-# to change banner pixmap
-#*FvwmBannerPixmap fvwm3.xpm
-#*FvwmBannerTimeout 2
