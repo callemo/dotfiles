@@ -31,15 +31,9 @@ Style  "*" MWMFunctions, MWMDecor, HintOverride
 Style  "*" SloppyFocus, MouseFocusClickRaises
 Style  "*" SmartPlacement, RandomPlacement
 
-Style "*lock"       NoTitle, NoHandles, Sticky, WindowListSkip, ClickToFocus
-Style "Fvwm*"       BorderWidth 2, CirculateSkipIcon, CirculateSkip
-Style "Fvwm*"       NoTitle, Sticky, WindowListSkip
-Style "FvwmBanner"  StaysOnTop
-Style "FvwmButtons" Icon toolbox.xpm, ClickToFocus
-Style "FvwmPager"   StaysOnTop
-
-Style "xbiff"    NoTitle, Sticky, WindowListSkip, ClickToFocus
-Style "xcalc"    Icon xcalc.xpm, NoButton 2,RandomPlacement, ClickToFocus
+Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkipIcon, CirculateSkip
+Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
+Style "xclock"    NoTitle, NoHandles, Sticky, WindowListSkip, ClickToFocus
 Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
 Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 # }}}
@@ -128,8 +122,8 @@ AddToMenu RootMenu "Fvwm"	 Title
 + "Talk"         Module FvwmTalk
 + "Restart"      Restart fvwm
 + ""             Nop
-+ "Lock"         exec xlock -echokeys -echokey \*
-+ "Exit"         Module FvwmForm LogOut
++ "Lock Display"         exec xlock -echokeys -echokey \*
++ "Log out..."         Module FvwmForm LogOut
 
 AddToMenu GlobalWindowOps "Window"		Title
 + "Move"		 Move
@@ -191,6 +185,7 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *FvwmPagerHilight black
 *FvwmPagerGeometry 250x60-0-0
 *FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-8-*-*-*-*-*-iso10646-*
+Style "FvwmPager"   StaysOnTop, NoHandles
 # }}}
 # Ident {{{
 *FvwmIdentBack #fff7e9
@@ -203,13 +198,16 @@ AddToFunc ChangeDefaultFocus "I" Style "*" $0
 *LogOutWarpPointer
 *LogOutFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 *LogOutButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*LogOutLine       center
-*LogOutText       "Are you sure you want to quit all applications and log out now?"
-*LogOutLine       expand
+*LogOutLine       left
+*LogOutText       "Are you sure you want to quit all applications"
+*LogOutLine       left
+*LogOutText       "and log out now?"
+*LogOutLine       right
 *LogOutButton     quit	  "Cancel"
 *LogOutCommand    Nop
 *LogOutButton     quit	  "Log Out"
 *LogOutCommand    Quit
+Style "LogOut" NoTitle, NoHandles
 # }}}
 # Ssh {{{
 *SshWarpPointer
