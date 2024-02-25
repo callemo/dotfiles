@@ -56,8 +56,8 @@ Mouse 3      TSFI    A         RaiseLower
 
 Mouse 0      1       A         Menu WinOps Close
 Mouse 1      2       A         Maximize
-Mouse 2      2       A         Maximize 0 100
-Mouse 3      2       A         Maximize 100 0
+Mouse 2      2       A         Maximize
+Mouse 3      2       A         Maximize 0 100
 Mouse 0      4       A         Iconify
 # }}}
 # Keyboard {{{
