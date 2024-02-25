@@ -23,13 +23,13 @@ AddToFunc StartFunction "I" Module FvwmPager 0 0
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
 # Styles {{{
-Style  "*" BorderWidth 7, HandleWidth 7
-Style  "*" DecorateTransient, NoPPosition
-Style  "*" Icon unknown1.xpm, Color black/#aeb2c3
-Style  "*" IconBox 0 -10 -280 -1
-Style  "*" MWMFunctions, MWMDecor, HintOverride
-Style  "*" SloppyFocus, MouseFocusClickRaises
-Style  "*" SmartPlacement, RandomPlacement
+Style "*" BorderWidth 7, HandleWidth 7
+Style "*" DecorateTransient, NoPPosition
+Style "*" Icon unknown1.xpm, Color black/#aeb2c3
+Style "*" IconBox 0 -10 -280 -1
+Style "*" MWMFunctions, MWMDecor, HintOverride
+Style "*" SloppyFocus, MouseFocusClickRaises
+Style "*" SmartPlacement, RandomPlacement
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkipIcon, CirculateSkip
 Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
@@ -45,11 +45,11 @@ Key Prior        A       SCM     Prev [*] Focus
 # some simple default mouse bindings:
 #   for the root window:
 Mouse 1 R       A       Menu RootMenu Nop
-Mouse 2 R       A       Menu GlobalWindowOps Nop
+Mouse 2 R       A       Menu RootWinOps Nop
 Mouse 3 R       A       WindowList
 
 #   for the title bar buttons:
-Mouse 0 1       A       Menu ContextWindowOps Close
+Mouse 0 1       A       Menu WinOps Close
 Mouse 0 2       A       Maximize-Func
 Mouse 0 4       A       Iconify
 
@@ -58,77 +58,41 @@ Mouse 1 F   A   Resize-or-Raise
 Mouse 1 TS  A   Move-or-Raise
 Mouse 1 I   A   Move-or-Iconify
 Mouse 2 I   A   Iconify
-Mouse 2 FST A   Menu ContextWindowOps Nop
+Mouse 2 FST A   Menu WinOps Nop
 Mouse 3 TSIF    A   RaiseLower
 
-Key Tab A M WindowList Root c c NoDeskSort
+Key Left  A   M   Scroll -100 0
+Key Right A   M   Scroll +100 +0
+Key Up    A   M   Scroll +0 -100
+Key Down  A   M   Scroll +0 +100
 
-# Now some keyboard shortcuts.
-
-# Arrow Keys
-# press arrow + control anywhere, and scroll by 1 page
-Key Left    A   C   Scroll -100 0
-Key Right   A   C   Scroll +100 +0
-Key Up      A   C   Scroll +0   -100
-Key Down    A   C   Scroll +0   +100
-
-# press arrow + meta key, and scroll by 1/10 of a page
-#Key Left   A   M   Scroll -10 +0
-#Key Right  A   M   Scroll +10 +0
-#Key Up     A   M   Scroll +0   -10
-#Key Down   A   M   Scroll +0   +10
-
-# press shift arrow + control anywhere, and move the pointer by 1% of a page
-Key Left    A   SC  CursorMove -1 0
-Key Right   A   SC  CursorMove +1 +0
-Key Up      A   SC  CursorMove +0   -1
-Key Down    A   SC  CursorMove +0   +1
-
-# press shift arrow + meta key, and move the pointer by 1/10 of a page
-Key Left    A   SM  CursorMove -10 +0
-Key Right   A   SM  CursorMove +10 +0
-Key Up      A   SM  CursorMove +0   -10
-Key Down    A   SM  CursorMove +0   +10
-
-# Keyboard accelerators
-Key F1      A   M   Menu RootMenu
-Key F2      A   M   Menu GlobalWindowOps
-Key F3      A   M   WindowList FvwmWinList
-Key F4      A   M   Iconify
-Key F5      A   M   Move
-Key F6      A   M   Resize
-Key F7      A   M   CirculateUp
-Key F8      A   M   CirculateDown
-
-#Page Up/Page Down keys are used to scroll by one desktop page
-# in any context, press page up/down + control
-# in root context, just pressing page up/down is OK
-#
-# I prefer the non-wrapping scroll. These are for example purposes only
-#Key Next   A       C       Scroll 100000 0
-#Key Next   R       N       Scroll 100000 0
-#Key Prior  A       C       Scroll -100000 0
-#Key Prior  R       N       Scroll -100000 0
-
+Key K     A   M   Module FvwmForm ConnectToServer
+Key M     A   M   Iconify
+Key N     A   M   Exec exec xterm
+Key Q     A   CM  Exec exec xlock -echokeys -echokey \*
+Key Q     A   SM  Module FvwmForm LogOut
+Key R     A   CM  Restart fvwm
+Key R     A   M   Module FvwmForm RunCommand
+Key Slash A   M   WindowList FvwmWinList
+Key Tab   A   M   WindowList Root c c NoDeskSort
+Key W     A   M   Close
 # }}}
 # Menus {{{
-AddToMenu RootMenu "Fvwm"    Title
-+ "Clock"                exec xclock
-+ "Firefox"              exec firefox
-+ "Mutt"                 exec xterm -T Mutt -n Mutt -e mutt
-+ "Top"                  exec xterm -T Top -n Top -e top
-+ "XTerm"                exec xterm
-+ ""                     Nop
-+ "Run..."               FvwmForm RunCommand
-+ "Connect to server..." FvwmForm ConnectToServer
-+ ""                     Nop
-+ "Talk"                 Module FvwmTalk
-+ "Restart"              Restart fvwm
-+ ""                     Nop
-+ "Lock Display"         exec xlock -echokeys -echokey \*
-+ "Log out..."           Module FvwmForm LogOut
+AddToMenu RootMenu "Fvwm" Title
++ "Clock"                      Exec exec xclock
++ "Firefox"                    Exec exec firefox
++ "Mutt"                       Exec exec xterm -T Mutt -n Mutt -e mutt
++ "Top"                        Exec exec xterm -T Top -n Top -e top
++ "XTerm	M-N"             Exec exec xterm
++ ""                           Nop
++ "Talk"                       Module FvwmTalk
++ "Restart	CM-R"            Restart fvwm
++ "Run...	M-R"             Module FvwmForm RunCommand
++ "Connect to server...	M-K" Module FvwmForm ConnectToServer
++ "Lock Display	CM-Q"        Exec exec xlock -echokeys -echokey \*
++ "Log out...	SM-Q"         Module FvwmForm LogOut
 
-AddToMenu GlobalWindowOps "Window"      Title
+AddToMenu RootWinOps "Window" Title
 + "Move"         Move
 + "Resize"       Resize
 + "(De)Iconify"  Iconify
@@ -143,42 +107,39 @@ AddToMenu GlobalWindowOps "Window"      Title
 + "" Nop
 + "Refresh"      RefreshWindow
 
-AddToMenu ContextWindowOps
-+ "Info"      Module FvwmIdent
-+ "Iconify"   Iconify
-+ "Maximize"  Maximize
-+ "Stick"     Stick
-+ "Close"     Close
+AddToMenu WinOps
++ "Info"            Module FvwmIdent
++ "Iconify"         Iconify
++ "Maximize"        Maximize
++ "Stick"           Stick
++ "Refresh"         RefreshWindow
++ "Close	M-W" Close
 # }}}
 # Functions {{{
-######################## Sample Functions ##########################
+AddToFunc Move-or-Raise "I" Raise
++ "M" Move
++ "D" Lower
 
-AddToFunc Move-or-Raise     "I" Raise
-+               "M" Move
-+               "D" Lower
+AddToFunc Maximize-Func "M" Maximize 0 100
++ "C" Maximize 0 80
++ "D" Maximize 100 100
 
-AddToFunc Maximize-Func     "M" Maximize     0 100
-+               "C" Maximize     0 80
-+               "D" Maximize     100 100
+AddToFunc Move-or-Iconify "I" Raise
++ "M" Move
++ "D" Iconify
 
-AddToFunc Move-or-Iconify   "I" Raise
-+               "M" Move
-+               "D" Iconify
-
-AddToFunc Resize-or-Raise   "I" Raise
-+               "M" Resize
-+               "D" Lower
+AddToFunc Resize-or-Raise "I" Raise
++ "M" Resize
++ "D" Lower
 
 AddToFunc FocusAndWarp "I" Focus
-+                      "I" WarpToWindow 2p 2p
++ "I" WarpToWindow 2p 2p
 
 AddToFunc DeiconifyFocusAndWarp "I" Iconify -1
-+                               "I" FocusAndWarp
++ "I" FocusAndWarp
 
 AddToFunc ChangeDefaultFocus "I" Style "*" $0
-+                            "I" Recapture
-
-############################################################################
++ "I" Recapture
 # }}}
 # Modules {{{
 # Pager {{{
@@ -220,7 +181,7 @@ Style "LogOut" NoTitle, NoHandles
 *ConnectToServerLine         center
 *ConnectToServerText         "Connect To Server"
 *ConnectToServerLine         left
-*ConnectToServerInput        Server  64 ""
+*ConnectToServerInput        Server  50 ""
 *ConnectToServerLine         right
 *ConnectToServerButton       quit "Cancel" ^[
 *ConnectToServerCommand      Nop
@@ -236,7 +197,7 @@ Style "ConnectToServer" NoTitle, NoHandles
 *RunCommandLine       center
 *RunCommandText       "Run"
 *RunCommandLine       left
-*RunCommandInput      Cmd  64 ""
+*RunCommandInput      Cmd  50 ""
 *RunCommandLine       right
 *RunCommandButton     quit "Cancel" ^[
 *RunCommandCommand    Nop
