@@ -5,19 +5,17 @@ IconPath   /usr/X11R6/include/X11/bitmaps
 ModulePath /usr/X11R6/lib/X11/fvwm
 PixmapPath /usr/X11R6/include/X11/pixmaps
 
-ClickTime      250
 ColormapFocus  FollowsMouse
 OpaqueMoveSize 100
 SnapAttraction 10 Windows
 
 DeskTopSize    4x1
 EdgeScroll     100 100
-EdgeResistance 250 10
+EdgeResistance 300 10
 
 DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 HilightColor white #b24d7a
 MenuStyle * Foreground black, Background #aeb2c3
-# MenuStyle * HilightBack black, ActiveFore White, Hilight3DOff
 
 AddToFunc StartFunction "I" Module FvwmPager 0 0
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
