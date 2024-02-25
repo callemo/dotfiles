@@ -7,11 +7,12 @@ PixmapPath /usr/X11R6/include/X11/pixmaps
 
 ClickTime      750
 ColormapFocus  FollowsMouse
+OpaqueMoveSize 100
+SnapAttraction 10
+
 DeskTopSize    4x1
 EdgeResistance 250 10
 EdgeScroll     100 100
-OpaqueMoveSize 100
-SnapAttraction 10
 
 DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 
@@ -33,33 +34,32 @@ Style "*" SmartPlacement, RandomPlacement
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkipIcon, CirculateSkip
 Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
-Style "xclock"    NoTitle, NoHandles, Sticky, WindowListSkip, ClickToFocus
+Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, ClickToFocus
 Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
 Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 # }}}
 # Bindings {{{
-# some simple default key bindings:
-Key Next         A       SCM     Next [*] Focus
-Key Prior        A       SCM     Prev [*] Focus
-
 # some simple default mouse bindings:
 #   for the root window:
-Mouse 1 R       A       Menu RootMenu Nop
-Mouse 2 R       A       Menu RootWinOps Nop
-Mouse 3 R       A       WindowList
+Mouse 1 R       A  Menu RootMenu Nop
+Mouse 2 R       A  Menu RootWinOps Nop
+Mouse 3 R       A  WindowList
 
 #   for the title bar buttons:
-Mouse 0 1       A       Menu WinOps Close
-Mouse 0 2       A       Maximize-Func
-Mouse 0 4       A       Iconify
+Mouse 0 1       A Menu WinOps Close
+Mouse 0 2       A Function MaximizeOrGrow
+Mouse 0 4       A Iconify
 
 #   for other parts of the window/borders/icons:
-Mouse 1 F   A   Resize-or-Raise
-Mouse 1 TS  A   Move-or-Raise
-Mouse 1 I   A   Move-or-Iconify
-Mouse 2 I   A   Iconify
-Mouse 2 FST A   Menu WinOps Nop
-Mouse 3 TSIF    A   RaiseLower
+Mouse 1 F       A ResizeOrRaise
+Mouse 1 TS      A MoveOrRaise
+Mouse 1 I       A Move-or-Iconify
+Mouse 2 I       A Iconify
+Mouse 2 FST     A Menu WinOps Nop
+Mouse 3 TSIF    A RaiseLower
+
+Key Tab   A   M   Next (CurrentPage) Function SelectWindow
+Key Tab   A   SM  Prev (CurrentPage) Function SelectWindow
 
 Key Left  A   M   Scroll -100 0
 Key Right A   M   Scroll +100 +0
@@ -73,8 +73,6 @@ Key Q     A   CM  Exec exec xlock -echokeys -echokey \*
 Key Q     A   SM  Module FvwmForm LogOut
 Key R     A   CM  Restart fvwm
 Key R     A   M   Module FvwmForm RunCommand
-Key Slash A   M   WindowList FvwmWinList
-Key Tab   A   M   WindowList Root c c NoDeskSort
 Key W     A   M   Close
 # }}}
 # Menus {{{
@@ -116,27 +114,27 @@ AddToMenu WinOps
 + "Close	M-W" Close
 # }}}
 # Functions {{{
-AddToFunc Move-or-Raise "I" Raise
+AddToFunc MoveOrRaise "I" Raise
 + "M" Move
 + "D" Lower
 
-AddToFunc Maximize-Func "M" Maximize 0 100
-+ "C" Maximize 0 80
+AddToFunc MaximizeOrGrow "M" Maximize 66 100
++ "C" Maximize 90 90
 + "D" Maximize 100 100
 
 AddToFunc Move-or-Iconify "I" Raise
 + "M" Move
 + "D" Iconify
 
-AddToFunc Resize-or-Raise "I" Raise
+AddToFunc ResizeOrRaise "I" Raise
 + "M" Resize
 + "D" Lower
 
-AddToFunc FocusAndWarp "I" Focus
-+ "I" WarpToWindow 2p 2p
+AddToFunc SelectWindow "I" FlipFocus
++ "I" WarpToWindow 5p 5p
 
 AddToFunc DeiconifyFocusAndWarp "I" Iconify -1
-+ "I" FocusAndWarp
++ "I" SelectWindow
 
 AddToFunc ChangeDefaultFocus "I" Style "*" $0
 + "I" Recapture
