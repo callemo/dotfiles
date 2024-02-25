@@ -18,7 +18,8 @@ DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 
 HilightColor white #b24d7a
 
-MenuStyle * Foreground black Background #aeb2c3
+MenuStyle * Foreground black, Background #aeb2c3
+# MenuStyle * HilightBack black, ActiveFore White, Hilight3DOff
 
 AddToFunc StartFunction "I" Module FvwmPager 0 0
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
@@ -43,7 +44,7 @@ Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 #   for the root window:
 Mouse 1 R       A  Menu RootMenu Nop
 Mouse 2 R       A  Menu RootWinOps Nop
-Mouse 3 R       A  WindowList
+Mouse 3 R       A  WindowList NoGeometry
 
 #   for the title bar buttons:
 Mouse 0 1       A Menu WinOps Close
