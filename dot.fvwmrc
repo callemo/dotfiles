@@ -5,14 +5,14 @@ IconPath   /usr/X11R6/include/X11/bitmaps
 ModulePath /usr/X11R6/lib/X11/fvwm
 PixmapPath /usr/X11R6/include/X11/pixmaps
 
-ClickTime      750
+ClickTime      250
 ColormapFocus  FollowsMouse
 OpaqueMoveSize 100
-SnapAttraction 10
+SnapAttraction 10 Windows
 
 DeskTopSize    4x1
-EdgeResistance 250 10
 EdgeScroll     100 100
+EdgeResistance 250 10
 
 DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 HilightColor white #b24d7a
@@ -63,22 +63,23 @@ Mouse 3      2       A         Maximize 100 0
 Mouse 0      4       A         Iconify
 # }}}
 # Keyboard {{{
-Key Tab   A   M   Next (CurrentPage) Function SelectWindow
-Key Tab   A   SM  Prev (CurrentPage) Function SelectWindow
+#   Name  Context Modifiers Function
+Key Tab   A       M         Next (CurrentPage) Function SelectWindow
+Key Tab   A       SM        Prev (CurrentPage) Function SelectWindow
 
-Key Left  A   M   Scroll -100 0
-Key Right A   M   Scroll +100 +0
-Key Up    A   M   Scroll +0 -100
-Key Down  A   M   Scroll +0 +100
+Key Left  A       M         Scroll -100 0
+Key Right A       M         Scroll +100 +0
+Key Up    A       M         Scroll +0 -100
+Key Down  A       M         Scroll +0 +100
 
-Key K     A   M   Module FvwmForm ConnectToServer
-Key M     A   M   Iconify
-Key N     A   M   Exec exec xterm
-Key Q     A   CM  Exec exec xlock -echokeys -echokey \*
-Key Q     A   SM  Module FvwmForm LogOut
-Key R     A   CM  Restart fvwm
-Key R     A   M   Module FvwmForm RunCommand
-Key W     A   M   Close
+Key K     A       M         Module FvwmForm ConnectToServer
+Key M     A       M         Iconify
+Key N     A       M         Exec exec xterm
+Key Q     A       CM        Exec exec xlock -echokeys -echokey \*
+Key Q     A       SM        Module FvwmForm LogOut
+Key R     A       CM        Restart fvwm
+Key R     A       M         Module FvwmForm RunCommand
+Key W     A       M         Close
 # }}}
 # }}}
 # Menus {{{
@@ -156,6 +157,7 @@ Style "FvwmPager"   StaysOnTop, NoHandles
 *LogOutWarpPointer
 *LogOutFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 *LogOutButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
 *LogOutLine       left
