@@ -15,9 +15,7 @@ EdgeResistance 250 10
 EdgeScroll     100 100
 
 DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-
 HilightColor white #b24d7a
-
 MenuStyle * Foreground black, Background #aeb2c3
 # MenuStyle * HilightBack black, ActiveFore White, Hilight3DOff
 
@@ -25,13 +23,17 @@ AddToFunc StartFunction "I" Module FvwmPager 0 0
 + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
 # Styles {{{
-Style "*" BorderWidth 7, HandleWidth 7
-Style "*" DecorateTransient, NoPPosition
-Style "*" Icon unknown1.xpm, Color black/#aeb2c3
-Style "*" IconBox 0 -10 -280 -1
-Style "*" MWMFunctions, MWMDecor, HintOverride
-Style "*" SloppyFocus, MouseFocusClickRaises
-Style "*" SmartPlacement, RandomPlacement
+Style "*" BorderWidth 7, HandleWidth 7, \
+          Color black/#aeb2c3, \
+          DecorateTransient, \
+          HintOverride, \
+          Icon unknown1.xpm, \
+          IconBox 0 -10 -280 -1, \
+          MWMDecor, \
+          MWMFunctions, \
+          NoPPosition, \
+          SloppyFocus, \
+          SmartPlacement, RandomPlacement
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkipIcon, CirculateSkip
 Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
@@ -40,25 +42,27 @@ Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
 Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
 # }}}
 # Bindings {{{
-# some simple default mouse bindings:
-#   for the root window:
-Mouse 1 R       A  Menu RootMenu Nop
-Mouse 2 R       A  Menu RootWinOps Nop
-Mouse 3 R       A  WindowList NoGeometry
+# Mouse {{{
+#     Button Context Modifiers Function
+Mouse 1      R       A         Menu RootMenu Nop
+Mouse 2      R       A         Menu RootWinOps Nop
+Mouse 3      R       A         WindowList NoGeometry
 
-#   for the title bar buttons:
-Mouse 0 1       A Menu WinOps Close
-Mouse 0 2       A Function MaximizeOrGrow
-Mouse 0 4       A Iconify
+Mouse 1      F       A         RaiseAndResize
+Mouse 1      I       A         IconifyOrMove
+Mouse 1      TS      A         RaiseAndMove
+Mouse 1      W       M         RaiseAndMove
+Mouse 2      TSF     A         Menu WinOps Nop
+Mouse 2      I       A         Iconify
+Mouse 3      TSFI    A         RaiseLower
 
-#   for other parts of the window/borders/icons:
-Mouse 1 F       A ResizeOrRaise
-Mouse 1 TS      A MoveOrRaise
-Mouse 1 I       A Move-or-Iconify
-Mouse 2 I       A Iconify
-Mouse 2 FST     A Menu WinOps Nop
-Mouse 3 TSIF    A RaiseLower
-
+Mouse 0      1       A         Menu WinOps Close
+Mouse 1      2       A         Maximize
+Mouse 2      2       A         Maximize 0 100
+Mouse 3      2       A         Maximize 100 0
+Mouse 0      4       A         Iconify
+# }}}
+# Keyboard {{{
 Key Tab   A   M   Next (CurrentPage) Function SelectWindow
 Key Tab   A   SM  Prev (CurrentPage) Function SelectWindow
 
@@ -75,6 +79,7 @@ Key Q     A   SM  Module FvwmForm LogOut
 Key R     A   CM  Restart fvwm
 Key R     A   M   Module FvwmForm RunCommand
 Key W     A   M   Close
+# }}}
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Fvwm" Title
@@ -115,30 +120,20 @@ AddToMenu WinOps
 + "Close	M-W" Close
 # }}}
 # Functions {{{
-AddToFunc MoveOrRaise "I" Raise
+AddToFunc RaiseAndMove "I" Raise
 + "M" Move
 + "D" Lower
 
-AddToFunc MaximizeOrGrow "M" Maximize 66 100
-+ "C" Maximize 90 90
-+ "D" Maximize 100 100
-
-AddToFunc Move-or-Iconify "I" Raise
-+ "M" Move
-+ "D" Iconify
-
-AddToFunc ResizeOrRaise "I" Raise
+AddToFunc RaiseAndResize "I" Raise
 + "M" Resize
 + "D" Lower
 
-AddToFunc SelectWindow "I" FlipFocus
+AddToFunc SelectWindow "I" Focus
 + "I" WarpToWindow 5p 5p
 
-AddToFunc DeiconifyFocusAndWarp "I" Iconify -1
-+ "I" SelectWindow
-
-AddToFunc ChangeDefaultFocus "I" Style "*" $0
-+ "I" Recapture
+AddToFunc IconifyOrMove "I" Raise
++ "C" Iconify
++ "M" Move
 # }}}
 # Modules {{{
 # Pager {{{
