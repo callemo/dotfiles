@@ -17,8 +17,9 @@ DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 HilightColor white #b24d7a
 MenuStyle * Foreground black, Background #aeb2c3
 
-AddToFunc StartFunction "I" Module FvwmPager 0 0
-+ "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
+AddToFunc StartFunction
+    + "I" Module FvwmPager 0 0
+    + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, \
@@ -54,11 +55,11 @@ Mouse 2      TSF     A         Menu WinOps Nop
 Mouse 2      I       A         Iconify
 Mouse 3      TSFI    A         RaiseLower
 
-Mouse 0      1       A         Menu WinOps Close
+Mouse 1      1       A         Close
 Mouse 1      2       A         Maximize
-Mouse 2      2       A         Maximize
+Mouse 1      4       A         Iconify
+Mouse 2      2       A         Maximize 0 80
 Mouse 3      2       A         Maximize 0 100
-Mouse 0      4       A         Iconify
 # }}}
 # Keyboard {{{
 #   Name  Context Modifiers Function
@@ -82,18 +83,18 @@ Key W     A       M         Close
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Fvwm" Title
-+ "Clock"                      Exec exec xclock
-+ "Firefox"                    Exec exec firefox
-+ "Mutt"                       Exec exec xterm -T Mutt -n Mutt -e mutt
-+ "Top"                        Exec exec xterm -T Top -n Top -e top
++ "Clock"                    Exec exec xclock
++ "Firefox"                  Exec exec firefox
++ "Mutt"                     Exec exec xterm -T Mutt -n Mutt -e mutt
++ "Top"                      Exec exec xterm -T Top -n Top -e top
 + "XTerm	M-N"             Exec exec xterm
-+ ""                           Nop
-+ "Talk"                       Module FvwmTalk
++ ""                         Nop
++ "Talk"                     Module FvwmTalk
 + "Restart	CM-R"            Restart fvwm
 + "Run...	M-R"             Module FvwmForm RunCommand
 + "Connect to server...	M-K" Module FvwmForm ConnectToServer
 + "Lock Display	CM-Q"        Exec exec xlock -echokeys -echokey \*
-+ "Log out...	SM-Q"         Module FvwmForm LogOut
++ "Log out...	SM-Q"        Module FvwmForm LogOut
 
 AddToMenu RootWinOps "Window" Title
 + "Move"         Move
@@ -119,20 +120,24 @@ AddToMenu WinOps
 + "Close	M-W" Close
 # }}}
 # Functions {{{
-AddToFunc RaiseAndMove "I" Raise
-+ "M" Move
-+ "D" Lower
+AddToFunc RaiseAndMove
+    + "I" Raise
+    + "M" Move
+    + "D" Lower
 
-AddToFunc RaiseAndResize "I" Raise
-+ "M" Resize
-+ "D" Lower
+AddToFunc RaiseAndResize
+    + "I" Raise
+    + "M" Resize
+    + "D" Lower
 
-AddToFunc SelectWindow "I" Focus
-+ "I" WarpToWindow 5p 5p
+AddToFunc SelectWindow
+    + "I" Focus
+    + "I" WarpToWindow 5p 5p
 
-AddToFunc IconifyOrMove "I" Raise
-+ "C" Iconify
-+ "M" Move
+AddToFunc IconifyOrMove
+    + "I" Raise
+    + "C" Iconify
+    + "M" Move
 # }}}
 # Modules {{{
 # Pager {{{
