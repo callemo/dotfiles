@@ -28,6 +28,7 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           HintOverride, \
           Icon unknown1.xpm, \
           IconBox 0 -10 -280 -1, \
+          MWMButtons, \
           MWMDecor, \
           MWMFunctions, \
           NoPPosition, \
@@ -63,17 +64,23 @@ Mouse 3      2       A         Maximize 0 100
 # }}}
 # Keyboard {{{
 #   Name  Context Modifiers Function
-Key Tab   A       M         Next (CurrentPage) Function SelectWindow
-Key Tab   A       SM        Prev (CurrentPage) Function SelectWindow
+Key Tab   A       M         Prev (CurrentPage) Function SelectWindow
+Key Tab   A       SM        Next (CurrentPage) Function SelectWindow
 
 Key Left  A       M         Scroll -100 0
 Key Right A       M         Scroll +100 +0
 Key Up    A       M         Scroll +0 -100
 Key Down  A       M         Scroll +0 +100
 
+Key H     A       SM        Move 0 w+0 Warp
+Key L     A       SM        Move -0 w+0 Warp
+Key J     A       SM        Move w+0 -0 Warp
+Key K     A       SM        Move w+0 0 Warp
+
+Key A     A       CM        Resize 80 80
 Key K     A       M         Module FvwmForm ConnectToServer
 Key M     A       M         Iconify
-Key N     A       M         Exec exec xterm
+Key N     A       M         Function OpenTerminal
 Key Q     A       CM        Exec exec xlock -echokeys -echokey \*
 Key Q     A       SM        Module FvwmForm LogOut
 Key R     A       CM        Restart fvwm
@@ -87,7 +94,7 @@ AddToMenu RootMenu "Fvwm" Title
 + "Firefox"                  Exec exec firefox
 + "Mutt"                     Exec exec xterm -T Mutt -n Mutt -e mutt
 + "Top"                      Exec exec xterm -T Top -n Top -e top
-+ "XTerm	M-N"             Exec exec xterm
++ "XTerm	M-N"             Function OpenTerminal
 + ""                         Nop
 + "Talk"                     Module FvwmTalk
 + "Restart	CM-R"            Restart fvwm
@@ -121,23 +128,29 @@ AddToMenu WinOps
 # }}}
 # Functions {{{
 AddToFunc RaiseAndMove
-    + "I" Raise
-    + "M" Move
-    + "D" Lower
+    + I Raise
+    + M Move
+    + D Lower
 
 AddToFunc RaiseAndResize
-    + "I" Raise
-    + "M" Resize
-    + "D" Lower
+    + I Raise
+    + M Resize
+    + D Lower
 
 AddToFunc SelectWindow
-    + "I" Focus
-    + "I" WarpToWindow 5p 5p
+    + I Focus
+    + I Raise
+    + I WarpToWindow 5p 5p
 
 AddToFunc IconifyOrMove
-    + "I" Raise
-    + "C" Iconify
-    + "M" Move
+    + I Raise
+    + C Iconify
+    + M Move
+
+AddToFunc OpenTerminal
+    + I Exec exec xterm
+    + I Wait xterm
+    + I Next (xterm) SelectWindow
 # }}}
 # Modules {{{
 # Pager {{{
