@@ -77,7 +77,9 @@ Key L     A       SM        Move -0 w+0 Warp
 Key J     A       SM        Move w+0 -0 Warp
 Key K     A       SM        Move w+0 0 Warp
 
-Key A     A       CM        Resize 80 80
+Key Left  A       CM        SnapLeft
+Key Right A       CM        SnapRight
+
 Key K     A       M         Module FvwmForm ConnectToServer
 Key M     A       M         Iconify
 Key N     A       M         Function OpenTerminal
@@ -151,6 +153,14 @@ AddToFunc OpenTerminal
     + I Exec exec xterm
     + I Wait xterm
     + I Next (xterm) SelectWindow
+
+AddToFunc SnapLeft
+    + I Resize 49 97
+    + I Move 0 0 Warp
+
+AddToFunc SnapRight
+    + I Resize 49 97
+    + I Move -0 0 Warp
 # }}}
 # Modules {{{
 # Pager {{{
