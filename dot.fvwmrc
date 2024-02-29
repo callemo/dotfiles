@@ -42,10 +42,17 @@ ButtonStyle 1 Vector 16 20x20@1 30x20@1 50x40@1 70x20@1 \
 ButtonStyle 3 Vector 4  50x75@1 25x25@1 75x25@1 50x75@0
 ButtonStyle 5 Vector 4  50x25@1 75x75@0 25x75@0 50x25@1
 
-Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkipIcon, CirculateSkip
+ButtonStyle All - Clear
+ButtonStyle 1 - MwmDecorMenu
+ButtonStyle 5 - MwmDecorMax
+ButtonStyle 3 - MwmDecorMin
+
+Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkip, \
+                 CirculateSkipIcon
 Style "firefox"  Icon unknown1.xpm
 Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
-Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, ClickToFocus
+Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, \
+                 ClickToFocus
 Style "xconsole" NoTitle, WindowListSkip, CirculateSkip, Sticky
 Style "xterm"    Icon xterm.xpm
 # }}}
