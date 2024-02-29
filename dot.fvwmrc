@@ -1,8 +1,8 @@
 # dot.fvwmrc
 # See fvwm(1) and examples in /usr/X11R6/lib/X11/fvwm
-
-IconPath   /usr/X11R6/include/X11/bitmaps
+# vim: fdm=marker et
 ModulePath /usr/X11R6/lib/X11/fvwm
+IconPath   /usr/X11R6/include/X11/bitmaps
 PixmapPath /usr/X11R6/include/X11/pixmaps
 
 ColormapFocus  FollowsMouse
@@ -10,7 +10,7 @@ OpaqueMoveSize 100
 SnapAttraction 10 Windows
 
 DeskTopSize    4x1
-EdgeScroll     100 100
+EdgeThickness 0
 EdgeResistance 300 10
 
 DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
@@ -36,10 +36,11 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           SmartPlacement, RandomPlacement
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkipIcon, CirculateSkip
+Style "firefox"  Icon unknown1.xpm
 Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
 Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, ClickToFocus
 Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
-Style "xmag"     Icon mag_glass.xpm, RandomPlacement, ClickToFocus
+Style "xterm"    Icon xterm.xpm
 # }}}
 # Bindings {{{
 # Mouse {{{
@@ -59,7 +60,6 @@ Mouse 3      TSFI    A         RaiseLower
 Mouse 1      1       A         Close
 Mouse 1      2       A         Maximize
 Mouse 1      4       A         Iconify
-Mouse 2      2       A         Maximize 0 80
 Mouse 3      2       A         Maximize 0 100
 # }}}
 # Keyboard {{{
@@ -155,11 +155,11 @@ AddToFunc OpenTerminal
     + I Next (xterm) SelectWindow
 
 AddToFunc SnapLeft
-    + I Resize 49 97
+    + I Maximize 50 100
     + I Move 0 0 Warp
 
 AddToFunc SnapRight
-    + I Resize 49 97
+    + I Maximize 50 100
     + I Move -0 0 Warp
 # }}}
 # Modules {{{
