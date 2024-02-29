@@ -35,11 +35,18 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           SloppyFocus, \
           SmartPlacement, RandomPlacement
 
+ButtonStyle 1 Vector 16 20x20@1 30x20@1 50x40@1 70x20@1 \
+                        80x20@1 80x30@0 60x50@0 80x80@0 \
+                        70x80@0 50x60@0 30x80@0 20x80@0 \
+                        20x70@0 40x50@1 20x30@0 20x20@2
+ButtonStyle 3 Vector 4  50x75@1 25x25@1 75x25@1 50x75@0
+ButtonStyle 5 Vector 4  50x25@1 75x75@0 25x75@0 50x25@1
+
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkipIcon, CirculateSkip
 Style "firefox"  Icon unknown1.xpm
 Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
 Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, ClickToFocus
-Style "xconsole" Icon rterm.xpm, WindowListSkip, Sticky
+Style "xconsole" NoTitle, WindowListSkip, CirculateSkip, Sticky
 Style "xterm"    Icon xterm.xpm
 # }}}
 # Bindings {{{
@@ -58,9 +65,9 @@ Mouse 2      I       A         Iconify
 Mouse 3      TSFI    A         RaiseLower
 
 Mouse 1      1       A         Close
-Mouse 1      2       A         Maximize
-Mouse 1      4       A         Iconify
-Mouse 3      2       A         Maximize 0 100
+Mouse 1      3       A         Iconify
+Mouse 1      5       A         Maximize
+Mouse 3      5       A         Maximize 0 100
 # }}}
 # Keyboard {{{
 #   Name  Context Modifiers Function
