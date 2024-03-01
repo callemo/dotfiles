@@ -49,7 +49,7 @@ Style "firefox"  Icon unknown1.xpm
 Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
 Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, \
                  ClickToFocus
-Style "xconsole" NoTitle, WindowListSkip, CirculateSkip, Sticky
+Style "xconsole" Icon rterm.xpm, WindowListSkip, CirculateSkip, Sticky
 Style "xterm"    Icon xterm.xpm
 # }}}
 # Bindings {{{
@@ -102,10 +102,14 @@ Key W     A       M         Close
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Fvwm" Title
++ "Acme"                     Exec exec xterm -iconic -title 9start \
+                                 -e ksh -l -c '. ~/dotfiles/init.sh; 9start'
 + "Clock"                    Exec exec xclock
 + "Firefox"                  Exec exec firefox
-+ "Mutt"                     Exec exec xterm -T Mutt -n Mutt -e mutt
-+ "Top"                      Exec exec xterm -T Top -n Top -e top
++ "Mutt"                     Exec exec xterm -T mutt -n mutt -e mutt
++ "Top"                      Exec exec xterm -T top -n top -e top
++ "Vim"                      Exec exec xterm -T vim -n vim \
+                                 -e ksh -l -c '. ~/dotfiles/init.sh; vim'
 + "XTerm	M-N"             Function OpenTerminal
 + ""                         Nop
 + "Talk"                     Module FvwmTalk
