@@ -19,7 +19,9 @@ MenuStyle * Foreground black, Background #aeb2c3
 
 AddToFunc StartFunction
     + "I" Module FvwmPager 0 0
-    + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
+
+# AddToFunc InitFunction
+#     + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, \
@@ -35,6 +37,9 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           SloppyFocus, \
           SmartPlacement, RandomPlacement
 
+ButtonStyle 1 Vector 15 20x30@1 30x20@1 50x40@1 70x20@1 80x30@1 60x50@0 \
+                        80x70@1 70x80@0 50x60@0 30x80@0 20x70@0 40x50@1 \
+                        40x50@0 20x30@0 20x30@1
 ButtonStyle 3 Vector 4  50x75@1 25x25@1 75x25@1 50x75@0
 ButtonStyle 5 Vector 4  50x25@1 75x75@0 25x75@0 50x25@1
 
@@ -98,6 +103,8 @@ Key Q     A       SM        Module FvwmForm LogOut
 Key R     A       CM        Restart fvwm
 Key R     A       M         Module FvwmForm RunCommand
 Key W     A       M         Close
+
+Key F12   A       M         Module FvwmTalk
 # }}}
 # }}}
 # Menus {{{
@@ -112,7 +119,6 @@ AddToMenu RootMenu "Fvwm" Title
                                  -e ksh -l -c '. ~/dotfiles/init.sh; vim'
 + "XTerm	M-N"             Function OpenTerminal
 + ""                         Nop
-+ "Talk"                     Module FvwmTalk
 + "Restart	CM-R"            Restart fvwm
 + "Run...	M-R"             Module FvwmForm RunCommand
 + "Connect to server...	M-K" Module FvwmForm ConnectToServer
