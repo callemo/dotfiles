@@ -157,7 +157,7 @@ AddToFunc RaiseAndResize
     + D Lower
 
 AddToFunc SelectWindow
-    + I Focus
+    + I FlipFocus
     + I Raise
     + I WarpToWindow 5p 5p
 
