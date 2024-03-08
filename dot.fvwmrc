@@ -93,7 +93,8 @@ Key N     A       M         Function OpenTerminal
 Key Q     A       CM        Exec exec xlock
 Key Q     A       SM        Module FvwmForm LogOut
 Key R     A       CM        Restart fvwm
-Key R     A       M         Module FvwmForm RunCommand
+Key R     A       M         Module FvwmForm RunCmd
+Key R     A       SM        Module FvwmForm RunTermCmd
 Key W     A       M         Close
 
 Key F12   A       M         Module FvwmTalk
@@ -101,21 +102,22 @@ Key F12   A       M         Module FvwmTalk
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Fvwm" Title
-+ "Acme"                     Exec exec xterm -iconic -title 9start \
-                                 -e ksh -l -c '. ~/dotfiles/init.sh; 9start'
-+ "Clock"                    Exec exec xclock
-+ "Firefox"                  Exec exec firefox
-+ "Mutt"                     Exec exec xterm -T mutt -n mutt -e mutt
-+ "Top"                      Exec exec xterm -T top -n top -e top
-+ "Vim"                      Exec exec xterm -T vim -n vim \
-                                 -e ksh -l -c '. ~/dotfiles/init.sh; vim'
-+ "XTerm	M-N"             Function OpenTerminal
-+ ""                         Nop
-+ "Restart	CM-R"            Restart fvwm
-+ "Run...	M-R"             Module FvwmForm RunCommand
-+ "Connect to server...	M-K" Module FvwmForm ConnectToServer
-+ "Lock Display	CM-Q"        Exec exec xlock -echokeys -echokey \*
-+ "Log out...	SM-Q"        Module FvwmForm LogOut
++ "Acme"                      Exec exec xterm -iconic -title 9start \
+                                  -e ksh -l -c '. ~/dotfiles/init.sh; 9start'
++ "Clock"                     Exec exec xclock
++ "Firefox"                   Exec exec firefox
++ "Mutt"                      Exec exec xterm -T mutt -n mutt -e mutt
++ "Top"                       Exec exec xterm -T top -n top -e top
++ "Vim"                       Exec exec xterm -T vim -n vim \
+                                  -e ksh -l -c '. ~/dotfiles/init.sh; vim'
++ "XTerm	M-N"              Function OpenTerminal
++ ""                          Nop
++ "Restart	CM-R"             Restart fvwm
++ "Run...	M-R"              Module FvwmForm RunCmd
++ "Run in a terminal...	SM-R" Module FvwmForm RunTermCmd
++ "Connect to server...	M-K"  Module FvwmForm ConnectToServer
++ "Lock Display	CM-Q"         Exec exec xlock -echokeys -echokey \*
++ "Log out...	SM-Q"         Module FvwmForm LogOut
 
 AddToMenu RootWinOps "Window" Title
 + "Move"         Move
@@ -213,35 +215,51 @@ Style "LogOut" NoTitle, NoHandles
 # }}}
 # ConnectToServer {{{
 *ConnectToServerWarpPointer
-*ConnectToServerFont         -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*ConnectToServerButtonFont   -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*ConnectToServerInputFont    -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
-*ConnectToServerLine         center
-*ConnectToServerText         "Connect To Server"
-*ConnectToServerLine         left
-*ConnectToServerInput        Server  50 ""
-*ConnectToServerLine         right
-*ConnectToServerButton       quit "Cancel" ^[
-*ConnectToServerCommand      Nop
-*ConnectToServerButton       quit "Connect" ^M
-*ConnectToServerCommand      exec xterm -T "xterm: $(Server)" -e ssh $(Server)
+*ConnectToServerFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerLine       center
+*ConnectToServerText       "Connect To Server"
+*ConnectToServerLine       left
+*ConnectToServerInput      Server  50 ""
+*ConnectToServerLine       right
+*ConnectToServerButton     quit "Cancel" ^[
+*ConnectToServerCommand    Nop
+*ConnectToServerButton     quit "Connect" ^M
+*ConnectToServerCommand    exec xterm -T 'ssh: $(Server)' -e ssh $(Server)
 Style "ConnectToServer" NoTitle, NoHandles
 # }}}
-# RunCommand {{{
-*RunCommandWarpPointer
-*RunCommandFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunCommandButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunCommandInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
-*RunCommandLine       center
-*RunCommandText       "Run"
-*RunCommandLine       left
-*RunCommandInput      Cmd  50 ""
-*RunCommandLine       right
-*RunCommandButton     quit "Cancel" ^[
-*RunCommandCommand    Nop
-*RunCommandButton     quit "Run" ^M
-*RunCommandCommand    exec $(Cmd)
-Style "RunCommand" NoTitle, NoHandles
+# RunCmd {{{
+*RunCmdWarpPointer
+*RunCmdFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*RunCmdButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*RunCmdInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*RunCmdLine       center
+*RunCmdText       "Run"
+*RunCmdLine       left
+*RunCmdInput      Cmd  50 ""
+*RunCmdLine       right
+*RunCmdButton     quit "Cancel" ^[
+*RunCmdCommand    Nop
+*RunCmdButton     quit "Run" ^M
+*RunCmdCommand    exec $(Cmd)
+Style "RunCmd" NoTitle, NoHandles
+# }}}
+# RunTermCmd {{{
+*RunTermCmdWarpPointer
+*RunTermCmdFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*RunTermCmdButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*RunTermCmdInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*RunTermCmdLine       center
+*RunTermCmdText       "Run In A Terminal"
+*RunTermCmdLine       left
+*RunTermCmdInput      Cmd  50 ""
+*RunTermCmdLine       right
+*RunTermCmdButton     quit "Cancel" ^[
+*RunTermCmdCommand    Nop
+*RunTermCmdButton     quit "Run" ^M
+*RunTermCmdCommand    exec xterm -T '$(Cmd)' -e $(Cmd)
+Style "RunTermCmd" NoTitle, NoHandles
 # }}}
 # }}}
 # }}}
