@@ -2,14 +2,12 @@
 # See fvwm(1) and examples in /usr/X11R6/lib/X11/fvwm
 # vim: fdm=marker et
 ModulePath /usr/X11R6/lib/X11/fvwm
-IconPath   /usr/X11R6/include/X11/bitmaps
-PixmapPath /usr/X11R6/include/X11/pixmaps
 
 ColormapFocus  FollowsMouse
 OpaqueMoveSize 100
 SnapAttraction 10 Windows
 
-DeskTopSize    4x1
+DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
@@ -18,7 +16,7 @@ HilightColor white #b24d7a
 MenuStyle * Foreground black, Background #aeb2c3
 
 AddToFunc StartFunction
-    + "I" Module FvwmPager 0 0
+    + "I" Module FvwmPager 0 3
     + "I" exec xwallpaper --zoom Pictures/Wallpapers/default
 
 # Styles {{{
@@ -26,8 +24,7 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           Color black/#aeb2c3, \
           DecorateTransient, \
           HintOverride, \
-          Icon unknown1.xpm, \
-          IconBox 0 -10 -280 -1, \
+          IconBox 0 -10 -400 -0, \
           MWMButtons, \
           MWMDecor, \
           MWMFunctions, \
@@ -45,8 +42,6 @@ ButtonStyle 3 - MwmDecorMin
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkip, \
                  CirculateSkipIcon
-Style "firefox"  Icon unknown1.xpm
-Style "xcalc"    Icon xcalc.xpm, NoButton 2, RandomPlacement, ClickToFocus
 Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, \
                  ClickToFocus
 Style "xconsole" Icon rterm.xpm, WindowListSkip, CirculateSkip, Sticky
@@ -74,13 +69,15 @@ Mouse 3      5       A         Maximize 0 100
 # }}}
 # Keyboard {{{
 #   Name  Context Modifiers Function
-Key Tab   A       M         Prev (CurrentPage) Function SelectWindow
-Key Tab   A       SM        Next (CurrentPage) Function SelectWindow
+Key Tab   A       M         Prev (CurrentPage !Iconic) Function SelectWindow
+Key Tab   A       SM        Next (CurrentPage !Iconic) Function SelectWindow
 
-Key Left  A       M         Scroll -100 0
-Key Right A       M         Scroll +100 +0
-Key Up    A       M         Scroll +0 -100
-Key Down  A       M         Scroll +0 +100
+Key Left  A       M         Desk -1 0 0 3
+Key Right A       M         Desk 1  0 0 3
+Key 1     A       M         Desk 0 0
+Key 2     A       M         Desk 0 1
+Key 3     A       M         Desk 0 2
+Key 4     A       M         Desk 0 3
 
 Key H     A       SM        Move 0 w+0 Warp
 Key L     A       SM        Move -0 w+0 Warp
@@ -183,8 +180,12 @@ AddToFunc SnapRight
 *FvwmPagerBack #63639c
 *FvwmPagerFore white
 *FvwmPagerHilight black
-*FvwmPagerGeometry 250x60-0-0
+*FvwmPagerGeometry 360x60-0-0
 *FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-8-*-*-*-*-*-iso10646-*
+*FvwmPagerLabel 0 One
+*FvwmPagerLabel 1 Two
+*FvwmPagerLabel 2 Three
+*FvwmPagerLabel 3 Four
 Style "FvwmPager"   StaysOnTop, NoHandles
 # }}}
 # Ident {{{
