@@ -19,9 +19,7 @@ MenuStyle * Foreground black, Background #aeb2c3
 
 AddToFunc StartFunction
     + "I" Module FvwmPager 0 0
-
-# AddToFunc InitFunction
-#     + "I" exec /usr/X11R6/bin/xsetroot -solid \#574c8f
+    + "I" exec xwallpaper --zoom Pictures/Wallpapers/default
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, \
@@ -95,7 +93,7 @@ Key Right A       CM        SnapRight
 Key K     A       M         Module FvwmForm ConnectToServer
 Key M     A       M         Iconify
 Key N     A       M         Function OpenTerminal
-Key Q     A       CM        Exec exec xlock -echokeys -echokey \*
+Key Q     A       CM        Exec exec xlock
 Key Q     A       SM        Module FvwmForm LogOut
 Key R     A       CM        Restart fvwm
 Key R     A       M         Module FvwmForm RunCommand

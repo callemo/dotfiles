@@ -2,7 +2,8 @@
 XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
-XTerm*faceName:           IBM Plex Mono Medm:pixelsize=14
+!XTerm*faceName:           IBM Plex Mono Medm:pixelsize=14
+XTerm*faceName:           IntelOne Mono Medium:pixelsize=14
 XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
