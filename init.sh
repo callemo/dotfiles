@@ -26,7 +26,7 @@ zsh)
 	bindkey \^U backward-kill-line
 	if [ "$TERM_PROGRAM" = Alacritty ]
 	then
-		printf '\e]0;%s %s\b' "$SHELL" "$$"
+		printf '\e]0;%s\b' "${SHELL##*/} $$"
 	fi
 	;;
 bash)
