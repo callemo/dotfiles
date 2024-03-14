@@ -4,7 +4,6 @@
 ModulePath /usr/X11R6/lib/X11/fvwm
 
 ColormapFocus  FollowsMouse
-OpaqueMoveSize 100
 SnapAttraction 10 Windows
 
 DeskTopSize    1x1
@@ -78,6 +77,8 @@ Key 1     A       M         Desk 0 0
 Key 2     A       M         Desk 0 1
 Key 3     A       M         Desk 0 2
 Key 4     A       M         Desk 0 3
+
+Key E     A       CM        Maximize 67 100
 
 Key H     A       SM        Move 0 w+0 Warp
 Key L     A       SM        Move -0 w+0 Warp

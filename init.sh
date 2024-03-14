@@ -18,6 +18,7 @@ ksh)
 	export HISTSIZE=10000
 	export HISTCONTROL=ignoredups:ignorespace
 	set -o emacs
+	cd() { command cd "$@" && printf '\033]0;%s\007' "$PWD - ksh"; }
 	;;
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
@@ -26,7 +27,7 @@ zsh)
 	bindkey \^U backward-kill-line
 	if [ "$TERM_PROGRAM" = Alacritty ]
 	then
-		printf '\e]0;%s\b' "${SHELL##*/} $$"
+		cd() { command cd "$@" && printf '\033]0;%s\007' "$PWD - zsh"; }
 	fi
 	;;
 bash)
