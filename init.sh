@@ -27,7 +27,7 @@ zsh)
 	bindkey \^U backward-kill-line
 	if [ "$TERM_PROGRAM" = Alacritty ]
 	then
-		cd() { command cd "$@" && printf '\033]0;%s\007' "$PWD - zsh"; }
+		cd() { builtin cd "$@" && printf '\033]0;%s\007' "$PWD - zsh"; }
 	fi
 	;;
 bash)
