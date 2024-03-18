@@ -22,6 +22,7 @@ XConsole*foreground:  rgb:ff/b0/00
 XConsole*background:  rgb:40/40/40
 XConsole*cursorColor: rgb:ff/b0/00
 XConsole*saveLines:   8
+XConsole*font:        -dec-terminal-medium-r-*-*-14-*-*-*-*-*-iso8859-*
 
 *font: -b&h-lucidatypewriter-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 !*background: #fff7e9
