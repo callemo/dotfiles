@@ -2,19 +2,29 @@
 XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
-XTerm*faceName:           IBM Plex Mono Medm:pixelsize=14
+XTerm*faceName:           IntelOne Mono
+XTerm*faceSize:           10
+XTerm*faceSize1:          7
+XTerm*faceSize2:          8
+XTerm*faceSize3:          9
+XTerm*faceSize4:          10
+XTerm*faceSize5:          11
+XTerm*faceSize6:          12
+XTerm*faceSize7:          13
 XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
 
-XConsole*geometry:    683x36-0+0
+XClock*geometry: 128x128-0+0
+
+XConsole*geometry:    700x40
 XConsole*foreground:  rgb:ff/b0/00
 XConsole*background:  rgb:40/40/40
 XConsole*cursorColor: rgb:ff/b0/00
 XConsole*saveLines:   8
+XConsole*font:        -dec-terminal-medium-r-*-*-14-*-*-*-*-*-iso8859-*
 
-*font: -b&h-lucidatypewriter-bold-r-*-*-14-140-*-*-*-*-iso10646-*
-
+*font: -b&h-lucidatypewriter-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 *Scrollbar.translations: #override \n\
     <Btn1Down>:         StartScroll(Backward) \n\
     <Btn3Down>:         StartScroll(Forward) \n\

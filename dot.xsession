@@ -1,7 +1,10 @@
 export LC_CTYPE=en_US.UTF-8
-xsetroot -solid gray25 &
-xterm -geometry 120x36 &
-xclock -geometry 128x128+0+0 &
-xconsole -geometry 800x128+129+0 -verbose -exitOnFail &
-setxkbmap -option 'ctrl:nocaps' &
-cwm
+export MOZ_ACCELERATED=1
+export MOZ_WEBRENDER=1
+setxkbmap -model pc105 -layout us -variant altgr-intl \
+	-option compose:rctrl -option ctrl:nocaps
+xidle -timeout 600 &
+test -e .xprofile && sh .xprofile
+redshift -l 53:6 -t 5500:3000 &
+xterm &
+fvwm
