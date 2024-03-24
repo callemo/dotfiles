@@ -15,7 +15,7 @@ XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
 
-XClock*geometry: 128x128-0+0
+XClock*geometry: 128x128+0+0
 
 XConsole*geometry:    700x40
 XConsole*foreground:  rgb:ff/b0/00
