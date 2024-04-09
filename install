@@ -23,6 +23,8 @@ then
 	git config --global core.excludesfile "$HOME/.gitignore"
 fi
 
+set -x
+
 ./vim/get    https://github.com/preservim/nerdtree
 ./vim/get    https://github.com/tpope/vim-commentary
 ./vim/get    https://github.com/tpope/vim-eunuch
