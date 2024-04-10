@@ -62,8 +62,6 @@ let g:loaded_netrwPlugin = 1
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
-let g:NERDTreeDirArrowExpandable='+'
-let g:NERDTreeDirArrowCollapsible='-'
 let g:NERDTreeShowHidden=1
 let g:NERDTreeSortHiddenFirst=1
 let g:NERDTreeWinPos='right'

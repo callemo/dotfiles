@@ -32,5 +32,6 @@ set -x
 ./vim/get    https://github.com/tpope/vim-obsession
 ./vim/get    https://github.com/tpope/vim-repeat
 ./vim/get    https://github.com/tpope/vim-surround
-./vim/get -o https://github.com/fatih/vim-go
 ./vim/get -o https://github.com/dense-analysis/ale
+./vim/get -o https://github.com/preservim/tagbar
+./vim/get -o https://github.com/fatih/vim-go
