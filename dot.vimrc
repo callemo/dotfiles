@@ -79,6 +79,8 @@ let g:NERDTreeMapActivateNode='gf'
 let g:NERDTreeMapOpenSplit='<C-x>'
 let g:NERDTreeMapOpenInTab='<C-t>'
 
+let g:tagbar_position = 'aboveleft'
+
 let g:go_def_mode           = 'gopls'
 let g:go_info_mode          = 'gopls'
 let g:go_auto_type_info     = 1
@@ -148,7 +150,6 @@ nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <leader>B    :NERDTreeToggle<CR>
 nnoremap <leader>Bf   :NERDTreeFind<CR>
-nnoremap <leader>Bo   :Tagbar<CR>
 nnoremap <leader>D    :bwipeout<CR>
 nnoremap <leader>N    :new <c-r>=expand('%:h')<CR>/
 nnoremap <leader>f    :Fmt<CR>
