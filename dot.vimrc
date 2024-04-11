@@ -89,6 +89,9 @@ let g:go_term_enabled       = 1
 let g:go_term_mode          = 'split'
 let g:go_term_reuse         = 1
 
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_text_changed = 0
+
 augroup dotfiles
 	autocmd!
 	autocmd BufReadPost * exe 'silent! normal! g`"'
@@ -112,7 +115,7 @@ augroup dotfiles
 	autocmd FileType go nnoremap <buffer> <leader>t :GoTest -v<CR>
 	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json setl sw=4 sts=4 et
-	" $VIMRUNTIME/syntax/typescript.vim is slow and useless
+	" $VIMRUNTIME/syntax/typescript.vim is so slow that's unusable
 	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript
 	autocmd FileType markdown,python,yaml setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
@@ -143,10 +146,11 @@ nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B    :NERDTreeFind<CR>
+nnoremap <leader>B    :NERDTreeToggle<CR>
+nnoremap <leader>Bf   :NERDTreeFind<CR>
+nnoremap <leader>Bo   :Tagbar<CR>
 nnoremap <leader>D    :bwipeout<CR>
 nnoremap <leader>N    :new <c-r>=expand('%:h')<CR>/
-nnoremap <leader>b    :NERDTreeToggle<CR>
 nnoremap <leader>f    :Fmt<CR>
 nnoremap <leader>l    :Lint<CR>
 
