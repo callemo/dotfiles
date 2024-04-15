@@ -1,7 +1,7 @@
 #!/bin/sh
 # Starts Plan 9's Acme.
 
-set -eu
+set -e
 
 export ENV="$DOTFILES/9.sh"
 export EDITOR=E
@@ -15,24 +15,24 @@ fixfont='/lib/font/bit/lucm/unicode.9.font'
 
 set -- -a "$@"
 
-pgrep -q plumber || plumber &
+pgrep plumber || plumber &
+
+: "${START_FIXED:=1}"
 
 case $(uname) in
 Darwin)
 	: "${START_HIRES:=1}"
-	: "${START_FIXED:=0}"
 	export SHELL=/bin/dash
 	export acmeshell=/bin/dash
 	;;
-OpenBSD)
-	START_HIRES=0
-	: "${START_FIXED:=1}"
+*)
+	: "${START_FIXED:=0}"
 	;;
 esac
 
-if [ "$START_HIRES" -eq 1 ]
+if [ "$START_HIRES" = 1 ]
 then
-	pgrep -q fontsrv || fontsrv &
+	pgrep fontsrv || fontsrv &
 
 	varfont="$varfont,/mnt/font/LucidaGrande/30a/font"
 
@@ -47,7 +47,7 @@ then
 	fi
 fi
 
-if [ "$START_FIXED" -eq 1 ]
+if [ "$START_FIXED" = 1 ]
 then
 	set -- -f "$fixfont" -F "$varfont" "$@"
 else
