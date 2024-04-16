@@ -14,7 +14,7 @@ DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
 HilightColor white #5f9ea0
 
 AddToFunc StartFunction
-    + "I" Module FvwmPager 0 3
+    + "I" Module FvwmPager 0 1
     + "I" exec xwallpaper --zoom Pictures/Wallpapers/default
 
 # Styles {{{
@@ -73,12 +73,12 @@ Key slash A       M         WindowList
 Key Tab   A       M         Prev (CurrentPage !Iconic) Function SelectWindow
 Key Tab   A       SM        Next (CurrentPage !Iconic) Function SelectWindow
 
-Key Left  A       M         Desk -1 0 0 3
-Key Right A       M         Desk 1  0 0 3
-Key 1     A       M         Desk 0 0
-Key 2     A       M         Desk 0 1
-Key 3     A       M         Desk 0 2
-Key 4     A       M         Desk 0 3
+Key Left  A       M         Desk -1 0 0 1
+Key Right A       M         Desk 1  0 0 1
+# Key 1     A       M         Desk 0 0
+# Key 2     A       M         Desk 0 1
+# Key 3     A       M         Desk 0 2
+# Key 4     A       M         Desk 0 3
 
 Key H     A       SM        Move 0 w+0 Warp
 Key L     A       SM        Move -0 w+0 Warp
@@ -187,14 +187,12 @@ AddToFunc SnapRight
 # Modules {{{
 # Pager {{{
 *FvwmPagerFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
-*FvwmPagerGeometry 360x60-0-0
+*FvwmPagerGeometry 180x60-0-0
 *FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-8-*-*-*-*-*-iso10646-*
 *FvwmPagerFore white
 *FvwmPagerBack #636b84
-*FvwmPagerLabel 0 One
-*FvwmPagerLabel 1 Two
-*FvwmPagerLabel 2 Three
-*FvwmPagerLabel 3 Four
+*FvwmPagerLabel 0 Left
+*FvwmPagerLabel 1 Right
 Style "FvwmPager"   StaysOnTop, NoHandles
 # }}}
 # Ident {{{
