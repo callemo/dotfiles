@@ -26,7 +26,7 @@ Darwin)
 	export acmeshell=/bin/dash
 	;;
 *)
-	: "${START_FIXED:=0}"
+	: "${START_HIRES:=0}"
 	;;
 esac
 
