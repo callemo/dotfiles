@@ -70,8 +70,8 @@ Key space A       M         Menu WinOps Nop
 
 Key slash A       M         WindowList
 
-Key Tab   A       M         Prev (CurrentPage !Iconic) Function SelectWindow
-Key Tab   A       SM        Next (CurrentPage !Iconic) Function SelectWindow
+Key Tab   A       M         Next (CurrentPage !Iconic) Function SelectWindow
+Key Tab   A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
 
 Key Left  A       M         Desk -1 0 0 1
 Key Right A       M         Desk 1  0 0 1
