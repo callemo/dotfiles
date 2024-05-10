@@ -1,0 +1,20 @@
+#!/bin/sh
+# gbrm: remove a local branch and its remote
+set -eu
+
+prefix="${0##*/}:"
+log() { echo "$prefix" "$@" >&2; }
+fatal() { log "$@"; exit 1; }
+
+[ $# -ne 1 ] && fatal "usage: $prefix <branch>"
+name="$1"
+remote=origin
+{
+	git branch -a | grep -F "$name" || fatal 'no branch matches:' "$name"
+	log "deleting: $name"
+	git branch -D "$name"
+	log "deleting: $remote/$name"
+	git push "$remote" -d "$name"
+	log 'running git reflog'
+	git reflog
+} >&2
