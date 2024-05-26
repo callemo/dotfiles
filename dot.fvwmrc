@@ -105,16 +105,14 @@ Key F12   A       M         Module FvwmTalk
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Root Menu" Title
-+ "Acme"            Exec exec xterm -iconic -title 9start \
-                        -e ksh -l -c '. ~/dotfiles/init.sh; 9start'
++ "Acme"            Exec exec xterm -iconic -title 9start -e ksh -l -c '. ~/dotfiles/init.sh; 9start'
 + "Clock"           Exec exec xclock
 + "Console"         Exec exec xconsole
 + "Firefox"         Exec exec firefox
-+ "Mutt"            Exec exec xterm -e mutt
++ "Mutt"            Exec exec xterm -T mutt -n mutt -e ksh -l -c '. ~/dotfiles/init.sh; mutt'
 + "Thunar"          Exec exec thunar
 + "Top"             Exec exec xterm -e top
-+ "Vim"             Exec exec xterm -T vim -n vim \
-                        -e ksh -l -c '. ~/dotfiles/init.sh; vim'
++ "Vim"             Exec exec xterm -T vim -n vim -e ksh -l -c '. ~/dotfiles/init.sh; vim'
 + "XTerm	Alt-N"  Function OpenTerminal
 + ""                                 Nop
 + "Restart	Ctrl-Alt-R"              Restart fvwm
