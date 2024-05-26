@@ -111,6 +111,7 @@ AddToMenu RootMenu "Root Menu" Title
 + "Console"         Exec exec xconsole
 + "Firefox"         Exec exec firefox
 + "Mutt"            Exec exec xterm -e mutt
++ "Thunar"          Exec exec thunar
 + "Top"             Exec exec xterm -e top
 + "Vim"             Exec exec xterm -T vim -n vim \
                         -e ksh -l -c '. ~/dotfiles/init.sh; vim'
