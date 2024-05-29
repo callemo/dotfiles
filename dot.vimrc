@@ -169,7 +169,7 @@ nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
-nnoremap yoc :setl invcursorline<CR>
+nnoremap yoc :setl invignorecase<CR>
 nnoremap yoh :setl invhlsearch<CR>
 nnoremap yol :setl invlist<CR>
 nnoremap yon :setl invnumber<CR>
