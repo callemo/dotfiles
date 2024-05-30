@@ -100,6 +100,8 @@ Key R     A       M         Module FvwmForm RunCmd
 Key R     A       SM        Module FvwmForm RunTermCmd
 Key W     A       M         Close
 
+Key F7    A       M         Exec exec bin/dock
+Key F7    A       SM        Exec exec bin/undock
 Key F12   A       M         Module FvwmTalk
 # }}}
 # }}}
