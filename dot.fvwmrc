@@ -10,7 +10,7 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+DefaultFont '-b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*'
 HilightColor white #5f9ea0
 
 AddToFunc StartFunction

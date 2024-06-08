@@ -22,9 +22,8 @@ XConsole*foreground:  rgb:ff/b0/00
 XConsole*background:  rgb:40/40/40
 XConsole*cursorColor: rgb:ff/b0/00
 XConsole*saveLines:   8
-XConsole*font:        -dec-terminal-medium-r-*-*-14-*-*-*-*-*-iso8859-*
 
-*font: -b&h-lucidatypewriter-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*font: -b&h-lucidatypewriter-*-r-normal-sans-17-120-100-100-*-0-iso10646-1
 *Scrollbar.translations: #override \n\
     <Btn1Down>:         StartScroll(Backward) \n\
     <Btn3Down>:         StartScroll(Forward) \n\
@@ -47,3 +46,10 @@ XConsole*font:        -dec-terminal-medium-r-*-*-14-*-*-*-*-*-iso8859-*
 *color14: #00e5e5
 *color15: #e5e5e5
 
+Xft.dpi: 120
+Xft.autohint: 0
+Xft.lcdfilter:  lcddefault
+Xft.hintstyle:  hintfull
+Xft.hinting: 1
+Xft.antialias: 1
+Xft.rgba: rgb
