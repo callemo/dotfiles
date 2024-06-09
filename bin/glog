@@ -1,2 +1,2 @@
 #!/bin/sh
-git log --graph --stat --date=human "$@"
+git log --graph --stat --date=human --abbrev-commit "$@"
