@@ -1,6 +1,6 @@
 #!/bin/sh
 # wkln: Prints the relative path for a given wiki link.
-exec find -L . -type f |
+exec find -L "${WKLNROOT:-.}" -type f |
 	sed -E 's/^.\/?//' |
 	grep -Ev '(^|/).git/' |
 	grep -Ei "(^|/)$1[^/]*$" |

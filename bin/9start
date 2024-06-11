@@ -8,8 +8,8 @@ export acmeshell="$SHELL"
 export home="$HOME"
 export user="$USER"
 
-: "${VARFONT=/mnt/font/GoRegular/13a/font}"
-: "${FIXFONT=/mnt/font/GoMono/13a/font}"
+: "${VARFONT=/mnt/font/GoRegular/14a/font}"
+: "${FIXFONT=/mnt/font/GoMono/14a/font}"
 
 pgrep plumber || plumber &
 exec "${PLAN9:-/usr/local/plan9}/bin/acme" -a -f "$VARFONT" -F "$FIXFONT" "$@"

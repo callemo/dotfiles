@@ -46,7 +46,7 @@ XConsole*saveLines:   8
 *color14: #00e5e5
 *color15: #e5e5e5
 
-Xft.dpi: 120
+Xft.dpi: 133
 Xft.autohint: 0
 Xft.lcdfilter:  lcddefault
 Xft.hintstyle:  hintfull
