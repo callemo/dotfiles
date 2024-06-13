@@ -22,13 +22,13 @@ hi SpellBad ctermbg=DarkRed ctermfg=White gui=undercurl
 hi SpellCap ctermbg=DarkBlue ctermfg=White gui=undercurl
 hi SpellLocal ctermbg=DarkCyan ctermfg=White gui=undercurl
 hi SpellRare ctermbg=DarkMagenta ctermfg=White gui=undercurl
-hi StatusLine ctermbg=73 ctermfg=Black
+hi StatusLine ctermbg=73 ctermfg=Black guibg=#5f9ea0 guifg=#000000
 hi TabLineSel ctermbg=73 ctermfg=Black
 hi WarningMsg guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
 
 if &background ==# 'light'
 	hi Comment guifg=#707f8b ctermfg=241
-	hi CursorLine guibg=#e8f2ff
+	" hi CursorLine guibg=#e8f2ff
 	hi CursorLineNr guifg=#000000 ctermfg=16
 	hi DiffAdd guibg=#e6ffee ctermbg=194
 	hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
@@ -49,7 +49,7 @@ if &background ==# 'light'
 	hi helpHyperTextJump guifg=#0e38fa ctermfg=27
 else  " background is dark
 	hi Comment guifg=#7f8c97 ctermfg=102
-	hi CursorLine guibg=#2f3239
+	" hi CursorLine guibg=#2f3239
 	hi CursorLineNr guifg=#ffffff
 	hi DiffAdd guibg=#113a1d ctermbg=22
 	hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
