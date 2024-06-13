@@ -1,0 +1,115 @@
+#!/bin/sh
+# n: a tool for managing notes
+#
+# Usage:
+# 	n <command> [arguments]
+#
+# Commands:
+# 	lookup	find a note by key
+# 	xref	update cross references
+#
+
+prefix="${0##*/}:"
+log() { echo "$prefix" "$@" >&2; }
+fatal() { log "$@"; exit 1; }
+usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+
+: "${NROOT:=$HOME/notes}"
+
+main() {
+	if [ $# -lt 1 ]
+	then
+		usage
+		exit 2
+	fi
+
+	cmd=$1; shift
+
+	case $cmd in
+	look) nlook "$@" ;;
+	xref) nxref "$@" ;;
+	esac
+}
+
+nlook() {
+	if [ $# -lt 1 ]
+	then
+		fatal 'lookup: too few arguments'
+	fi
+
+	nfiles | grep -Ei "(^|/)$1[^/]*$" | sed 1q
+}
+
+nxref() {
+	tmp=/tmp/nxref.files
+	nfiles >$tmp
+	trap 'rm -f "$tmp"' EXIT
+	nreverselinks |
+		awk 'BEGIN { FS = OFS = "\t" }
+		{
+			gsub(/[\[\]]+/, "", $1)
+			printf "%s\t",  $1
+			split($2, a, /,/)
+			for (i in a) {
+				sub(/^\.\/(Z\/R\/|Z\/R\/n\/)?/, "", a[i])
+				sub(/[^0-9A-Za-z_\/].*$/, "", a[i])
+				printf " [[%s]]", a[i]
+			}
+			printf "\n"
+		}' |
+		while IFS='	' read -r key refs
+		do
+			f="$(grep -Ei "(^|/)${key}[^/]*$" $tmp | sed 1q)"
+			if [ -z "$f" ]
+			then
+				log "xref: no file found: key '$key' with references $refs"
+				continue
+			fi
+
+			sed -E -e '/^---/,/^---/s@^References:.*@References:'"$refs"'@' -i.bak "$f"
+			rm -f "$f".bak
+		done
+}
+
+nreverselinks() {
+	nlinks |
+		awk 'BEGIN { FS = OFS = "\t" }
+		{
+			split($2, a, /,/)
+			for (i in a) {
+				rlinks[a[i]] = rlinks[a[i]] $1 ","
+			}
+		}
+		END {
+			for (src in rlinks) {
+				sub(/,$/, "", rlinks[src])
+				print src, rlinks[src]
+			}
+		}'
+}
+
+nlinks() {
+	grep -ERI '\[\[[0-9A-Za-z_/.-]+\]\]' . | grep -Ev '^[^:]+:References:' | sort |
+		awk 'BEGIN { FS = ":"; OFS = "\t" }
+		{
+			line = $0
+			while(match(line, /\[\[[0-9A-Za-z_\/.-]+\]\]/)) {
+				l = substr(line, RSTART, RLENGTH)
+				if (!index(links[$1], l))
+					links[$1] = links[$1] l ","
+				line = substr(line, RSTART+RLENGTH)
+			}
+		}
+		END {
+			for (file in links) {
+				sub(/,$/, "", links[file])
+				print file, links[file]
+			}
+		}'
+}
+
+nfiles() {
+	find -L "$NROOT" -type f | grep -E '\.(txt|md)$' | sort
+}
+
+main "$@"
