@@ -5,12 +5,26 @@
 #
 # See also plumb(7).
 
-include initial.plumbing
-
 type is text
 data matches 'commit ([0-9a-f]+)'
 plumb start rc -c 'cd '$wdir'; cd `{git rev-parse --show-toplevel}; git show '$1' | plumb -i -d edit -a ''filename=+git:'$1''''
 
 type is text
 data matches '\[\[([0-9A-Za-z_/]+)\]\].?'
-plumb start rc -c 'cd '$wdir'; B `{wkln '$1'}'
+plumb start rc -c 'cd '$wdir'; plumb -a action=showfile `{wkln '$1'}'
+
+type is text
+data matches '[a-zA-Z¡-￿0-9_\-./@]+'
+data matches '([a-zA-Z¡-￿0-9_\-./@]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit|png|PNG)'
+arg isfile	$0
+plumb to image
+plumb start open $file
+
+type is text
+data matches '[a-zA-Z¡-￿0-9_\-./@]+'
+data matches '([a-zA-Z¡-￿0-9_\-./@]+)\.(ps|PS|eps|EPS|pdf|PDF|dvi|DVI)'
+arg isfile	$0
+plumb to postscript
+plumb start open $file
+
+include initial.plumbing
