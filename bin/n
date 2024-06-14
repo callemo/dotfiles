@@ -5,7 +5,7 @@
 # 	n <command> [arguments]
 #
 # Commands:
-# 	lookup	find a note by key
+# 	look	find a note by its link key
 # 	xref	update cross references
 #
 
@@ -13,8 +13,6 @@ prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
-
-: "${NROOT:=$HOME/notes}"
 
 main() {
 	if [ $# -lt 1 ]
@@ -25,6 +23,8 @@ main() {
 
 	cmd=$1; shift
 
+	cd "${NROOT:=$HOME/notes}"
+
 	case $cmd in
 	look) nlook "$@" ;;
 	xref) nxref "$@" ;;
@@ -34,7 +34,7 @@ main() {
 nlook() {
 	if [ $# -lt 1 ]
 	then
-		fatal 'lookup: too few arguments'
+		fatal 'look: too few arguments'
 	fi
 
 	nfiles | grep -Ei "(^|/)$1[^/]*$" | sed 1q
@@ -109,7 +109,7 @@ nlinks() {
 }
 
 nfiles() {
-	find -L "$NROOT" -type f | grep -E '\.(txt|md)$' | sort
+	find -L $PWD -type f | grep -E '\.(txt|md)$' | sort
 }
 
 main "$@"

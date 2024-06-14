@@ -587,7 +587,7 @@ endfunction
 
 " OpenWikilink searches for a file path and opens it.
 function! OpenWikilink(name) abort
-	let f = trim(system('wkln ' . shellescape(a:name)))
+	let f = trim(system('n look ' . shellescape(a:name)))
 	if empty(f)
 		echohl ErrorMsg
 		echo 'wikilink: not found:' . a:name

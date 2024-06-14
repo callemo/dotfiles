@@ -11,7 +11,7 @@ plumb start rc -c 'cd '$wdir'; cd `{git rev-parse --show-toplevel}; git show '$1
 
 type is text
 data matches '\[\[([0-9A-Za-z_/]+)\]\].?'
-plumb start rc -c 'cd '$wdir'; plumb -a action=showfile `{wkln '$1'}'
+plumb start rc -c 'cd '$wdir'; plumb -a action=showfile `{n look '$1'}'
 
 type is text
 data matches '[a-zA-Z¡-￿0-9_\-./@]+'

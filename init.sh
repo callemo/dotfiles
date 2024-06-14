@@ -11,7 +11,6 @@ _merge_path() {
 
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 EDITOR=vim; export EDITOR
-WKLNROOT=$HOME/notes; export WKLNROOT
 
 case "${SHELL##*/}" in
 ksh)
