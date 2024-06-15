@@ -62,7 +62,7 @@ nxref() {
 			f="$(grep -Ei "(^|/)${key}[^/]*$" $tmp | sed 1q)"
 			if [ -z "$f" ]
 			then
-				log "xref: no file found: key '$key' with references $refs"
+				log "xref: file not found: following [[$key]] from $refs"
 				continue
 			fi
 

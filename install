@@ -23,6 +23,12 @@ then
 	git config --global core.excludesfile "$HOME/.gitignore"
 fi
 
+if [ ! -e "$HOME/lib" ]
+then
+	log 'linking $HOME/lib'
+	ln -s "$progdir/lib" "$HOME/lib"
+fi
+
 set -x
 
 ./vim/get    https://github.com/preservim/nerdtree
