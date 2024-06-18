@@ -10,18 +10,18 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-DefaultFont '-b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*'
+DefaultFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 HilightColor white #5f9ea0
 
 AddToFunc StartFunction
-    + "I" Module FvwmPager 0 1
+    + "I" Module FvwmPager 0 3
     + "I" exec xwallpaper --zoom Pictures/Wallpapers/default
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, \
           DecorateTransient, \
           HintOverride, \
-          IconBox 0 -10 -400 -0, \
+          NoIcon, \
           MWMButtons, \
           MWMDecor, \
           MWMFunctions, \
@@ -73,12 +73,12 @@ Key slash A       M         WindowList
 Key Tab   A       M         Next (CurrentPage !Iconic) Function SelectWindow
 Key Tab   A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
 
-Key Left  A       M         Desk -1 0 0 1
-Key Right A       M         Desk 1  0 0 1
-# Key 1     A       M         Desk 0 0
-# Key 2     A       M         Desk 0 1
-# Key 3     A       M         Desk 0 2
-# Key 4     A       M         Desk 0 3
+Key Left  A       M         Desk -1 0 0 3
+Key Right A       M         Desk 1  0 0 3
+Key 1     A       M         Desk 0 0
+Key 2     A       M         Desk 0 1
+Key 3     A       M         Desk 0 2
+Key 4     A       M         Desk 0 3
 
 Key H     A       SM        Move 0 w+0 Warp
 Key L     A       SM        Move -0 w+0 Warp
@@ -188,24 +188,22 @@ AddToFunc SnapRight
 # }}}
 # Modules {{{
 # Pager {{{
-*FvwmPagerFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
-*FvwmPagerGeometry 180x60-0-0
-*FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-8-*-*-*-*-*-iso10646-*
+*FvwmPagerFont -b&h-lucida-bold-r-*-*-12-*-*-*-*-*-iso10646-*
+*FvwmPagerGeometry 300x50-0-0
+*FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
 *FvwmPagerFore white
 *FvwmPagerBack #636b84
-*FvwmPagerLabel 0 Left
-*FvwmPagerLabel 1 Right
 Style "FvwmPager"   StaysOnTop, NoHandles
 # }}}
 # Ident {{{
-*FvwmIdentFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*FvwmIdentFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 # }}}
 # Form {{{
 # LogOut {{{
 *LogOutGrabServer
 *LogOutWarpPointer
-*LogOutFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*LogOutButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*LogOutFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*LogOutButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
@@ -220,9 +218,9 @@ Style "LogOut" NoTitle, NoHandles
 # }}}
 # ConnectToServer {{{
 *ConnectToServerWarpPointer
-*ConnectToServerFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*ConnectToServerButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*ConnectToServerInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*ConnectToServerButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*ConnectToServerInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
 *ConnectToServerLine       center
 *ConnectToServerText       "Connect To Server"
 *ConnectToServerLine       left
@@ -236,9 +234,9 @@ Style "ConnectToServer" NoTitle, NoHandles
 # }}}
 # RunCmd {{{
 *RunCmdWarpPointer
-*RunCmdFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunCmdButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunCmdInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*RunCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
 *RunCmdLine       center
 *RunCmdText       "Run"
 *RunCmdLine       left
@@ -252,9 +250,9 @@ Style "RunCmd" NoTitle, NoHandles
 # }}}
 # RunTermCmd {{{
 *RunTermCmdWarpPointer
-*RunTermCmdFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunTermCmdButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunTermCmdInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*RunTermCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunTermCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunTermCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
 *RunTermCmdLine       center
 *RunTermCmdText       "Run In A Terminal"
 *RunTermCmdLine       left
