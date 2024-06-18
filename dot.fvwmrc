@@ -10,7 +10,7 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-DefaultFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+DefaultFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 HilightColor white #5f9ea0
 
 AddToFunc StartFunction
@@ -21,7 +21,7 @@ AddToFunc StartFunction
 Style "*" BorderWidth 7, HandleWidth 7, \
           DecorateTransient, \
           HintOverride, \
-          IconBox 0 -10 -400 -0, \
+          NoIcon, \
           MWMButtons, \
           MWMDecor, \
           MWMFunctions, \
@@ -70,8 +70,8 @@ Key space A       M         Menu WinOps Nop
 
 Key slash A       M         WindowList
 
-Key Tab   A       M         Prev (CurrentPage !Iconic) Function SelectWindow
-Key Tab   A       SM        Next (CurrentPage !Iconic) Function SelectWindow
+Key Tab   A       M         Next (CurrentPage !Iconic) Function SelectWindow
+Key Tab   A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
 
 Key Left  A       M         Desk -1 0 0 3
 Key Right A       M         Desk 1  0 0 3
@@ -100,19 +100,22 @@ Key R     A       M         Module FvwmForm RunCmd
 Key R     A       SM        Module FvwmForm RunTermCmd
 Key W     A       M         Close
 
+Key F7    A       M         Exec exec bin/dock
+Key F7    A       SM        Exec exec bin/undock
 Key F12   A       M         Module FvwmTalk
 # }}}
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Root Menu" Title
-+ "Acme"            Exec exec xterm -iconic -title 9start \
-                        -e ksh -l -c '. ~/dotfiles/init.sh; 9start'
++ "Acme"            Exec exec xterm -iconic -title 9start -e ksh -l -c '. ~/dotfiles/init.sh; 9start'
++ "Chrome"          Exec exec bin/chrome
 + "Clock"           Exec exec xclock
++ "Console"         Exec exec xconsole
 + "Firefox"         Exec exec firefox
-+ "Mutt"            Exec exec xterm -T mutt -n mutt -e mutt
-+ "Top"             Exec exec xterm -T top -n top -e top
-+ "Vim"             Exec exec xterm -T vim -n vim \
-                        -e ksh -l -c '. ~/dotfiles/init.sh; vim'
++ "Mutt"            Exec exec xterm -T mutt -n mutt -e ksh -l -c '. ~/dotfiles/init.sh; mutt'
++ "Thunderbird"     Exec exec thunderbird
++ "Top"             Exec exec xterm -e top
++ "Vim"             Exec exec xterm -T vim -n vim -e ksh -l -c '. ~/dotfiles/init.sh; vim'
 + "XTerm	Alt-N"  Function OpenTerminal
 + ""                                 Nop
 + "Restart	Ctrl-Alt-R"              Restart fvwm
@@ -185,26 +188,22 @@ AddToFunc SnapRight
 # }}}
 # Modules {{{
 # Pager {{{
-*FvwmPagerFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
-*FvwmPagerGeometry 360x60-0-0
-*FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-8-*-*-*-*-*-iso10646-*
+*FvwmPagerFont -b&h-lucida-bold-r-*-*-12-*-*-*-*-*-iso10646-*
+*FvwmPagerGeometry 300x50-0-0
+*FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
 *FvwmPagerFore white
 *FvwmPagerBack #636b84
-*FvwmPagerLabel 0 One
-*FvwmPagerLabel 1 Two
-*FvwmPagerLabel 2 Three
-*FvwmPagerLabel 3 Four
 Style "FvwmPager"   StaysOnTop, NoHandles
 # }}}
 # Ident {{{
-*FvwmIdentFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*FvwmIdentFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 # }}}
 # Form {{{
 # LogOut {{{
 *LogOutGrabServer
 *LogOutWarpPointer
-*LogOutFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*LogOutButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
+*LogOutFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*LogOutButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
@@ -219,9 +218,9 @@ Style "LogOut" NoTitle, NoHandles
 # }}}
 # ConnectToServer {{{
 *ConnectToServerWarpPointer
-*ConnectToServerFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*ConnectToServerButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*ConnectToServerInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*ConnectToServerFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*ConnectToServerButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*ConnectToServerInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
 *ConnectToServerLine       center
 *ConnectToServerText       "Connect To Server"
 *ConnectToServerLine       left
@@ -235,9 +234,9 @@ Style "ConnectToServer" NoTitle, NoHandles
 # }}}
 # RunCmd {{{
 *RunCmdWarpPointer
-*RunCmdFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunCmdButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunCmdInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*RunCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
 *RunCmdLine       center
 *RunCmdText       "Run"
 *RunCmdLine       left
@@ -251,9 +250,9 @@ Style "RunCmd" NoTitle, NoHandles
 # }}}
 # RunTermCmd {{{
 *RunTermCmdWarpPointer
-*RunTermCmdFont       -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunTermCmdButtonFont -b&h-lucida-bold-r-*-*-14-*-75-75-*-*-iso10646-*
-*RunTermCmdInputFont  -b&h-lucidatypewriter-bold*-*-14-*-75-75-*-*-iso10646-*
+*RunTermCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunTermCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*RunTermCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
 *RunTermCmdLine       center
 *RunTermCmdText       "Run In A Terminal"
 *RunTermCmdLine       left
