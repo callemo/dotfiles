@@ -85,7 +85,6 @@ let g:go_def_mode           = 'gopls'
 let g:go_info_mode          = 'gopls'
 let g:go_auto_type_info     = 1
 let g:go_decls_mode         = 'fzf'
-let g:go_doc_popup_window   = 1
 let g:go_term_close_on_exit = 0
 let g:go_term_enabled       = 1
 let g:go_term_mode          = 'split'
