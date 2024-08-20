@@ -147,6 +147,7 @@ nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <leader>B    :NERDTreeToggle<CR>
 nnoremap <leader>Bf   :NERDTreeFind<CR>
+nnoremap <leader>Bt   :TagbarToggle<CR>
 nnoremap <leader>D    :bwipeout<CR>
 nnoremap <leader>N    :new <c-r>=expand('%:h')<CR>/
 nnoremap <leader>f    :Fmt<CR>
