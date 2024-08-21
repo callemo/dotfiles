@@ -81,7 +81,6 @@ let g:NERDTreeMapOpenInTab='<C-t>'
 
 let g:go_def_mode           = 'gopls'
 let g:go_info_mode          = 'gopls'
-let g:go_auto_type_info     = 1
 let g:go_decls_mode         = 'fzf'
 let g:go_term_close_on_exit = 0
 let g:go_term_enabled       = 1
@@ -111,7 +110,8 @@ augroup dotfiles
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
 	autocmd FileType go nnoremap <buffer> <leader>o :GoDeclsDir<CR>
-	autocmd FileType go nnoremap <buffer> <leader>t :GoTest -v<CR>
+	autocmd FileType go nnoremap <buffer> <leader>t :GoTestFile -v<CR>
+	autocmd FileType go nnoremap <buffer> <leader>i :GoInfo<CR>
 	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json setl sw=4 sts=4 et
 	" $VIMRUNTIME/syntax/typescript.vim is so slow that's unusable
