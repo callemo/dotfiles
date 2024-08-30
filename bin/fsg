@@ -1,5 +1,5 @@
 #!/bin/sh
-# gfs: Searches the file hierarchy of the current directory with a regex.
+# fsg: file system grep the current directory.
 exec du -aL 2>/dev/null |
 	sed -E 's/^[0-9]+	.\/?//' |
 	grep -Ev '(^|/).git/' |
