@@ -143,6 +143,7 @@ nnoremap <c-w>z :resize<CR>
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
+nnoremap <leader>"    :call Tmux()<CR>
 nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <leader>B    :NERDTreeToggle<CR>
