@@ -114,9 +114,9 @@ augroup dotfiles
 	autocmd FileType go nnoremap <buffer> <leader>i :GoInfo<CR>
 	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json setl sw=4 sts=4 et
-	" $VIMRUNTIME/syntax/typescript.vim is so slow that's unusable
-	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript
-	autocmd FileType markdown,python,yaml setl sw=4 sts=4 et
+	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript " syntax/typescript.vim is too buggy
+	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf        " syntax/yaml.vim is too buggy
+	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
 
