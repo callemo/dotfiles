@@ -24,6 +24,7 @@ set noswapfile
 set nowritebackup
 set nrformats-=octal
 set path=.,,
+set scrollfocus=1
 set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
