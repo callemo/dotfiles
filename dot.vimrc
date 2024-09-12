@@ -137,8 +137,10 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 inoremap <down> <c-o><c-e>
 inoremap <up> <c-o><c-y>
-nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
-nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
+nnoremap <c-w>+ :exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
+nnoremap <c-w>- :exe 'resize' ((winheight(0) * 1/2) + 1)<CR>
+nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
+nnoremap <c-w>Q :bwipeout<CR>
 nnoremap <c-w>z :resize<CR>
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
@@ -150,8 +152,6 @@ nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, ex
 nnoremap <leader>B    :NERDTreeToggle<CR>
 nnoremap <leader>Bf   :NERDTreeFind<CR>
 nnoremap <leader>Bt   :TagbarToggle<CR>
-nnoremap <leader>D    :bwipeout<CR>
-nnoremap <leader>N    :new <c-r>=expand('%:h')<CR>/
 nnoremap <leader>f    :Fmt<CR>
 nnoremap <leader>l    :Lint<CR>
 
