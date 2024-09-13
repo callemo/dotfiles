@@ -137,11 +137,13 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 inoremap <down> <c-o><c-e>
 inoremap <up> <c-o><c-y>
-nnoremap <c-w>+ :exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
-nnoremap <c-w>- :exe 'resize' ((winheight(0) * 1/2) + 1)<CR>
+nnoremap <silent> <c-w>+ :exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
+nnoremap <silent> <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <c-w>Q :bwipeout<CR>
 nnoremap <c-w>z :resize<CR>
+nmap     +      <c-w>+
+nmap     -      <c-w>-
 
 nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p>        :FZF<CR>
@@ -199,8 +201,8 @@ endif
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
-	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<CR>
-	tnoremap <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
+	tnoremap <silent> <c-w>+ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
+	tnoremap <silent> <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
 	tnoremap <c-w>z <c-w>:resize<CR>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
