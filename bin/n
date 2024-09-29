@@ -2,19 +2,19 @@
 # n: a tool for managing notes
 #
 # Usage:
-# 	n <command> [arguments]
+#	n <command> [arguments]
 #
 # Commands:
-# 	look	find a note by its link key
+#	look	find a note by its link key
 #	meta	generates a note meta template
 #	tag	list tags and tagged notes
-# 	xref	update cross references
+#	xref	update cross references
 #
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
-usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+usage() { sed -En '2,/^[^#]/ s/^#[ 	]//p' "$0" >&2; }
 
 main() {
 	if [ $# -lt 1 ]
