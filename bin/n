@@ -2,17 +2,19 @@
 # n: a tool for managing notes
 #
 # Usage:
-# 	n <command> [arguments]
+#	n <command> [arguments]
 #
 # Commands:
-# 	look	find a note by its link key
-# 	xref	update cross references
+#	look	find a note by its link key
+#	meta	generates a note meta template
+#	tag	list tags and tagged notes
+#	xref	update cross references
 #
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
-usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+usage() { sed -En '2,/^[^#]/ s/^#[ 	]//p' "$0" >&2; }
 
 main() {
 	if [ $# -lt 1 ]
@@ -27,6 +29,8 @@ main() {
 
 	case $cmd in
 	look) nlook "$@" ;;
+	meta) snip nmeta "$@" ;;
+	tag) ntag "$@" ;;
 	xref) nxref "$@" ;;
 	esac
 }
@@ -38,6 +42,27 @@ nlook() {
 	fi
 
 	nfiles | grep -Ei "(^|/)$1[^/]*$" | sed 1q
+}
+
+ntag() {
+	nfiles | xargs grep -E -H '^[ 	]*Tags:' |
+	awk 'BEGIN { FS = ":"; OFS = "\t"; query = "'"$1"'" }
+	{
+		sub("^\./", "", $1)
+		gsub("[ 	#]+", " ", $3)
+		split($3, a, " ")
+		for (i in a) {
+			if (query == "")
+				tags[tolower(a[i])] += 1
+			else if (tolower(a[i]) == tolower(query))
+				print $1
+		}
+	}
+	END {
+		if (query == "")
+			for (i in tags)
+				print tags[i], i |"sort -k2"
+	}'
 }
 
 nxref() {
@@ -62,7 +87,7 @@ nxref() {
 			f="$(grep -Ei "(^|/)${key}[^/]*$" $tmp | sed 1q)"
 			if [ -z "$f" ]
 			then
-				log "xref: no file found: key '$key' with references $refs"
+				log "xref: file not found: following [[$key]] from $refs"
 				continue
 			fi
 
