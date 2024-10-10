@@ -6,15 +6,12 @@ set backspace=indent,eol,start
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
-set completeopt=menuone,popup
-set completepopup=border:off
 set confirm
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
-set hlsearch
 set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
@@ -27,11 +24,14 @@ set noswapfile
 set nowritebackup
 set nrformats-=octal
 set path=.,,
+set scrollfocus=1
 set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
 set showcmd
 set softtabstop=4
+set splitbelow
+set splitright
 set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
 set switchbuf=useopen,split
 set tabline=%!TabLine()
@@ -45,7 +45,7 @@ set wildmenu
 set wildmode=longest,list
 
 if has('mac')
-	set clipboard=autoselect
+	set clipboard=unnamed
 endif
 
 if has('syntax') && has('eval')
@@ -65,8 +65,6 @@ let g:loaded_netrwPlugin = 1
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
-let g:NERDTreeDirArrowExpandable='+'
-let g:NERDTreeDirArrowCollapsible='-'
 let g:NERDTreeShowHidden=1
 let g:NERDTreeSortHiddenFirst=1
 let g:NERDTreeWinPos='right'
@@ -86,13 +84,14 @@ let g:NERDTreeMapOpenInTab='<C-t>'
 
 let g:go_def_mode           = 'gopls'
 let g:go_info_mode          = 'gopls'
-let g:go_auto_type_info     = 1
 let g:go_decls_mode         = 'fzf'
-let g:go_doc_popup_window   = 1
 let g:go_term_close_on_exit = 0
 let g:go_term_enabled       = 1
 let g:go_term_mode          = 'split'
 let g:go_term_reuse         = 1
+
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_text_changed = 0
 
 augroup dotfiles
 	autocmd!
@@ -114,9 +113,13 @@ augroup dotfiles
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
 	autocmd FileType go nnoremap <buffer> <leader>o :GoDeclsDir<CR>
-	autocmd FileType go nnoremap <buffer> <leader>t :GoTest -v<CR>
-	autocmd FileType javascript,json,typescript setl sw=4 sts=4 et
-	autocmd FileType markdown,python,yaml setl sw=4 sts=4 et
+	autocmd FileType go nnoremap <buffer> <leader>t :GoTestFile -v<CR>
+	autocmd FileType go nnoremap <buffer> <leader>i :GoInfo<CR>
+	autocmd FileType groff setl commentstring=.\\\"\ %s
+	autocmd FileType javascript,json setl sw=4 sts=4 et
+	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript " syntax/typescript.vim is too buggy
+	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf        " syntax/yaml.vim is too buggy
+	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
 
@@ -136,19 +139,23 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 inoremap <down> <c-o><c-e>
 inoremap <up> <c-o><c-y>
-nnoremap <c-w>+ :exe 'resize' (winheight(0) * 3/2)<CR>
-nnoremap <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
+nnoremap <silent> <c-w>+ :exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
+nnoremap <silent> <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
+nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
+nnoremap <c-w>Q :bwipeout<CR>
 nnoremap <c-w>z :resize<CR>
+nmap     +      <c-w>+
+nmap     -      <c-w>-
 
-nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-l>        :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
+nnoremap <leader>"    :call Tmux()<CR>
 nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B    :NERDTreeFind<CR>
-nnoremap <leader>D    :bwipeout<CR>
-nnoremap <leader>N    :new <c-r>=expand('%:h')<CR>/
-nnoremap <leader>b    :NERDTreeToggle<CR>
+nnoremap <leader>B    :NERDTreeToggle<CR>
+nnoremap <leader>Bf   :NERDTreeFind<CR>
+nnoremap <leader>Bt   :TagbarToggle<CR>
 nnoremap <leader>f    :Fmt<CR>
 nnoremap <leader>l    :Lint<CR>
 
@@ -166,7 +173,7 @@ nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
-nnoremap yoc :setl invcursorline<CR>
+nnoremap yoc :setl invignorecase<CR>
 nnoremap yoh :setl invhlsearch<CR>
 nnoremap yol :setl invlist<CR>
 nnoremap yon :setl invnumber<CR>
@@ -196,8 +203,8 @@ endif
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
-	tnoremap <c-w>+ <c-w>:exe 'resize' (winheight(0) * 3/2)<CR>
-	tnoremap <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
+	tnoremap <silent> <c-w>+ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
+	tnoremap <silent> <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
 	tnoremap <c-w>z <c-w>:resize<CR>
 	tnoremap <c-w><c-w> <c-w>.
 	tnoremap <c-w>[ <c-\><c-n>
@@ -570,6 +577,8 @@ function! Plumb(wdir, attr, data) abort
 		let @/ = '\<' . a:attr['word'] . '\>'
 		call feedkeys("/\<CR>")
 	endif
+	call clearmatches()
+	call matchadd('Search', getreg('/'))
 endfunction
 
 " OpenURL opens the given URL
@@ -584,7 +593,7 @@ endfunction
 
 " OpenWikilink searches for a file path and opens it.
 function! OpenWikilink(name) abort
-	let f = trim(system('wkln ' . shellescape(a:name)))
+	let f = trim(system('n look ' . shellescape(a:name)))
 	if empty(f)
 		echohl ErrorMsg
 		echo 'wikilink: not found:' . a:name
@@ -615,6 +624,10 @@ elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
 	let $PATH=$HOME . '/acme:' . $PATH
 	colorscheme basic
+endif
+
+if isdirectory(expand('~/.fzf'))
+	set rtp+=~/.fzf
 endif
 
 if filereadable('go.mod')
