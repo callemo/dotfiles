@@ -30,6 +30,8 @@ set shiftwidth=4
 set shortmess=atI
 set showcmd
 set softtabstop=4
+set splitbelow
+set splitright
 set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
 set switchbuf=useopen,split
 set tabline=%!TabLine()
@@ -145,7 +147,7 @@ nnoremap <c-w>z :resize<CR>
 nmap     +      <c-w>+
 nmap     -      <c-w>-
 
-nnoremap <c-l>        :nohlsearch \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-l>        :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>"    :call Tmux()<CR>
@@ -575,6 +577,8 @@ function! Plumb(wdir, attr, data) abort
 		let @/ = '\<' . a:attr['word'] . '\>'
 		call feedkeys("/\<CR>")
 	endif
+	call clearmatches()
+	call matchadd('Search', getreg('/'))
 endfunction
 
 " OpenURL opens the given URL
