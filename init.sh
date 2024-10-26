@@ -25,27 +25,12 @@ zsh)
 	SAVEHIST=10000; export SAVEHIST
 	bindkey -e
 	bindkey \^U backward-kill-line
-	if [ "$TERM_PROGRAM" = Alacritty ]
-	then
-		cd() { builtin cd "$@" && printf '\033]0;%s\007' "$PWD - zsh"; }
-	fi
+ 	cd() { builtin cd "$@" && print -Pn '\033]0;%n@%m: %~\007' }
 	;;
 bash)
 	HISTFILESIZE=10000; export HISTFILESIZE
 	;;
 esac
-
-if command -v fzf >/dev/null
-then
-	fzf_hist() {
-		local cmd
-		cmd="$(fzf --tac --no-sort <"$HISTFILE")"
-		if [ -n "$cmd" ]
-		then
-			eval "$cmd"
-		fi
-	}
-fi
 
 _merge_path '/usr/local/node/bin'
 _merge_path '/usr/local/go/bin'
