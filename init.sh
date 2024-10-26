@@ -22,7 +22,8 @@ ksh)
 	;;
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
-	SAVEHIST=10000; export SAVEHIST
+	export SAVEHIST=10000
+ 	export PS1='%n@%m:%~$ '
 	bindkey -e
 	bindkey \^U backward-kill-line
  	print -Pn '\033]0;%n@%m: %~\007'
