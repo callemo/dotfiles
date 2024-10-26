@@ -1,5 +1,19 @@
 #!/bin/sh
 # md: processes files with Markdown and Pikchr
+
+prefix="${0##*/}:"
+log() { echo "$prefix" "$@" >&2; }
+fatal() { log "$@"; exit 1; }
+
+if command -v multimarkdown >/dev/null
+then
+	md=multimarkdown
+elif command -v pandoc >/dev/null
+then
+	md=pandoc
+else
+	fatal 'no markdown command'
+fi
 cat "$@" |
 awk '
 $1 == "```pikchr" {
@@ -19,7 +33,7 @@ $1 == "```" {
 	else
 		print
 }' |
-multimarkdown |
+$md |
 sed -E 's/^<p>(.)/<p>\
 \1/
 		s!(.)</p>!\1\
