@@ -25,9 +25,9 @@ zsh)
 	export SAVEHIST=10000
  	export PS1='%n@%m:%~$ '
 	bindkey -e
-	bindkey \^U backward-kill-line
+	bindkey '^U' backward-kill-line
  	print -Pn '\033]0;%n@%m: %~\007'
- 	cd() { builtin cd "$@" && print -Pn '\033]0;%n@%m: %~\007' }
+ 	cd() { builtin cd "$@" && print -Pn '\033]0;%n@%m: %~\007'; }
 	;;
 bash)
 	HISTFILESIZE=10000; export HISTFILESIZE
