@@ -22,6 +22,7 @@ ksh)
 	;;
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
+ 	export HISTSIZE=10000
 	export SAVEHIST=10000
  	export PS1='%n@%m:%~$ '
 	bindkey -e
