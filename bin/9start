@@ -1,5 +1,6 @@
 #!/bin/sh
 
+export SHELL=/bin/sh
 export ENV="$DOTFILES/9.sh"
 export EDITOR=E
 export PAGER=nobs
