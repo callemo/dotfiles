@@ -112,9 +112,10 @@ augroup dotfiles
 	autocmd FileType c,cpp setl path+=/usr/include
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	autocmd FileType go nnoremap <buffer> <leader>o :GoDeclsDir<CR>
+	autocmd FileType go nnoremap <buffer> <leader>d :GoDeclsDir<CR>
 	autocmd FileType go nnoremap <buffer> <leader>t :GoTestFile -v<CR>
 	autocmd FileType go nnoremap <buffer> <leader>i :GoInfo<CR>
+	autocmd FileType go nnoremap <buffer> <leader>c :GoCallers<CR>
 	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json setl sw=4 sts=4 et
 	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript " syntax/typescript.vim is too buggy

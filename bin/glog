@@ -3,5 +3,5 @@ if [ "$1" = '-v' ]
 then
 	git log --graph --stat --date=human --abbrev-commit "$@"
 else
-	git log --date=human --pretty=format:'%h	%cd	%cn	%s' | sed 50q | tabfmt
+	git log --date=human --pretty=format:'%h	%cd	%cn	%s' "$@" | tabfmt
 fi
