@@ -27,6 +27,8 @@ zsh)
 	export PS1='%n@%m:%~$ '
 	bindkey -e
 	bindkey '^U' backward-kill-line
+	bindkey '^[[1;5D' backward-word
+	bindkey '^[[1;5C' forward-word
 	print -Pn '\033]0;%n@%m: %~\007'
 	cd() { builtin cd "$@" && print -Pn '\033]0;%n@%m: %~\007'; }
 	;;
