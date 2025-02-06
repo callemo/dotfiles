@@ -22,15 +22,18 @@ ksh)
 	;;
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
+	export HISTSIZE=10000
 	export SAVEHIST=10000
- 	export PS1='%n@%m:%~$ '
+	export PS1='%n@%m:%~$ '
 	bindkey -e
 	bindkey '^U' backward-kill-line
- 	print -Pn '\033]0;%n@%m: %~\007'
- 	cd() { builtin cd "$@" && print -Pn '\033]0;%n@%m: %~\007'; }
+	bindkey '^[[1;5D' backward-word
+	bindkey '^[[1;5C' forward-word
+	print -Pn '\033]0;%n@%m: %~\007'
+	cd() { builtin cd "$@" && print -Pn '\033]0;%n@%m: %~\007'; }
 	;;
 bash)
-	HISTFILESIZE=10000; export HISTFILESIZE
+	export HISTFILESIZE=10000
 	;;
 esac
 
