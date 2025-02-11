@@ -127,8 +127,8 @@ augroup END
 command! -nargs=+ -complete=file -range
 	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
-command! Date execute "normal! i" . strftime("%Y-%m-%d")
-command! Week execute "normal! i" . strftime("%YW%V")
+command! Date execute "normal! A" . strftime("%Y-%m-%d")
+command! Week execute "normal! A" . strftime("%YW%V")
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
