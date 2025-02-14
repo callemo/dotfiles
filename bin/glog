@@ -1,7 +1,29 @@
 #!/bin/sh
-if [ "$1" = '-v' ]
-then
-	git log --graph --stat --date=human --abbrev-commit "$@"
-else
-	git log --date=human --pretty=format:'%h	%cd	%cn	%s' "$@" | tabfmt
-fi
+
+n=10
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-n)
+		shift
+		n="$1"
+		shift
+		;;
+	-v)
+		git log --graph --stat --date=human --abbrev-commit "$@"
+		exit 0
+		;;
+	--)
+		shift
+		break
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+git log -n "$n" --date=human \
+	--pretty=format:'%h	%cd	%<(11,trunc)%cn	%s' "$@" |
+	awk 'BEGIN { FS = OFS = "\t" }
+		{split($3, a, " "); print $1, $2, a[1], $4}' | tabfmt
