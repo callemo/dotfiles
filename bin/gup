@@ -14,7 +14,8 @@ done
 shift $((OPTIND - 1))
 
 git fetch --all --prune
-git pull --rebase --autostash
+
+git pull --rebase --autostash || :
 
 if [ -n "$merge" ]
 then
