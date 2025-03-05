@@ -11,6 +11,7 @@ _merge_path() {
 
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 EDITOR=vim; export EDITOR
+RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"; export RIPGREP_CONFIG_PATH
 
 case "${SHELL##*/}" in
 ksh)
