@@ -620,6 +620,22 @@ function! Fts(query) abort
 	cwindow
 endfunction
 
+function! DeleteMatchingBuffers(pattern)
+	for buffer in range(1, bufnr('$'))
+		if bufexists(buffer) && match(bufname(buffer), a:pattern) >= 0
+			execute 'bdelete' buffer
+		endif
+	endfor
+endfunction
+
+function! DeleteNonMatchingBuffers(pattern)
+	for buffer in range(1, bufnr('$'))
+		if bufexists(buffer) && match(bufname(buffer), a:pattern) == -1
+			execute 'bdelete' buffer
+		endif
+	endfor
+endfunction
+
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
 	let $PATH=$DOTFILES . '/acme:' . $PATH
