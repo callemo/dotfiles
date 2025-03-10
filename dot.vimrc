@@ -137,6 +137,8 @@ command! -nargs=* Fts call Fts(<q-args>)
 
 command! -nargs=1 BDelete call BufferDeleteMatching(<f-args>)
 command! -nargs=1 BVDelete call BufferDeleteNonMatching(<f-args>)
+command! -nargs=1 B call Buffers(<f-args>, v:false)
+command! -nargs=1 BV call Buffers(<f-args>, v:true)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -624,6 +626,46 @@ function! Fts(query) abort
 		\ 'lines' : systemlist('fts ' . a:query . ' | cut -f 1,2'),
 		\ 'efm': '%f	%m' })
 	cwindow
+endfunction
+
+" Buffers lists all buffers matching (or not matching) the given pattern
+" @param pattern: The pattern to match buffer names against
+" @param inverse: If true, show buffers NOT matching the pattern instead
+function! Buffers(pattern, inverse) abort
+	" Plan 9 style - direct and simple approach to buffer management
+	let buffers = getbufinfo({'buflisted': 1})
+	let filtered = []
+	
+	for buf in buffers
+		let matches = has_key(buf, 'name') && match(buf.name, a:pattern) != -1
+		if matches != a:inverse
+			call add(filtered, buf)
+		endif
+	endfor
+	
+	if empty(filtered)
+		echohl ErrorMsg | echo 'No buffer match: ' . a:pattern | echohl None
+		return
+	endif
+	
+	" Use a simpler, more direct output format like Plan 9 editors
+	for buf in filtered
+		let prefix = ' '
+		if has_key(buf, 'bufnr') && buf.bufnr == bufnr('%')
+			let prefix = '>'
+		elseif has_key(buf, 'bufnr') && buf.bufnr == bufnr('#')
+			let prefix = '+'
+		endif
+		
+		let status = ' '
+		if has_key(buf, 'changed') && buf.changed
+			let status = '*'
+		endif
+		
+		if has_key(buf, 'bufnr') && has_key(buf, 'name')
+			echo printf("%s%s %-5d %s", prefix, status, buf.bufnr, fnamemodify(buf.name, ':~:.'))
+		endif
+	endfor
 endfunction
 
 " BufferDeleteMatching deletes all buffers whose names match the given
