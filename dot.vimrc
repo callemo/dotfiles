@@ -154,7 +154,7 @@ nmap     -      <c-w>-
 nnoremap <c-l>        :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
-nnoremap <leader>"    :call Tmux()<CR>
+nnoremap <leader>"    :call TmuxSwapBuffer()<CR>
 nnoremap <leader>.    :lcd %:p:h<CR>
 nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <leader>B    :NERDTreeToggle<CR>
@@ -382,7 +382,7 @@ function! ExecVisualText() abort
 endfunction
 
 " Tmux swaps the unnamed register with the tmux buffer.
-function! Tmux() abort
+function! TmuxSwapBuffer() abort
 	silent let tmp = system('tmux showb')
 	silent call system('tmux loadb -', @")
 	let @" = tmp
@@ -620,20 +620,32 @@ function! Fts(query) abort
 	cwindow
 endfunction
 
-function! DeleteMatchingBuffers(pattern)
+function! BufferDeleteMatching(pattern)
+	let buffer_list = []
 	for buffer in range(1, bufnr('$'))
-		if bufexists(buffer) && match(bufname(buffer), a:pattern) >= 0
-			execute 'bdelete' buffer
+		if bufexists(buffer) && match(bufname(buffer), a:pattern) != -1
+			call add(buffer_list, buffer)
 		endif
 	endfor
+	if empty(buffer_list)
+		echohl ErrorMsg | echo 'No buffer match: ' . a:pattern | echohl None
+		return
+	endif
+	execute 'bdelete' join(buffer_list)
 endfunction
 
-function! DeleteNonMatchingBuffers(pattern)
+function! BufferDeleteNonMatching(pattern)
+	let buffer_list = []
 	for buffer in range(1, bufnr('$'))
 		if bufexists(buffer) && match(bufname(buffer), a:pattern) == -1
-			execute 'bdelete' buffer
+			call add(buffer_list, buffer)
 		endif
 	endfor
+	if empty(buffer_list)
+		echohl ErrorMsg | echo 'No buffer match: ' . a:pattern | echohl None
+		return
+	endif
+	execute 'bdelete' join(buffer_list)
 endfunction
 
 if exists('$DOTFILES')
