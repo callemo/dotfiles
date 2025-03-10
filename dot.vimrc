@@ -135,6 +135,9 @@ command! -nargs=? Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
 
+command! -nargs=1 BDelete call BufferDeleteMatching(<f-args>)
+command! -nargs=1 BVDelete call BufferDeleteNonMatching(<f-args>)
+
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 endif
@@ -612,6 +615,9 @@ function! OpenWikilink(name) abort
 	endif
 endfunction
 
+" Fts executes a full-text search using the 'fts' command and populates the
+" quickfix list with the results.
+" @param query: The search query string.
 function! Fts(query) abort
 	call setqflist([], 'r', {
 		\ 'title' : 'Fts ' . a:query,
@@ -620,11 +626,14 @@ function! Fts(query) abort
 	cwindow
 endfunction
 
+" BufferDeleteMatching deletes all buffers whose names match the given
+" pattern.
+" @param pattern: The pattern to match buffer names against.
 function! BufferDeleteMatching(pattern)
 	let buffer_list = []
-	for buffer in range(1, bufnr('$'))
-		if bufexists(buffer) && match(bufname(buffer), a:pattern) != -1
-			call add(buffer_list, buffer)
+	for buffer in getbufinfo({'buflisted': 1})
+		if match(buffer.name, a:pattern) != -1
+			call add(buffer_list, buffer.bufnr)
 		endif
 	endfor
 	if empty(buffer_list)
@@ -634,11 +643,14 @@ function! BufferDeleteMatching(pattern)
 	execute 'bdelete' join(buffer_list)
 endfunction
 
+" BufferDeleteNonMatching deletes all buffers whose names do not match the
+" given pattern.
+" @param pattern: The pattern to match buffer names against.
 function! BufferDeleteNonMatching(pattern)
 	let buffer_list = []
-	for buffer in range(1, bufnr('$'))
-		if bufexists(buffer) && match(bufname(buffer), a:pattern) == -1
-			call add(buffer_list, buffer)
+	for buffer in getbufinfo({'buflisted': 1})
+		if match(buffer.name, a:pattern) == -1
+			call add(buffer_list, buffer.bufnr)
 		endif
 	endfor
 	if empty(buffer_list)
