@@ -137,8 +137,8 @@ command! -nargs=* Fts call Fts(<q-args>)
 
 command! -nargs=1 BDelete call BufferDelete(<f-args>, v:false)
 command! -nargs=1 BVDelete call BufferDelete(<f-args>, v:true)
-command! -nargs=1 B call Buffers(<f-args>, v:false)
-command! -nargs=1 BV call Buffers(<f-args>, v:true)
+command! -nargs=1 B call BufferList(<f-args>, v:false)
+command! -nargs=1 BV call BufferList(<f-args>, v:true)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
@@ -264,9 +264,9 @@ function! Cmd(cmd, range, line1, line2) abort
 	endif
 endfunction
 
-" MakeTempBuffer creates a scratch buffer returning its name
-function! MakeTempBuffer() abort
-	let bufname = getcwd() . '/+Errors'
+" NewBuffer creates a scratch buffer with the given suffix returning its name
+function! NewBuffer(suffix) abort
+	let bufname = getcwd() . a:suffix
 	if !bufexists(bufname)
 		let bufnr = bufnr(bufname, 1)
 		call setbufvar(bufnr, '&buflisted', 1)
@@ -283,7 +283,7 @@ function! RunCmd(range, line1, line2, cmd) abort
 	silent let output = systemlist(a:cmd, input)
 	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
 	if len(output) > 0 || v:shell_error
-		let bufname = MakeTempBuffer()
+		let bufname = NewBuffer('/+Errors')
 		exe 'sbuffer' bufname
 		call UpdateCurrentWindow(output)
 		if v:shell_error
@@ -295,7 +295,7 @@ endfunction
 
 " RunCmdAsync asynchronously executes a shell command.
 function! RunCmdAsync(range, line1, line2, cmd) abort
-	let bufname = MakeTempBuffer()
+	let bufname = NewBuffer('/+Errors')
 	let opts = {
 		\ 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
@@ -628,30 +628,31 @@ function! Fts(query) abort
 	cwindow
 endfunction
 
-" Buffers lists all buffers matching (or not matching) the given pattern
-" @param pattern: The pattern to match buffer names against
-" @param inverse: If true, show buffers NOT matching the pattern instead
-function! Buffers(pattern, inverse) abort
-	" Plan 9 style - direct and simple approach to buffer management
+" BufferList lists all buffers matching or not matching the given pattern.
+" @param pattern: The pattern to match buffer names against.
+" @param inverse: If true, show buffers not matching the pattern instead.
+function! BufferList(pattern, inverse) abort
 	let buffers = getbufinfo({'buflisted': 1})
 	let filtered = []
-	
+
 	for buf in buffers
 		let matches = has_key(buf, 'name') && match(buf.name, a:pattern) != -1
 		if matches != a:inverse
 			call add(filtered, buf)
 		endif
 	endfor
-	
+
 	if empty(filtered)
-		echohl ErrorMsg | echo 'No buffer match: ' . a:pattern | echohl None
+		let bufname = NewBuffer('/+Errors')
+		exe 'sbuffer' bufname
+		call setline(1, 'No buffer match: ' . a:pattern)
 		return
 	endif
-	
-	" Sort filtered buffers by buffer name for consistent ordering
+
+	" Sort filtered buffers by file path
 	call sort(filtered, {a, b -> a.name == b.name ? 0 : a.name > b.name ? 1 : -1})
-	
-	" Use a simpler, more direct output format like Plan 9 editors
+
+	let output = []
 	for buf in filtered
 		let prefix = ' '
 		if has_key(buf, 'bufnr') && buf.bufnr == bufnr('%')
@@ -659,23 +660,27 @@ function! Buffers(pattern, inverse) abort
 		elseif has_key(buf, 'bufnr') && buf.bufnr == bufnr('#')
 			let prefix = '+'
 		endif
-		
+
 		let status = ' '
 		if has_key(buf, 'changed') && buf.changed
 			let status = '*'
 		endif
-		
+
 		if has_key(buf, 'bufnr') && has_key(buf, 'name')
-			echo printf("%s%s %-5d %s", prefix, status, buf.bufnr, buf.name)
+			call add(output, printf("%s%s %-5d %s", prefix, status, buf.bufnr, buf.name))
 		endif
 	endfor
+
+	let bufname = NewBuffer('/+Buffers')
+	exe 'sbuffer' bufname
+	call setline(1, output)
 endfunction
 
-" BufferDelete deletes all buffers whose names match (or don't match) the given
-" pattern.
+" BufferDelete deletes all buffers whose names match
+" or don't match the given pattern.
 " @param pattern: The pattern to match buffer names against.
 " @param inverse: If true, delete buffers NOT matching the pattern instead.
-function! BufferDelete(pattern, inverse)
+function! BufferDelete(pattern, inverse) abort
 	let buffer_list = []
 	for buffer in getbufinfo({'buflisted': 1})
 		let matches = match(buffer.name, a:pattern) != -1
@@ -684,7 +689,9 @@ function! BufferDelete(pattern, inverse)
 		endif
 	endfor
 	if empty(buffer_list)
-		echohl ErrorMsg | echo 'No buffer match: ' . a:pattern | echohl None
+		let bufname = NewBuffer('/+Errors')
+		exe 'sbuffer' bufname
+		call setline(1, 'No buffer match: ' . a:pattern)
 		return
 	endif
 	execute 'bdelete' join(buffer_list)
