@@ -135,8 +135,8 @@ command! -nargs=? Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
 
-command! -nargs=1 BDelete call BufferDeleteMatching(<f-args>)
-command! -nargs=1 BVDelete call BufferDeleteNonMatching(<f-args>)
+command! -nargs=1 BDelete call BufferDelete(<f-args>, v:false)
+command! -nargs=1 BVDelete call BufferDelete(<f-args>, v:true)
 command! -nargs=1 B call Buffers(<f-args>, v:false)
 command! -nargs=1 BV call Buffers(<f-args>, v:true)
 
@@ -648,6 +648,9 @@ function! Buffers(pattern, inverse) abort
 		return
 	endif
 	
+	" Sort filtered buffers by buffer name for consistent ordering
+	call sort(filtered, {a, b -> a.name == b.name ? 0 : a.name > b.name ? 1 : -1})
+	
 	" Use a simpler, more direct output format like Plan 9 editors
 	for buf in filtered
 		let prefix = ' '
@@ -663,35 +666,20 @@ function! Buffers(pattern, inverse) abort
 		endif
 		
 		if has_key(buf, 'bufnr') && has_key(buf, 'name')
-			echo printf("%s%s %-5d %s", prefix, status, buf.bufnr, fnamemodify(buf.name, ':~:.'))
+			echo printf("%s%s %-5d %s", prefix, status, buf.bufnr, buf.name)
 		endif
 	endfor
 endfunction
 
-" BufferDeleteMatching deletes all buffers whose names match the given
+" BufferDelete deletes all buffers whose names match (or don't match) the given
 " pattern.
 " @param pattern: The pattern to match buffer names against.
-function! BufferDeleteMatching(pattern)
+" @param inverse: If true, delete buffers NOT matching the pattern instead.
+function! BufferDelete(pattern, inverse)
 	let buffer_list = []
 	for buffer in getbufinfo({'buflisted': 1})
-		if match(buffer.name, a:pattern) != -1
-			call add(buffer_list, buffer.bufnr)
-		endif
-	endfor
-	if empty(buffer_list)
-		echohl ErrorMsg | echo 'No buffer match: ' . a:pattern | echohl None
-		return
-	endif
-	execute 'bdelete' join(buffer_list)
-endfunction
-
-" BufferDeleteNonMatching deletes all buffers whose names do not match the
-" given pattern.
-" @param pattern: The pattern to match buffer names against.
-function! BufferDeleteNonMatching(pattern)
-	let buffer_list = []
-	for buffer in getbufinfo({'buflisted': 1})
-		if match(buffer.name, a:pattern) == -1
+		let matches = match(buffer.name, a:pattern) != -1
+		if matches != a:inverse
 			call add(buffer_list, buffer.bufnr)
 		endif
 	endfor
