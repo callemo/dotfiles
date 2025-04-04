@@ -21,11 +21,19 @@ class ArgumentParser(argparse.ArgumentParser):
     def print_help(self, file=sys.stdout):
         prefix = "expand_"
         prefix_len = len(prefix)
-        snippets = [i[prefix_len:] for i in Snippet.__dict__ if i.startswith(prefix)]
+
+        # A list of snippets with their document string
+        snippets = []
+        for name in dir(Snippet):
+            if name.startswith(prefix):
+                doc = getattr(Snippet, name).__doc__
+                if doc:
+                    snippets.append((name[prefix_len:], doc))
+
         super().print_help(file)
         print("\nsnippets:", file=file)
-        for i in snippets:
-            print(f"  {i}", file=file)
+        for snip, doc in snippets:
+            print(f"  {snip} - {doc}", file=file)
 
 
 class Snippet:
