@@ -42,3 +42,4 @@ set -x
 ./vim/get    https://github.com/tpope/vim-tbone
 ./vim/get -o https://github.com/dense-analysis/ale
 ./vim/get -o https://github.com/fatih/vim-go
+./vim/get -o https://github.com/github/copilot.vim

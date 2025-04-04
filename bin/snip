@@ -16,6 +16,8 @@ def main():
 
 
 class ArgumentParser(argparse.ArgumentParser):
+    """Command line argument parser."""
+
     def print_help(self, file=sys.stdout):
         prefix = "expand_"
         prefix_len = len(prefix)
@@ -47,12 +49,14 @@ class Snippet:
         return getattr(self, "expand_" + self.name)()
 
     def expand_shlog(self):
+        """Shell logging."""
         self.code.write('prefix="${0##*/}:"')
         self.code.write('log() { echo "$prefix" "$@" >&2; }')
         self.code.write('fatal() { log "$@"; exit 1; }')
         return self.code.text()
 
     def expand_shopts(self):
+        """Shell options."""
         optstring = self.args[0] if self.args else ":abc:"
         if optstring[0] != ":":
             optstring = ":" + optstring
@@ -78,10 +82,23 @@ class Snippet:
         return self.code.text()
 
     def expand_shdir(self):
+        """Shell program directory."""
         self.code.write('progdir="$(cd "${0%/*}" && pwd -P)"')
         return self.code.text()
 
+    def expand_shcase(self):
+        """Shell case statement."""
+        self.code.write("case $1 in")
+        self.code.indent()
+        for i in self.args:
+            self.code.write(f"{i}) {i};;")
+        self.code.write("* ) usage; exit 2;;")
+        self.code.dedent()
+        self.code.write("esac")
+        return self.code.text()
+
     def expand_pyargs(self):
+        """Python command line arguments."""
         optstring = self.args[0] if self.args else "abc:"
         self.code.write("parser = argparse.ArgumentParser()")
         last = len(optstring) - 1
@@ -96,6 +113,7 @@ class Snippet:
         return self.code.text()
 
     def expand_pyfilter(self):
+        """Python command line filter."""
         self.code.write("#!/usr/bin/env python3")
         self.code.write('"""Command line filter."""')
         self.code.write("import argparse")
@@ -130,16 +148,19 @@ class Snippet:
         return self.code.text()
 
     def expand_pydir(self):
+        """Python program directory."""
         self.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
         return self.code.text()
 
     def expand_nfile(self):
+        """Note file name."""
         note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
         title = "_".join(self.args)
         title = re.sub("[^A-Za-z_-]", "", title)
         return note_id + "-" + title.lower() + ".txt"
 
     def expand_nmeta(self):
+        """Note metadata."""
         date = datetime.datetime.today().isoformat(timespec="seconds")
         title = " ".join(self.args)
         self.code.write("---")
@@ -161,6 +182,8 @@ class Snippet:
 
 
 class CodeGenerator:
+    """Generates indented code."""
+
     def __init__(self, tab="\t"):
         self.tab = tab
         self.level = 0
