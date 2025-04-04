@@ -25,10 +25,11 @@ class ArgumentParser(argparse.ArgumentParser):
         # A list of snippets with their document string
         snippets = []
         for name in dir(Snippet):
-            if name.startswith(prefix):
-                doc = getattr(Snippet, name).__doc__
-                if doc:
-                    snippets.append((name[prefix_len:], doc))
+            if not name.startswith(prefix):
+                continue
+            doc = getattr(Snippet, name).__doc__
+            if doc:
+                snippets.append((name[prefix_len:], doc))
 
         super().print_help(file)
         print("\nsnippets:", file=file)
