@@ -6,192 +6,84 @@ import re
 import sys
 
 
+# Global dictionary of snippets
+SNIPPETS = {}
+
+
 def main():
     parser = ArgumentParser()
     parser.add_argument("-t", "--tab", default="\t", help="indent string")
-    parser.add_argument("snippet")
+    parser.add_argument(
+        "-l", "--list", action="store_true", help="list available snippets"
+    )
+    parser.add_argument("snippet", nargs="?")
     parser.add_argument("args", nargs="*")
     args = parser.parse_args()
-    print(Snippet(args.snippet, args.args, args.tab))
+
+    # If list flag is provided or no snippet provided, print the snippets and exit
+    if args.list or not args.snippet:
+        parser.print_snippet_list(sys.stdout)
+        return
+
+    snippet_func = SNIPPETS.get(args.snippet)
+    if not snippet_func:
+        raise ValueError(f"Unknown snippet: {args.snippet}")
+
+    print(Snippet(snippet_func, args.args, args.tab))
 
 
 class ArgumentParser(argparse.ArgumentParser):
     """Command line argument parser."""
 
     def print_help(self, file=sys.stdout):
-        prefix = "expand_"
-        prefix_len = len(prefix)
+        super().print_help(file)
+        self.print_snippet_list(file)
 
+    def print_snippet_list(self, file=sys.stdout):
         # A list of snippets with their document string
         snippets = []
-        for name in dir(Snippet):
-            if not name.startswith(prefix):
-                continue
-            doc = getattr(Snippet, name).__doc__
+        for name, func in sorted(SNIPPETS.items()):
+            doc = func.__doc__
             if doc:
-                snippets.append((name[prefix_len:], doc))
+                snippets.append((name, doc))
 
-        super().print_help(file)
-        print("\nsnippets:", file=file)
-        for snip, doc in snippets:
-            print(f"  {snip} - {doc}", file=file)
+        if not snippets:
+            return
+
+        print("\nAvailable snippets:", file=file)
+        # Find the longest snippet name for formatting
+        max_name_len = max(len(name) for name, _ in snippets)
+        # Format string for table-like output
+        fmt = f"  %-{max_name_len}s - %s"
+
+        # Print snippets in a table-like format
+        for name, doc in snippets:
+            print(fmt % (name, doc), file=file)
 
 
 class Snippet:
     """Expands and prints a snippet text."""
 
-    def __init__(self, name, args=None, tab="\t"):
+    def __init__(self, func, args=None, tab="\t"):
         if not args:
             args = []
-        self.name = name
+        self.func = func
         self.args = args
         self.tab = tab
-        self.code = CodeGenerator(self.tab)
+        self.code = IndentBuilder(self.tab)
 
     def __str__(self):
         return self.expand()
 
     def __repr__(self):
-        return f"{self.__class__.__name__}:[name:{self.name} args:{self.args}]"
+        return f"{self.__class__.__name__}:[func:{self.func.__name__} args:{self.args}]"
 
     def expand(self):
-        return getattr(self, "expand_" + self.name)()
-
-    def expand_shlog(self):
-        """Shell logging."""
-        self.code.write('prefix="${0##*/}:"')
-        self.code.write('log() { echo "$prefix" "$@" >&2; }')
-        self.code.write('fatal() { log "$@"; exit 1; }')
-        return self.code.text()
-
-    def expand_shopts(self):
-        """Shell options."""
-        optstring = self.args[0] if self.args else ":abc:"
-        if optstring[0] != ":":
-            optstring = ":" + optstring
-        self.code.write("usage() { sed -En '2,/^[^#]/ s/^# //p' \"$0\" >&2; }")
-        self.code.write("")
-        self.code.write(f"while getopts {optstring} f")
-        self.code.write("do")
-        self.code.indent()
-        self.code.write("case $f in")
-        last = len(optstring) - 1
-        for i, v in enumerate(optstring):
-            if v == ":":
-                continue
-            if i < last and optstring[i + 1] == ":":
-                self.code.write(f"{v})  {v}arg=$OPTARG;;")
-            else:
-                self.code.write(f"{v})  {v}flag=$f;;")
-        self.code.write("\\?) usage; exit 2;;")
-        self.code.write("esac")
-        self.code.dedent()
-        self.code.write("done")
-        self.code.write("shift $((OPTIND - 1))")
-        return self.code.text()
-
-    def expand_shdir(self):
-        """Shell program directory."""
-        self.code.write('progdir="$(cd "${0%/*}" && pwd -P)"')
-        return self.code.text()
-
-    def expand_shcase(self):
-        """Shell case statement."""
-        self.code.write("case $1 in")
-        self.code.indent()
-        for i in self.args:
-            self.code.write(f"{i}) {i};;")
-        self.code.write("* ) usage; exit 2;;")
-        self.code.dedent()
-        self.code.write("esac")
-        return self.code.text()
-
-    def expand_pyargs(self):
-        """Python command line arguments."""
-        optstring = self.args[0] if self.args else "abc:"
-        self.code.write("parser = argparse.ArgumentParser()")
-        last = len(optstring) - 1
-        for i, v in enumerate(optstring):
-            if v == ":":
-                continue
-            if i < last and optstring[i + 1] == ":":
-                self.code.write(f'parser.add_argument("-{v}")')
-            else:
-                self.code.write(f'parser.add_argument("-{v}", action="store_true")')
-        self.code.write("args = parser.parse_args()")
-        return self.code.text()
-
-    def expand_pyfilter(self):
-        """Python command line filter."""
-        self.code.write("#!/usr/bin/env python3")
-        self.code.write('"""Command line filter."""')
-        self.code.write("import argparse")
-        self.code.write("import fileinput")
-        self.code.write("import os")
-        self.code.write("import sys")
-        self.code.write("\n")
-        self.code.write("def main():")
-        self.code.indent()
-        self.code.write("parser = argparse.ArgumentParser()")
-        self.code.write('parser.add_argument("files", nargs="*")')
-        self.code.write("args = parser.parse_args()")
-        self.code.write("with fileinput.input(files=args.files) as f:")
-        self.code.indent()
-        self.code.write("for line in f:")
-        self.code.indent()
-        self.code.write('print(line, end="")')
-        self.code.dedent()
-        self.code.dedent()
-        self.code.dedent()
-        self.code.write("\n")
-        self.code.write("try:")
-        self.code.indent()
-        self.code.write("main()")
-        self.code.write("sys.stdout.flush()")
-        self.code.dedent()
-        self.code.write("except (BrokenPipeError, KeyboardInterrupt):")
-        self.code.indent()
-        self.code.write(
-            "os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())"
-        )
-        return self.code.text()
-
-    def expand_pydir(self):
-        """Python program directory."""
-        self.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
-        return self.code.text()
-
-    def expand_nfile(self):
-        """Note file name."""
-        note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
-        title = "_".join(self.args)
-        title = re.sub("[^A-Za-z_-]", "", title)
-        return note_id + "-" + title.lower() + ".txt"
-
-    def expand_nmeta(self):
-        """Note metadata."""
-        date = datetime.datetime.today().isoformat(timespec="seconds")
-        title = " ".join(self.args)
-        self.code.write("---")
-        self.code.write(f"Date: {date}")
-        self.code.write(f"Title: {title}")
-        self.code.write("Tags:")
-        self.code.write("References:")
-        self.code.write("ISBN:")
-        self.code.write("URL:")
-        self.code.write("Author:")
-        self.code.write("Year:")
-        self.code.write("Month:")
-        self.code.write("---")
-        self.code.write("")
-        if title:
-            self.code.write("# " + title)
-            self.code.write("")
-        return self.code.text()
+        return self.func(self)
 
 
-class CodeGenerator:
-    """Generates indented code."""
+class IndentBuilder:
+    """Generates indented lines."""
 
     def __init__(self, tab="\t"):
         self.tab = tab
@@ -206,11 +98,522 @@ class CodeGenerator:
 
     def dedent(self):
         if self.level < 1:
-            raise IndentationError("code generator line: {len(self.lines)}")
+            raise IndentationError("indent builder line: {len(self.lines)}")
         self.level -= 1
 
     def text(self):
         return "\n".join(self.lines)
 
 
-main()
+# Snippet implementations
+def _expand_shlog(s):
+    """Shell logging."""
+    s.code.write('prefix="${0##*/}:"')
+    s.code.write('log() { echo "$prefix" "$@" >&2; }')
+    s.code.write('fatal() { log "$@"; exit 1; }')
+    return s.code.text()
+
+
+def _expand_shopts(s):
+    """Shell options."""
+    optstring = s.args[0] if s.args else ":abc:"
+    if optstring[0] != ":":
+        optstring = ":" + optstring
+    s.code.write("usage() { sed -En '2,/^[^#]/ s/^# //p' \"$0\" >&2; }")
+    s.code.write("")
+    s.code.write(f"while getopts {optstring} f")
+    s.code.write("do")
+    s.code.indent()
+    s.code.write("case $f in")
+    last = len(optstring) - 1
+    for i, v in enumerate(optstring):
+        if v == ":":
+            continue
+        if i < last and optstring[i + 1] == ":":
+            s.code.write(f"{v})  {v}arg=$OPTARG;;")
+        else:
+            s.code.write(f"{v})  {v}flag=$f;;")
+    s.code.write("\\?) usage; exit 2;;")
+    s.code.write("esac")
+    s.code.dedent()
+    s.code.write("done")
+    s.code.write("shift $((OPTIND - 1))")
+    return s.code.text()
+
+
+def _expand_shdir(s):
+    """Shell program directory."""
+    s.code.write('progdir="$(cd "${0%/*}" && pwd -P)"')
+    return s.code.text()
+
+
+def _expand_shcase(s):
+    """Shell case statement."""
+    s.code.write("case $1 in")
+    s.code.indent()
+    for i in s.args:
+        s.code.write(f"{i}) {i};;")
+    s.code.write("* ) usage; exit 2;;")
+    s.code.dedent()
+    s.code.write("esac")
+    return s.code.text()
+
+
+def _expand_pyargs(s):
+    """Python command line arguments."""
+    optstring = s.args[0] if s.args else "abc:"
+    s.code.write("parser = argparse.ArgumentParser()")
+    last = len(optstring) - 1
+    for i, v in enumerate(optstring):
+        if v == ":":
+            continue
+        if i < last and optstring[i + 1] == ":":
+            s.code.write(f'parser.add_argument("-{v}")')
+        else:
+            s.code.write(f'parser.add_argument("-{v}", action="store_true")')
+    s.code.write("args = parser.parse_args()")
+    return s.code.text()
+
+
+def _expand_pyfilter(s):
+    """Python command line filter."""
+    s.code.write("#!/usr/bin/env python3")
+    s.code.write('"""Command line filter."""')
+    s.code.write("import argparse")
+    s.code.write("import fileinput")
+    s.code.write("import os")
+    s.code.write("import sys")
+    s.code.write("\n")
+    s.code.write("def main():")
+    s.code.indent()
+    s.code.write("parser = argparse.ArgumentParser()")
+    s.code.write('parser.add_argument("files", nargs="*")')
+    s.code.write("args = parser.parse_args()")
+    s.code.write("with fileinput.input(files=args.files) as f:")
+    s.code.indent()
+    s.code.write("for line in f:")
+    s.code.indent()
+    s.code.write('print(line, end="")')
+    s.code.dedent()
+    s.code.dedent()
+    s.code.dedent()
+    s.code.write("\n")
+    s.code.write("try:")
+    s.code.indent()
+    s.code.write("main()")
+    s.code.write("sys.stdout.flush()")
+    s.code.dedent()
+    s.code.write("except (BrokenPipeError, KeyboardInterrupt):")
+    s.code.indent()
+    s.code.write("os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())")
+    return s.code.text()
+
+
+def _expand_pydir(s):
+    """Python program directory."""
+    s.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
+    return s.code.text()
+
+
+def _expand_nfile(s):
+    """Note file name."""
+    note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
+    title = "_".join(s.args)
+    title = re.sub("[^A-Za-z_-]", "", title)
+    return note_id + "-" + title.lower() + ".txt"
+
+
+def _expand_nmeta(s):
+    """Note metadata."""
+    date = datetime.datetime.today().isoformat(timespec="seconds")
+    title = " ".join(s.args)
+    s.code.write("---")
+    s.code.write(f"Date: {date}")
+    s.code.write(f"Title: {title}")
+    s.code.write("Tags:")
+    s.code.write("References:")
+    s.code.write("ISBN:")
+    s.code.write("URL:")
+    s.code.write("Author:")
+    s.code.write("Year:")
+    s.code.write("Month:")
+    s.code.write("---")
+    s.code.write("")
+    if title:
+        s.code.write("# " + title)
+        s.code.write("")
+    return s.code.text()
+
+
+def _expand_awkbasic(s):
+    """AWK basic program structure."""
+    s.code.write("#!/usr/bin/awk -f")
+    s.code.write("")
+    s.code.write("BEGIN {")
+    s.code.indent()
+    s.code.write("# setup")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("/pattern/ {")
+    s.code.indent()
+    s.code.write("# action")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("END {")
+    s.code.indent()
+    s.code.write("# summary")
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkfields(s):
+    """AWK field processing examples."""
+    s.code.write("# Field variables")
+    s.code.write("# $0  - entire line")
+    s.code.write("# $1  - first field")
+    s.code.write("# NF  - number of fields")
+    s.code.write("# NR  - record number")
+    s.code.write("# FS  - field separator (default: whitespace)")
+    s.code.write("# OFS - output field separator (default: space)")
+    s.code.write("")
+    s.code.write("# Print specific fields")
+    s.code.write("{ print $1, $3 }")
+    s.code.write("")
+    s.code.write("# Process all fields")
+    s.code.write("{ ")
+    s.code.indent()
+    s.code.write("for (i = 1; i <= NF; i++)")
+    s.code.indent()
+    s.code.write("sum += $i")
+    s.code.dedent()
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkfunc(s):
+    """AWK built-in functions."""
+    s.code.write("# String functions")
+    s.code.write("# length(s)   - length of s")
+    s.code.write("# index(s, t) - position of t in s, or 0")
+    s.code.write("# match(s, r) - position of regex r in s or 0")
+    s.code.write("# split(s, a, fs) - split s into array a using fs")
+    s.code.write("# sub(r, s)   - substitute s for first match of r")
+    s.code.write("# gsub(r, s)  - substitute s for all matches of r")
+    s.code.write("# substr(s, p, n) - n-char substring of s from p")
+    s.code.write("")
+    s.code.write("# Examples")
+    s.code.write("{ ")
+    s.code.indent()
+    s.code.write("# character count")
+    s.code.write("n = length($1)")
+    s.code.write("")
+    s.code.write("# uppercase (non-standard, use loop instead)")
+    s.code.write("# Standard way to uppercase:")
+    s.code.write('up = ""')
+    s.code.write("for (i = 1; i <= length($1); i++) {")
+    s.code.indent()
+    s.code.write("c = substr($1, i, 1)")
+    s.code.write('if (c >= "a" && c <= "z")')
+    s.code.indent()
+    s.code.write('c = sprintf("%c", ord(c) - 32)')
+    s.code.dedent()
+    s.code.write("up = up c")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("# replace text")
+    s.code.write('gsub(/old/, "new")')
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkarray(s):
+    """AWK array operations."""
+    s.code.write("BEGIN {")
+    s.code.indent()
+    s.code.write("# associative arrays")
+    s.code.write('count["red"] = 5')
+    s.code.write('count["blue"] = 7')
+    s.code.write("")
+    s.code.write("# iterate over array")
+    s.code.write("for (c in count)")
+    s.code.indent()
+    s.code.write("print c, count[c]")
+    s.code.dedent()
+    s.code.write("")
+    s.code.write("# check if key exists")
+    s.code.write('if ("red" in count)')
+    s.code.indent()
+    s.code.write('print "found red:", count["red"]')
+    s.code.dedent()
+    s.code.write("")
+    s.code.write("# delete element")
+    s.code.write('delete count["red"]')
+    s.code.write("")
+    s.code.write("# multi-dimensional arrays")
+    s.code.write('items["fruit", "apple"] = 5')
+    s.code.write('items["veg", "carrot"] = 10')
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkcsv(s):
+    """AWK CSV file processing."""
+    s.code.write('BEGIN { FS = ","; hdr = 0 }')
+    s.code.write("")
+    s.code.write("# process header")
+    s.code.write("NR == 1 {")
+    s.code.indent()
+    s.code.write("for (i = 1; i <= NF; i++)")
+    s.code.indent()
+    s.code.write("col[i] = $i")
+    s.code.dedent()
+    s.code.write("hdr = 1")
+    s.code.write("next")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("# process data rows")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write("for (i = 1; i <= NF; i++)")
+    s.code.indent()
+    s.code.write("row[col[i]] = $i")
+    s.code.dedent()
+    s.code.write("")
+    s.code.write("# use column by name")
+    s.code.write('print row["price"] * row["quantity"]')
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkgroup(s):
+    """AWK grouping and summarizing data."""
+    s.code.write("# Group and sum by first field")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write("sum[$1] += $2")
+    s.code.write("cnt[$1]++")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("END {")
+    s.code.indent()
+    s.code.write("for (grp in sum) {")
+    s.code.indent()
+    s.code.write('printf("%s: %d items, sum = %.2f, avg = %.2f\\n",')
+    s.code.indent()
+    s.code.write("grp, cnt[grp], sum[grp], sum[grp]/cnt[grp])")
+    s.code.dedent()
+    s.code.dedent()
+    s.code.write("}")
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkformat(s):
+    """AWK formatting output."""
+    s.code.write("# printf formats")
+    s.code.write("# %d - decimal integer")
+    s.code.write("# %s - string")
+    s.code.write("# %f - floating point")
+    s.code.write("# %.2f - float with 2 decimals")
+    s.code.write("# %10s - right-justify in 10 chars")
+    s.code.write("# %-10s - left-justify in 10 chars")
+    s.code.write("")
+    s.code.write("# table-like output")
+    s.code.write("BEGIN {")
+    s.code.indent()
+    s.code.write('printf("%-10s %6s %8s\\n", "Item", "Count", "Price")')
+    s.code.write('printf("%-10s %6s %8s\\n", "----", "-----", "-----")')
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write('printf("%-10s %6d %8.2f\\n", $1, $2, $3)')
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkmath(s):
+    """AWK math operations."""
+    s.code.write("# arithmetic operators: + - * / % ^")
+    s.code.write("# math functions (standard)")
+    s.code.write("# sqrt(x)   - square root")
+    s.code.write("# int(x)    - integer part of x")
+    s.code.write("# rand()    - random number between 0 and 1")
+    s.code.write("# srand(x)  - set seed for rand()")
+    s.code.write("")
+    s.code.write("# basic stats example")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write("sum += $1")
+    s.code.write("sumsq += $1 * $1")
+    s.code.write("n++")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("END {")
+    s.code.indent()
+    s.code.write("if (n > 0) {")
+    s.code.indent()
+    s.code.write("mean = sum / n")
+    s.code.write("var = sumsq / n - mean * mean")
+    s.code.write("stddev = sqrt(var)")
+    s.code.write('print "mean =", mean, "std dev =", stddev')
+    s.code.dedent()
+    s.code.write("}")
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkregex(s):
+    """AWK regex patterns."""
+    s.code.write("# regex operators")
+    s.code.write("# /pattern/  - match pattern")
+    s.code.write("# ~ /pattern/ - match pattern")
+    s.code.write("# !~ /pattern/ - not match pattern")
+    s.code.write("")
+    s.code.write("# regex examples")
+    s.code.write('/^[0-9]+$/ { print $0 " is a number" }')
+    s.code.write("")
+    s.code.write('$1 ~ /^[A-Z][a-z]+$/ { print $1 " starts with capital" }')
+    s.code.write("")
+    s.code.write("# extract with regex (basic matching)")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write("if (match($0, /[0-9]+-[0-9]+/)) {")
+    s.code.indent()
+    s.code.write("matched = substr($0, RSTART, RLENGTH)")
+    s.code.write("# Split manually since we can't rely on capture groups")
+    s.code.write("n = split(matched, parts, /-/)")
+    s.code.write("if (n == 2)")
+    s.code.indent()
+    s.code.write('print "range from", parts[1], "to", parts[2]')
+    s.code.dedent()
+    s.code.dedent()
+    s.code.write("}")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("# scan a string for multiple matches")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write("# find all numbers in a string")
+    s.code.write('s = "There are 42 apples and 17 oranges"')
+    s.code.write("pos = 1")
+    s.code.write("while (pos <= length(s)) {")
+    s.code.indent()
+    s.code.write("# look for next digit sequence starting from pos")
+    s.code.write("if (match(substr(s, pos), /[0-9]+/)) {")
+    s.code.indent()
+    s.code.write("# found a match, get its actual position in original string")
+    s.code.write("matchpos = pos + RSTART - 1")
+    s.code.write("number = substr(s, matchpos, RLENGTH)")
+    s.code.write('print "Found number:", number, "at position", matchpos')
+    s.code.write("# move past this match for next iteration")
+    s.code.write("pos = matchpos + RLENGTH")
+    s.code.dedent()
+    s.code.write("} else {")
+    s.code.indent()
+    s.code.write("# no more matches")
+    s.code.write("break")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.dedent()
+    s.code.write("}")
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awkfile(s):
+    """AWK file operations."""
+    s.code.write("# read from multiple input files")
+    s.code.write("# awk 'program' file1 file2")
+    s.code.write("")
+    s.code.write("# knowing which file is being processed")
+    s.code.write('FILENAME == "data.txt" { print "In data.txt:", $0 }')
+    s.code.write("")
+    s.code.write("# write to file")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write('print $1 > "results.txt"   # overwrites file')
+    s.code.write('print $2 >> "append.txt"   # appends to file')
+    s.code.write('print $3 | "sort"          # pipe to command')
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("# close file explicitly (good practice)")
+    s.code.write("END {")
+    s.code.indent()
+    s.code.write('close("results.txt")')
+    s.code.write('close("append.txt")')
+    s.code.write('close("sort")')
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+def _expand_awksys(s):
+    """AWK system commands."""
+    s.code.write("# run system command")
+    s.code.write("BEGIN {")
+    s.code.indent()
+    s.code.write("# execute command (portable)")
+    s.code.write('system("ls -l")')
+    s.code.dedent()
+    s.code.write("}")
+    s.code.write("")
+    s.code.write("# read command output (portable)")
+    s.code.write("{")
+    s.code.indent()
+    s.code.write('cmd = "grep " $1 " /etc/passwd"')
+    s.code.write("while ((cmd | getline) > 0)")
+    s.code.indent()
+    s.code.write("print $0")
+    s.code.dedent()
+    s.code.write("close(cmd)")
+    s.code.dedent()
+    s.code.write("}")
+    return s.code.text()
+
+
+# Register all snippets
+SNIPPETS = {
+    "shlog": _expand_shlog,
+    "shopts": _expand_shopts,
+    "shdir": _expand_shdir,
+    "shcase": _expand_shcase,
+    "pyargs": _expand_pyargs,
+    "pyfilter": _expand_pyfilter,
+    "pydir": _expand_pydir,
+    "nfile": _expand_nfile,
+    "nmeta": _expand_nmeta,
+    "awkbasic": _expand_awkbasic,
+    "awkfields": _expand_awkfields,
+    "awkfunc": _expand_awkfunc,
+    "awkarray": _expand_awkarray,
+    "awkcsv": _expand_awkcsv,
+    "awkgroup": _expand_awkgroup,
+    "awkformat": _expand_awkformat,
+    "awkmath": _expand_awkmath,
+    "awkregex": _expand_awkregex,
+    "awkfile": _expand_awkfile,
+    "awksys": _expand_awksys,
+}
+
+
+if __name__ == "__main__":
+    main()
