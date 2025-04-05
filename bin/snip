@@ -5,85 +5,67 @@ import datetime
 import re
 import sys
 
-
-# Global dictionary of snippets
+# Dictionary of snippets
 SNIPPETS = {}
 
 
 def main():
-    parser = ArgumentParser()
+    parser = argparse.ArgumentParser(description="Expand text snippets.")
     parser.add_argument("-t", "--tab", default="\t", help="indent string")
     parser.add_argument(
         "-l", "--list", action="store_true", help="list available snippets"
     )
-    parser.add_argument("snippet", nargs="?")
-    parser.add_argument("args", nargs="*")
+    parser.add_argument("snippet", nargs="?", help="name of the snippet to expand")
+    parser.add_argument("args", nargs="*", help="arguments to pass to the snippet")
+
     args = parser.parse_args()
 
-    # If list flag is provided or no snippet provided, print the snippets and exit
+    # List snippets or show help if no snippet provided
     if args.list or not args.snippet:
-        parser.print_snippet_list(sys.stdout)
+        print_snippet_list()
         return
 
+    # Get and call the snippet function
     snippet_func = SNIPPETS.get(args.snippet)
     if not snippet_func:
-        raise ValueError(f"Unknown snippet: {args.snippet}")
+        print(f"Unknown snippet: {args.snippet}", file=sys.stderr)
+        print_snippet_list()
+        return 1
 
-    print(Snippet(snippet_func, args.args, args.tab))
-
-
-class ArgumentParser(argparse.ArgumentParser):
-    """Command line argument parser."""
-
-    def print_help(self, file=sys.stdout):
-        super().print_help(file)
-        self.print_snippet_list(file)
-
-    def print_snippet_list(self, file=sys.stdout):
-        # A list of snippets with their document string
-        snippets = []
-        for name, func in sorted(SNIPPETS.items()):
-            doc = func.__doc__
-            if doc:
-                snippets.append((name, doc))
-
-        if not snippets:
-            return
-
-        print("\nAvailable snippets:", file=file)
-        # Find the longest snippet name for formatting
-        max_name_len = max(len(name) for name, _ in snippets)
-        # Format string for table-like output
-        fmt = f"  %-{max_name_len}s - %s"
-
-        # Print snippets in a table-like format
-        for name, doc in snippets:
-            print(fmt % (name, doc), file=file)
+    # Expand the snippet and print it
+    code = expand_snippet(snippet_func, args.args, args.tab)
+    print(code)
 
 
-class Snippet:
-    """Expands and prints a snippet text."""
+def print_snippet_list():
+    """Print all available snippets with their descriptions."""
+    if not SNIPPETS:
+        return
 
-    def __init__(self, func, args=None, tab="\t"):
-        if not args:
-            args = []
-        self.func = func
-        self.args = args
-        self.tab = tab
-        self.code = IndentBuilder(self.tab)
+    print("\nAvailable snippets:")
 
-    def __str__(self):
-        return self.expand()
+    # Find the longest snippet name for formatting
+    max_name_len = max(len(name) for name in SNIPPETS)
+    fmt = f"  %-{max_name_len}s - %s"
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}:[func:{self.func.__name__} args:{self.args}]"
+    # Print snippets in a table-like format
+    for name, func in sorted(SNIPPETS.items()):
+        doc = func.__doc__ or ""
+        print(fmt % (name, doc))
 
-    def expand(self):
-        return self.func(self)
+
+def expand_snippet(func, args=None, tab="\t"):
+    """Expand a snippet using the given function and arguments."""
+    if args is None:
+        args = []
+
+    builder = IndentBuilder(tab)
+    result = func(builder, args)
+    return result if result is not None else builder.text()
 
 
 class IndentBuilder:
-    """Generates indented lines."""
+    """Generates indented code."""
 
     def __init__(self, tab="\t"):
         self.tab = tab
@@ -91,503 +73,506 @@ class IndentBuilder:
         self.lines = []
 
     def write(self, line):
+        """Add a line with proper indentation."""
         self.lines.append(self.tab * self.level + line)
+        return self
 
     def indent(self):
+        """Increase indentation level."""
         self.level += 1
+        return self
 
     def dedent(self):
+        """Decrease indentation level."""
         if self.level < 1:
-            raise IndentationError("indent builder line: {len(self.lines)}")
+            raise IndentationError(
+                f"Cannot dedent past level 0 at line {len(self.lines)}"
+            )
         self.level -= 1
+        return self
 
     def text(self):
+        """Return the complete text."""
         return "\n".join(self.lines)
 
 
 # Snippet implementations
-def _expand_shlog(s):
+
+
+def _expand_shlog(builder, args):
     """Shell logging."""
-    s.code.write('prefix="${0##*/}:"')
-    s.code.write('log() { echo "$prefix" "$@" >&2; }')
-    s.code.write('fatal() { log "$@"; exit 1; }')
-    return s.code.text()
+    builder.write('prefix="${0##*/}:"')
+    builder.write('log() { echo "$prefix" "$@" >&2; }')
+    builder.write('fatal() { log "$@"; exit 1; }')
 
 
-def _expand_shopts(s):
+def _expand_shopts(builder, args):
     """Shell options."""
-    optstring = s.args[0] if s.args else ":abc:"
+    optstring = args[0] if args else ":abc:"
     if optstring[0] != ":":
         optstring = ":" + optstring
-    s.code.write("usage() { sed -En '2,/^[^#]/ s/^# //p' \"$0\" >&2; }")
-    s.code.write("")
-    s.code.write(f"while getopts {optstring} f")
-    s.code.write("do")
-    s.code.indent()
-    s.code.write("case $f in")
+
+    builder.write("usage() { sed -En '2,/^[^#]/ s/^# //p' \"$0\" >&2; }")
+    builder.write("")
+    builder.write(f"while getopts {optstring} f")
+    builder.write("do")
+    builder.indent()
+    builder.write("case $f in")
+
     last = len(optstring) - 1
     for i, v in enumerate(optstring):
         if v == ":":
             continue
         if i < last and optstring[i + 1] == ":":
-            s.code.write(f"{v})  {v}arg=$OPTARG;;")
+            builder.write(f"{v})  {v}arg=$OPTARG;;")
         else:
-            s.code.write(f"{v})  {v}flag=$f;;")
-    s.code.write("\\?) usage; exit 2;;")
-    s.code.write("esac")
-    s.code.dedent()
-    s.code.write("done")
-    s.code.write("shift $((OPTIND - 1))")
-    return s.code.text()
+            builder.write(f"{v})  {v}flag=$f;;")
+
+    builder.write("\\?) usage; exit 2;;")
+    builder.write("esac")
+    builder.dedent()
+    builder.write("done")
+    builder.write("shift $((OPTIND - 1))")
 
 
-def _expand_shdir(s):
+def _expand_shdir(builder, args):
     """Shell program directory."""
-    s.code.write('progdir="$(cd "${0%/*}" && pwd -P)"')
-    return s.code.text()
+    builder.write('progdir="$(cd "${0%/*}" && pwd -P)"')
 
 
-def _expand_shcase(s):
+def _expand_shcase(builder, args):
     """Shell case statement."""
-    s.code.write("case $1 in")
-    s.code.indent()
-    for i in s.args:
-        s.code.write(f"{i}) {i};;")
-    s.code.write("* ) usage; exit 2;;")
-    s.code.dedent()
-    s.code.write("esac")
-    return s.code.text()
+    builder.write("case $1 in")
+    builder.indent()
+
+    for arg in args:
+        builder.write(f"{arg}) {arg};;")
+
+    builder.write("* ) usage; exit 2;;")
+    builder.dedent()
+    builder.write("esac")
 
 
-def _expand_pyargs(s):
+def _expand_pyargs(builder, args):
     """Python command line arguments."""
-    optstring = s.args[0] if s.args else "abc:"
-    s.code.write("parser = argparse.ArgumentParser()")
+    optstring = args[0] if args else "abc:"
+
+    builder.write("parser = argparse.ArgumentParser()")
+
     last = len(optstring) - 1
     for i, v in enumerate(optstring):
         if v == ":":
             continue
         if i < last and optstring[i + 1] == ":":
-            s.code.write(f'parser.add_argument("-{v}")')
+            builder.write(f'parser.add_argument("-{v}")')
         else:
-            s.code.write(f'parser.add_argument("-{v}", action="store_true")')
-    s.code.write("args = parser.parse_args()")
-    return s.code.text()
+            builder.write(f'parser.add_argument("-{v}", action="store_true")')
+
+    builder.write("args = parser.parse_args()")
 
 
-def _expand_pyfilter(s):
+def _expand_pyfilter(builder, args):
     """Python command line filter."""
-    s.code.write("#!/usr/bin/env python3")
-    s.code.write('"""Command line filter."""')
-    s.code.write("import argparse")
-    s.code.write("import fileinput")
-    s.code.write("import os")
-    s.code.write("import sys")
-    s.code.write("\n")
-    s.code.write("def main():")
-    s.code.indent()
-    s.code.write("parser = argparse.ArgumentParser()")
-    s.code.write('parser.add_argument("files", nargs="*")')
-    s.code.write("args = parser.parse_args()")
-    s.code.write("with fileinput.input(files=args.files) as f:")
-    s.code.indent()
-    s.code.write("for line in f:")
-    s.code.indent()
-    s.code.write('print(line, end="")')
-    s.code.dedent()
-    s.code.dedent()
-    s.code.dedent()
-    s.code.write("\n")
-    s.code.write("try:")
-    s.code.indent()
-    s.code.write("main()")
-    s.code.write("sys.stdout.flush()")
-    s.code.dedent()
-    s.code.write("except (BrokenPipeError, KeyboardInterrupt):")
-    s.code.indent()
-    s.code.write("os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())")
-    return s.code.text()
+    builder.write("#!/usr/bin/env python3")
+    builder.write('"""Command line filter."""')
+    builder.write("import argparse")
+    builder.write("import fileinput")
+    builder.write("import os")
+    builder.write("import sys")
+    builder.write("")
+    builder.write("def main():")
+    builder.indent()
+    builder.write("parser = argparse.ArgumentParser()")
+    builder.write('parser.add_argument("files", nargs="*")')
+    builder.write("args = parser.parse_args()")
+    builder.write("with fileinput.input(files=args.files) as f:")
+    builder.indent()
+    builder.write("for line in f:")
+    builder.indent()
+    builder.write('print(line, end="")')
+    builder.dedent()
+    builder.dedent()
+    builder.dedent()
+    builder.write("")
+    builder.write("try:")
+    builder.indent()
+    builder.write("main()")
+    builder.write("sys.stdout.flush()")
+    builder.dedent()
+    builder.write("except (BrokenPipeError, KeyboardInterrupt):")
+    builder.indent()
+    builder.write("os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())")
+    builder.dedent()
 
 
-def _expand_pydir(s):
+def _expand_pydir(builder, args):
     """Python program directory."""
-    s.code.write("progdir = os.path.realpath(os.path.dirname(__file__))")
-    return s.code.text()
+    builder.write("progdir = os.path.realpath(os.path.dirname(__file__))")
 
 
-def _expand_nfile(s):
+def _expand_nfile(builder, args):
     """Note file name."""
     note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
-    title = "_".join(s.args)
+    title = "_".join(args)
     title = re.sub("[^A-Za-z_-]", "", title)
     return note_id + "-" + title.lower() + ".txt"
 
 
-def _expand_nmeta(s):
+def _expand_nmeta(builder, args):
     """Note metadata."""
     date = datetime.datetime.today().isoformat(timespec="seconds")
-    title = " ".join(s.args)
-    s.code.write("---")
-    s.code.write(f"Date: {date}")
-    s.code.write(f"Title: {title}")
-    s.code.write("Tags:")
-    s.code.write("References:")
-    s.code.write("ISBN:")
-    s.code.write("URL:")
-    s.code.write("Author:")
-    s.code.write("Year:")
-    s.code.write("Month:")
-    s.code.write("---")
-    s.code.write("")
+    title = " ".join(args)
+
+    builder.write("---")
+    builder.write(f"Date: {date}")
+    builder.write(f"Title: {title}")
+    builder.write("Tags:")
+    builder.write("References:")
+    builder.write("ISBN:")
+    builder.write("URL:")
+    builder.write("Author:")
+    builder.write("Year:")
+    builder.write("Month:")
+    builder.write("---")
+    builder.write("")
+
     if title:
-        s.code.write("# " + title)
-        s.code.write("")
-    return s.code.text()
+        builder.write("# " + title)
+        builder.write("")
 
 
-def _expand_awkbasic(s):
+def _expand_awkbasic(builder, args):
     """AWK basic program structure."""
-    s.code.write("#!/usr/bin/awk -f")
-    s.code.write("")
-    s.code.write("BEGIN {")
-    s.code.indent()
-    s.code.write("# setup")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("/pattern/ {")
-    s.code.indent()
-    s.code.write("# action")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("END {")
-    s.code.indent()
-    s.code.write("# summary")
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("#!/usr/bin/awk -f")
+    builder.write("")
+    builder.write("BEGIN {")
+    builder.indent()
+    builder.write("# setup")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("/pattern/ {")
+    builder.indent()
+    builder.write("# action")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("END {")
+    builder.indent()
+    builder.write("# summary")
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkfields(s):
+def _expand_awkfields(builder, args):
     """AWK field processing examples."""
-    s.code.write("# Field variables")
-    s.code.write("# $0  - entire line")
-    s.code.write("# $1  - first field")
-    s.code.write("# NF  - number of fields")
-    s.code.write("# NR  - record number")
-    s.code.write("# FS  - field separator (default: whitespace)")
-    s.code.write("# OFS - output field separator (default: space)")
-    s.code.write("")
-    s.code.write("# Print specific fields")
-    s.code.write("{ print $1, $3 }")
-    s.code.write("")
-    s.code.write("# Process all fields")
-    s.code.write("{ ")
-    s.code.indent()
-    s.code.write("for (i = 1; i <= NF; i++)")
-    s.code.indent()
-    s.code.write("sum += $i")
-    s.code.dedent()
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# Field variables")
+    builder.write("# $0  - entire line")
+    builder.write("# $1  - first field")
+    builder.write("# NF  - number of fields")
+    builder.write("# NR  - record number")
+    builder.write("# FS  - field separator (default: whitespace)")
+    builder.write("# OFS - output field separator (default: space)")
+    builder.write("")
+    builder.write("# Print specific fields")
+    builder.write("{ print $1, $3 }")
+    builder.write("")
+    builder.write("# Process all fields")
+    builder.write("{ ")
+    builder.indent()
+    builder.write("for (i = 1; i <= NF; i++)")
+    builder.indent()
+    builder.write("sum += $i")
+    builder.dedent()
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkfunc(s):
+def _expand_awkfunc(builder, args):
     """AWK built-in functions."""
-    s.code.write("# String functions")
-    s.code.write("# length(s)   - length of s")
-    s.code.write("# index(s, t) - position of t in s, or 0")
-    s.code.write("# match(s, r) - position of regex r in s or 0")
-    s.code.write("# split(s, a, fs) - split s into array a using fs")
-    s.code.write("# sub(r, s)   - substitute s for first match of r")
-    s.code.write("# gsub(r, s)  - substitute s for all matches of r")
-    s.code.write("# substr(s, p, n) - n-char substring of s from p")
-    s.code.write("")
-    s.code.write("# Examples")
-    s.code.write("{ ")
-    s.code.indent()
-    s.code.write("# character count")
-    s.code.write("n = length($1)")
-    s.code.write("")
-    s.code.write("# uppercase (non-standard, use loop instead)")
-    s.code.write("# Standard way to uppercase:")
-    s.code.write('up = ""')
-    s.code.write("for (i = 1; i <= length($1); i++) {")
-    s.code.indent()
-    s.code.write("c = substr($1, i, 1)")
-    s.code.write('if (c >= "a" && c <= "z")')
-    s.code.indent()
-    s.code.write('c = sprintf("%c", ord(c) - 32)')
-    s.code.dedent()
-    s.code.write("up = up c")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("# replace text")
-    s.code.write('gsub(/old/, "new")')
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# String functions")
+    builder.write("# length(s)   - length of s")
+    builder.write("# index(s, t) - position of t in s, or 0")
+    builder.write("# match(s, r) - position of regex r in s or 0")
+    builder.write("# split(s, a, fs) - split s into array a using fs")
+    builder.write("# sub(r, s)   - substitute s for first match of r")
+    builder.write("# gsub(r, s)  - substitute s for all matches of r")
+    builder.write("# substr(s, p, n) - n-char substring of s from p")
+    builder.write("")
+    builder.write("# Examples")
+    builder.write("{ ")
+    builder.indent()
+    builder.write("# character count")
+    builder.write("n = length($1)")
+    builder.write("")
+    builder.write("# uppercase (non-standard, use loop instead)")
+    builder.write("# Standard way to uppercase:")
+    builder.write('up = ""')
+    builder.write("for (i = 1; i <= length($1); i++) {")
+    builder.indent()
+    builder.write("c = substr($1, i, 1)")
+    builder.write('if (c >= "a" && c <= "z")')
+    builder.indent()
+    builder.write('c = sprintf("%c", ord(c) - 32)')
+    builder.dedent()
+    builder.write("up = up c")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("# replace text")
+    builder.write('gsub(/old/, "new")')
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkarray(s):
+def _expand_awkarray(builder, args):
     """AWK array operations."""
-    s.code.write("BEGIN {")
-    s.code.indent()
-    s.code.write("# associative arrays")
-    s.code.write('count["red"] = 5')
-    s.code.write('count["blue"] = 7')
-    s.code.write("")
-    s.code.write("# iterate over array")
-    s.code.write("for (c in count)")
-    s.code.indent()
-    s.code.write("print c, count[c]")
-    s.code.dedent()
-    s.code.write("")
-    s.code.write("# check if key exists")
-    s.code.write('if ("red" in count)')
-    s.code.indent()
-    s.code.write('print "found red:", count["red"]')
-    s.code.dedent()
-    s.code.write("")
-    s.code.write("# delete element")
-    s.code.write('delete count["red"]')
-    s.code.write("")
-    s.code.write("# multi-dimensional arrays")
-    s.code.write('items["fruit", "apple"] = 5')
-    s.code.write('items["veg", "carrot"] = 10')
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("BEGIN {")
+    builder.indent()
+    builder.write("# associative arrays")
+    builder.write('count["red"] = 5')
+    builder.write('count["blue"] = 7')
+    builder.write("")
+    builder.write("# iterate over array")
+    builder.write("for (c in count)")
+    builder.indent()
+    builder.write("print c, count[c]")
+    builder.dedent()
+    builder.write("")
+    builder.write("# check if key exists")
+    builder.write('if ("red" in count)')
+    builder.indent()
+    builder.write('print "found red:", count["red"]')
+    builder.dedent()
+    builder.write("")
+    builder.write("# delete element")
+    builder.write('delete count["red"]')
+    builder.write("")
+    builder.write("# multi-dimensional arrays")
+    builder.write('items["fruit", "apple"] = 5')
+    builder.write('items["veg", "carrot"] = 10')
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkcsv(s):
+def _expand_awkcsv(builder, args):
     """AWK CSV file processing."""
-    s.code.write('BEGIN { FS = ","; hdr = 0 }')
-    s.code.write("")
-    s.code.write("# process header")
-    s.code.write("NR == 1 {")
-    s.code.indent()
-    s.code.write("for (i = 1; i <= NF; i++)")
-    s.code.indent()
-    s.code.write("col[i] = $i")
-    s.code.dedent()
-    s.code.write("hdr = 1")
-    s.code.write("next")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("# process data rows")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write("for (i = 1; i <= NF; i++)")
-    s.code.indent()
-    s.code.write("row[col[i]] = $i")
-    s.code.dedent()
-    s.code.write("")
-    s.code.write("# use column by name")
-    s.code.write('print row["price"] * row["quantity"]')
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write('BEGIN { FS = ","; hdr = 0 }')
+    builder.write("")
+    builder.write("# process header")
+    builder.write("NR == 1 {")
+    builder.indent()
+    builder.write("for (i = 1; i <= NF; i++)")
+    builder.indent()
+    builder.write("col[i] = $i")
+    builder.dedent()
+    builder.write("hdr = 1")
+    builder.write("next")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("# process data rows")
+    builder.write("{")
+    builder.indent()
+    builder.write("for (i = 1; i <= NF; i++)")
+    builder.indent()
+    builder.write("row[col[i]] = $i")
+    builder.dedent()
+    builder.write("")
+    builder.write("# use column by name")
+    builder.write('print row["price"] * row["quantity"]')
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkgroup(s):
+def _expand_awkgroup(builder, args):
     """AWK grouping and summarizing data."""
-    s.code.write("# Group and sum by first field")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write("sum[$1] += $2")
-    s.code.write("cnt[$1]++")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("END {")
-    s.code.indent()
-    s.code.write("for (grp in sum) {")
-    s.code.indent()
-    s.code.write('printf("%s: %d items, sum = %.2f, avg = %.2f\\n",')
-    s.code.indent()
-    s.code.write("grp, cnt[grp], sum[grp], sum[grp]/cnt[grp])")
-    s.code.dedent()
-    s.code.dedent()
-    s.code.write("}")
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# Group and sum by first field")
+    builder.write("{")
+    builder.indent()
+    builder.write("sum[$1] += $2")
+    builder.write("cnt[$1]++")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("END {")
+    builder.indent()
+    builder.write("for (grp in sum) {")
+    builder.indent()
+    builder.write('printf("%s: %d items, sum = %.2f, avg = %.2f\\n",')
+    builder.indent()
+    builder.write("grp, cnt[grp], sum[grp], sum[grp]/cnt[grp])")
+    builder.dedent()
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkformat(s):
+def _expand_awkformat(builder, args):
     """AWK formatting output."""
-    s.code.write("# printf formats")
-    s.code.write("# %d - decimal integer")
-    s.code.write("# %s - string")
-    s.code.write("# %f - floating point")
-    s.code.write("# %.2f - float with 2 decimals")
-    s.code.write("# %10s - right-justify in 10 chars")
-    s.code.write("# %-10s - left-justify in 10 chars")
-    s.code.write("")
-    s.code.write("# table-like output")
-    s.code.write("BEGIN {")
-    s.code.indent()
-    s.code.write('printf("%-10s %6s %8s\\n", "Item", "Count", "Price")')
-    s.code.write('printf("%-10s %6s %8s\\n", "----", "-----", "-----")')
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write('printf("%-10s %6d %8.2f\\n", $1, $2, $3)')
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# printf formats")
+    builder.write("# %d - decimal integer")
+    builder.write("# %s - string")
+    builder.write("# %f - floating point")
+    builder.write("# %.2f - float with 2 decimals")
+    builder.write("# %10s - right-justify in 10 chars")
+    builder.write("# %-10s - left-justify in 10 chars")
+    builder.write("")
+    builder.write("# table-like output")
+    builder.write("BEGIN {")
+    builder.indent()
+    builder.write('printf("%-10s %6s %8s\\n", "Item", "Count", "Price")')
+    builder.write('printf("%-10s %6s %8s\\n", "----", "-----", "-----")')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("{")
+    builder.indent()
+    builder.write('printf("%-10s %6d %8.2f\\n", $1, $2, $3)')
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkmath(s):
+def _expand_awkmath(builder, args):
     """AWK math operations."""
-    s.code.write("# arithmetic operators: + - * / % ^")
-    s.code.write("# math functions (standard)")
-    s.code.write("# sqrt(x)   - square root")
-    s.code.write("# int(x)    - integer part of x")
-    s.code.write("# rand()    - random number between 0 and 1")
-    s.code.write("# srand(x)  - set seed for rand()")
-    s.code.write("")
-    s.code.write("# basic stats example")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write("sum += $1")
-    s.code.write("sumsq += $1 * $1")
-    s.code.write("n++")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("END {")
-    s.code.indent()
-    s.code.write("if (n > 0) {")
-    s.code.indent()
-    s.code.write("mean = sum / n")
-    s.code.write("var = sumsq / n - mean * mean")
-    s.code.write("stddev = sqrt(var)")
-    s.code.write('print "mean =", mean, "std dev =", stddev')
-    s.code.dedent()
-    s.code.write("}")
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# arithmetic operators: + - * / % ^")
+    builder.write("# math functions (standard)")
+    builder.write("# sqrt(x)   - square root")
+    builder.write("# int(x)    - integer part of x")
+    builder.write("# rand()    - random number between 0 and 1")
+    builder.write("# srand(x)  - set seed for rand()")
+    builder.write("")
+    builder.write("# basic stats example")
+    builder.write("{")
+    builder.indent()
+    builder.write("sum += $1")
+    builder.write("sumsq += $1 * $1")
+    builder.write("n++")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("END {")
+    builder.indent()
+    builder.write("if (n > 0) {")
+    builder.indent()
+    builder.write("mean = sum / n")
+    builder.write("var = sumsq / n - mean * mean")
+    builder.write("stddev = sqrt(var)")
+    builder.write('print "mean =", mean, "std dev =", stddev')
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkregex(s):
+def _expand_awkregex(builder, args):
     """AWK regex patterns."""
-    s.code.write("# regex operators")
-    s.code.write("# /pattern/  - match pattern")
-    s.code.write("# ~ /pattern/ - match pattern")
-    s.code.write("# !~ /pattern/ - not match pattern")
-    s.code.write("")
-    s.code.write("# regex examples")
-    s.code.write('/^[0-9]+$/ { print $0 " is a number" }')
-    s.code.write("")
-    s.code.write('$1 ~ /^[A-Z][a-z]+$/ { print $1 " starts with capital" }')
-    s.code.write("")
-    s.code.write("# extract with regex (basic matching)")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write("if (match($0, /[0-9]+-[0-9]+/)) {")
-    s.code.indent()
-    s.code.write("matched = substr($0, RSTART, RLENGTH)")
-    s.code.write("# Split manually since we can't rely on capture groups")
-    s.code.write("n = split(matched, parts, /-/)")
-    s.code.write("if (n == 2)")
-    s.code.indent()
-    s.code.write('print "range from", parts[1], "to", parts[2]')
-    s.code.dedent()
-    s.code.dedent()
-    s.code.write("}")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("# scan a string for multiple matches")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write("# find all numbers in a string")
-    s.code.write('s = "There are 42 apples and 17 oranges"')
-    s.code.write("pos = 1")
-    s.code.write("while (pos <= length(s)) {")
-    s.code.indent()
-    s.code.write("# look for next digit sequence starting from pos")
-    s.code.write("if (match(substr(s, pos), /[0-9]+/)) {")
-    s.code.indent()
-    s.code.write("# found a match, get its actual position in original string")
-    s.code.write("matchpos = pos + RSTART - 1")
-    s.code.write("number = substr(s, matchpos, RLENGTH)")
-    s.code.write('print "Found number:", number, "at position", matchpos')
-    s.code.write("# move past this match for next iteration")
-    s.code.write("pos = matchpos + RLENGTH")
-    s.code.dedent()
-    s.code.write("} else {")
-    s.code.indent()
-    s.code.write("# no more matches")
-    s.code.write("break")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.dedent()
-    s.code.write("}")
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# regex operators")
+    builder.write("# /pattern/  - match pattern")
+    builder.write("# ~ /pattern/ - match pattern")
+    builder.write("# !~ /pattern/ - not match pattern")
+    builder.write("")
+    builder.write("# regex examples")
+    builder.write('/^[0-9]+$/ { print $0 " is a number" }')
+    builder.write("")
+    builder.write('$1 ~ /^[A-Z][a-z]+$/ { print $1 " starts with capital" }')
+    builder.write("")
+    builder.write("# extract with regex (basic matching)")
+    builder.write("{")
+    builder.indent()
+    builder.write("if (match($0, /[0-9]+-[0-9]+/)) {")
+    builder.indent()
+    builder.write("matched = substr($0, RSTART, RLENGTH)")
+    builder.write("# Split manually since we can't rely on capture groups")
+    builder.write("n = split(matched, parts, /-/)")
+    builder.write("if (n == 2)")
+    builder.indent()
+    builder.write('print "range from", parts[1], "to", parts[2]')
+    builder.dedent()
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("# scan a string for multiple matches")
+    builder.write("{")
+    builder.indent()
+    builder.write("# find all numbers in a string")
+    builder.write('s = "There are 42 apples and 17 oranges"')
+    builder.write("pos = 1")
+    builder.write("while (pos <= length(s)) {")
+    builder.indent()
+    builder.write("# look for next digit sequence starting from pos")
+    builder.write("if (match(substr(s, pos), /[0-9]+/)) {")
+    builder.indent()
+    builder.write("# found a match, get its actual position in original string")
+    builder.write("matchpos = pos + RSTART - 1")
+    builder.write("number = substr(s, matchpos, RLENGTH)")
+    builder.write('print "Found number:", number, "at position", matchpos')
+    builder.write("# move past this match for next iteration")
+    builder.write("pos = matchpos + RLENGTH")
+    builder.dedent()
+    builder.write("} else {")
+    builder.indent()
+    builder.write("# no more matches")
+    builder.write("break")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awkfile(s):
+def _expand_awkfile(builder, args):
     """AWK file operations."""
-    s.code.write("# read from multiple input files")
-    s.code.write("# awk 'program' file1 file2")
-    s.code.write("")
-    s.code.write("# knowing which file is being processed")
-    s.code.write('FILENAME == "data.txt" { print "In data.txt:", $0 }')
-    s.code.write("")
-    s.code.write("# write to file")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write('print $1 > "results.txt"   # overwrites file')
-    s.code.write('print $2 >> "append.txt"   # appends to file')
-    s.code.write('print $3 | "sort"          # pipe to command')
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("# close file explicitly (good practice)")
-    s.code.write("END {")
-    s.code.indent()
-    s.code.write('close("results.txt")')
-    s.code.write('close("append.txt")')
-    s.code.write('close("sort")')
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# read from multiple input files")
+    builder.write("# awk 'program' file1 file2")
+    builder.write("")
+    builder.write("# knowing which file is being processed")
+    builder.write('FILENAME == "data.txt" { print "In data.txt:", $0 }')
+    builder.write("")
+    builder.write("# write to file")
+    builder.write("{")
+    builder.indent()
+    builder.write('print $1 > "results.txt"   # overwrites file')
+    builder.write('print $2 >> "append.txt"   # appends to file')
+    builder.write('print $3 | "sort"          # pipe to command')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("# close file explicitly (good practice)")
+    builder.write("END {")
+    builder.indent()
+    builder.write('close("results.txt")')
+    builder.write('close("append.txt")')
+    builder.write('close("sort")')
+    builder.dedent()
+    builder.write("}")
 
 
-def _expand_awksys(s):
+def _expand_awksys(builder, args):
     """AWK system commands."""
-    s.code.write("# run system command")
-    s.code.write("BEGIN {")
-    s.code.indent()
-    s.code.write("# execute command (portable)")
-    s.code.write('system("ls -l")')
-    s.code.dedent()
-    s.code.write("}")
-    s.code.write("")
-    s.code.write("# read command output (portable)")
-    s.code.write("{")
-    s.code.indent()
-    s.code.write('cmd = "grep " $1 " /etc/passwd"')
-    s.code.write("while ((cmd | getline) > 0)")
-    s.code.indent()
-    s.code.write("print $0")
-    s.code.dedent()
-    s.code.write("close(cmd)")
-    s.code.dedent()
-    s.code.write("}")
-    return s.code.text()
+    builder.write("# run system command")
+    builder.write("BEGIN {")
+    builder.indent()
+    builder.write("# execute command (portable)")
+    builder.write('system("ls -l")')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("# read command output (portable)")
+    builder.write("{")
+    builder.indent()
+    builder.write('cmd = "grep " $1 " /etc/passwd"')
+    builder.write("while ((cmd | getline) > 0)")
+    builder.indent()
+    builder.write("print $0")
+    builder.dedent()
+    builder.write("close(cmd)")
+    builder.dedent()
+    builder.write("}")
 
 
 # Register all snippets
@@ -616,4 +601,4 @@ SNIPPETS = {
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)
