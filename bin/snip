@@ -935,7 +935,7 @@ def _expand_gowg(builder, args):
 
 
 def _expand_gotest(builder, args):
-    """Go test. [Func RetType ParamTypes...] - Create test function with table-driven tests."""
+    """Go test. [Func RetType ParamTypes...] - Create test function with tests and benchmarks."""
     # Default values
     func_name = "Add"
     return_type = "int"
@@ -966,6 +966,7 @@ def _expand_gotest(builder, args):
     builder.write("")
     builder.write("import (")
     builder.indent()
+    builder.write('"fmt"')
     builder.write('"testing"')
     builder.dedent()
     builder.write(")")
@@ -988,8 +989,32 @@ def _expand_gotest(builder, args):
     builder.dedent()
     builder.write("}")
     builder.write("")
+
+    # Helper function for test setup (optional)
+    builder.write("// testSetup prepares test resources")
+    builder.write("func testSetup() func() {")
+    builder.indent()
+    builder.write("// Initialize test resources")
+    builder.write("")
+    builder.write("// Return teardown function")
+    builder.write("return func() {")
+    builder.indent()
+    builder.write("// Clean up test resources")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+
+    # Test function with table-driven tests
     builder.write(f"func Test{func_name}(t *testing.T) {{")
     builder.indent()
+    builder.write("// Setup test environment and defer cleanup")
+    builder.write("teardown := testSetup()")
+    builder.write("defer teardown()")
+    builder.write("")
+
+    builder.write("// Table-driven test cases")
     builder.write("tests := []struct {")
     builder.indent()
     builder.write("name     string")
@@ -1022,6 +1047,8 @@ def _expand_gotest(builder, args):
     builder.dedent()
     builder.write("}")
     builder.write("")
+
+    builder.write("// Run subtests for each test case")
     builder.write("for _, tc := range tests {")
     builder.indent()
     builder.write("t.Run(tc.name, func(t *testing.T) {")
@@ -1029,7 +1056,9 @@ def _expand_gotest(builder, args):
     builder.write(
         f"got := {func_name}(tc.{', tc.'.join([chr(97+i) for i in range(len(param_types))])})"
     )
-    builder.write(f"if got != tc.expected {{")
+
+    # Conditional check based on return type
+    builder.write("if got != tc.expected {")
     builder.indent()
 
     # Format string for error message depends on return type
@@ -1056,6 +1085,95 @@ def _expand_gotest(builder, args):
     builder.write("})")
     builder.dedent()
     builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+
+    # Add test example
+    builder.write(f"func Example{func_name}() {{")
+    builder.indent()
+
+    # Create example parameters based on type
+    example_params = []
+    for i, ptype in enumerate(param_types):
+        if ptype == "string":
+            example_params.append(f'"{chr(97+i)}"')
+        elif ptype == "bool":
+            example_params.append("true")
+        elif "int" in ptype:
+            example_params.append(str(i + 1))
+        elif "float" in ptype:
+            example_params.append(f"{i+1}.0")
+        else:
+            example_params.append("nil // TODO: provide appropriate value")
+
+    builder.write(f"result := {func_name}({', '.join(example_params)})")
+    builder.write("fmt.Println(result)")
+    builder.write("// Output:")
+
+    # Generate expected output based on return type
+    if return_type == "string":
+        builder.write('// ""')
+    elif return_type == "bool":
+        builder.write("// true")
+    elif "int" in return_type:
+        builder.write("// 0")
+    elif "float" in return_type:
+        builder.write("// 0")
+    else:
+        builder.write("// <expected output>")
+
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+
+    # Add benchmark function
+    builder.write(f"func Benchmark{func_name}(b *testing.B) {{")
+    builder.indent()
+
+    # Create benchmark parameters
+    bench_params = []
+    for i, ptype in enumerate(param_types):
+        if ptype == "string":
+            bench_params.append(f'"benchmark{i}"')
+        elif ptype == "bool":
+            bench_params.append("true")
+        elif "int" in ptype:
+            bench_params.append(str(i + 10))
+        elif "float" in ptype:
+            bench_params.append(f"{i+10}.5")
+        else:
+            bench_params.append("nil // TODO: provide appropriate value")
+
+    # Reset timer in case setup is expensive
+    builder.write("// Perform any expensive setup here")
+    builder.write("b.ResetTimer()")
+
+    # Benchmark loop
+    builder.write("for i := 0; i < b.N; i++ {")
+    builder.indent()
+    builder.write(f"{func_name}({', '.join(bench_params)})")
+    builder.dedent()
+    builder.write("}")
+
+    # Optionally add parallel benchmark
+    builder.write("")
+    builder.write("// Example of parallel benchmark")
+    builder.write('b.Run("Parallel", func(b *testing.B) {')
+    builder.indent()
+    builder.write("b.ResetTimer()")
+    builder.write("b.RunParallel(func(pb *testing.PB) {")
+    builder.indent()
+    builder.write("for pb.Next() {")
+    builder.indent()
+    builder.write(f"{func_name}({', '.join(bench_params)})")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("})")
+    builder.dedent()
+    builder.write("})")
+
     builder.dedent()
     builder.write("}")
 
