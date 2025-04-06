@@ -671,13 +671,13 @@ def _expand_gostruct(builder, args):
                     fields.append((field_name, field_type))
 
     # Write struct definition
-    builder.write(f"// {struct_name} represents an entity in the system")
+    builder.write(f"// {struct_name} represents a {struct_name.lower()}")
     builder.write(f"type {struct_name} struct {{")
     builder.indent()
 
     # Add fields
     for field_name, field_type in fields:
-        builder.write(f"{field_name}    {field_type}")
+        builder.write(f"{field_name} {field_type}")
 
     builder.dedent()
     builder.write("}")
@@ -687,10 +687,8 @@ def _expand_gostruct(builder, args):
     builder.write(f"// New{struct_name} creates a new {struct_name}")
 
     # Determine constructor parameters based on fields
-    # Skip ID and Created fields (common pattern for generated fields)
-    constructor_fields = [
-        (name, typ) for name, typ in fields if name != "ID" and name != "Created"
-    ]
+    # Skip ID field (common pattern for generated fields)
+    constructor_fields = [(name, typ) for name, typ in fields if name != "ID"]
 
     param_list = ", ".join(
         [f"{name.lower()} {typ}" for name, typ in constructor_fields]
@@ -702,11 +700,11 @@ def _expand_gostruct(builder, args):
     builder.indent()
 
     # Add field initializers
-    for field_name, _ in fields:
+    for field_name, field_type in fields:
         if field_name == "ID":
             # Skip ID for constructor
             continue
-        elif field_name == "Created":
+        elif field_name == "Created" and field_type == "time.Time":
             builder.write(f"{field_name}: time.Now(),")
         else:
             # Use parameter with same name but lowercase
@@ -771,7 +769,7 @@ def _expand_gojson(builder, args):
     builder.dedent()
     builder.write(")")
     builder.write("")
-    builder.write("// Person represents a person with a name and age")
+    builder.write("// Person represents a person with name and age")
     builder.write("type Person struct {")
     builder.indent()
     builder.write('Name string `json:"name"`')
@@ -781,7 +779,7 @@ def _expand_gojson(builder, args):
     builder.write("")
     builder.write("func main() {")
     builder.indent()
-    builder.write("// Marshal: struct to JSON")
+    builder.write("// Marshal struct to JSON")
     builder.write('p := Person{Name: "Alice", Age: 30}')
     builder.write("data, err := json.Marshal(p)")
     builder.write("if err != nil {")
@@ -791,11 +789,10 @@ def _expand_gojson(builder, args):
     builder.write("}")
     builder.write('fmt.Printf("JSON: %s\\n", data)')
     builder.write("")
-    builder.write("// Unmarshal: JSON to struct")
+    builder.write("// Unmarshal JSON to struct")
     builder.write('jsonData := []byte(`{"name":"Bob","age":25}`)')
     builder.write("var person Person")
-    builder.write("err = json.Unmarshal(jsonData, &person)")
-    builder.write("if err != nil {")
+    builder.write("if err := json.Unmarshal(jsonData, &person); err != nil {")
     builder.indent()
     builder.write("log.Fatal(err)")
     builder.dedent()
@@ -817,18 +814,19 @@ def _expand_gohttp(builder, args):
     builder.dedent()
     builder.write(")")
     builder.write("")
-    builder.write("func main() {")
-    builder.indent()
-    builder.write("// Simple handler function")
-    builder.write('http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {')
+    builder.write("func handler(w http.ResponseWriter, r *http.Request) {")
     builder.indent()
     builder.write('fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])')
     builder.dedent()
-    builder.write("})")
+    builder.write("}")
     builder.write("")
-    builder.write("// Start server")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write('http.HandleFunc("/", handler)')
+    builder.write("")
     builder.write('log.Println("Starting server on :8080")')
-    builder.write('if err := http.ListenAndServe(":8080", nil); err != nil {')
+    builder.write('err := http.ListenAndServe(":8080", nil)')
+    builder.write("if err != nil {")
     builder.indent()
     builder.write("log.Fatal(err)")
     builder.dedent()
@@ -908,8 +906,7 @@ def _expand_gowg(builder, args):
     builder.indent()
     builder.write("defer wg.Done()")
     builder.write('fmt.Printf("Worker %d starting\\n", id)')
-    builder.write("// Simulate work")
-    builder.write("time.Sleep(time.Second)")
+    builder.write("time.Sleep(time.Second) // Simulate work")
     builder.write('fmt.Printf("Worker %d done\\n", id)')
     builder.dedent()
     builder.write("}")
@@ -926,7 +923,6 @@ def _expand_gowg(builder, args):
     builder.dedent()
     builder.write("}")
     builder.write("")
-    builder.write("// Wait for all workers to complete")
     builder.write('fmt.Println("Waiting for workers to finish...")')
     builder.write("wg.Wait()")
     builder.write('fmt.Println("All workers completed")')
@@ -1205,11 +1201,10 @@ def _expand_goswitch(builder, args):
 
         builder.indent()
         if case.lower() == "default":
-            builder.write(f"// Handle default case")
+            builder.write("// Handle default case")
         else:
             builder.write(f"// Handle {case} case")
         builder.dedent()
-        builder.write("")
 
     builder.dedent()
     builder.write("}")
@@ -1239,25 +1234,27 @@ def _expand_gointf(builder, args):
     builder.dedent()
     builder.write("}")
 
-    # Add implementation example if it's a simple interface (one method)
-    if len(methods) == 1:
-        struct_name = f"My{interface_name}"
-        method = methods[0]
+    # Add implementation example for all interfaces
+    struct_name = f"My{interface_name}"
 
-        builder.write("")
-        builder.write(f"// {struct_name} implements the {interface_name} interface")
-        builder.write(f"type {struct_name} struct {{")
-        builder.indent()
-        builder.write("// implementation fields")
-        builder.dedent()
-        builder.write("}")
-        builder.write("")
+    builder.write("")
+    builder.write(f"// {struct_name} implements the {interface_name} interface")
+    builder.write(f"type {struct_name} struct {{")
+    builder.indent()
+    builder.write("// implementation fields")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+
+    # Implement all methods
+    for method in methods:
         builder.write(f"// {method} implements {interface_name}.{method}")
         builder.write(f"func (m *{struct_name}) {method}() {{")
         builder.indent()
         builder.write("// implementation")
         builder.dedent()
         builder.write("}")
+        builder.write("")
 
 
 # Register all snippets
