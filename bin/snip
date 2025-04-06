@@ -107,7 +107,7 @@ def _expand_shlog(builder, args):
 
 
 def _expand_shopts(builder, args):
-    """Shell options."""
+    """Shell getopts. [optstring] - Generate getopt parsing for shell scripts."""
     optstring = args[0] if args else ":abc:"
     if optstring[0] != ":":
         optstring = ":" + optstring
@@ -141,11 +141,14 @@ def _expand_shdir(builder, args):
 
 
 def _expand_shcase(builder, args):
-    """Shell case statement."""
+    """Shell case. [case1 case2...] - Generate shell case statement with cases."""
+    # Default cases if none provided
+    cases = args if args else ["option1", "option2", "option3"]
+
     builder.write("case $1 in")
     builder.indent()
 
-    for arg in args:
+    for arg in cases:
         builder.write(f"{arg}) {arg};;")
 
     builder.write("* ) usage; exit 2;;")
@@ -154,7 +157,7 @@ def _expand_shcase(builder, args):
 
 
 def _expand_pyargs(builder, args):
-    """Python command line arguments."""
+    """Python argparse. [optstring] - Generate argument parser from option string."""
     optstring = args[0] if args else "abc:"
 
     builder.write("parser = argparse.ArgumentParser()")
@@ -164,9 +167,13 @@ def _expand_pyargs(builder, args):
         if v == ":":
             continue
         if i < last and optstring[i + 1] == ":":
-            builder.write(f'parser.add_argument("-{v}")')
+            builder.write(
+                f'parser.add_argument("-{v}", help="{v} option that requires an argument")'
+            )
         else:
-            builder.write(f'parser.add_argument("-{v}", action="store_true")')
+            builder.write(
+                f'parser.add_argument("-{v}", action="store_true", help="Enable {v} option")'
+            )
 
     builder.write("args = parser.parse_args()")
 
@@ -219,25 +226,43 @@ def _expand_nfile(builder, args):
 
 
 def _expand_nmeta(builder, args):
-    """Note metadata."""
-    date = datetime.datetime.today().isoformat(timespec="seconds")
-    title = " ".join(args)
+    """Note metadata. [title] [key:value pairs] - Define metadata like date, tags, etc."""
+    # Default values
+    metadata = {
+        "Date": datetime.datetime.today().isoformat(timespec="seconds"),
+        "Title": "",
+        "Tags": "",
+        "References": "",
+        "ISBN": "",
+        "URL": "",
+        "Author": "",
+        "Year": "",
+        "Month": "",
+    }
 
+    # First positional argument is title if not prefixed
+    if args and ":" not in args[0]:
+        metadata["Title"] = args[0]
+        args = args[1:]
+
+    # Process named arguments (key:value format)
+    for arg in args:
+        if ":" in arg:
+            key, value = arg.split(":", 1)
+            key = key.capitalize()
+            if key in metadata:
+                metadata[key] = value
+
+    # Write metadata section
     builder.write("---")
-    builder.write(f"Date: {date}")
-    builder.write(f"Title: {title}")
-    builder.write("Tags:")
-    builder.write("References:")
-    builder.write("ISBN:")
-    builder.write("URL:")
-    builder.write("Author:")
-    builder.write("Year:")
-    builder.write("Month:")
+    for key, value in metadata.items():
+        builder.write(f"{key}: {value}")
     builder.write("---")
     builder.write("")
 
-    if title:
-        builder.write("# " + title)
+    # Add title as heading if provided
+    if metadata["Title"]:
+        builder.write("# " + metadata["Title"])
         builder.write("")
 
 
@@ -575,28 +600,581 @@ def _expand_awksys(builder, args):
     builder.write("}")
 
 
+def _expand_gobasic(builder, args):
+    """Go basic program structure."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"fmt"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write('fmt.Println("Hello, world")')
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_goerr(builder, args):
+    """Go error handling pattern."""
+    builder.write("// Handle errors immediately")
+    builder.write("func process() error {")
+    builder.indent()
+    builder.write("f, err := os.Open(filename)")
+    builder.write("if err != nil {")
+    builder.indent()
+    builder.write("return err")
+    builder.dedent()
+    builder.write("}")
+    builder.write("defer f.Close()")
+    builder.write("")
+    builder.write("// Process the file")
+    builder.write("return nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// Usage in main()")
+    builder.write("if err := process(); err != nil {")
+    builder.indent()
+    builder.write("log.Fatal(err)")
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gostruct(builder, args):
+    """Go struct. [Name field1 type1...] - Define struct with fields and constructor."""
+    # Parse arguments
+    struct_name = "User"  # Default struct name
+    fields = [
+        ("ID", "int"),
+        ("Name", "string"),
+        ("Email", "string"),
+        ("Created", "time.Time"),
+    ]  # Default fields
+
+    if args:
+        # First argument is struct name
+        struct_name = args[0]
+
+        # Remaining arguments are field/type pairs
+        if len(args) > 1:
+            # Clear default fields if any custom fields provided
+            fields = []
+
+            # Process pairs of field name and type
+            for i in range(1, len(args), 2):
+                if i + 1 < len(args):
+                    field_name = args[i]
+                    field_type = args[i + 1]
+                    fields.append((field_name, field_type))
+
+    # Write struct definition
+    builder.write(f"// {struct_name} represents an entity in the system")
+    builder.write(f"type {struct_name} struct {{")
+    builder.indent()
+
+    # Add fields
+    for field_name, field_type in fields:
+        builder.write(f"{field_name}    {field_type}")
+
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+
+    # Constructor
+    builder.write(f"// New{struct_name} creates a new {struct_name}")
+
+    # Determine constructor parameters based on fields
+    # Skip ID and Created fields (common pattern for generated fields)
+    constructor_fields = [
+        (name, typ) for name, typ in fields if name != "ID" and name != "Created"
+    ]
+
+    param_list = ", ".join(
+        [f"{name.lower()} {typ}" for name, typ in constructor_fields]
+    )
+
+    builder.write(f"func New{struct_name}({param_list}) *{struct_name} {{")
+    builder.indent()
+    builder.write(f"return &{struct_name}{{")
+    builder.indent()
+
+    # Add field initializers
+    for field_name, _ in fields:
+        if field_name == "ID":
+            # Skip ID for constructor
+            continue
+        elif field_name == "Created":
+            builder.write(f"{field_name}: time.Now(),")
+        else:
+            # Use parameter with same name but lowercase
+            builder.write(f"{field_name}: {field_name.lower()},")
+
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gocli(builder, args):
+    """Go command-line flags."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"flag"')
+    builder.write('"fmt"')
+    builder.write('"os"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("// Define flags")
+    builder.write('verbose := flag.Bool("v", false, "verbose output")')
+    builder.write('output := flag.String("o", "output.txt", "output file")')
+    builder.write('count := flag.Int("n", 1, "number of iterations")')
+    builder.write("")
+    builder.write("// Parse flags")
+    builder.write("flag.Parse()")
+    builder.write("")
+    builder.write("// Get positional arguments")
+    builder.write("args := flag.Args()")
+    builder.write("if len(args) < 1 {")
+    builder.indent()
+    builder.write('fmt.Fprintf(os.Stderr, "missing required argument\\n")')
+    builder.write("os.Exit(1)")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// Use the flags")
+    builder.write("if *verbose {")
+    builder.indent()
+    builder.write('fmt.Printf("Processing %d iterations\\n", *count)')
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gojson(builder, args):
+    """Go JSON marshaling and unmarshaling."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"encoding/json"')
+    builder.write('"fmt"')
+    builder.write('"log"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("// Person represents a person with a name and age")
+    builder.write("type Person struct {")
+    builder.indent()
+    builder.write('Name string `json:"name"`')
+    builder.write('Age  int    `json:"age"`')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("// Marshal: struct to JSON")
+    builder.write('p := Person{Name: "Alice", Age: 30}')
+    builder.write("data, err := json.Marshal(p)")
+    builder.write("if err != nil {")
+    builder.indent()
+    builder.write("log.Fatal(err)")
+    builder.dedent()
+    builder.write("}")
+    builder.write('fmt.Printf("JSON: %s\\n", data)')
+    builder.write("")
+    builder.write("// Unmarshal: JSON to struct")
+    builder.write('jsonData := []byte(`{"name":"Bob","age":25}`)')
+    builder.write("var person Person")
+    builder.write("err = json.Unmarshal(jsonData, &person)")
+    builder.write("if err != nil {")
+    builder.indent()
+    builder.write("log.Fatal(err)")
+    builder.dedent()
+    builder.write("}")
+    builder.write('fmt.Printf("Person: %+v\\n", person)')
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gohttp(builder, args):
+    """Go HTTP server."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"fmt"')
+    builder.write('"log"')
+    builder.write('"net/http"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("// Simple handler function")
+    builder.write('http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {')
+    builder.indent()
+    builder.write('fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])')
+    builder.dedent()
+    builder.write("})")
+    builder.write("")
+    builder.write("// Start server")
+    builder.write('log.Println("Starting server on :8080")')
+    builder.write('if err := http.ListenAndServe(":8080", nil); err != nil {')
+    builder.indent()
+    builder.write("log.Fatal(err)")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_goch(builder, args):
+    """Go concurrency with goroutines and channels."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"fmt"')
+    builder.write('"sync"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("func worker(id int, jobs <-chan int, results chan<- int) {")
+    builder.indent()
+    builder.write("for j := range jobs {")
+    builder.indent()
+    builder.write('fmt.Printf("worker %d processing job %d\\n", id, j)')
+    builder.write("// Do work")
+    builder.write("results <- j * 2")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("numJobs := 5")
+    builder.write("jobs := make(chan int, numJobs)")
+    builder.write("results := make(chan int, numJobs)")
+    builder.write("")
+    builder.write("// Start workers")
+    builder.write("for w := 1; w <= 3; w++ {")
+    builder.indent()
+    builder.write("go worker(w, jobs, results)")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// Send jobs")
+    builder.write("for j := 1; j <= numJobs; j++ {")
+    builder.indent()
+    builder.write("jobs <- j")
+    builder.dedent()
+    builder.write("}")
+    builder.write("close(jobs)")
+    builder.write("")
+    builder.write("// Collect results")
+    builder.write("for i := 0; i < numJobs; i++ {")
+    builder.indent()
+    builder.write("result := <-results")
+    builder.write('fmt.Printf("result: %d\\n", result)')
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gowg(builder, args):
+    """Go WaitGroup for synchronization."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"fmt"')
+    builder.write('"sync"')
+    builder.write('"time"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("func worker(id int, wg *sync.WaitGroup) {")
+    builder.indent()
+    builder.write("defer wg.Done()")
+    builder.write('fmt.Printf("Worker %d starting\\n", id)')
+    builder.write("// Simulate work")
+    builder.write("time.Sleep(time.Second)")
+    builder.write('fmt.Printf("Worker %d done\\n", id)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("var wg sync.WaitGroup")
+    builder.write("")
+    builder.write("// Launch several workers")
+    builder.write("for i := 1; i <= 5; i++ {")
+    builder.indent()
+    builder.write("wg.Add(1)")
+    builder.write("go worker(i, &wg)")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// Wait for all workers to complete")
+    builder.write('fmt.Println("Waiting for workers to finish...")')
+    builder.write("wg.Wait()")
+    builder.write('fmt.Println("All workers completed")')
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gotest(builder, args):
+    """Go test. [Func RetType ParamTypes...] - Create test function with table-driven tests."""
+    # Default values
+    func_name = "Add"
+    return_type = "int"
+    param_types = ["int", "int"]
+
+    if args:
+        # First argument is function name
+        func_name = args[0]
+
+        # Second argument is return type
+        if len(args) > 1:
+            return_type = args[1]
+
+        # Remaining arguments are parameter types
+        if len(args) > 2:
+            param_types = args[2:]
+
+    # Create parameter string
+    param_list = []
+    for i, ptype in enumerate(param_types):
+        param_list.append(f"{chr(97+i)} {ptype}")
+    param_str = ", ".join(param_list)
+
+    # Function letter variables for parameters (a, b, c, etc.)
+    param_vars = ", ".join([chr(97 + i) for i in range(len(param_types))])
+
+    builder.write(f"package mypackage")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"testing"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write(f"func {func_name}({param_str}) {return_type} {{")
+    builder.indent()
+    if return_type == "error":
+        builder.write("return nil")
+    elif return_type == "string":
+        builder.write('return ""')
+    elif return_type == "bool":
+        builder.write("return true")
+    elif "int" in return_type:
+        builder.write("return 0")
+    elif "float" in return_type:
+        builder.write("return 0.0")
+    else:
+        builder.write("// TODO: implement function")
+        builder.write("return nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write(f"func Test{func_name}(t *testing.T) {{")
+    builder.indent()
+    builder.write("tests := []struct {")
+    builder.indent()
+    builder.write("name     string")
+
+    # Parameter fields
+    for i, ptype in enumerate(param_types):
+        builder.write(f"{chr(97+i)}        {ptype}")
+
+    builder.write(f"expected {return_type}")
+    builder.dedent()
+    builder.write("}{")
+    builder.indent()
+
+    # Example test cases based on return type
+    if return_type == "int":
+        builder.write('{name: "simple", a: 1, b: 2, expected: 3},')
+        builder.write('{name: "negative", a: -1, b: 1, expected: 0},')
+    elif return_type == "string":
+        builder.write(
+            '{name: "simple", a: "hello", b: "world", expected: "helloworld"},'
+        )
+    elif return_type == "bool":
+        builder.write('{name: "true case", a: true, b: true, expected: true},')
+        builder.write('{name: "false case", a: true, b: false, expected: false},')
+    else:
+        builder.write(
+            '{name: "case1", /* TODO: add test parameters */, expected: /* expected value */},'
+        )
+
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("for _, tc := range tests {")
+    builder.indent()
+    builder.write("t.Run(tc.name, func(t *testing.T) {")
+    builder.indent()
+    builder.write(
+        f"got := {func_name}(tc.{', tc.'.join([chr(97+i) for i in range(len(param_types))])})"
+    )
+    builder.write(f"if got != tc.expected {{")
+    builder.indent()
+
+    # Format string for error message depends on return type
+    format_str = ""
+    if return_type == "string":
+        format_str = "%q"
+    elif return_type == "bool":
+        format_str = "%v"
+    elif "int" in return_type:
+        format_str = "%d"
+    elif "float" in return_type:
+        format_str = "%f"
+    else:
+        format_str = "%v"
+
+    # Build error message with appropriate formatting
+    params_fmt = ", ".join([f"tc.{chr(97+i)}" for i in range(len(param_types))])
+    builder.write(
+        f't.Errorf("{func_name}({", ".join(["%v"]*len(param_types))}) = {format_str}; expected {format_str}", {params_fmt}, got, tc.expected)'
+    )
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("})")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_goswitch(builder, args):
+    """Go switch. [var case1 case2...] - Create switch statement with cases."""
+    # Parse arguments
+    variable = "value"  # Default variable name
+    cases = ["case1", "case2", "default"]  # Default cases
+
+    if args:
+        # First argument is the variable name
+        variable = args[0]
+
+        # Remaining arguments are cases
+        if len(args) > 1:
+            cases = args[1:]
+
+    # Write switch statement
+    builder.write(f"switch {variable} {{")
+    builder.indent()
+
+    # Add cases
+    for case in cases:
+        if case.lower() == "default":
+            builder.write("default:")
+        else:
+            builder.write(f"case {case}:")
+
+        builder.indent()
+        if case.lower() == "default":
+            builder.write(f"// Handle default case")
+        else:
+            builder.write(f"// Handle {case} case")
+        builder.dedent()
+        builder.write("")
+
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gointf(builder, args):
+    """Go interface. [Name method1 method2...] - Define interface with empty methods."""
+    # Default interface name and methods
+    interface_name = "Reader"
+    methods = ["Read"] if not args or len(args) <= 1 else args[1:]
+
+    if args:
+        # First argument is interface name
+        interface_name = args[0]
+
+    # Write interface definition
+    builder.write(
+        f"// {interface_name} defines methods for {interface_name.lower()} operations"
+    )
+    builder.write(f"type {interface_name} interface {{")
+    builder.indent()
+
+    # Add methods with empty signatures
+    for method in methods:
+        builder.write(f"{method}()")
+
+    builder.dedent()
+    builder.write("}")
+
+    # Add implementation example if it's a simple interface (one method)
+    if len(methods) == 1:
+        struct_name = f"My{interface_name}"
+        method = methods[0]
+
+        builder.write("")
+        builder.write(f"// {struct_name} implements the {interface_name} interface")
+        builder.write(f"type {struct_name} struct {{")
+        builder.indent()
+        builder.write("// implementation fields")
+        builder.dedent()
+        builder.write("}")
+        builder.write("")
+        builder.write(f"// {method} implements {interface_name}.{method}")
+        builder.write(f"func (m *{struct_name}) {method}() {{")
+        builder.indent()
+        builder.write("// implementation")
+        builder.dedent()
+        builder.write("}")
+
+
 # Register all snippets
 SNIPPETS = {
-    "shlog": _expand_shlog,
-    "shopts": _expand_shopts,
-    "shdir": _expand_shdir,
-    "shcase": _expand_shcase,
-    "pyargs": _expand_pyargs,
-    "pyfilter": _expand_pyfilter,
-    "pydir": _expand_pydir,
-    "nfile": _expand_nfile,
-    "nmeta": _expand_nmeta,
-    "awkbasic": _expand_awkbasic,
-    "awkfields": _expand_awkfields,
-    "awkfunc": _expand_awkfunc,
     "awkarray": _expand_awkarray,
+    "awkbasic": _expand_awkbasic,
     "awkcsv": _expand_awkcsv,
-    "awkgroup": _expand_awkgroup,
+    "awkfields": _expand_awkfields,
+    "awkfile": _expand_awkfile,
     "awkformat": _expand_awkformat,
+    "awkfunc": _expand_awkfunc,
+    "awkgroup": _expand_awkgroup,
     "awkmath": _expand_awkmath,
     "awkregex": _expand_awkregex,
-    "awkfile": _expand_awkfile,
     "awksys": _expand_awksys,
+    "gobasic": _expand_gobasic,
+    "gocli": _expand_gocli,
+    "goch": _expand_goch,
+    "goerr": _expand_goerr,
+    "gohttp": _expand_gohttp,
+    "gointf": _expand_gointf,
+    "gojson": _expand_gojson,
+    "gostruct": _expand_gostruct,
+    "goswitch": _expand_goswitch,
+    "gotest": _expand_gotest,
+    "gowg": _expand_gowg,
+    "nfile": _expand_nfile,
+    "nmeta": _expand_nmeta,
+    "pyargs": _expand_pyargs,
+    "pydir": _expand_pydir,
+    "pyfilter": _expand_pyfilter,
+    "shcase": _expand_shcase,
+    "shdir": _expand_shdir,
+    "shlog": _expand_shlog,
+    "shopts": _expand_shopts,
 }
 
 
