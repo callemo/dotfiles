@@ -433,6 +433,19 @@ function! FormatFile(...) abort
 	checktime
 endfunction
 
+" FindVisibleTerminals returns a list of terminal buffer numbers that are visible
+" in the current tab.
+function! FindVisibleTerminals() abort
+	let terminals = []
+	for winnr in range(1, winnr('$'))
+		let bufnr = winbufnr(winnr)
+		if getbufvar(bufnr, '&buftype') ==# 'terminal'
+			call add(terminals, bufnr)
+		endif
+	endfor
+	return terminals
+endfunction
+
 " Send types the current line or range to a terminal buffer as it was typed
 " by the user.
 function! Send(range, start, end, ...) abort
@@ -441,8 +454,15 @@ function! Send(range, start, end, ...) abort
 	elseif exists('w:send_terminal_buf')
 		let buf = w:send_terminal_buf
 	else
-		echohl ErrorMsg | echo 'no terminal link' | echohl None
-		return
+		let terminals = FindVisibleTerminals()
+		if len(terminals) == 0
+			echohl ErrorMsg | echo 'no terminal visible' | echohl None
+			return
+		elseif len(terminals) > 1
+			echohl ErrorMsg | echo 'multiple terminals visible, please specify one' | echohl None
+			return
+		endif
+		let buf = terminals[0]
 	endif
 	let keys = join(getline(a:start, a:end), "\n")
 	call term_sendkeys(buf, keys)
