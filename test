@@ -3,6 +3,12 @@
 
 : "${DOTFILES:=$HOME/dotfiles}"
 
+if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest test_snip.py 2>&1); then
+    echo "Unit tests failed" >&2
+    echo "$output" >&2
+    exit 1
+fi
+
 case "$PATH" in
 $DOTFILES/bin:*) ;;
 *)               PATH="$DOTFILES/bin:$PATH"; export PATH;;
