@@ -2,34 +2,41 @@
 # tmux-load: loads a tmux session
 
 awk -F'          ' '
-BEGIN   { prev = -1 }
-NR == 1 { spath = $0 }
-NR == 2 { sname = $0
-          cmd1 = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''\\;",
-                         sname, spath)
-          cmd2 = "tmux"  }
-$1 == "p"  {
-    win = $2
-    if (win == 0) {
-        prev = 0
-        next
-    }
-    if (win == prev)
-        cmd1 = cmd1 sprintf(" splitw -d -t %d -c '\''%s'\''\\;", win, $4)
+BEGIN { pw = -1; nw = -1 }
+NR == 1 { path = $0 }
+NR == 2 { name = $0
+          cmd = sprintf("tmux new -d -s '\''%s'\'' -c '\''%s'\''\\;", name, path) }
+$1 == "p" {
+    w = $2
+    p = $3
+    d = $4
+    prog = $5
+    if (w > nw) nw = w
+    if (w == 0 && pw == -1)
+        cmd = cmd sprintf(" send-keys -t 0 '\''cd %s'\'' Enter\\;", d)
+    else if (p == 0)
+        cmd = cmd sprintf(" neww -d -t %d -c '\''%s'\''\\;", w, d)
     else
-        cmd1 = cmd1 sprintf(" neww -d -t %d -c '\''%s'\''\\;", win, $4)
-    prev = win
+        cmd = cmd sprintf(" splitw -d -t %d.0 -c '\''%s'\''\\;", w, d)
+    if (prog == "vim" || prog == "nvim") {
+        if (system("test -f " d "/Session.vim") == 0)
+            cmd = cmd sprintf(" send-keys -t %d.%d '\''vim -S Session.vim'\'' Enter\\;", w, p)
+        else
+            cmd = cmd sprintf(" send-keys -t %d.%d '\''vim'\'' Enter\\;", w, p)
+    }
+    pw = w
 }
 $1 == "w" {
-    win = $2
-    if ($3 ~ /\*/)
-        active = win
-    if ($4 == 0)
-        cmd1 = cmd1 sprintf(" renamew -t %d '\''%s'\''\\;", win, $5)
-    if (win != 0)
-        cmd2 = cmd2 sprintf(" selectl -t %d '\''%s'\''\\;", win, $6)
+    w = $2
+    if ($3 ~ /\*/) cur = w
+    if ($4 == 0) cmd = cmd sprintf(" renamew -t %d '\''%s'\''\\;", w, $5)
+    lay[w] = $6
 }
 END {
-    system(cmd1 " selectw -t " active)
-    system(cmd2 " attach")
+    cmd = cmd " selectw -t " cur "\\;"
+    for (i = 0; i <= nw; i++)
+        if (i in lay)
+            cmd = cmd sprintf(" selectl -t %d '\''%s'\''\\;", i, lay[i])
+    system(cmd)
+    system("tmux attach")
 }' "${1:-$HOME/tmux.dump}"

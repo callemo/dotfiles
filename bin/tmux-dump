@@ -7,7 +7,7 @@ fatal() { log "$@"; exit 1; }
 
 fs='          '
 wfmt="w$fs#{window_index}$fs#{window_flags}$fs#{automatic-rename}$fs#{window_name}$fs#{window_layout}"
-pfmt="p$fs#{window_index}$fs#{pane_index}$fs#{pane_current_path}"
+pfmt="p$fs#{window_index}$fs#{pane_index}$fs#{pane_current_path}$fs#{pane_current_command}"
 f="${1:-$HOME/tmux.dump}"
 t=/tmp/tmux-dump.$$
 
