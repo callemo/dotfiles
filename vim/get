@@ -19,7 +19,7 @@ shift $((OPTIND - 1))
 [ $# -ne 1 ] && { usage ; exit 1; }
 
 url=$1
-name=${url##*/}; name=${name%.*}
+name=${url##*/}
 
 dir="$dest/$name"
 if [ -e "$dir" ]
