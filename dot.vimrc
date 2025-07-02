@@ -127,6 +127,7 @@ augroup END
 command! -nargs=+ -complete=file -range
 	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
+command! ID echo bufnr()
 command! Date execute "normal! A" . strftime("%Y-%m-%d")
 command! Week execute "normal! A" . strftime("%YW%V")
 

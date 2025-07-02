@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# areload: reload modified acme windows from disk.
+# Skips windows that are dirty or not associated with a real file.
+
+for w in $(9p ls acme | grep -E '^[0-9]+$'); do
+	f=$(9p read acme/"$w"/tag | sed 's/ Del.*//')
+
+	[ -f "$f" ] || continue
+
+	# Per acme(4), the ctl file's first line contains five 12-byte,
+	# space-padded fields. The fifth field (bytes 49-60) is the
+	# "is modified" flag (1 for dirty, 0 for clean).
+	ctl=$(9p read acme/"$w"/ctl)
+	is_dirty=$(printf '%s' "$ctl" | cut -c49-60 | tr -d ' ')
+
+	if [ "$is_dirty" = "1" ]; then
+		printf 'areload: %s is dirty\n' "$f" >&2
+		continue
+	fi
+
+	printf 'get' | 9p write acme/"$w"/ctl >/dev/null
+done
