@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Expand text snippets."""
+
 import argparse
 import datetime
 import re
@@ -23,7 +24,7 @@ def main():
     # List snippets or show help if no snippet provided
     if args.list or not args.snippet:
         print_snippet_list()
-        return
+        return 0
 
     # Get and call the snippet function
     snippet_func = SNIPPETS.get(args.snippet)
@@ -35,6 +36,7 @@ def main():
     # Expand the snippet and print it
     code = expand_snippet(snippet_func, args.args, args.tab)
     print(code)
+    return 0
 
 
 def print_snippet_list():
@@ -99,10 +101,10 @@ class IndentBuilder:
 # Snippet implementations
 
 
-def _expand_shlog(builder, args):
+def _expand_shlog(builder, _args):
     """Shell logging."""
-    builder.write('prefix="${0##*/}:"')
-    builder.write('log() { echo "$prefix" "$@" >&2; }')
+    builder.write('prog=${0##*/}')
+    builder.write('log() { printf "%s: %s\\n" "$prog" "$*" >&2; }')
     builder.write('fatal() { log "$@"; exit 1; }')
 
 
@@ -112,32 +114,49 @@ def _expand_shopts(builder, args):
     if optstring[0] != ":":
         optstring = ":" + optstring
 
-    builder.write("usage() { sed -En '2,/^[^#]/ s/^# //p' \"$0\" >&2; }")
+    builder.write("usage() {")
+    builder.indent()
+    builder.write("sed -n '2,/^[^#]/p' \"$0\" | sed 's/^# *//' >&2")
+    builder.dedent()
+    builder.write("}")
     builder.write("")
-    builder.write(f"while getopts {optstring} f")
+    builder.write(f"while getopts '{optstring}' opt")
     builder.write("do")
     builder.indent()
-    builder.write("case $f in")
+    builder.write("case $opt in")
 
     last = len(optstring) - 1
     for i, v in enumerate(optstring):
         if v == ":":
             continue
         if i < last and optstring[i + 1] == ":":
-            builder.write(f"{v})  {v}arg=$OPTARG;;")
+            builder.write(f"{v})")
+            builder.indent()
+            builder.write(f"{v}arg=$OPTARG")
+            builder.dedent()
+            builder.write(";;")
         else:
-            builder.write(f"{v})  {v}flag=$f;;")
+            builder.write(f"{v})")
+            builder.indent()
+            builder.write(f"{v}flag=1")
+            builder.dedent()
+            builder.write(";;")
 
-    builder.write("\\?) usage; exit 2;;")
+    builder.write(r"\?)")
+    builder.indent()
+    builder.write("usage")
+    builder.write("exit 2")
+    builder.dedent()
+    builder.write(";;")
     builder.write("esac")
     builder.dedent()
     builder.write("done")
-    builder.write("shift $((OPTIND - 1))")
+    builder.write("shift $(expr $OPTIND - 1)")
 
 
-def _expand_shdir(builder, args):
+def _expand_shdir(builder, _args):
     """Shell program directory."""
-    builder.write('progdir="$(cd "${0%/*}" && pwd -P)"')
+    builder.write('progdir="$(cd "$(dirname "$0")" && pwd)"')
 
 
 def _expand_shcase(builder, args):
@@ -146,14 +165,83 @@ def _expand_shcase(builder, args):
     cases = args if args else ["option1", "option2", "option3"]
 
     builder.write("case $1 in")
-    builder.indent()
-
     for arg in cases:
-        builder.write(f"{arg}) {arg};;")
+        builder.write(f"{arg})")
+        builder.indent()
+        builder.write(f"# handle {arg}")
+        builder.dedent()
+        builder.write(";;")
 
-    builder.write("* ) usage; exit 2;;")
+    builder.write("*)")
+    builder.indent()
+    builder.write("usage")
+    builder.write("exit 2")
     builder.dedent()
+    builder.write(";;")
     builder.write("esac")
+
+
+def _expand_shscript(builder, _args):
+    """Shell script structure following Unix Programming Environment style.
+
+    Modernized with POSIX getopts.
+    """
+    builder.write("#!/bin/sh")
+    builder.write("# Description of what this script does")
+    builder.write("")
+    builder.write("PATH=/bin:/usr/bin")
+    builder.write("export PATH")
+    builder.write("")
+    builder.write('prog=${0##*/}')
+    builder.write("")
+    builder.write("usage() {")
+    builder.indent()
+    builder.write("printf 'usage: %s [options] files\\n' \"$prog\" >&2")
+    builder.write("exit 1")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("# parse options")
+    builder.write("while getopts ':h' opt")
+    builder.write("do")
+    builder.indent()
+    builder.write("case $opt in")
+    builder.write("h)")
+    builder.indent()
+    builder.write("usage")
+    builder.dedent()
+    builder.write(";;")
+    builder.write(r"?\)")
+    builder.indent()
+    builder.write("usage")
+    builder.dedent()
+    builder.write(";;")
+    builder.write("esac")
+    builder.dedent()
+    builder.write("done")
+    builder.write("shift $(expr $OPTIND - 1)")
+    builder.write("")
+    builder.write("# main processing")
+    builder.write("if [ $# -eq 0 ]")
+    builder.write("then")
+    builder.indent()
+    builder.write("usage")
+    builder.dedent()
+    builder.write("fi")
+    builder.write("")
+    builder.write("for file")
+    builder.write("do")
+    builder.indent()
+    builder.write("if [ ! -f \"$file\" ]")
+    builder.write("then")
+    builder.indent()
+    builder.write("printf '%s: %s: no such file\\n' \"$prog\" \"$file\" >&2")
+    builder.write("continue")
+    builder.dedent()
+    builder.write("fi")
+    builder.write("# process file")
+    builder.dedent()
+    builder.write("done")
 
 
 def _expand_pyargs(builder, args):
@@ -212,12 +300,12 @@ def _expand_pyfilter(builder, args):
     builder.dedent()
 
 
-def _expand_pydir(builder, args):
+def _expand_pydir(builder, _args):
     """Python program directory."""
     builder.write("progdir = os.path.realpath(os.path.dirname(__file__))")
 
 
-def _expand_nfile(builder, args):
+def _expand_nfile(_builder, args):
     """Note file name."""
     note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
     title = "_".join(args)
@@ -266,7 +354,7 @@ def _expand_nmeta(builder, args):
         builder.write("")
 
 
-def _expand_awkbasic(builder, args):
+def _expand_awkbasic(builder, _args):
     """AWK basic program structure."""
     builder.write("#!/usr/bin/awk -f")
     builder.write("")
@@ -289,7 +377,7 @@ def _expand_awkbasic(builder, args):
     builder.write("}")
 
 
-def _expand_awkfields(builder, args):
+def _expand_awkfields(builder, _args):
     """AWK field processing examples."""
     builder.write("# Field variables")
     builder.write("# $0  - entire line")
@@ -313,7 +401,7 @@ def _expand_awkfields(builder, args):
     builder.write("}")
 
 
-def _expand_awkfunc(builder, args):
+def _expand_awkfunc(builder, _args):
     """AWK built-in functions."""
     builder.write("# String functions")
     builder.write("# length(s)   - length of s")
@@ -350,7 +438,7 @@ def _expand_awkfunc(builder, args):
     builder.write("}")
 
 
-def _expand_awkarray(builder, args):
+def _expand_awkarray(builder, _args):
     """AWK array operations."""
     builder.write("BEGIN {")
     builder.indent()
@@ -380,7 +468,7 @@ def _expand_awkarray(builder, args):
     builder.write("}")
 
 
-def _expand_awkcsv(builder, args):
+def _expand_awkcsv(builder, _args):
     """AWK CSV file processing."""
     builder.write('BEGIN { FS = ","; hdr = 0 }')
     builder.write("")
@@ -410,7 +498,7 @@ def _expand_awkcsv(builder, args):
     builder.write("}")
 
 
-def _expand_awkgroup(builder, args):
+def _expand_awkgroup(builder, _args):
     """AWK grouping and summarizing data."""
     builder.write("# Group and sum by first field")
     builder.write("{")
@@ -434,7 +522,7 @@ def _expand_awkgroup(builder, args):
     builder.write("}")
 
 
-def _expand_awkformat(builder, args):
+def _expand_awkformat(builder, _args):
     """AWK formatting output."""
     builder.write("# printf formats")
     builder.write("# %d - decimal integer")
@@ -459,7 +547,7 @@ def _expand_awkformat(builder, args):
     builder.write("}")
 
 
-def _expand_awkmath(builder, args):
+def _expand_awkmath(builder, _args):
     """AWK math operations."""
     builder.write("# arithmetic operators: + - * / % ^")
     builder.write("# math functions (standard)")
@@ -491,7 +579,7 @@ def _expand_awkmath(builder, args):
     builder.write("}")
 
 
-def _expand_awkregex(builder, args):
+def _expand_awkregex(builder, _args):
     """AWK regex patterns."""
     builder.write("# regex operators")
     builder.write("# /pattern/  - match pattern")
@@ -550,7 +638,7 @@ def _expand_awkregex(builder, args):
     builder.write("}")
 
 
-def _expand_awkfile(builder, args):
+def _expand_awkfile(builder, _args):
     """AWK file operations."""
     builder.write("# read from multiple input files")
     builder.write("# awk 'program' file1 file2")
@@ -577,7 +665,7 @@ def _expand_awkfile(builder, args):
     builder.write("}")
 
 
-def _expand_awksys(builder, args):
+def _expand_awksys(builder, _args):
     """AWK system commands."""
     builder.write("# run system command")
     builder.write("BEGIN {")
@@ -619,26 +707,50 @@ def _expand_gobasic(builder, args):
 
 def _expand_goerr(builder, args):
     """Go error handling pattern."""
-    builder.write("// Handle errors immediately")
-    builder.write("func process() error {")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"errors"')
+    builder.write('"fmt"')
+    builder.write('"log"')
+    builder.write('"os"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("// processFile demonstrates proper error handling with wrapping.")
+    builder.write("func processFile(filename string) error {")
     builder.indent()
     builder.write("f, err := os.Open(filename)")
     builder.write("if err != nil {")
     builder.indent()
-    builder.write("return err")
+    builder.write('return fmt.Errorf("open file: %w", err)')
     builder.dedent()
     builder.write("}")
     builder.write("defer f.Close()")
     builder.write("")
-    builder.write("// Process the file")
+    builder.write("data, err := processData(f)")
+    builder.write("if err != nil {")
+    builder.indent()
+    builder.write('return fmt.Errorf("process data: %w", err)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("if len(data) == 0 {")
+    builder.indent()
+    builder.write('return errors.New("empty data")')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
     builder.write("return nil")
     builder.dedent()
     builder.write("}")
     builder.write("")
-    builder.write("// Usage in main()")
-    builder.write("if err := process(); err != nil {")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("if err := processFile(filename); err != nil {")
     builder.indent()
     builder.write("log.Fatal(err)")
+    builder.dedent()
+    builder.write("}")
     builder.dedent()
     builder.write("}")
 
@@ -704,7 +816,7 @@ def _expand_gostruct(builder, args):
         if field_name == "ID":
             # Skip ID for constructor
             continue
-        elif field_name == "Created" and field_type == "time.Time":
+        if field_name == "Created" and field_type == "time.Time":
             builder.write(f"{field_name}: time.Now(),")
         else:
             # Use parameter with same name but lowercase
@@ -724,33 +836,89 @@ def _expand_gocli(builder, args):
     builder.indent()
     builder.write('"flag"')
     builder.write('"fmt"')
+    builder.write('"log"')
     builder.write('"os"')
     builder.dedent()
     builder.write(")")
     builder.write("")
-    builder.write("func main() {")
+    builder.write("// Config holds command-line configuration.")
+    builder.write("type Config struct {")
     builder.indent()
-    builder.write("// Define flags")
-    builder.write('verbose := flag.Bool("v", false, "verbose output")')
-    builder.write('output := flag.String("o", "output.txt", "output file")')
-    builder.write('count := flag.Int("n", 1, "number of iterations")')
+    builder.write("Verbose bool")
+    builder.write("Output  string")
+    builder.write("Count   int")
+    builder.write("Files   []string")
+    builder.dedent()
+    builder.write("}")
     builder.write("")
-    builder.write("// Parse flags")
+    builder.write("func parseFlags() (*Config, error) {")
+    builder.indent()
+    builder.write("var cfg Config")
+    builder.write("")
+    builder.write('flag.BoolVar(&cfg.Verbose, "v", false, "verbose output")')
+    builder.write('flag.StringVar(&cfg.Output, "o", "output.txt", "output file")')
+    builder.write('flag.IntVar(&cfg.Count, "n", 1, "number of iterations")')
     builder.write("flag.Parse()")
     builder.write("")
-    builder.write("// Get positional arguments")
-    builder.write("args := flag.Args()")
-    builder.write("if len(args) < 1 {")
+    builder.write("cfg.Files = flag.Args()")
+    builder.write("if len(cfg.Files) == 0 {")
     builder.indent()
-    builder.write('fmt.Fprintf(os.Stderr, "missing required argument\\n")')
+    builder.write('return nil, fmt.Errorf("no input files specified")')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("return &cfg, nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func run(cfg *Config) error {")
+    builder.indent()
+    builder.write("if cfg.Verbose {")
+    builder.indent()
+    builder.write('log.Printf("processing %d files with %d iterations", len(cfg.Files), cfg.Count)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("for _, file := range cfg.Files {")
+    builder.indent()
+    builder.write("if err := processFile(file, cfg); err != nil {")
+    builder.indent()
+    builder.write('return fmt.Errorf("process file %s: %w", file, err)')
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("return nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func processFile(filename string, cfg *Config) error {")
+    builder.indent()
+    builder.write("// TODO: implement file processing")
+    builder.write("if cfg.Verbose {")
+    builder.indent()
+    builder.write('log.Printf("processing %s", filename)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("return nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("cfg, err := parseFlags()")
+    builder.write("if err != nil {")
+    builder.indent()
+    builder.write('fmt.Fprintf(os.Stderr, "error: %v\\n", err)')
+    builder.write("flag.Usage()")
     builder.write("os.Exit(1)")
     builder.dedent()
     builder.write("}")
     builder.write("")
-    builder.write("// Use the flags")
-    builder.write("if *verbose {")
+    builder.write("if err := run(cfg); err != nil {")
     builder.indent()
-    builder.write('fmt.Printf("Processing %d iterations\\n", *count)')
+    builder.write("log.Fatal(err)")
     builder.dedent()
     builder.write("}")
     builder.dedent()
@@ -766,38 +934,84 @@ def _expand_gojson(builder, args):
     builder.write('"encoding/json"')
     builder.write('"fmt"')
     builder.write('"log"')
+    builder.write('"strings"')
     builder.dedent()
     builder.write(")")
     builder.write("")
-    builder.write("// Person represents a person with name and age")
+    builder.write("// Person represents a person with name and age.")
     builder.write("type Person struct {")
     builder.indent()
     builder.write('Name string `json:"name"`')
     builder.write('Age  int    `json:"age"`')
+    builder.write('City string `json:"city,omitempty"`')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func marshalExample() error {")
+    builder.indent()
+    builder.write('p := Person{Name: "Alice", Age: 30, City: "New York"}')
+    builder.write("data, err := json.Marshal(p)")
+    builder.write("if err != nil {")
+    builder.indent()
+    builder.write('return fmt.Errorf("marshal person: %w", err)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write('fmt.Printf("JSON: %s\\n", data)')
+    builder.write("return nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func unmarshalExample() error {")
+    builder.indent()
+    builder.write('jsonData := `{"name":"Bob","age":25}`')
+    builder.write("var person Person")
+    builder.write("if err := json.Unmarshal([]byte(jsonData), &person); err != nil {")
+    builder.indent()
+    builder.write('return fmt.Errorf("unmarshal json: %w", err)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write('fmt.Printf("Person: %+v\\n", person)')
+    builder.write("return nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func unmarshalFromReader() error {")
+    builder.indent()
+    builder.write('r := strings.NewReader(`{"name":"Charlie","age":35,"city":"Boston"}`)')
+    builder.write("var person Person")
+    builder.write("decoder := json.NewDecoder(r)")
+    builder.write("if err := decoder.Decode(&person); err != nil {")
+    builder.indent()
+    builder.write('return fmt.Errorf("decode json: %w", err)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write('fmt.Printf("Decoded: %+v\\n", person)')
+    builder.write("return nil")
     builder.dedent()
     builder.write("}")
     builder.write("")
     builder.write("func main() {")
     builder.indent()
-    builder.write("// Marshal struct to JSON")
-    builder.write('p := Person{Name: "Alice", Age: 30}')
-    builder.write("data, err := json.Marshal(p)")
-    builder.write("if err != nil {")
+    builder.write("if err := marshalExample(); err != nil {")
     builder.indent()
     builder.write("log.Fatal(err)")
     builder.dedent()
     builder.write("}")
-    builder.write('fmt.Printf("JSON: %s\\n", data)')
     builder.write("")
-    builder.write("// Unmarshal JSON to struct")
-    builder.write('jsonData := []byte(`{"name":"Bob","age":25}`)')
-    builder.write("var person Person")
-    builder.write("if err := json.Unmarshal(jsonData, &person); err != nil {")
+    builder.write("if err := unmarshalExample(); err != nil {")
     builder.indent()
     builder.write("log.Fatal(err)")
     builder.dedent()
     builder.write("}")
-    builder.write('fmt.Printf("Person: %+v\\n", person)')
+    builder.write("")
+    builder.write("if err := unmarshalFromReader(); err != nil {")
+    builder.indent()
+    builder.write("log.Fatal(err)")
+    builder.dedent()
+    builder.write("}")
     builder.dedent()
     builder.write("}")
 
@@ -808,29 +1022,101 @@ def _expand_gohttp(builder, args):
     builder.write("")
     builder.write("import (")
     builder.indent()
+    builder.write('"context"')
     builder.write('"fmt"')
     builder.write('"log"')
     builder.write('"net/http"')
+    builder.write('"os"')
+    builder.write('"os/signal"')
+    builder.write('"syscall"')
+    builder.write('"time"')
     builder.dedent()
     builder.write(")")
     builder.write("")
-    builder.write("func handler(w http.ResponseWriter, r *http.Request) {")
+    builder.write("// Server represents the HTTP server.")
+    builder.write("type Server struct {")
     builder.indent()
-    builder.write('fmt.Fprintf(w, "Hello, %s!", r.URL.Path[1:])')
+    builder.write("srv *http.Server")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// NewServer creates a new HTTP server.")
+    builder.write("func NewServer(addr string) *Server {")
+    builder.indent()
+    builder.write("return &Server{")
+    builder.indent()
+    builder.write("srv: &http.Server{")
+    builder.indent()
+    builder.write("Addr:         addr,")
+    builder.write("Handler:      setupRoutes(),")
+    builder.write("ReadTimeout:  10 * time.Second,")
+    builder.write("WriteTimeout: 10 * time.Second,")
+    builder.dedent()
+    builder.write("},")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func setupRoutes() http.Handler {")
+    builder.indent()
+    builder.write("mux := http.NewServeMux()")
+    builder.write("mux.HandleFunc(\"/\", handleRoot)")
+    builder.write("mux.HandleFunc(\"/health\", handleHealth)")
+    builder.write("return mux")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func handleRoot(w http.ResponseWriter, r *http.Request) {")
+    builder.indent()
+    builder.write("if r.URL.Path != \"/\" {")
+    builder.indent()
+    builder.write("http.NotFound(w, r)")
+    builder.write("return")
+    builder.dedent()
+    builder.write("}")
+    builder.write('fmt.Fprintf(w, "Hello, %s!\\n", r.URL.Query().Get("name"))')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func handleHealth(w http.ResponseWriter, r *http.Request) {")
+    builder.indent()
+    builder.write("w.WriteHeader(http.StatusOK)")
+    builder.write('fmt.Fprint(w, "OK")')
     builder.dedent()
     builder.write("}")
     builder.write("")
     builder.write("func main() {")
     builder.indent()
-    builder.write('http.HandleFunc("/", handler)')
+    builder.write('srv := NewServer(":8080")')
     builder.write("")
-    builder.write('log.Println("Starting server on :8080")')
-    builder.write('err := http.ListenAndServe(":8080", nil)')
-    builder.write("if err != nil {")
+    builder.write("// Graceful shutdown")
+    builder.write("stop := make(chan os.Signal, 1)")
+    builder.write("signal.Notify(stop, os.Interrupt, syscall.SIGTERM)")
+    builder.write("")
+    builder.write("go func() {")
     builder.indent()
-    builder.write("log.Fatal(err)")
+    builder.write('log.Printf("server starting on %s", srv.srv.Addr)')
+    builder.write("if err := srv.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {")
+    builder.indent()
+    builder.write('log.Fatalf("listen and serve: %v", err)')
     builder.dedent()
     builder.write("}")
+    builder.dedent()
+    builder.write("}()")
+    builder.write("")
+    builder.write("<-stop")
+    builder.write('log.Println("shutting down server")')
+    builder.write("")
+    builder.write("ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)")
+    builder.write("defer cancel()")
+    builder.write("")
+    builder.write("if err := srv.srv.Shutdown(ctx); err != nil {")
+    builder.indent()
+    builder.write('log.Fatalf("server shutdown: %v", err)')
+    builder.dedent()
+    builder.write("}")
+    builder.write('log.Println("server stopped")')
     builder.dedent()
     builder.write("}")
 
@@ -905,9 +1191,9 @@ def _expand_gowg(builder, args):
     builder.write("func worker(id int, wg *sync.WaitGroup) {")
     builder.indent()
     builder.write("defer wg.Done()")
-    builder.write('fmt.Printf("Worker %d starting\\n", id)')
+    builder.write('fmt.Printf("worker %d starting\\n", id)')
     builder.write("time.Sleep(time.Second) // Simulate work")
-    builder.write('fmt.Printf("Worker %d done\\n", id)')
+    builder.write('fmt.Printf("worker %d done\\n", id)')
     builder.dedent()
     builder.write("}")
     builder.write("")
@@ -923,9 +1209,217 @@ def _expand_gowg(builder, args):
     builder.dedent()
     builder.write("}")
     builder.write("")
-    builder.write('fmt.Println("Waiting for workers to finish...")')
+    builder.write('fmt.Println("waiting for workers to finish")')
     builder.write("wg.Wait()")
-    builder.write('fmt.Println("All workers completed")')
+    builder.write('fmt.Println("all workers completed")')
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_goctx(builder, args):
+    """Go context usage patterns."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"context"')
+    builder.write('"fmt"')
+    builder.write('"log"')
+    builder.write('"time"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("func doWork(ctx context.Context, id int) error {")
+    builder.indent()
+    builder.write("for i := 0; i < 10; i++ {")
+    builder.indent()
+    builder.write("select {")
+    builder.write("case <-ctx.Done():")
+    builder.indent()
+    builder.write('return fmt.Errorf("work %d cancelled: %w", id, ctx.Err())')
+    builder.dedent()
+    builder.write("default:")
+    builder.indent()
+    builder.write("time.Sleep(100 * time.Millisecond)")
+    builder.write('fmt.Printf("worker %d: step %d\\n", id, i)')
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("return nil")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("// Context with timeout")
+    builder.write("ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)")
+    builder.write("defer cancel()")
+    builder.write("")
+    builder.write("// Context with value")
+    builder.write('ctx = context.WithValue(ctx, "requestID", "req-123")')
+    builder.write("")
+    builder.write("// Start work")
+    builder.write("if err := doWork(ctx, 1); err != nil {")
+    builder.indent()
+    builder.write('log.Printf("work failed: %v", err)')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// Cancel context early")
+    builder.write("ctx2, cancel2 := context.WithCancel(context.Background())")
+    builder.write("go func() {")
+    builder.indent()
+    builder.write("time.Sleep(500 * time.Millisecond)")
+    builder.write("cancel2()")
+    builder.dedent()
+    builder.write("}()")
+    builder.write("")
+    builder.write("if err := doWork(ctx2, 2); err != nil {")
+    builder.indent()
+    builder.write('log.Printf("work 2 failed: %v", err)')
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+
+
+def _expand_gomod(builder, args):
+    """Go module initialization."""
+    module_name = args[0] if args else "example.com/myproject"
+
+    builder.write("// go.mod file")
+    builder.write(f"module {module_name}")
+    builder.write("")
+    builder.write("go 1.21")
+    builder.write("")
+    builder.write("require (")
+    builder.indent()
+    builder.write("// Add dependencies here")
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("// Initialize with:")
+    builder.write(f"// go mod init {module_name}")
+    builder.write("// go mod tidy")
+
+
+def _expand_goapi(builder, args):
+    """Go REST API boilerplate."""
+    builder.write("package main")
+    builder.write("")
+    builder.write("import (")
+    builder.indent()
+    builder.write('"context"')
+    builder.write('"encoding/json"')
+    builder.write('"fmt"')
+    builder.write('"log"')
+    builder.write('"net/http"')
+    builder.write('"strconv"')
+    builder.write('"strings"')
+    builder.dedent()
+    builder.write(")")
+    builder.write("")
+    builder.write("// User represents a user entity.")
+    builder.write("type User struct {")
+    builder.indent()
+    builder.write('ID   int    `json:"id"`')
+    builder.write('Name string `json:"name"`')
+    builder.write('Email string `json:"email"`')
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// API handles HTTP requests.")
+    builder.write("type API struct {")
+    builder.indent()
+    builder.write("users map[int]User")
+    builder.write("nextID int")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("// NewAPI creates a new API instance.")
+    builder.write("func NewAPI() *API {")
+    builder.indent()
+    builder.write("return &API{")
+    builder.indent()
+    builder.write("users:  make(map[int]User),")
+    builder.write("nextID: 1,")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func (a *API) handleUsers(w http.ResponseWriter, r *http.Request) {")
+    builder.indent()
+    builder.write("switch r.Method {")
+    builder.write("case http.MethodGet:")
+    builder.indent()
+    builder.write("a.getUsers(w, r)")
+    builder.dedent()
+    builder.write("case http.MethodPost:")
+    builder.indent()
+    builder.write("a.createUser(w, r)")
+    builder.dedent()
+    builder.write("default:")
+    builder.indent()
+    builder.write("http.Error(w, \"method not allowed\", http.StatusMethodNotAllowed)")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func (a *API) getUsers(w http.ResponseWriter, r *http.Request) {")
+    builder.indent()
+    builder.write("users := make([]User, 0, len(a.users))")
+    builder.write("for _, user := range a.users {")
+    builder.indent()
+    builder.write("users = append(users, user)")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("w.Header().Set(\"Content-Type\", \"application/json\")")
+    builder.write("if err := json.NewEncoder(w).Encode(users); err != nil {")
+    builder.indent()
+    builder.write("http.Error(w, \"internal server error\", http.StatusInternalServerError)")
+    builder.dedent()
+    builder.write("}")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func (a *API) createUser(w http.ResponseWriter, r *http.Request) {")
+    builder.indent()
+    builder.write("var user User")
+    builder.write("if err := json.NewDecoder(r.Body).Decode(&user); err != nil {")
+    builder.indent()
+    builder.write("http.Error(w, \"invalid json\", http.StatusBadRequest)")
+    builder.write("return")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("user.ID = a.nextID")
+    builder.write("a.nextID++")
+    builder.write("a.users[user.ID] = user")
+    builder.write("")
+    builder.write("w.Header().Set(\"Content-Type\", \"application/json\")")
+    builder.write("w.WriteHeader(http.StatusCreated)")
+    builder.write("json.NewEncoder(w).Encode(user)")
+    builder.dedent()
+    builder.write("}")
+    builder.write("")
+    builder.write("func main() {")
+    builder.indent()
+    builder.write("api := NewAPI()")
+    builder.write("")
+    builder.write("http.HandleFunc(\"/users\", api.handleUsers)")
+    builder.write("http.HandleFunc(\"/health\", func(w http.ResponseWriter, r *http.Request) {")
+    builder.indent()
+    builder.write("w.WriteHeader(http.StatusOK)")
+    builder.write('fmt.Fprint(w, "OK")')
+    builder.dedent()
+    builder.write("})")
+    builder.write("")
+    builder.write('log.Println("starting server on :8080")')
+    builder.write('log.Fatal(http.ListenAndServe(":8080", nil))')
     builder.dedent()
     builder.write("}")
 
@@ -955,10 +1449,7 @@ def _expand_gotest(builder, args):
         param_list.append(f"{chr(97+i)} {ptype}")
     param_str = ", ".join(param_list)
 
-    # Function letter variables for parameters (a, b, c, etc.)
-    param_vars = ", ".join([chr(97 + i) for i in range(len(param_types))])
-
-    builder.write(f"package mypackage")
+    builder.write("package mypackage")
     builder.write("")
     builder.write("import (")
     builder.indent()
@@ -1270,13 +1761,16 @@ SNIPPETS = {
     "awkmath": _expand_awkmath,
     "awkregex": _expand_awkregex,
     "awksys": _expand_awksys,
+    "goapi": _expand_goapi,
     "gobasic": _expand_gobasic,
     "gocli": _expand_gocli,
     "goch": _expand_goch,
+    "goctx": _expand_goctx,
     "goerr": _expand_goerr,
     "gohttp": _expand_gohttp,
     "gointf": _expand_gointf,
     "gojson": _expand_gojson,
+    "gomod": _expand_gomod,
     "gostruct": _expand_gostruct,
     "goswitch": _expand_goswitch,
     "gotest": _expand_gotest,
@@ -1290,6 +1784,7 @@ SNIPPETS = {
     "shdir": _expand_shdir,
     "shlog": _expand_shlog,
     "shopts": _expand_shopts,
+    "shscript": _expand_shscript,
 }
 
 
