@@ -96,7 +96,7 @@ class TestMain(unittest.TestCase):
         sys.argv = ["snip", "shlog"]
         main()
         output = sys.stdout.getvalue()
-        self.assertIn("prefix=", output)
+        self.assertIn("prog=", output)
         self.assertIn("log()", output)
         self.assertIn("fatal()", output)
 
@@ -106,7 +106,7 @@ class TestSnippets(unittest.TestCase):
         builder = IndentBuilder()
         _expand_shlog(builder, [])
         result = builder.text()
-        self.assertIn("prefix=", result)
+        self.assertIn("prog=", result)
         self.assertIn("log()", result)
         self.assertIn("fatal()", result)
 
@@ -170,7 +170,7 @@ class TestCLI(unittest.TestCase):
         stdout, stderr, returncode = self.run_snip(['shlog'])
         self.assertEqual(returncode, 0)
         self.assertEqual(stderr, '')
-        self.assertIn('prefix=', stdout)
+        self.assertIn('prog=', stdout)
         self.assertIn('log()', stdout)
         self.assertIn('fatal()', stdout)
 
