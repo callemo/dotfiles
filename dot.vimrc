@@ -92,6 +92,12 @@ let g:go_term_reuse         = 1
 
 let g:ale_lint_on_insert_leave = 0
 let g:ale_lint_on_text_changed = 0
+let g:ale_enabled = 0
+
+augroup ale_filetypes
+	autocmd!
+	autocmd FileType python let b:ale_enabled = 1
+augroup END
 
 augroup dotfiles
 	autocmd!
@@ -106,7 +112,10 @@ augroup dotfiles
 	if v:version > 800 && has('terminal')
 		autocmd FileType perl setl et keywordprg=:terminal\ perldoc\ -f
 		autocmd FileType python setl keywordprg=:terminal\ pydoc3
-		autocmd TerminalOpen * setl nonumber | noremap <buffer> q i
+		autocmd TerminalOpen *
+			\ setl nonumber
+			\ | setl statusline=%{TerminalStatusLine()}
+			\ | noremap <buffer> q i
 	endif
 
 	autocmd FileType c,cpp setl path+=/usr/include
@@ -118,8 +127,10 @@ augroup dotfiles
 	autocmd FileType go nnoremap <buffer> <leader>c :GoCallers<CR>
 	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json setl sw=4 sts=4 et
-	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript " syntax/typescript.vim is too buggy
-	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf        " syntax/yaml.vim is too buggy
+	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript
+		" syntax/typescript.vim is too buggy
+	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf
+		" syntax/yaml.vim is too buggy
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
@@ -157,12 +168,14 @@ nnoremap <c-w>z :resize<CR>
 nmap     +      <c-w>+
 nmap     -      <c-w>-
 
-nnoremap <c-l>        :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-l>
+	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p>        :FZF<CR>
 nnoremap <leader>!    :Cmd<space>
 nnoremap <leader>"    :call TmuxSwapBuffer()<CR>
 nnoremap <leader>.    :lcd %:p:h<CR>
-nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+nnoremap <leader><CR>
+	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <leader>B    :NERDTreeToggle<CR>
 nnoremap <leader>Bf   :NERDTreeFind<CR>
 nnoremap <leader>Bt   :TagbarToggle<CR>
@@ -193,7 +206,8 @@ nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 vnoremap * :call SetVisualSearch()<CR>/<CR>
 vnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
-vnoremap <silent> <leader><CR> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
+vnoremap <silent> <leader><CR>
+	\ :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
@@ -202,10 +216,19 @@ cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
 if !empty($TMUX)
+	" Fix background detection in tmux
+	if &term =~ '^screen'
+		set t_ut=
+	endif
+
 	nnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
+		\ winnr() == winnr('$')
+		\ ? ':call system("tmux selectp -t :.+")<CR>'
+		\ : ':wincmd w<CR>'
 	nnoremap <expr> <silent> <c-k>
-		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
+		\ winnr() == 1
+		\ ? ':call system("tmux selectp -t :.-")<CR>'
+		\ : ':wincmd W<CR>'
 else
 	nnoremap <silent> <c-j> :wincmd w<CR>
 	nnoremap <silent> <c-k> :wincmd W<CR>
@@ -213,7 +236,8 @@ endif
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
-	tnoremap <silent> <c-w>+ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
+	tnoremap <silent> <c-w>+
+		\ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
 	tnoremap <silent> <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
 	tnoremap <c-w>z <c-w>:resize<CR>
 	tnoremap <c-w><c-w> <c-w>.
@@ -222,9 +246,13 @@ if has('terminal')
 	tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
 	if !empty($TMUX)
 		tnoremap <expr> <silent> <c-j>
-					\ winnr() == winnr('$') ? '<c-w>:call system("tmux selectp -t :.+")<CR>' : '<c-w>:wincmd w<CR>'
+			\ winnr() == winnr('$')
+			\ ? '<c-w>:call system("tmux selectp -t :.+")<CR>'
+			\ : '<c-w>:wincmd w<CR>'
 		tnoremap <expr> <silent> <c-k>
-					\ winnr() == 1 ?'<c-w>:call system("tmux selectp -t :.-")<CR>' : '<c-w>:wincmd W<CR>'
+			\ winnr() == 1
+			\ ? '<c-w>:call system("tmux selectp -t :.-")<CR>'
+			\ : '<c-w>:wincmd W<CR>'
 	else
 		tnoremap <silent> <c-j> <c-w>:wincmd w<CR>
 		tnoremap <silent> <c-k> <c-w>:wincmd W<CR>
@@ -497,6 +525,21 @@ function! TabLine() abort
 	return s
 endfunction
 
+" TerminalStatusLine returns a compact status line for terminal buffers
+function! TerminalStatusLine() abort
+	let job = term_getjob(bufnr('%'))
+	if job == v:null
+		return 'no-job'
+	endif
+	let info = job_info(job)
+	let status = info.status
+	let cmd = len(info.cmd) > 0 ? split(info.cmd[0], '/')[-1] : 'unknown'
+	let pid = has_key(info, 'process') ? info.process : 'no-pid'
+	let bufnr = bufnr('%')
+	let cwd = has_key(info, 'cwd') ? fnamemodify(info.cwd, ':t') : fnamemodify(getcwd(), ':t')
+	return printf('%d [%s] %s(%s) %s', bufnr, cwd, cmd, pid, toupper(status))
+endfunction
+
 " TabLabel returns the a label string for the given tab number a:n. If t:label
 " exists then returns it instead.
 function! TabLabel(n) abort
@@ -558,7 +601,10 @@ endfunction
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
 	" URLs
-	let m = matchlist(a:data, '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+\([.:][a-zA-Z0-9_@\-]+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
+	let m = matchlist(a:data,
+		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
+		\ . '\([.:][a-zA-Z0-9_@\-]+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+'
+		\ . '\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
 	if len(m)
 		call OpenURL(m[0])
 		return
@@ -671,7 +717,8 @@ function! BufferList(pattern, inverse) abort
 	endif
 
 	" Sort filtered buffers by file path
-	call sort(filtered, {a, b -> a.name == b.name ? 0 : a.name > b.name ? 1 : -1})
+	call sort(filtered,
+		\ {a, b -> a.name == b.name ? 0 : a.name > b.name ? 1 : -1})
 
 	let output = []
 	for buf in filtered
@@ -688,7 +735,8 @@ function! BufferList(pattern, inverse) abort
 		endif
 
 		if has_key(buf, 'bufnr') && has_key(buf, 'name')
-			call add(output, printf("%s%s %-5d %s", prefix, status, buf.bufnr, buf.name))
+			call add(output,
+				\ printf("%s%s %-5d %s", prefix, status, buf.bufnr, buf.name))
 		endif
 	endfor
 
@@ -734,6 +782,10 @@ endif
 
 if filereadable('go.mod')
 	packadd vim-go
+endif
+
+if filereadable('requirements.txt') || filereadable('pyproject.toml') || filereadable('setup.py') || glob('*.py') != ''
+	packadd ale
 endif
 
 if filereadable(expand('~/.vimrc.local'))
