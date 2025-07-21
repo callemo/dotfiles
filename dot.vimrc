@@ -112,7 +112,7 @@ augroup dotfiles
 	if v:version > 800 && has('terminal')
 		autocmd FileType perl setl et keywordprg=:terminal\ perldoc\ -f
 		autocmd FileType python setl keywordprg=:terminal\ pydoc3
-		autocmd TerminalOpen *
+		autocmd TerminalWinOpen *
 			\ setl nonumber
 			\ | setl statusline=%{TerminalStatusLine()}
 			\ | noremap <buffer> q i
@@ -529,7 +529,7 @@ endfunction
 function! TerminalStatusLine() abort
 	let job = term_getjob(bufnr('%'))
 	if job == v:null
-		return 'no-job'
+		return ''
 	endif
 	let info = job_info(job)
 	let status = info.status
