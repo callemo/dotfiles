@@ -592,10 +592,9 @@ endfunction
 function! Rg(args)
 	let oprg = &grepprg
 	let &grepprg = 'rg --vimgrep'
-	exec 'grep' a:args
+	exec 'lgrep' a:args
 	let &grepprg = oprg
-	botright cwindow
-	silent! cfirst
+	botright lwindow
 endfunction
 
 " Plumb dispatches the handling of an acquisition gesture.
