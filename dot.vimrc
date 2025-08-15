@@ -684,14 +684,14 @@ function! OpenWikilink(name) abort
 endfunction
 
 " Fts executes a full-text search using the 'fts' command and populates the
-" quickfix list with the results.
+" location list with the results.
 " @param query: The search query string.
 function! Fts(query) abort
-	call setqflist([], 'r', {
+	call setloclist(0, [], 'r', {
 		\ 'title' : 'Fts ' . a:query,
 		\ 'lines' : systemlist('fts ' . a:query . ' | cut -f 1,2'),
 		\ 'efm': '%f	%m' })
-	cwindow
+	lwindow
 endfunction
 
 " BufferList lists all buffers matching or not matching the given pattern.
