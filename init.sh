@@ -41,6 +41,7 @@ esac
 _merge_path '/usr/local/node/bin'
 _merge_path '/usr/local/go/bin'
 _merge_path "$HOME/go/bin"
+_merge_path "$HOME/.local/bin"
 _merge_path "$HOME/dotfiles/bin"
 _merge_path "$HOME/bin"
 export PATH
