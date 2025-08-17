@@ -107,6 +107,7 @@ Key F12   A       M         Module FvwmTalk
 # Menus {{{
 AddToMenu RootMenu "Root Menu" Title
 + "Chrome"          Exec exec chrome
++ "Firefox"         Exec exec firefox
 + "XTerm	Alt-N"  Function OpenTerminal
 + ""                                 Nop
 + "Restart	Ctrl-Alt-R"              Restart fvwm
