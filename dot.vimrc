@@ -138,7 +138,6 @@ augroup END
 command! -nargs=+ -complete=file -range
 	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
-command! ID echo bufnr()
 command! Date execute "normal! A" . strftime("%Y-%m-%d")
 command! Week execute "normal! A" . strftime("%YW%V")
 
@@ -146,6 +145,8 @@ command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
+
+command! Tswap call TmuxSwapBuffer()
 
 command! -nargs=1 BDelete call BufferDelete(<f-args>, v:false)
 command! -nargs=1 BVDelete call BufferDelete(<f-args>, v:true)
