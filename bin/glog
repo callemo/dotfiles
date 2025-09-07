@@ -1,9 +1,32 @@
 #!/bin/sh
 
+usage() {
+	cat << EOF
+Usage: glog [options] [git-log-args...]
+
+Display git log in a formatted table.
+
+Options:
+  -n NUM    Number of commits to show (default: 10)
+  -v        Verbose mode: show graph and stat information
+  -h        Show this help message
+
+Examples:
+  glog           Show last 10 commits in table format
+  glog -n 5      Show last 5 commits
+  glog -v        Show verbose git log with graph and stats
+  glog --since="2 days ago"  Show commits from last 2 days
+EOF
+}
+
 n=10
 while [ $# -gt 0 ]
 do
 	case "$1" in
+	-h)
+		usage
+		exit 0
+		;;
 	-n)
 		shift
 		n="$1"
