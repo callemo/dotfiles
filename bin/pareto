@@ -19,18 +19,34 @@ done
 shift $((OPTIND - 1))
 
 awk 'BEGIN {
-	n = '"${narg:-1}"'
-	OFS = "\t"
+n = '"${narg:-1}"'
+tab = sprintf("\t")
 }
 {
-	line[NR] = $0
-	num[NR] = $n
-	sum += $n
-	csum[NR] = sum
+line[NR] = $0
+num[NR] = $n + 0
+sum += num[NR]
+csum[NR] = sum
 }
 END {
-	for (i = 1; i <= NR; i++)
-		print line[i], \
-		sprintf("%0.2f%%", num[i] / sum * 100), \
-		sprintf("%0.2f%%", csum[i] / sum * 100)
+for (i = 1; i <= NR; i++) {
+    nf = split(line[i], a)
+    p = int(num[i] / sum * 100 + 0.5)
+    cp = int(csum[i] / sum * 100 + 0.5)
+    out = ""
+    for (j = 1; j <= nf; j++) {
+        if (j == 1) {
+            out = a[j]
+        } else {
+            out = out tab a[j]
+        }
+        if (j == n) {
+            out = out tab p "%" tab cp "%"
+        }
+    }
+    if (n > nf) {
+        out = out tab p "%" tab cp "%"
+    }
+    print out
+}
 }' "$@"
