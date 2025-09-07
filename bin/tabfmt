@@ -1,16 +1,22 @@
 #!/bin/sh
 # usage: tabfmt [-F fs -d ofs -p] [files...]
-# Tabfmt formats tabulated data into columns of constants width padded
+# Tabfmt formats tabulated data into columns of constant width padded
 # with space.
+#
+# Options:
+#   -F fs   Field separator (default: tab)
+#   -d ofs  Output field separator (default: space)
+#   -p      Pad all fields to column width
 
 fs='\t'
 ofs=' '
 pad=0
 
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
-while getopts :F:d:p f
+while getopts :F:d:ph f
 do
 	case $f in
+	h) usage; exit 0 ;;
 	F) fs="$OPTARG" ;;
 	d) ofs="$OPTARG" ;;
 	p) pad=1 ;;
