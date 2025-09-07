@@ -1,13 +1,17 @@
 #!/bin/sh
 # usage: pareto [-n column] [files...]
-# pareto - summarizes numeric columns with percent and cumulative
+# Summarizes numeric columns with percent and cumulative percent
 # of the total.
+#
+# Options:
+#   -n N    Column number to analyze (default: 1)
 
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
 
-while getopts :n: f
+while getopts :n:h f
 do
 	case $f in
+	h)  usage; exit 0;;
 	n)  narg=$OPTARG;;
 	\?) usage; exit 2;;
 	esac

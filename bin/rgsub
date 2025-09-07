@@ -1,14 +1,16 @@
 #!/bin/sh
-# rgsub: recursive search regexp and replace with text
 # usage: rgsub [-n] <regexp> <text>
-# options:
-# 	-n	Run without making changes (dry run).
+# Recursive search and replace using regular expressions.
+#
+# Options:
+#   -n    Dry run - show what would be changed without making changes
 
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
 
-while getopts :n f
+while getopts :nh f
 do
 	case $f in
+	h)  usage; exit 0;;
 	n)  nflag=$f;;
 	\?) usage; exit 2;;
 	esac

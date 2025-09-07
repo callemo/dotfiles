@@ -1,8 +1,10 @@
 #!/bin/sh
-# usage: template [-F] tmpl [file ...]
+# usage: template [-F fs] tmpl [file ...]
 # Generates text using a template stored in a file.
-# Flags:
-#   -F    input field separator (default: "\t")
+# Template uses {{ N }} placeholders for field N.
+#
+# Options:
+#   -F fs   Input field separator (default: tab)
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
@@ -10,9 +12,10 @@ fatal() { log "$@"; exit 1; }
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
 
 fs='\t'
-while getopts :F: f
+while getopts :F:h f
 do
 	case $f in
+	h)  usage; exit 0;;
 	F)  fs=$OPTARG;;
 	\?) usage; exit 2;;
 	esac

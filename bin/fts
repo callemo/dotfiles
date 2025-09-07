@@ -15,9 +15,10 @@ readonly db=fts.db
 
 iflag=
 nflag=
-while getopts :in i
+while getopts :inh i
 do
     case $i in
+    h)  sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; exit 0 ;;
     i)  iflag=1 ;;
     n)  nflag=1 ;;
     \?) sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; exit 2 ;;

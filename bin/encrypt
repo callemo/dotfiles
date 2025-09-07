@@ -10,9 +10,10 @@ algo=AES256
 passfile=$HOME/.passphrase
 prog="$(basename "$0")"
 
-while getopts :dp:a: f
+while getopts :dp:a:h f
 do
 	case $f in
+	h)  sed -En '2,/^[^#]/ s/# //p' "$0" >&2; exit 0;;
 	d)  dflag=$f;;
 	p)  passfile=$OPTARG;;
 	a)  algo=$OPTARG;;

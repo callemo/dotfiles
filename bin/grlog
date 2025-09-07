@@ -1,2 +1,32 @@
 #!/bin/sh
-exec git reflog --date=human
+
+usage() {
+	cat << EOF
+Usage: grlog [options] [git-reflog-args...]
+
+Display git reflog with human-readable dates.
+
+Options:
+  -h        Show this help message
+
+Examples:
+  grlog           Show reflog with human-readable dates
+  grlog -n 5      Show last 5 reflog entries
+  grlog --all     Show reflog for all references
+EOF
+}
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+	-h)
+		usage
+		exit 0
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+exec git reflog --date=human "$@"
