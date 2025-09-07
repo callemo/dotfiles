@@ -22,7 +22,7 @@ esac
 	printf 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' | ./bin/urlencode; echo
 	printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urlencode; echo
 	printf '0123456789-_.~' | ./bin/urlencode; echo
-	printf 'ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¤ÃƒÆ’Ã‚Â¶ÃƒÆ’Ã‚Â¥ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦' | ./bin/urlencode; echo
+	printf '€äöå…' | ./bin/urlencode; echo
 
 	echo 'urldecode:'
 	printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
@@ -132,7 +132,7 @@ urldecode:
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
 abcdefghijklmnopqrstuvwxyz
 0123456789-_.~
-ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¤ÃƒÆ’Ã‚Â¶ÃƒÆ’Ã‚Â¥ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦
+€äöå…
 
 line1%3A%20word1%20word2%20word3
 line2%3A%20word1%20word2%20word3
