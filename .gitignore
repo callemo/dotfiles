@@ -7,9 +7,10 @@ acme.dump
 node_modules/
 *.pyc
 __pycache__/
-Session.vim*
+Session.vim
 /tags
 /test.exp
 /test.out
+/tmp/
 .venv/
 .vscode/
