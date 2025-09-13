@@ -61,10 +61,10 @@ if &background ==# 'light'
 	hi Comment guifg=#707f8b ctermfg=241
 	" hi CursorLine guibg=#e8f2ff
 	hi CursorLineNr guifg=#000000 ctermfg=16
-	hi DiffAdd guibg=#e6ffee ctermbg=194
-	hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
-	hi DiffDelete guibg=#ffeef0 ctermbg=225
-	hi DiffText guifg=#000000 guibg=#d4edf4 ctermfg=16 ctermbg=195
+	hi DiffAdd guifg=#176f2c guibg=#d1f4d1 ctermfg=22 ctermbg=194
+	hi DiffChange guifg=#b08800 guibg=#fff5b4 ctermfg=136 ctermbg=229
+	hi DiffDelete guifg=#cb2431 guibg=#ffd7d5 ctermfg=160 ctermbg=224
+	hi DiffText guifg=#735c0f guibg=#ffeaa7 ctermfg=94 ctermbg=223
 	hi ErrorMsg guibg=#f74a4a ctermbg=203
 	hi Folded guifg=#5d4e75 guibg=#f0e6ff ctermfg=60 ctermbg=189
 	hi Function guifg=#077cae ctermfg=31
@@ -97,10 +97,10 @@ else  " background is dark
 	hi Comment guifg=#7f8c97 ctermfg=102
 	" hi CursorLine guibg=#2f3239
 	hi CursorLineNr guifg=#ffffff
-	hi DiffAdd guibg=#113a1d ctermbg=22
-	hi DiffChange guifg=#000000 guibg=#dddddd ctermfg=16 ctermbg=188
-	hi DiffDelete guibg=#450c0f ctermbg=52
-	hi DiffText guifg=#000000 guibg=#d4edf4 ctermfg=16 ctermbg=195
+	hi DiffAdd guifg=#85e89d guibg=#244032 ctermfg=115 ctermbg=22
+	hi DiffChange guifg=#ffea7f guibg=#341a00 ctermfg=222 ctermbg=58
+	hi DiffDelete guifg=#f97583 guibg=#462c32 ctermfg=210 ctermbg=52
+	hi DiffText guifg=#ffdf5d guibg=#4d2d00 ctermfg=221 ctermbg=94
 	hi Folded guifg=#b8a9d1 guibg=#3d3447 ctermfg=146 ctermbg=60
 	hi Function guifg=#4fb0ca ctermfg=74
 	hi Keyword guifg=#fe7bb1 ctermfg=211
