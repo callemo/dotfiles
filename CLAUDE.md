@@ -17,6 +17,7 @@ This is a personal dotfiles repository containing shell configuration files, uti
 ```bash
 ./test                        # Run comprehensive test suite for all utilities
 python3 -m unittest test_snip.py  # Run unit tests for snippet system
+diff -u test.exp test.out     # Compare test results after running ./test
 ```
 
 ### Vim Plugin Management
@@ -41,12 +42,20 @@ python3 -m unittest test_snip.py  # Run unit tests for snippet system
 - `bin/fts` - Full-text search engine using SQLite FTS5 for markdown and text files
 - `bin/fsg` - File system grep utility
 - `bin/tabfmt`, `bin/tabmd` - Table formatting utilities for TSV and Markdown
+- `bin/csvtab` - CSV to TSV converter handling quoted fields properly
+- `bin/template` - Template substitution utility with field replacement
+- `bin/noco` - ANSI color code remover for clean text output
 - `bin/urlencode`, `bin/urldecode` - URL encoding/decoding with line-by-line support
 
 #### Development Environment
 - `dot.vimrc` - Comprehensive Vim configuration optimized for programming
 - `init.sh` - Shell initialization script supporting bash, zsh, and ksh
 - `acme/afmt` - Automatic code formatter supporting Go, Python, Perl, Rust, and Prettier-compatible files
+
+#### Git Integration Tools
+- `bin/gst`, `bin/gd`, `bin/glog` - Git status, diff, and log utilities
+- `bin/ga`, `bin/gc`, `bin/gup` - Git add, commit, and pull helpers
+- `bin/gbrm`, `bin/gun` - Git branch management and undo utilities
 
 #### Configuration Management
 - `install` script uses symlinks to manage dotfile installation
