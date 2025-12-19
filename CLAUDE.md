@@ -4,93 +4,88 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a personal dotfiles repository containing shell configuration files, utility scripts, text editor configurations, and tools for development. The repository follows Unix conventions and is designed to work across different Unix-like systems.
+Personal dotfiles repository containing shell configuration files, utility scripts, and text editor configurations following Unix conventions. Designed to work across different Unix-like systems.
 
 ## Common Development Commands
 
-### Installation and Setup
-```bash
-./install                      # Install dotfiles by symlinking to home directory
-```
-
 ### Testing
 ```bash
-./test                        # Run comprehensive test suite for all utilities
-python3 -m unittest test_snip.py  # Run unit tests for snippet system
-diff -u test.exp test.out     # Compare test results after running ./test
+./test                        # Run full test suite (unit tests + integration tests)
+python3 -m unittest test_snip.py  # Run only snippet system unit tests
+diff -u test.exp test.out     # Verify test output after running ./test
 ```
 
-### Vim Plugin Management
+### Installation
 ```bash
+./install                      # Symlink dotfiles to home directory
 ./vim/get <github_url>        # Install vim plugin from GitHub
-./vim/get -o <github_url>     # Install optional vim plugin
+./vim/get -o <github_url>     # Install optional vim plugin (to ~/.vim/pack/default/opt)
 ```
 
 ## Architecture and Code Organization
 
 ### Directory Structure
-- `bin/` - Utility scripts and command-line tools
-- `acme/` - Scripts for the Acme editor integration
-- `vim/` - Vim configuration and plugin management
+- `bin/` - Command-line utilities (filters and tools)
+- `acme/` - Acme editor integration scripts
+- `vim/` - Vim configuration and plugin manager
 - `lib/` - Configuration files (plumbing rules, etc.)
-- `dot.*` - Dotfiles that get symlinked to home directory as `.*`
+- `dot.*` - Dotfiles symlinked to `~/.*` by install script
 
-### Key Components
+### Key Architectural Patterns
 
-#### Text Processing and Development Tools
-- `bin/snip` (Python) - Advanced code snippet expansion system with 50+ templates for shell, Go, AWK, Python, and note-taking
-- `bin/fts` - Full-text search engine using SQLite FTS5 for markdown and text files
-- `bin/fsg` - File system grep utility
-- `bin/tabfmt`, `bin/tabmd` - Table formatting utilities for TSV and Markdown
-- `bin/csvtab` - CSV to TSV converter handling quoted fields properly
-- `bin/template` - Template substitution utility with field replacement
-- `bin/noco` - ANSI color code remover for clean text output
-- `bin/urlencode`, `bin/urldecode` - URL encoding/decoding with line-by-line support
+#### Snippet System (`bin/snip`)
+Python-based code generation system using the `IndentBuilder` class:
+- Snippets registered in `SNIPPETS` dictionary mapping names to generator functions
+- Generator functions receive `IndentBuilder` instance and args list
+- `IndentBuilder` maintains indentation level and builds output via `write()`, `indent()`, `dedent()`
+- Template categories: shell (sh*), Go (go*), AWK (awk*), Python (py*), notes (n*)
+- Adding new snippets: define function with `@snippet` decorator (or manually add to SNIPPETS dict)
 
-#### Development Environment
-- `dot.vimrc` - Comprehensive Vim configuration optimized for programming
-- `init.sh` - Shell initialization script supporting bash, zsh, and ksh
-- `acme/afmt` - Automatic code formatter supporting Go, Python, Perl, Rust, and Prettier-compatible files
+#### Acme Integration (`acme/`)
+Scripts communicate with Acme via Plan 9 filesystem protocol (9p):
+- `9p read acme/$winid/body` - read window content
+- `9p write acme/$winid/data` - replace window content
+- `9p write acme/$winid/ctl` - send control commands (mark, nomark, dot=addr, show)
+- `9p rdwr acme/$winid/addr` - get/set cursor position
+- Key pattern in `acme/afmt`: save position → format code → restore position
+- Scripts use environment variables: `$winid` (window ID), `$samfile` (filename)
 
-#### Git Integration Tools
-- `bin/gst`, `bin/gd`, `bin/glog` - Git status, diff, and log utilities
-- `bin/ga`, `bin/gc`, `bin/gup` - Git add, commit, and pull helpers
-- `bin/gbrm`, `bin/gun` - Git branch management and undo utilities
+#### Filter Pattern (Text Processing Tools)
+All text utilities follow consistent filter architecture:
+- Read from stdin, write to stdout (composable via pipes)
+- Options via `getopts` with consistent flags (-F, -d, -h)
+- Usage info extracted from header comments via `sed -En '2,/^[^#]/ s/^# //p'`
+- Examples: `tabfmt`, `csvtab`, `urlencode`, `noco`, `template`
 
-#### Configuration Management
-- `install` script uses symlinks to manage dotfile installation
-- Modular design allows selective installation of components
-- Environment setup through `init.sh` handles PATH management and shell-specific configuration
+#### Vim Plugin Management (`vim/get`)
+Minimal plugin manager using vim8 native package system:
+- Plugins cloned to `~/.vim/pack/default/start/` (auto-loaded)
+- Optional plugins go to `~/.vim/pack/default/opt/` (manual load via `:packadd`)
+- Uses shallow clone (`--depth 1`) to minimize disk usage
+- Auto-generates helptags after installation
 
-### Snippet System Architecture
-The `bin/snip` tool provides a sophisticated code generation system:
-- Template-based expansion using `IndentBuilder` class for proper indentation
-- Language-specific templates: shell scripts (sh*), Go (go*), AWK (awk*), Python (py*), note-taking (n*)
-- Comprehensive test coverage with both unit tests and CLI integration tests
-- Extensible design allows adding new snippet types
-
-### Text Processing Pipeline
-- `fts` provides full-text indexing and search capabilities
-- `tabfmt` family handles structured data formatting
-- URL encoding tools support both single-string and line-by-line processing
-- Integration with system utilities through consistent Unix pipe patterns
-
-## Development Patterns
+#### Full-Text Search (`bin/fts`)
+SQLite FTS5-based search for markdown and text files:
+- Database: `fts.db` in current directory (project-scoped, not global)
+- Porter stemming tokenizer with prefix indexing (2, 3, 4 characters)
+- Index rebuild: `-i` flag (finds all .txt and .md files in current tree)
+- Near search: `-n` flag wraps query in `NEAR($q, 100)` for paragraph-level matches
+- Output: TSV format (file path, snippet with 10 words context)
 
 ### Shell Script Conventions
-- POSIX compliance preferred over bash-specific features
-- Consistent error handling patterns using `log()` and `fatal()` functions
-- Option parsing using `getopts` with standardized help output
-- File processing follows filter pattern (read stdin, process, write stdout)
+- POSIX compliance preferred (works across bash, zsh, ksh)
+- Error handling: `log()` writes to stderr, `fatal()` exits with error
+- Help text: embedded in comments at top of file, extracted via sed pattern
+- Working directory: scripts use `cd "${0%/*}"` or absolute paths to avoid dependency on pwd
+- PATH management: `init.sh` uses `_merge_path()` to avoid duplicates
 
 ### Testing Strategy
-- Comprehensive test suite in `./test` covers all major utilities
-- Python tools include both unit tests and integration tests
-- Expected output comparison for deterministic tools
-- Error condition testing for robust failure handling
+The `./test` script follows a two-phase approach:
+1. **Unit tests first**: Runs Python unittest suite for `snip` tool
+2. **Integration tests**: Runs utilities with known inputs, captures output to `test.out`
+3. **Verification**: Compares `test.out` against `test.exp` using `diff -u`
 
-### Code Organization
-- Single-purpose utilities following Unix philosophy
-- Consistent naming conventions (verb-noun pattern for most tools)
-- Self-documenting code with usage information in script headers
-- Configuration through environment variables and standard file locations
+When modifying utilities:
+- Update `test.exp` if changing expected output format
+- Integration tests are inline in `./test` script (not separate files)
+- Test coverage focuses on common cases and edge conditions (empty input, special chars)
