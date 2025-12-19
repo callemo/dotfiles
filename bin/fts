@@ -52,7 +52,7 @@ EOF
 	        do
 				cat <<EOF
 INSERT INTO files(file, content, indexed_at)
-VALUES('$i', '$(LC_CTYPE=C sed -E 's/(['\''"])/\\1/g' "$i")', CURRENT_TIMESTAMP);
+VALUES('$(printf '%s' "$i" | sed "s/'/''/g")', '$(LC_CTYPE=C sed "s/'/''/g" "$i")', CURRENT_TIMESTAMP);
 EOF
 	        done
 	fi
@@ -61,10 +61,15 @@ EOF
 if [ $# -gt 0 ]
 then
     q="$*"
+    # Escape for FTS5: replace " with "" and wrap in double quotes for verbatim search
+    q="$(printf '%s' "$q" | sed 's/"/""/g')"
+    q="\"$q\""
     if [ -n "$nflag" ]
     then
         q="NEAR($q, 100)"
     fi
+    # Escape for SQL: replace ' with ''
+    q="$(printf '%s' "$q" | sed "s/'/''/g")"
 
     sqlite3 -separator '' "$db" <<EOF
 SELECT file || '	' || replace(snippet(files, 1, '', '', '', 10), '
