@@ -10,8 +10,8 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-DefaultFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-WindowFont -b&h-lucida-medium-r-normal-sans-17-120-100-100-p-96-iso10646-1
+WindowFont "-*-times-bold-r-*-*-17-*-*-*-*-*-*-*"
+DefaultFont "-*-helvetica-bold-r-*-*-14-*-*-*-*-*-*-*"
 HilightColor white #b24d7a
 MenuStyle * Foreground black, Background #aeb2c3, Greyed #7f8c9e
 
@@ -185,9 +185,9 @@ AddToFunc SnapRight
 # }}}
 # Modules {{{
 # Pager {{{
-*FvwmPagerFont -b&h-lucida-bold-r-*-*-12-*-*-*-*-*-iso10646-*
+*FvwmPagerFont -*-helvetica-bold-r-*-*-12-120-*-*-*-*-*-*
 *FvwmPagerGeometry 300x50-0-0
-*FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
+*FvwmPagerSmallFont -*-helvetica-bold-r-*-*-10-100-*-*-*-*-*-*
 *FvwmPagerFore black
 *FvwmPagerBack #aeb2c3
 *FvwmPagerHilight #b24d7a
@@ -198,7 +198,7 @@ AddToFunc SnapRight
 Style "FvwmPager"   StaysOnTop, NoHandles
 # }}}
 # Ident {{{
-*FvwmIdentFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*FvwmIdentFont -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
 # }}}
 # Form {{{
 # LogOut {{{
@@ -206,8 +206,10 @@ Style "FvwmPager"   StaysOnTop, NoHandles
 *LogOutWarpPointer
 *LogOutFore       black
 *LogOutBack       #aeb2c3
-*LogOutFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-*LogOutButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
+*LogOutItemFore   black
+*LogOutItemBack   #c3b2ae
+*LogOutFont       -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
+*LogOutButtonFont -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
 *LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
@@ -226,9 +228,9 @@ Style "LogOut" NoTitle, NoHandles
 *ConnectToServerBack       #aeb2c3
 *ConnectToServerItemFore   black
 *ConnectToServerItemBack   #c3b2ae
-*ConnectToServerFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-*ConnectToServerButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-*ConnectToServerInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
+*ConnectToServerFont       -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
+*ConnectToServerButtonFont -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
+*ConnectToServerInputFont  -*-courier-bold-r-*-*-17-*-*-*-*-*-*-*
 *ConnectToServerLine       center
 *ConnectToServerText       "Connect To Server"
 *ConnectToServerLine       left
@@ -246,9 +248,9 @@ Style "ConnectToServer" NoTitle, NoHandles
 *RunCmdBack       #aeb2c3
 *RunCmdItemFore   black
 *RunCmdItemBack   #c3b2ae
-*RunCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-*RunCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-*RunCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
+*RunCmdFont       -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
+*RunCmdButtonFont -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
+*RunCmdInputFont  -*-courier-bold-r-*-*-17-*-*-*-*-*-*-*
 *RunCmdLine       center
 *RunCmdText       "Run"
 *RunCmdLine       left
@@ -266,9 +268,9 @@ Style "RunCmd" NoTitle, NoHandles
 *RunTermCmdBack       #aeb2c3
 *RunTermCmdItemFore   black
 *RunTermCmdItemBack   #c3b2ae
-*RunTermCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-*RunTermCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-*RunTermCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
+*RunTermCmdFont       -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
+*RunTermCmdButtonFont -*-helvetica-bold-r-*-*-14-140-*-*-*-*-*-*
+*RunTermCmdInputFont  -*-courier-bold-r-*-*-17-*-*-*-*-*-*-*
 *RunTermCmdLine       center
 *RunTermCmdText       "Run In A Terminal"
 *RunTermCmdLine       left

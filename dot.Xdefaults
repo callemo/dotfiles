@@ -2,7 +2,7 @@
 XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
-XTerm*faceName:           IntelOne Mono
+XTerm*faceName:           Iosevka Term
 XTerm*faceSize:           11
 XTerm*foreground:         white
 XTerm*background:         #404040
@@ -32,7 +32,7 @@ XConsole*background:  rgb:40/40/40
 XConsole*cursorColor: rgb:ff/b0/00
 XConsole*saveLines:   8
 
-*font: -b&h-lucidatypewriter-*-r-normal-sans-17-120-100-100-*-0-iso10646-1
+*font: -adobe-courier-bold-r-*-*-17-*-*-*-*-*-*-*
 *Scrollbar.translations: #override \n\
     <Btn1Down>:         StartScroll(Backward) \n\
     <Btn3Down>:         StartScroll(Forward) \n\
