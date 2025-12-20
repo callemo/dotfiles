@@ -4,9 +4,9 @@ XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
 XTerm*faceName:           Iosevka Term
 XTerm*faceSize:           11
-XTerm*foreground:         white
-XTerm*background:         #404040
-XTerm*cursorColor:        #b24d7a
+XTerm*foreground:         #a9b1d6
+XTerm*background:         #1a1b26
+XTerm*cursorColor:        #a9b1d6
 XTerm*faceSize1:          7
 XTerm*faceSize2:          8
 XTerm*faceSize3:          9
@@ -40,23 +40,23 @@ XConsole*saveLines:   8
 *scrollbar.background:    #aeb2c3
 *scrollbar.foreground:    #7f8c9e
 
-! Classic Motif/SGI muted colors
-*color0:  #2e2e2e
-*color1:  #a94952
-*color2:  #6f9860
-*color3:  #a9895b
-*color4:  #4f5e86
-*color5:  #8b6f8b
-*color6:  #5f9690
-*color7:  #aeb2c3
-*color8:  #535353
-*color9:  #c85a65
-*color10: #8bb376
-*color11: #d8af5f
-*color12: #6a7ba7
-*color13: #a884a8
-*color14: #7ab3ab
-*color15: #e5e5e5
+! Tokyo Night color scheme
+*color0:  #1a1b26
+*color1:  #f7768e
+*color2:  #9ece6a
+*color3:  #e0af68
+*color4:  #7aa2f7
+*color5:  #9a7ecc
+*color6:  #4abaaf
+*color7:  #acb0d0
+*color8:  #4e5173
+*color9:  #e06c75
+*color10: #98c379
+*color11: #d19a66
+*color12: #61afef
+*color13: #c678dd
+*color14: #56b6c2
+*color15: #abb2bf
 
 Xft.dpi: 110
 Xft.autohint: 0
