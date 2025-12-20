@@ -11,7 +11,9 @@ EdgeThickness 0
 EdgeResistance 300 10
 
 DefaultFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
-HilightColor white #5f9ea0
+WindowFont -b&h-lucida-medium-r-normal-sans-17-120-100-100-p-96-iso10646-1
+HilightColor white #b24d7a
+MenuStyle * Foreground black, Background #aeb2c3, Greyed #7f8c9e
 
 AddToFunc StartFunction
     + "I" Module FvwmPager 0 3
@@ -27,6 +29,9 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           NoPPosition, \
           SloppyFocus, \
           SmartPlacement, RandomPlacement
+
+BorderStyle Active Solid #b24d7a
+BorderStyle Inactive Solid #7f8c9e
 
 ButtonStyle Reset
 ButtonStyle All -- UseTitleStyle
@@ -183,8 +188,13 @@ AddToFunc SnapRight
 *FvwmPagerFont -b&h-lucida-bold-r-*-*-12-*-*-*-*-*-iso10646-*
 *FvwmPagerGeometry 300x50-0-0
 *FvwmPagerSmallFont -b&h-lucida-bold-r-*-*-10-*-*-*-*-*-iso10646-*
-*FvwmPagerFore white
-*FvwmPagerBack #636b84
+*FvwmPagerFore black
+*FvwmPagerBack #aeb2c3
+*FvwmPagerHilight #b24d7a
+*FvwmPager*DeskColor*0 #aeb2c3
+*FvwmPager*DeskColor*1 #c3b2ae
+*FvwmPager*DeskColor*2 #b2c3ae
+*FvwmPager*DeskColor*3 #aec3c3
 Style "FvwmPager"   StaysOnTop, NoHandles
 # }}}
 # Ident {{{
@@ -194,6 +204,8 @@ Style "FvwmPager"   StaysOnTop, NoHandles
 # LogOut {{{
 *LogOutGrabServer
 *LogOutWarpPointer
+*LogOutFore       black
+*LogOutBack       #aeb2c3
 *LogOutFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *LogOutButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *LogOutCommand    Beep
@@ -210,6 +222,10 @@ Style "LogOut" NoTitle, NoHandles
 # }}}
 # ConnectToServer {{{
 *ConnectToServerWarpPointer
+*ConnectToServerFore       black
+*ConnectToServerBack       #aeb2c3
+*ConnectToServerItemFore   black
+*ConnectToServerItemBack   #c3b2ae
 *ConnectToServerFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *ConnectToServerButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *ConnectToServerInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
@@ -226,6 +242,10 @@ Style "ConnectToServer" NoTitle, NoHandles
 # }}}
 # RunCmd {{{
 *RunCmdWarpPointer
+*RunCmdFore       black
+*RunCmdBack       #aeb2c3
+*RunCmdItemFore   black
+*RunCmdItemBack   #c3b2ae
 *RunCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *RunCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *RunCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
@@ -242,6 +262,10 @@ Style "RunCmd" NoTitle, NoHandles
 # }}}
 # RunTermCmd {{{
 *RunTermCmdWarpPointer
+*RunTermCmdFore       black
+*RunTermCmdBack       #aeb2c3
+*RunTermCmdItemFore   black
+*RunTermCmdItemBack   #c3b2ae
 *RunTermCmdFont       -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *RunTermCmdButtonFont -b&h-lucida-medium-r-*-*-17-120-100-100-*-96-iso10646-*
 *RunTermCmdInputFont  -b&h-lucidatypewriter-bold-r-*-*-17-120-100-100-*-100-iso10646-1
