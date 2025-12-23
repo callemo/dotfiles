@@ -1,6 +1,6 @@
 export LC_CTYPE=en_US.UTF-8
 export VARFONT=/mnt/font/GoRegular/14a/font
-export FIXFONT=/mnt/font/GoMono/14a/font
+export FIXFONT=/mnt/font/GoMono/13a/font
 
 dpi="$(sed -En 's/^Xft\.dpi:[     ]*([0-9]+)/\1/p' "$HOME/.Xdefaults")"
 if [ -n "$dpi" ]
