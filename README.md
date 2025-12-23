@@ -15,32 +15,45 @@ so you can combine them with pipes. This makes them composable in the Unix tradi
 
 ## Installation
 
-Run `./install` to symlink the configuration files to your home directory. 
+Run `./install` to symlink configuration files and install vim plugins.
 The script won't overwrite existing files.
 
-To use the utilities, add the `bin/` directory to your PATH, or source `init.sh` 
-from your shell's startup file.
+To use the utilities, add `bin/` to your PATH or source `init.sh`:
+```sh
+source ~/dotfiles/init.sh
+```
 
 ## Some Useful Tools
 
-**snip** expands code templates. Give it a snippet name and it generates boilerplate 
-for shell scripts, Go programs, Python functions, and more. It knows about proper 
-indentation and follows the conventions of each language.
+**snip** expands code templates for shell scripts, Go programs, Python functions, and more.
 
-**fts** provides full-text search for your notes and documents using SQLite's FTS5 engine. 
-It indexes markdown and text files and lets you search them quickly.
+**fts** provides full-text search for notes and documents using SQLite's FTS5 engine.
 
-**tabfmt** formats tabular data into aligned columns. Give it tab-separated values 
-and it makes them readable. **tabmd** does the same but outputs Markdown tables.
+**tabfmt** formats tabular data into aligned columns. **tabmd** outputs Markdown tables.
 
-**urlencode** and **urldecode** handle percent-encoding. They work line-by-line, 
-so you can process entire files through them.
+**csvtab** converts CSV to tab-separated format, handling quoted fields correctly.
 
-**template** does simple text substitution. You write a template with placeholders 
-like `{{1}}` and `{{2}}`, then feed it tab-separated data to fill them in.
+**noco** strips ANSI color codes from text.
 
-The git utilities (**gst**, **gd**, **glog**, etc.) are shortcuts for common git operations. 
-They save typing and provide consistent output formatting.
+**pareto** adds percentage and cumulative percentage columns for Pareto analysis.
+
+**urlencode** and **urldecode** handle percent-encoding, with line-by-line mode.
+
+**camel** and **snake** convert between camelCase and snake_case.
+
+**rgsub** performs recursive search and replace using regular expressions.
+
+**template** does text substitution with placeholders like `{{1}}` and `{{2}}`.
+
+**n** manages notes with wiki-style linking and tagging.
+
+**md** processes Markdown files with Pikchr diagram support.
+
+**dt** displays current date/time in ISO 8601 format (with flags for UTC, basic, week formats).
+
+**pomodoro** is a Pomodoro timer (8 cycles of 25-minute work with 5-minute breaks).
+
+The git utilities (**gst**, **gd**, **glog**, **grlog**) are shortcuts for common git operations.
 
 ## Text Processing Philosophy
 
@@ -58,16 +71,53 @@ Or to search for a pattern in your notes and format the results:
 fts "search term" | tabfmt
 ```
 
+## Configuration Files
+
+The repository includes dotfiles for various tools. Run `./install` to symlink them to your home directory.
+
+| File | Purpose |
+|------|---------|
+| **dot.vimrc** | Vim configuration - sensible defaults, no plugins required |
+| **dot.tmux.conf** | Tmux configuration - vi mode keys, mouse support, status line |
+| **dot.Xdefaults** | XTerm configuration - Tokyo Night colors, Iosevka font |
+| **dot.xsession** | X session startup script |
+| **dot.fvwmrc** | FVWM window manager configuration |
+| **dot.alacritty.toml** | Alacritty terminal emulator configuration |
+| **dot.nexrc** | Nex/vi editor configuration |
+| **dot.ripgreprc** | ripgrep default settings |
+| **dot.perltidyrc** | Perl::Tidy code formatter configuration |
+| **dot.prettierrc** | Prettier code formatter settings |
+| **dot.pylintrc** | Pylint Python linter configuration |
+
+The install script also sets up:
+- **lib/** → **~/lib** - Contains plumbing rules and auxiliary files
+- Global Git excludesfile pointing to `.gitignore`
+
+## Vim Plugins
+
+**vim/get** installs plugins from GitHub to `~/.vim/pack/default/start/`.
+Use the `-o` flag for optional plugins that load with `:packadd`.
+
 ## The Acme Connection
 
-The `acme/` directory contains utilities for the Acme text editor. Acme is a different 
-kind of editor—it treats text editing as part of a larger programming environment. 
-The tools here extend Acme with automatic formatting, go-to-definition, and other 
+The `acme/` directory contains utilities for the Acme text editor. Acme is a different
+kind of editor—it treats text editing as part of a larger programming environment.
+The tools here extend Acme with automatic formatting, go-to-definition, and other
 programmer conveniences.
+
+**afmt** formats code using language-specific formatters (goimports, black, rustfmt, prettier, perltidy).
+
+**agopls** starts acme-lsp with gopls. **decl** jumps to definition. **uses** finds references.
+**rename** renames symbols.
+
+**ind** and **unind** indent/unindent text. **quote** prefixes lines with `> `.
+**untab** converts tabs to spaces. **areload** reloads a window from disk.
+
+These scripts communicate with Acme via the Plan 9 filesystem protocol (9p).
 
 ## Tests
 
-Run `./test` to exercise the utilities. The test script runs each tool against 
+Run `./test` to exercise the utilities. The test script runs each tool against
 known inputs and compares the output to expected results. It's not fancy, but it catches regressions.
 
 ## Design Notes
