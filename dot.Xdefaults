@@ -2,7 +2,7 @@
 XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
-XTerm*faceName:           Iosevka Term
+XTerm*faceName:           Iosevka Term Semibold
 XTerm*faceSize:           11
 XTerm*foreground:         #a9b1d6
 XTerm*background:         #1a1b26
