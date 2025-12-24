@@ -328,18 +328,16 @@ def _expand_nmeta(builder, args):
         "Month": "",
     }
 
-    # First positional argument is title if not prefixed
-    if args and ":" not in args[0]:
-        metadata["Title"] = args[0]
-        args = args[1:]
+    # Separate title words from key:value pairs
+    title_words = [arg for arg in args if ":" not in arg]
+    metadata["Title"] = " ".join(title_words)
 
-    # Process named arguments (key:value format)
-    for arg in args:
-        if ":" in arg:
-            key, value = arg.split(":", 1)
-            key = key.capitalize()
-            if key in metadata:
-                metadata[key] = value
+    # Process key:value pairs
+    for arg in (a for a in args if ":" in a):
+        key, value = arg.split(":", 1)
+        key = key.capitalize()
+        if key in metadata:
+            metadata[key] = value
 
     # Write metadata section
     builder.write("---")
