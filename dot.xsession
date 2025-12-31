@@ -10,7 +10,7 @@ fi
 
 [ -f "$HOME/bg.png" ] && xwallpaper --tile "$HOME/bg.png"
 setxkbmap -model pc105 -layout us -variant altgr-intl \
-	-option compose:rctrl -option ctrl:nocaps -option altwin:alt_win
+	-option compose:rctrl -option ctrl:nocaps
 xidle -timeout 600 &
 sct 5500 &
 xcompmgr &

@@ -35,11 +35,11 @@ BorderStyle Inactive Solid #7f8c9e
 
 ButtonStyle Reset
 ButtonStyle All -- UseTitleStyle
-ButtonStyle 3   5  45x45@1 55x45@1 55x55@0 45x55@0 45x45@1
-ButtonStyle 5   5  25x25@1 25x75@1 75x75@0 75x25@0 25x25@1
+ButtonStyle 4   5  45x45@1 55x45@1 55x55@0 45x55@0 45x45@1
+ButtonStyle 2   5  25x25@1 25x75@1 75x75@0 75x25@0 25x25@1
 ButtonStyle 1 - MwmDecorMenu
-ButtonStyle 5 - MwmDecorMax
-ButtonStyle 3 - MwmDecorMin
+ButtonStyle 2 - MwmDecorMax
+ButtonStyle 4 - MwmDecorMin
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkip, \
                  CirculateSkipIcon
@@ -63,63 +63,63 @@ Mouse 2      I       A         Iconify
 Mouse 3      TSFI    A         RaiseLower
 
 Mouse 1      1       A         Menu WinOps Close
-Mouse 1      3       A         Iconify
-Mouse 1      5       A         Maximize
-Mouse 3      5       A         Maximize 0 100
+Mouse 1      4       A         Iconify
+Mouse 1      2       A         Maximize
+Mouse 3      2       A         Maximize 0 100
 # }}}
 # Keyboard {{{
 # Names come from /usr/X11R6/include/X11/keysymdef.h
 #   Name  Context Modifiers Function
-Key space A       M         Menu WinOps Nop
+Key space A       4         Menu WinOps Nop
 
-Key slash A       M         WindowList
+Key slash A       4         WindowList
 
-Key Tab   A       M         Next (CurrentPage !Iconic) Function SelectWindow
-Key Tab   A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
+Key Tab   A       4         Next (CurrentPage !Iconic) Function SelectWindow
+Key Tab   A       S4        Prev (CurrentPage !Iconic) Function SelectWindow
 
-Key Left  A       M         Desk -1 0 0 3
-Key Right A       M         Desk 1  0 0 3
-Key 1     A       M         Desk 0 0
-Key 2     A       M         Desk 0 1
-Key 3     A       M         Desk 0 2
-Key 4     A       M         Desk 0 3
+Key Left  A       4         Desk -1 0 0 3
+Key Right A       4         Desk 1  0 0 3
+Key 1     A       4         Desk 0 0
+Key 2     A       4         Desk 0 1
+Key 3     A       4         Desk 0 2
+Key 4     A       4         Desk 0 3
 
-Key H     A       SM        Move 0 w+0 Warp
-Key L     A       SM        Move -0 w+0 Warp
-Key J     A       SM        Move w+0 -0 Warp
-Key K     A       SM        Move w+0 0 Warp
+Key H     A       S4        Move 0 w+0 Warp
+Key L     A       S4        Move -0 w+0 Warp
+Key J     A       S4        Move w+0 -0 Warp
+Key K     A       S4        Move w+0 0 Warp
 
-Key Left  A       CM        SnapLeft
-Key Right A       CM        SnapRight
+Key Left  A       C4        SnapLeft
+Key Right A       C4        SnapRight
 
-Key E     A       CM        Maximize 67 100
-Key H     A       M         Lower
-Key K     A       M         Module FvwmForm ConnectToServer
-Key M     A       M         Iconify
-Key N     A       M         Function OpenTerminal
-Key Q     A       CM        Exec exec xlock
-Key Q     A       SM        Module FvwmForm LogOut
-Key R     A       CM        Restart fvwm
-Key R     A       M         Module FvwmForm RunCmd
-Key R     A       SM        Module FvwmForm RunTermCmd
-Key W     A       M         Close
+Key E     A       C4        Maximize 67 100
+Key H     A       4         Lower
+Key K     A       4         Module FvwmForm ConnectToServer
+Key M     A       4         Iconify
+Key N     A       4         Function OpenTerminal
+Key Q     A       C4        Exec exec xlock
+Key Q     A       S4        Module FvwmForm LogOut
+Key R     A       C4        Restart fvwm
+Key R     A       4         Module FvwmForm RunCmd
+Key R     A       S4        Module FvwmForm RunTermCmd
+Key W     A       4         Close
 
-Key F7    A       M         Exec exec bin/dock
-Key F7    A       SM        Exec exec bin/undock
-Key F12   A       M         Module FvwmTalk
+Key F7    A       4         Exec exec bin/dock
+Key F7    A       S4        Exec exec bin/undock
+Key F12   A       4         Module FvwmTalk
 # }}}
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Root Menu" Title
 + "Web browser"          Exec exec chrome
-+ "Terminal	Alt-N"  Function OpenTerminal
++ "Terminal	Win-N"  Function OpenTerminal
 + ""                                 Nop
-+ "Restart	Ctrl-Alt-R"              Restart fvwm
-+ "Run...	Alt-R"                   Module FvwmForm RunCmd
-+ "Run in a terminal...	Shift-Alt-R" Module FvwmForm RunTermCmd
-+ "Connect to server...	Alt-K"       Module FvwmForm ConnectToServer
-+ "Lock Display	Ctrl-Alt-Q"          Exec exec xlock -echokeys -echokey \*
-+ "Log out...	Shift-Alt-Q"         Module FvwmForm LogOut
++ "Restart fvwm	Ctrl-Win-R"              Restart fvwm
++ "Run...	Win-R"                   Module FvwmForm RunCmd
++ "Run in a terminal...	Shift-Win-R" Module FvwmForm RunTermCmd
++ "Connect to server...	Win-K"       Module FvwmForm ConnectToServer
++ "Lock Display	Ctrl-Win-Q"          Exec exec xlock -echokeys -echokey \*
++ "Log out...	Shift-Win-Q"         Module FvwmForm LogOut
 
 AddToMenu RootWinOps "Window Menu" Title
 + "Move"     Move
@@ -139,14 +139,14 @@ AddToMenu RootWinOps "Window Menu" Title
 AddToMenu WinOps
 + "Move"           Move
 + "Size"           Resize
-+ "Minimize	Alt-M" Iconify
++ "Minimize	Win-M" Iconify
 + "Maximize"       Maximize
-+ "Lower	Alt-H" Lower
++ "Lower	Win-H" Lower
 + "Stick"          Stick
 + "Refresh"        RefreshWindow
 + "Info"           Module FvwmIdent
 + ""               Nop
-+ "Close	Alt-W" Close
++ "Close	Win-W" Close
 # }}}
 # Functions {{{
 AddToFunc RaiseAndMove
