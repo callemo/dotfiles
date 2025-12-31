@@ -1,9 +1,10 @@
 #!/bin/sh
-# usage: rgsub [-n] <regexp> <text>
+# usage: rgsub [-n] <regexp> <text> [path ...]
 # Recursive search and replace using regular expressions.
 #
-# Searches all text files in current directory tree (excluding .git/)
+# Searches all text files in specified paths (excluding .git/)
 # and replaces matches. Uses extended regex (sed -E).
+# Defaults to current directory if no paths specified.
 #
 # Uses '@' as sed delimiter. If pattern or replacement contains '@',
 # escape it as '\@'.
@@ -12,9 +13,10 @@
 #   -n    Dry run - show diffs of what would change
 #
 # Examples:
-#   rgsub 'foo' 'bar'              # Replace foo with bar
+#   rgsub 'foo' 'bar'              # Replace in current directory
 #   rgsub 'old/path' 'new/path'    # Paths work (no escaping needed)
 #   rgsub -n 'test' 'prod'         # Preview changes before applying
+#   rgsub 'pattern' 'text' dir1 dir2  # Search specific directories
 
 PATH=/bin:/usr/bin
 
@@ -36,15 +38,21 @@ esac
 
 r="$1"
 t="$2"
+shift 2
+
+# Default to current directory if no paths specified
+case $# in
+0)	set -- .
+esac
+
+# Platform-specific sed in-place
+case "$(uname)" in
+OpenBSD)	sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i "$@"; } ;;
+*)		sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i '' "$@"; } ;;
+esac
 
 # Exit 1 if no matches (like grep)
-grep -E -R -I -l "$r" . | grep -E -v '(^|/)\.git' >/dev/null || exit 1
-
-# Platform-specific sed in-place syntax
-case "$(uname)" in
-OpenBSD)	set -- sed -E -e 's@'"$r"'@'"$t"'@g' -i ;;
-*)		set -- sed -E -e 's@'"$r"'@'"$t"'@g' -i '' ;;
-esac
+grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' >/dev/null || exit 1
 
 # Dry-run mode: show diffs and exit
 if [ -n "$nflag" ]
@@ -52,7 +60,7 @@ then
 	tmp=/tmp/rgsub.$$
 	trap 'rm -f $tmp' 0 1 2 15
 
-	grep -E -R -I -l "$r" . | grep -E -v '(^|/)\.git' |
+	grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' |
 	while IFS= read -r file
 	do
 		sed -E -e 's@'"$r"'@'"$t"'@g' "$file" >$tmp
@@ -67,6 +75,9 @@ then
 fi
 
 # Normal mode: replace in-place
-grep -E -R -I -l "$r" . |
+grep -E -R -I -l "$r" "$@" |
 	grep -E -v '(^|/)\.git' |
-	xargs "$@"
+	while IFS= read -r file
+	do
+		sedinplace "$file"
+	done

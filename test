@@ -162,6 +162,13 @@ one,"two ,","three "","""' | csvtab
 	(cd "$testdir" && rgsub -n 'test' 'changed' >/dev/null 2>&1)
 	after=$(ls /tmp/rgsub.* 2>/dev/null | wc -l | tr -d ' ')
 	echo "Temp files: $before -> $after"
+
+	mkdir "$testdir/sub1" "$testdir/sub2"
+	echo "target text" > "$testdir/sub1/file.txt"
+	echo "target text" > "$testdir/sub2/file.txt"
+	echo "target text" > "$testdir/file.txt"
+	(cd "$testdir" && rgsub 'target' 'FOUND' sub1)
+	cat "$testdir"/*/file.txt "$testdir/file.txt"
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -283,6 +290,9 @@ line after
 version X.Y.Z
 version X.Y.Z
 Temp files: 0 -> 0
+FOUND text
+target text
+target text
 EOF
 
 diff -u test.exp test.out >&2
