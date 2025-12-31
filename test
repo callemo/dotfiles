@@ -114,6 +114,54 @@ one,"two ,","three "","""' | csvtab
 	echo '--- fsg:'
 	fsg '/(fsg|fts)$' | sort
 	echo $?
+
+	echo
+	echo '--- rgsub:'
+	testdir=/tmp/rgsub_test.$$
+	mkdir -p "$testdir"
+	trap 'rm -rf "$testdir"' EXIT
+
+	cat >"$testdir/test1.txt" <<-'END'
+	foo bar
+	foo baz
+	END
+	(cd "$testdir" && rgsub 'foo' 'REPLACED')
+	cat "$testdir/test1.txt"
+
+	cat >"$testdir/test2.txt" <<-'END'
+	path/to/file.txt
+	another/path/here
+	END
+	(cd "$testdir" && rgsub 'path/to' 'new/location')
+	cat "$testdir/test2.txt"
+
+	cat >"$testdir/test3.txt" <<-'END'
+	line before
+	line with pattern
+	line after
+	END
+	echo 'Dry-run test:'
+	(cd "$testdir" && rgsub -n 'pattern' 'CHANGED' >/dev/null 2>&1)
+	echo $?
+	cat "$testdir/test3.txt"
+
+	(cd "$testdir" && rgsub 'NOTFOUND' 'anything' >/dev/null 2>&1)
+	echo $?
+
+	cat >"$testdir/test5.txt" <<-'END'
+	version 1.2.3
+	version 4.5.6
+	END
+	(cd "$testdir" && rgsub 'version [0-9.]+' 'version X.Y.Z')
+	cat "$testdir/test5.txt"
+
+	before=$(ls /tmp/rgsub.* 2>/dev/null | wc -l | tr -d ' ')
+	cat >"$testdir/test6.txt" <<-'END'
+	test data
+	END
+	(cd "$testdir" && rgsub -n 'test' 'changed' >/dev/null 2>&1)
+	after=$(ls /tmp/rgsub.* 2>/dev/null | wc -l | tr -d ' ')
+	echo "Temp files: $before -> $after"
 } >test.out
 
 cat <<'EOF' >test.exp
@@ -220,6 +268,21 @@ one	two ,	three ","
 bin/fsg
 bin/fts
 0
+
+--- rgsub:
+REPLACED bar
+REPLACED baz
+new/location/file.txt
+another/path/here
+Dry-run test:
+0
+line before
+line with pattern
+line after
+1
+version X.Y.Z
+version X.Y.Z
+Temp files: 0 -> 0
 EOF
 
 diff -u test.exp test.out >&2
