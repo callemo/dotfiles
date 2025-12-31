@@ -14,4 +14,8 @@ export user="$USER"
 : "${FIXFONT=/mnt/font/GoMono/14a/font}"
 
 pgrep '^plumber$' || plumber &
-exec "${PLAN9:-/usr/local/plan9}/bin/acme" -a -f "$VARFONT" -F "$FIXFONT" "$@"
+
+set -- -a "$@"
+[ -n "$VARFONT" ] && set -- "$@" -f "$VARFONT"
+[ -n "$FIXFONT" ] && set -- "$@" -F "$FIXFONT"
+exec "${PLAN9:-/usr/local/plan9}/bin/acme" "$@"

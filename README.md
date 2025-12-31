@@ -1,16 +1,16 @@
 # Dotfiles
 
-This is a collection of configuration files and small utilities for Unix systems. 
+This is a collection of configuration files and small utilities for Unix systems.
 The tools here follow the old Unix tradition: each program does one thing and does it well.
 
 ## What's Here
 
-The repository contains two kinds of things: configuration files for editors and shells, 
-and a set of small command-line utilities. The configuration files live in the root 
-directory as `dot.*` files that get symlinked to your home directory by the install script. 
+The repository contains two kinds of things: configuration files for editors and shells,
+and a set of small command-line utilities. The configuration files live in the root
+directory as `dot.*` files that get symlinked to your home directory by the install script.
 The utilities live in `bin/` and handle common text processing tasks.
 
-Most of the utilities are filters—they read from standard input and write to standard output, 
+Most of the utilities are filters—they read from standard input and write to standard output,
 so you can combine them with pipes. This makes them composable in the Unix tradition.
 
 ## Installation
@@ -19,6 +19,7 @@ Run `./install` to symlink configuration files and install vim plugins.
 The script won't overwrite existing files.
 
 To use the utilities, add `bin/` to your PATH or source `init.sh`:
+
 ```sh
 source ~/dotfiles/init.sh
 ```
@@ -57,16 +58,18 @@ The git utilities (**gst**, **gd**, **glog**, **grlog**) are shortcuts for commo
 
 ## Text Processing Philosophy
 
-These tools embrace the Unix pipe model. Instead of building monolithic programs 
-that try to do everything, each utility solves one problem well. You combine them 
+These tools embrace the Unix pipe model. Instead of building monolithic programs
+that try to do everything, each utility solves one problem well. You combine them
 to solve larger problems.
 
 For example, to convert a CSV file to a nicely formatted Markdown table:
+
 ```
 csvtab < data.csv | tabmd
 ```
 
 Or to search for a pattern in your notes and format the results:
+
 ```
 fts "search term" | tabfmt
 ```
@@ -75,21 +78,22 @@ fts "search term" | tabfmt
 
 The repository includes dotfiles for various tools. Run `./install` to symlink them to your home directory.
 
-| File | Purpose |
-|------|---------|
-| **dot.vimrc** | Vim configuration - sensible defaults, no plugins required |
-| **dot.tmux.conf** | Tmux configuration - vi mode keys, mouse support, status line |
-| **dot.Xdefaults** | XTerm configuration - Tokyo Night colors, Iosevka font |
-| **dot.xsession** | X session startup script |
-| **dot.fvwmrc** | FVWM window manager configuration |
-| **dot.alacritty.toml** | Alacritty terminal emulator configuration |
-| **dot.nexrc** | Nex/vi editor configuration |
-| **dot.ripgreprc** | ripgrep default settings |
-| **dot.perltidyrc** | Perl::Tidy code formatter configuration |
-| **dot.prettierrc** | Prettier code formatter settings |
-| **dot.pylintrc** | Pylint Python linter configuration |
+| File                   | Purpose                                                       |
+| ---------------------- | ------------------------------------------------------------- |
+| **dot.vimrc**          | Vim configuration - sensible defaults, no plugins required    |
+| **dot.tmux.conf**      | Tmux configuration - vi mode keys, mouse support, status line |
+| **dot.Xdefaults**      | X configuration                                               |
+| **dot.xsession**       | X session startup script                                      |
+| **dot.fvwmrc**         | FVWM window manager configuration                             |
+| **dot.alacritty.toml** | Alacritty terminal emulator configuration                     |
+| **dot.nexrc**          | Nex/vi editor configuration                                   |
+| **dot.ripgreprc**      | ripgrep default settings                                      |
+| **dot.perltidyrc**     | Perl::Tidy code formatter configuration                       |
+| **dot.prettierrc**     | Prettier code formatter settings                              |
+| **dot.pylintrc**       | Pylint Python linter configuration                            |
 
 The install script also sets up:
+
 - **lib/** → **~/lib** - Contains plumbing rules and auxiliary files
 - Global Git excludesfile pointing to `.gitignore`
 
@@ -122,10 +126,10 @@ known inputs and compares the output to expected results. It's not fancy, but it
 
 ## Design Notes
 
-The utilities here favor simplicity over features. They handle the common cases well 
-and let you combine them for the uncommon ones. Error messages are brief and to the point. 
+The utilities here favor simplicity over features. They handle the common cases well
+and let you combine them for the uncommon ones. Error messages are brief and to the point.
 Options follow the traditional Unix style with single letters and minimal configuration.
 
-Most tools are written in shell script or Python, chosen for clarity rather than performance. 
-They're meant to be read and modified. If you need something slightly different, 
+Most tools are written in shell script or Python, chosen for clarity rather than performance.
+They're meant to be read and modified. If you need something slightly different,
 fork the code and change it.
