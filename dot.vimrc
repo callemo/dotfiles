@@ -90,15 +90,6 @@ let g:go_term_enabled       = 1
 let g:go_term_mode          = 'split'
 let g:go_term_reuse         = 1
 
-let g:ale_lint_on_insert_leave = 0
-let g:ale_lint_on_text_changed = 0
-let g:ale_enabled = 0
-
-augroup ale_filetypes
-	autocmd!
-	autocmd FileType python let b:ale_enabled = 1
-augroup END
-
 augroup dotfiles
 	autocmd!
 	autocmd BufReadPost * exe 'silent! normal! g`"'
@@ -109,7 +100,7 @@ augroup dotfiles
 	autocmd InsertLeave,WinEnter * setl cursorline
 	autocmd OptionSet * if &diff | setl nocursorline | endif
 
-	if v:version > 800 && has('terminal')
+	if has('patch-8.0.0') && has('terminal')
 		autocmd FileType perl setl et keywordprg=:terminal\ perldoc\ -f
 		autocmd FileType python setl keywordprg=:terminal\ pydoc3
 		autocmd TerminalWinOpen *
@@ -333,7 +324,9 @@ function! RunCmdAsync(range, line1, line2, cmd) abort
 		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
 		\ 'callback': 'AsyncCmdOutputHandler',
 		\ 'close_cb': 'AsyncCmdCloseHandler',
-		\ 'exit_cb': 'AsyncCmdExitHandler'
+		\ 'exit_cb': 'AsyncCmdExitHandler',
+		\ 'timeout': 300000,
+		\ 'stoponexit': 'term'
 		\ }
 	if a:range > 0
 		let opts.in_io = 'buffer'
@@ -441,6 +434,11 @@ function! LintFile() abort
 		echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
 		return
 	endif
+	let exe = split(cmd)[0]
+	if !executable(exe)
+		echohl ErrorMsg | echo exe . ' not found' | echohl None
+		return
+	endif
 	update
 	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
@@ -459,6 +457,11 @@ let g:formatters = {
 function! FormatFile(...) abort
 	let fallback = 'prettier --write --log-level warn'
 	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
+	let exe = split(cmd)[0]
+	if !executable(exe)
+		echohl ErrorMsg | echo exe . ' not found' | echohl None
+		return
+	endif
 	update
 	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
@@ -507,7 +510,7 @@ endfunction
 function! TrimTrailingBlanks() abort
 	let last_pos = getcurpos()
 	let last_search = @/
-	silent! %s/\m\C\s\+$//e
+	noautocmd silent! %s/\m\C\s\+$//e
 	let @/ = last_search
 	call setpos('.', last_pos)
 endfunction
@@ -591,7 +594,11 @@ function! TabLabel(n) abort
 endfunction
 
 " Rg executes the ripgrep program loading its results on the quickfix window.
-function! Rg(args)
+function! Rg(args) abort
+	if !executable('rg')
+		echohl ErrorMsg | echo 'ripgrep not found' | echohl None
+		return
+	endif
 	let oprg = &grepprg
 	let &grepprg = 'rg --vimgrep'
 	exec 'lgrep' a:args
@@ -689,6 +696,10 @@ endfunction
 " location list with the results.
 " @param query: The search query string.
 function! Fts(query) abort
+	if !executable('fts')
+		echohl ErrorMsg | echo 'fts not found' | echohl None
+		return
+	endif
 	call setloclist(0, [], 'r', {
 		\ 'title' : 'Fts ' . a:query,
 		\ 'lines' : systemlist('fts ' . a:query . ' | cut -f 1,2'),
@@ -781,13 +792,12 @@ if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 endif
 
-if filereadable('go.mod')
-	packadd vim-go
-endif
-
-if filereadable('requirements.txt') || filereadable('pyproject.toml') || filereadable('setup.py') || glob('*.py') != ''
-	packadd ale
-endif
+augroup lazy_plugins
+	autocmd!
+	if filereadable('go.mod')
+		autocmd BufRead,BufNewFile *.go ++once packadd vim-go
+	endif
+augroup END
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
