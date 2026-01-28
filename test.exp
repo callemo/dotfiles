@@ -1,0 +1,125 @@
+urlencode:$
+%0A$
+%20$
+%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D$
+ABCDEFGHIJKLMNOPQRSTUVWXYZ$
+abcdefghijklmnopqrstuvwxyz$
+0123456789-_.~$
+%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6$
+urldecode:$
+!#$%&'()*+,/:;=?@[]$
+!#$%&'()*+,/:;=?@[]$
+!#$%&'()*+,/:;=?@[]$
+ABCDEFGHIJKLMNOPQRSTUVWXYZ$
+abcdefghijklmnopqrstuvwxyz$
+0123456789-_.~$
+\342\202\254\303\244\303\266\303\245\342\200\246$
+$
+line1%3A%20word1%20word2%20word3$
+line2%3A%20word1%20word2%20word3$
+line2%3A%20word1%20word2%20word3$
+$
+line1: word1 word2 word3$
+line2: word1 word2 word3$
+line2: word1 word2 word3$
+$
+noco:$
+[30mBlack[0m$
+[31mRed[0m$
+[32mGreen[0m$
+[33mYellow[0m$
+[34mBlue[0m$
+[35mMagenta[0m$
+[36mCyan[0m$
+[37mWhite[0m$
+[90mBright black[0m$
+[91mBright red[0m$
+[92mBright green[0m$
+[93mBright yellow[0m$
+[94mBright blue[0m$
+[95mBright magenta[0m$
+[96mBright cyan[0m$
+[97mBright white[0m$
+$
+tabfmt:$
+v_1_1   v_1__2  v_1___3$
+v_2___3 v_2_1   v_2__2$
+v_3__2  v_3___3 v_3_1$
+v_1_1   v_1__2  v_1___3$$
+v_2___3 v_2_1   v_2__2 $$
+v_3__2  v_3___3 v_3_1  $$
+| v_1_1   | v_1__2  | v_1___3 |$
+| v_2___3 | v_2_1   | v_2__2  |$
+| v_3__2  | v_3___3 | v_3_1   |$
+v_1_1 v_1_2 v_1_3$
+v_1_1 | v_1_2 | v_1_3$
+$
+tabmd:$
+| c\\_1        | c\\_\\_2      | c\\_\\_\\_3    |$
+|-------------|-------------|-------------|$
+| v\\_1\\_1     | v\\_1\\_\\_2   | v\\_1\\_\\_\\_3 |$
+| v\\_2\\_\\_\\_3 | v\\_2\\_1     | v\\_2\\_\\_2   |$
+| v\\_3\\_\\_2   | v\\_3\\_\\_\\_3 | v\\_3\\_1     |$
+| c0 &#124; c\\_1 | c\\_\\_2      | c\\_\\_\\_3    |$
+|----------------|-------------|-------------|$
+| v\\_1\\_1        | v\\_1\\_\\_2   | v\\_1\\_\\_\\_3 |$
+| v\\_2\\_\\_\\_3    | v\\_2\\_1     | v\\_2\\_\\_2   |$
+| v\\_3\\_\\_2      | v\\_3\\_\\_\\_3 | v\\_3\\_1     |$
+$
+csvtab:$
+one\ttwo\tthree$
+one\ttwo ,\tthree ","$
+$
+--- template:$
+{$
+  "lang": "en"$
+  1: "one",$
+  2: "two",$
+  3: "three"$
+}$
+{$
+  "lang": "es"$
+  1: "uno",$
+  2: "dos",$
+  3: "tres"$
+}$
+{$
+  "lang": "it"$
+  1: "uno",$
+  2: "due",$
+  3: "tre"$
+}$
+0$
+{$
+  "lang": "en"$
+  1: "twenty one",$
+  2: "twenty two",$
+  3: "twenty three"$
+}$
+0$
+--- fsg:$
+bin/fsg$
+bin/fts$
+0$
+$
+--- rgsub:$
+sed: can't read : No such file or directory$
+REPLACED bar$
+REPLACED baz$
+sed: can't read : No such file or directory$
+new/location/file.txt$
+another/path/here$
+Dry-run test:$
+0$
+line before$
+line with pattern$
+line after$
+1$
+sed: can't read : No such file or directory$
+version X.Y.Z$
+version X.Y.Z$
+Temp files: 0 -> 0$
+sed: can't read : No such file or directory$
+FOUND text$
+target text$
+target text$
