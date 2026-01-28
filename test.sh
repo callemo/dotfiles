@@ -162,3 +162,33 @@ echo "target text" > "$testdir/sub2/file.txt"
 echo "target text" > "$testdir/file.txt"
 (cd "$testdir" && rgsub 'target' 'FOUND' sub1)
 cat "$testdir"/*/file.txt "$testdir/file.txt"
+
+echo
+echo '--- snake:'
+echo 'fooBar' | snake
+echo 'FooBarBaz' | snake
+echo 'alreadySnake' | snake
+echo 'XMLParser' | snake
+
+echo
+echo '--- camel:'
+echo 'foo_bar' | camel
+echo 'foo_bar_baz' | camel
+echo 'SCREAMING_SNAKE' | camel
+
+echo
+echo '--- pareto:'
+printf '100\tapples\n50\toranges\n30\tbananas\n20\tgrapes\n' | pareto
+printf 'apples\t100\noranges\t50\nbananas\t30\ngrapes\t20\n' | pareto -n 2
+
+echo
+echo '--- overwrite:'
+owtest="$testdir/overwrite_test.txt"
+echo 'original content' >"$owtest"
+cat "$owtest" | overwrite "$owtest" tr a-z A-Z
+cat "$owtest"
+echo 'line1
+line2
+line3' >"$owtest"
+cat "$owtest" | overwrite "$owtest" sort -r
+cat "$owtest"

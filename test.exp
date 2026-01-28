@@ -123,3 +123,30 @@ sed: can't read : No such file or directory$
 FOUND text$
 target text$
 target text$
+$
+--- snake:$
+foo_bar$
+foo_bar_baz$
+already_snake$
+xmlparser$
+$
+--- camel:$
+FooBar$
+FooBarBaz$
+SCREAMINGSNAKE$
+$
+--- pareto:$
+100\t50%\t50%\tapples$
+50\t25%\t75%\toranges$
+30\t15%\t90%\tbananas$
+20\t10%\t100%\tgrapes$
+apples\t100\t50%\t50%$
+oranges\t50\t25%\t75%$
+bananas\t30\t15%\t90%$
+grapes\t20\t10%\t100%$
+$
+--- overwrite:$
+ORIGINAL CONTENT$
+line3$
+line2$
+line1$
