@@ -103,10 +103,8 @@ bin/fts$
 0$
 $
 --- rgsub:$
-sed: can't read : No such file or directory$
 REPLACED bar$
 REPLACED baz$
-sed: can't read : No such file or directory$
 new/location/file.txt$
 another/path/here$
 Dry-run test:$
@@ -115,11 +113,9 @@ line before$
 line with pattern$
 line after$
 1$
-sed: can't read : No such file or directory$
 version X.Y.Z$
 version X.Y.Z$
 Temp files: 0 -> 0$
-sed: can't read : No such file or directory$
 FOUND text$
 target text$
 target text$

@@ -47,8 +47,8 @@ esac
 
 # Platform-specific sed in-place
 case "$(uname)" in
-OpenBSD)	sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i "$@"; } ;;
-*)		sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i '' "$@"; } ;;
+Darwin)		sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i '' "$@"; } ;;
+*)		sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i "$@"; } ;;
 esac
 
 # Exit 1 if no matches (like grep)
