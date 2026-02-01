@@ -13,6 +13,9 @@ DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 EDITOR=vim; export EDITOR
 RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"; export RIPGREP_CONFIG_PATH
 
+# Terminal title
+tt() { printf '\033]0;%s\007' "$@";  }
+
 case "${SHELL##*/}" in
 ksh)
 	: "${HISTFILE:=$HOME/.ksh_history}"
