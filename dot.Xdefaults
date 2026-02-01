@@ -3,7 +3,7 @@ XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
 XTerm*faceName:           Go Mono
-XTerm*faceSize:           11
+XTerm*faceSize:           10
 XTerm*foreground:         #ffffff
 XTerm*background:         #1a1b26
 XTerm*cursorColor:        #ffffff
