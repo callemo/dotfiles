@@ -111,8 +111,8 @@ Key F12   A       4         Module FvwmTalk
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Root Menu" Title
-+ "Web browser"          Exec exec chrome
-+ "Terminal	Win-N"  Function OpenTerminal
++ "Chrome"          Exec exec chrome
++ "XTerm	Win-N"  Function OpenTerminal
 + ""                                 Nop
 + "Restart fvwm	Ctrl-Win-R"              Restart fvwm
 + "Run...	Win-R"                   Module FvwmForm RunCmd
