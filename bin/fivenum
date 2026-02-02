@@ -1,0 +1,30 @@
+#!/bin/sh
+# fivenum: five-number summary (min, Q1, median, Q3, max)
+# Uses Tukey's method: for odd-length data, the median is included
+# in both halves when computing quartiles.
+
+cat "$@" | sort -n | awk '
+function median(arr, start, end,    len, offset) {
+    offset = start - 1
+    len = end - offset
+    if (len % 2)  # odd length
+        return arr[((len+1)/2) + offset];
+    else          # even length
+        return (arr[len/2 + offset] + arr[(len/2+1) + offset]) / 2;
+}
+function lowerq(arr, len) {
+    if (len % 2)
+        return median(arr, 1, (len+1) / 2);
+    else
+        return median(arr, 1, len / 2);
+}
+function upperq(arr, len) {
+    if (len % 2)
+        return median(arr, (len+1) / 2, len);
+    else {
+        return median(arr, len / 2 + 1, len);
+    }
+}
+      { x[NR] = $1; }
+END   { print x[1], lowerq(x, NR), median(x, 1, NR), upperq(x, NR), x[NR]; }
+'

@@ -182,6 +182,15 @@ printf '100\tapples\n50\toranges\n30\tbananas\n20\tgrapes\n' | pareto
 printf 'apples\t100\noranges\t50\nbananas\t30\ngrapes\t20\n' | pareto -n 2
 
 echo
+echo '--- fivenum:'
+printf '1\n2\n3\n4\n5\n' | fivenum
+printf '1\n2\n3\n4\n5\n6\n' | fivenum
+printf '42\n' | fivenum
+printf '10\n20\n' | fivenum
+printf '3\n1\n4\n1\n5\n9\n2\n6\n' | fivenum
+printf '1.5\n2.7\n3.3\n4.1\n5.9\n' | fivenum
+
+echo
 echo '--- overwrite:'
 owtest="$testdir/overwrite_test.txt"
 echo 'original content' >"$owtest"
