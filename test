@@ -3,6 +3,11 @@
 
 : "${DOTFILES:=$(pwd)}"
 
+case $(uname) in
+Linux) sed() { command sed -l 4096 "$@"; } ;;
+*)     export COLUMNS=4096 ;;
+esac
+
 normalize() {
 	sed -e 's|/tmp/test1\.[0-9]*|TMPFILE|g' \
 	    -e 's|/tmp/rgsub_test\.[0-9]*|TESTDIR|g' | sed -n l
