@@ -3,6 +3,9 @@
 
 : "${DOTFILES:=$(pwd)}"
 
+export LC_ALL=C
+export LANG=C
+
 case $(uname) in
 Linux) sed() { command sed -l 4096 "$@"; } ;;
 *)     export COLUMNS=4096 ;;
