@@ -149,7 +149,7 @@ command! -nargs=1 BV call BufferList(<f-args>, v:true)
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
 	nnoremap <silent> <leader>; :<C-u>.Send<CR>
-	vnoremap <silent> <leader>; :Send<CR>
+	xnoremap <silent> <leader>; :Send<CR>
 endif
 
 nnoremap <down> <c-e>
@@ -161,22 +161,22 @@ nnoremap <silent> <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <c-w>Q :bwipeout<CR>
 nnoremap <c-w>z :resize<CR>
-nmap     +      <c-w>+
-nmap     -      <c-w>-
+nnoremap + <c-w>+
+nnoremap - <c-w>-
 
 nnoremap <c-l>
 	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
-nnoremap <c-p>        :FZF<CR>
-nnoremap <leader>!    :Cmd<space>
-nnoremap <leader>"    :call TmuxSwapBuffer()<CR>
-nnoremap <leader>.    :lcd %:p:h<CR>
+nnoremap <c-p> :FZF<CR>
+nnoremap <leader>! :Cmd<space>
+nnoremap <leader>" :call TmuxSwapBuffer()<CR>
+nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B    :NERDTreeToggle<CR>
-nnoremap <leader>Bf   :NERDTreeFind<CR>
-nnoremap <leader>Bt   :TagbarToggle<CR>
-nnoremap <leader>f    :Fmt<CR>
-nnoremap <leader>l    :Lint<CR>
+nnoremap <leader>B :NERDTreeToggle<CR>
+nnoremap <leader>Bf :NERDTreeFind<CR>
+nnoremap <leader>Bt :TagbarToggle<CR>
+nnoremap <leader>f :Fmt<CR>
+nnoremap <leader>l :Lint<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
@@ -200,9 +200,9 @@ nnoremap yop :setl invpaste<CR>
 nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
-vnoremap * :call SetVisualSearch()<CR>/<CR>
-vnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
-vnoremap <silent> <leader><CR>
+	xnoremap * :call SetVisualSearch()<CR>/<CR>
+	xnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
+	xnoremap <silent> <leader><CR>
 	\ :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
@@ -260,10 +260,10 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nmap <silent> <middlemouse> <leftmouse><leader>!<c-r><c-w><CR>
-nmap <silent> <rightmouse>  <leftmouse><leader><CR>
-vmap <silent> <middlemouse> <leader>!
-vmap <silent> <rightmouse>  <leader><CR>
+nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
+nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+xnoremap <silent> <middlemouse> :<c-u>call ExecVisualText()<CR>
+xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 
 " GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
@@ -280,7 +280,7 @@ function! SetVisualSearch() abort
 	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
 endfunction
 
-" Cmd executes a command with an optional rage for input.
+" Cmd executes a command with an optional range for input.
 function! Cmd(cmd, range, line1, line2) abort
 	if g:cmd_async && exists('*job_start')
 		call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
@@ -509,7 +509,7 @@ function! Send(range, start, end, ...) abort
 	let w:send_terminal_buf = buf
 endfunction
 
-" TrimTrailingBlanks remove tailing consecutive blanks.
+" TrimTrailingBlanks removes trailing consecutive blanks.
 function! TrimTrailingBlanks() abort
 	let last_pos = getcurpos()
 	let last_search = @/
