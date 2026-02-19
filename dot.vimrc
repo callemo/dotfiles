@@ -110,6 +110,7 @@ augroup dotfiles
 	endif
 
 	autocmd FileType c,cpp setl path+=/usr/include
+	autocmd BufNewFile,BufRead *.tidal setfiletype haskell
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
 	autocmd FileType go nnoremap <buffer> <leader>c :GoCallers<CR>
@@ -147,6 +148,8 @@ command! -nargs=1 BV call BufferList(<f-args>, v:true)
 
 if has('terminal')
 	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
+	nnoremap <silent> <leader>; :<C-u>.Send<CR>
+	vnoremap <silent> <leader>; :Send<CR>
 endif
 
 nnoremap <down> <c-e>
