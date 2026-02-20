@@ -139,7 +139,7 @@ command! -nargs=? Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
 
-command! Tswap call TmuxSwapBuffer()
+command! Tswap call TmuxSwap()
 
 command! -nargs=1 BDelete call BufferDelete(<f-args>, v:false)
 command! -nargs=1 BVDelete call BufferDelete(<f-args>, v:true)
@@ -147,8 +147,8 @@ command! -nargs=1 B call BufferList(<f-args>, v:false)
 command! -nargs=1 BV call BufferList(<f-args>, v:true)
 
 if has('terminal')
-	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
-	nnoremap <silent> <leader>; :<C-u>.Send<CR>
+	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <q-args>)
+	nnoremap <silent> <leader>; :<C-u>call Send(1, line('.'), line('.') + v:count1 - 1)<CR>
 	xnoremap <silent> <leader>; :Send<CR>
 endif
 
@@ -168,7 +168,7 @@ nnoremap <c-l>
 	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p> :FZF<CR>
 nnoremap <leader>! :Cmd<space>
-nnoremap <leader>" :call TmuxSwapBuffer()<CR>
+nnoremap <leader>" :call TmuxSwap()<CR>
 nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
@@ -413,10 +413,20 @@ function! ExecVisualText() abort
 	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
 endfunction
 
-" Tmux swaps the unnamed register with the tmux buffer.
-function! TmuxSwapBuffer() abort
+" TmuxSwap swaps the unnamed register with the tmux buffer.
+function! TmuxSwap() abort
+	if !executable('tmux')
+		echohl ErrorMsg | echo 'tmux not found' | echohl None
+		return
+	endif
 	silent let tmp = system('tmux showb')
+	let err = v:shell_error
 	silent call system('tmux loadb -', @")
+	let err = err || v:shell_error
+	if err
+		echohl ErrorMsg | echo 'tmux swap failed' | echohl None
+		return
+	endif
 	let @" = tmp
 endfunction
 
@@ -483,13 +493,42 @@ function! FindVisibleTerminals() abort
 	return terminals
 endfunction
 
+" TmuxSend sends text to a tmux target pane/window.
+function! TmuxSend(target, text) abort
+	if !executable('tmux')
+		echohl ErrorMsg | echo 'tmux not found' | echohl None
+		return v:false
+	endif
+	if empty(a:target)
+		echohl ErrorMsg | echo 'empty tmux target' | echohl None
+		return v:false
+	endif
+	silent call system('tmux load-buffer - \; paste-buffer -d -t ' . shellescape(a:target), a:text)
+	if v:shell_error
+		echohl ErrorMsg | echo 'tmux send failed: ' . a:target | echohl None
+		return v:false
+	endif
+	return v:true
+endfunction
+
+" TermSend sends text to a terminal buffer.
+function! TermSend(target, text) abort
+	try
+		call term_sendkeys(a:target, a:text)
+	catch
+		echohl ErrorMsg | echo 'terminal send failed: ' . string(a:target) | echohl None
+		return v:false
+	endtry
+	return v:true
+endfunction
+
 " Send types the current line or range to a terminal buffer as it was typed
 " by the user.
 function! Send(range, start, end, ...) abort
 	if a:0 > 0
-		let buf = a:1
+		let target = a:1
 	elseif exists('w:send_terminal_buf')
-		let buf = w:send_terminal_buf
+		let target = w:send_terminal_buf
 	else
 		let terminals = FindVisibleTerminals()
 		if len(terminals) == 0
@@ -499,14 +538,25 @@ function! Send(range, start, end, ...) abort
 			echohl ErrorMsg | echo 'multiple terminals visible, please specify one' | echohl None
 			return
 		endif
-		let buf = terminals[0]
+		let target = terminals[0]
 	endif
 	let keys = join(getline(a:start, a:end), "\n")
-	call term_sendkeys(buf, keys)
 	if a:range
-		call term_sendkeys(buf, "\n")
+		let keys .= "\n"
 	endif
-	let w:send_terminal_buf = buf
+	if type(target) == v:t_string && target =~# '^\d\+$'
+		let target = str2nr(target)
+	endif
+	if type(target) == v:t_string && stridx(target, 'T:') == 0
+		if !TmuxSend(strpart(target, 2), keys)
+			return
+		endif
+	else
+		if !TermSend(target, keys)
+			return
+		endif
+	endif
+	let w:send_terminal_buf = target
 endfunction
 
 " TrimTrailingBlanks removes trailing consecutive blanks.

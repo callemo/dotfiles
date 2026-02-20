@@ -16,23 +16,37 @@ normalize() {
 		sed 's/\\\{1,\}_/\\\\_/g'
 }
 
-case "${1:-}" in
--g)
+testvimrc() {
+	if ! command -v vim >/dev/null 2>&1; then
+		echo "Skipping Vim tests: vim not found"
+		return 0
+	fi
+	if ! output=$(vim -Nu NONE -n -es -S "$DOTFILES/test.vim" 2>&1); then
+		echo "Vim tests failed" >&2
+		echo "$output" >&2
+		exit 1
+	fi
+}
+
+testsnip() {
 	if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest test_snip.py 2>&1); then
 		echo "Unit tests failed" >&2
 		echo "$output" >&2
 		exit 1
 	fi
+}
+
+case "${1:-}" in
+-g)
+	testsnip
+	testvimrc
 	env - PATH="$DOTFILES/bin:$PATH" HOME="$HOME" DOTFILES="$DOTFILES" sh test.sh 2>&1 |
 		normalize >test.exp
 	echo "Generated test.exp"
 	;;
 *)
-	if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest test_snip.py 2>&1); then
-		echo "Unit tests failed" >&2
-		echo "$output" >&2
-		exit 1
-	fi
+	testsnip
+	testvimrc
 	out=$(mktemp)
 	trap 'rm -f "$out"' EXIT
 	env - PATH="$DOTFILES/bin:$PATH" HOME="$HOME" DOTFILES="$DOTFILES" sh test.sh 2>&1 |
