@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -lt 6 ]; then
+	echo "bad args" >&2
+	exit 64
+fi
+
+if [ "$1" != "load-buffer" ] || [ "$2" != "-" ] || [ "$3" != ";" ] || [ "$4" != "paste-buffer" ] || [ "$5" != "-d" ] || [ "$6" != "-t" ]; then
+	echo "unsupported fake tmux invocation: $*" >&2
+	exit 64
+fi
+
+target=${7:-}
+printf 'target=%s\n' "$target"
+printf 'payload<<\n'
+cat
+printf '\n>>payload\n'
