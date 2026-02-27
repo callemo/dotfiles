@@ -147,7 +147,7 @@ command! -nargs=1 B call BufferList(<f-args>, v:false)
 command! -nargs=1 BV call BufferList(<f-args>, v:true)
 
 if has('terminal')
-	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <q-args>)
+	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <f-args>)
 	nnoremap <silent> <leader>; :<C-u>call Send(1, line('.'), line('.') + v:count1 - 1)<CR>
 	xnoremap <silent> <leader>; :Send<CR>
 endif
@@ -525,7 +525,7 @@ endfunction
 " Send types the current line or range to a terminal buffer as it was typed
 " by the user.
 function! Send(range, start, end, ...) abort
-	if a:0 > 0
+	if a:0 > 0 && !empty(a:1)
 		let target = a:1
 	elseif exists('w:send_terminal_buf')
 		let target = w:send_terminal_buf
