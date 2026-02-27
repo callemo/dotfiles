@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -ne 1 ]; then
+	echo "bad args" >&2
+	exit 64
+fi
+
+if [ -n "${FTS_LOG:-}" ]; then
+	printf 'arg1=%s\n' "$1" > "$FTS_LOG"
+fi
+
+printf 'fake\tresult\n'
