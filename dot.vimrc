@@ -277,7 +277,7 @@ endfunction
 " SetVisualSearch literal search of the selected text in visual mode. Any
 " regex special characters are escaped.
 function! SetVisualSearch() abort
-	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
+	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.^$~[]*'), "\n$", '', '')
 endfunction
 
 " Cmd executes a command with an optional range for input.
@@ -722,9 +722,9 @@ endfunction
 function! OpenURL(url) abort
 	echom 'url:' a:url
 	if has('mac')
-		call Cmd('open ''' . a:url . '''', 0, 0, 0)
+		call Cmd('open ' . shellescape(a:url), 0, 0, 0)
 	else
-		call Cmd('xdg-open ''' . a:url . '''', 0, 0, 0)
+		call Cmd('xdg-open ' . shellescape(a:url), 0, 0, 0)
 	endif
 endfunction
 
@@ -755,7 +755,7 @@ function! Fts(query) abort
 	endif
 	call setloclist(0, [], 'r', {
 		\ 'title' : 'Fts ' . a:query,
-		\ 'lines' : systemlist('fts ' . a:query . ' | cut -f 1,2'),
+		\ 'lines' : systemlist('fts ' . shellescape(a:query) . ' | cut -f 1,2'),
 		\ 'efm': '%f	%m' })
 	lwindow
 endfunction
