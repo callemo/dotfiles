@@ -39,7 +39,7 @@ testsnip() {
 testsnip
 testvimrc
 out=$(mktemp)
-trap 'rm -f "$out"' EXIT
+trap 'rm -f "$out" fts.db' EXIT
 env - PATH="$DOTFILES/bin:$PATH" HOME="$HOME" DOTFILES="$DOTFILES" sh test.sh 2>&1 |
 	normalize >"$out"
 diff -u test.exp "$out"
