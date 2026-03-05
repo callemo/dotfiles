@@ -4,6 +4,7 @@
 # Flags:
 #  -c Create.
 #  -l List.
+# Example: . $(venv)
 
 while getopts :cl f
 do
