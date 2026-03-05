@@ -15,7 +15,7 @@ shift $((OPTIND - 1))
 
 git fetch --all --prune
 
-git pull --rebase --autostash || :
+git pull --rebase --autostash || { echo "git pull --rebase failed" >&2; exit 1; }
 
 if [ -n "$merge" ]
 then
