@@ -1,4 +1,4 @@
-urlencode:$
+--- urlencode$
 %0A$
 %20$
 %21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D$
@@ -6,7 +6,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ$
 abcdefghijklmnopqrstuvwxyz$
 0123456789-_.~$
 %E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6$
-urldecode:$
+--- urldecode$
 !#$%&'()*+,/:;=?@[]$
 !#$%&'()*+,/:;=?@[]$
 !#$%&'()*+,/:;=?@[]$
@@ -22,8 +22,7 @@ $
 line1: word1 word2 word3$
 line2: word1 word2 word3$
 line2: word1 word2 word3$
-$
-noco:$
+--- noco$
 [30mBlack[0m$
 [31mRed[0m$
 [32mGreen[0m$
@@ -40,8 +39,7 @@ noco:$
 [95mBright magenta[0m$
 [96mBright cyan[0m$
 [97mBright white[0m$
-$
-tabfmt:$
+--- tabfmt$
 v_1_1   v_1__2  v_1___3$
 v_2___3 v_2_1   v_2__2$
 v_3__2  v_3___3 v_3_1$
@@ -53,8 +51,7 @@ v_3__2  v_3___3 v_3_1  $$
 | v_3__2  | v_3___3 | v_3_1   |$
 v_1_1 v_1_2 v_1_3$
 v_1_1 | v_1_2 | v_1_3$
-$
-tabmd:$
+--- tabmd$
 | c\\_1        | c\\_\\_2      | c\\_\\_\\_3    |$
 |-------------|-------------|-------------|$
 | v\\_1\\_1     | v\\_1\\_\\_2   | v\\_1\\_\\_\\_3 |$
@@ -65,12 +62,10 @@ tabmd:$
 | v\\_1\\_1        | v\\_1\\_\\_2   | v\\_1\\_\\_\\_3 |$
 | v\\_2\\_\\_\\_3    | v\\_2\\_1     | v\\_2\\_\\_2   |$
 | v\\_3\\_\\_2      | v\\_3\\_\\_\\_3 | v\\_3\\_1     |$
-$
-csvtab:$
+--- csvtab$
 one\ttwo\tthree$
 one\ttwo ,\tthree ","$
-$
---- template:$
+--- template$
 {$
   "lang": "en"$
   1: "one",$
@@ -97,13 +92,12 @@ $
   3: "twenty three"$
 }$
 0$
---- fsg:$
+--- fsg$
 bin/fsg$
 bin/fts$
 testdata/fts$
 0$
-$
---- rgsub:$
+--- rgsub$
 REPLACED bar$
 REPLACED baz$
 new/location/file.txt$
@@ -120,19 +114,16 @@ Temp files: 0 -> 0$
 FOUND text$
 target text$
 target text$
-$
---- snake:$
+--- snake$
 foo_bar$
 foo_bar_baz$
 already_snake$
 xmlparser$
-$
---- camel:$
+--- camel$
 FooBar$
 FooBarBaz$
 SCREAMINGSNAKE$
-$
---- pareto:$
+--- pareto$
 100\t50%\t50%\tapples$
 50\t25%\t75%\toranges$
 30\t15%\t90%\tbananas$
@@ -141,16 +132,14 @@ apples\t100\t50%\t50%$
 oranges\t50\t25%\t75%$
 bananas\t30\t15%\t90%$
 grapes\t20\t10%\t100%$
-$
---- fivenum:$
+--- fivenum$
 1 2 3 4 5$
 1 2 3.5 5 6$
 42 42 42 42 42$
 10 10 15 20 20$
 1 1.5 3.5 5.5 9$
 1.5 2.7 3.3 4.1 5.9$
-$
---- overwrite:$
+--- overwrite$
 ORIGINAL CONTENT$
 line3$
 line2$

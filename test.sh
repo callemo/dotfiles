@@ -8,7 +8,7 @@ $DOTFILES/bin:*) ;;
 *)               PATH="$DOTFILES/bin:$PATH"; export PATH;;
 esac
 
-echo 'urlencode:'
+echo '--- urlencode'
 printf '\n' | ./bin/urlencode; echo
 printf ' ' | ./bin/urlencode; echo
 printf '!#$%%&'\''()*+,/:;=?@[]' | ./bin/urlencode; echo
@@ -17,7 +17,7 @@ printf 'abcdefghijklmnopqrstuvwxyz' | ./bin/urlencode; echo
 printf '0123456789-_.~' | ./bin/urlencode; echo
 printf '€äöå…' | ./bin/urlencode; echo
 
-echo 'urldecode:'
+echo '--- urldecode'
 printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
 	./bin/urldecode; echo
 printf '%%21%%23%%24%%25%%26%%27%%28%%29%%2A%%2B%%2C%%2F%%3A%%3B%%3D%%3F%%40%%5B%%5D' |
@@ -36,8 +36,7 @@ echo 'line1%3A%20word1%20word2%20word3
 line2%3A%20word1%20word2%20word3
 line2%3A%20word1%20word2%20word3' | ./bin/urldecode -l
 
-echo
-echo 'noco:'
+echo '--- noco'
 cat <<'END' | ./bin/noco
 [30mBlack[0m
 [31mRed[0m
@@ -60,29 +59,25 @@ END
 tsv='v_1_1	v_1__2	v_1___3
 v_2___3	v_2_1	v_2__2
 v_3__2	v_3___3	v_3_1'
-echo
-echo 'tabfmt:'
+echo '--- tabfmt'
 echo "$tsv" | tabfmt
 echo "$tsv" | tabfmt -p | sed 's/$/$/'
 echo "$tsv" | tabfmt -p -d' | ' | sed 's/^/| /; s/$/ |/'
 echo 'v_1_1 v_1_2 v_1_3' | tabfmt -d' | '
 echo 'v_1_1 v_1_2 v_1_3' | tabfmt -F'[ \t][ \t]*' -d' | '
 
-echo
-echo 'tabmd:'
+echo '--- tabmd'
 printf 'c_1	c__2	c___3\n%s\n' "$tsv" | tabmd
 echo 'c0 | c_1,c__2,c___3
 v_1_1,v_1__2,v_1___3
 v_2___3,v_2_1,v_2__2
 v_3__2,v_3___3,v_3_1' | tabmd -F,
 
-echo
-echo 'csvtab:'
+echo '--- csvtab'
 echo 'one,two,three
 one,"two ,","three "","""' | csvtab
 
-echo
-echo '--- template:'
+echo '--- template'
 tmpl=/tmp/test1.$$
 trap 'rm -r $tmpl' 0
 cat <<-'END' >$tmpl
@@ -104,12 +99,11 @@ en	twenty one	twenty two	twenty three
 END
 echo $?
 
-echo '--- fsg:'
+echo '--- fsg'
 fsg '/(fsg|fts)$' | sort
 echo $?
 
-echo
-echo '--- rgsub:'
+echo '--- rgsub'
 testdir=/tmp/rgsub_test.$$
 mkdir -p "$testdir"
 trap 'rm -rf "$testdir"' EXIT
@@ -163,26 +157,22 @@ echo "target text" > "$testdir/file.txt"
 (cd "$testdir" && rgsub 'target' 'FOUND' sub1)
 cat "$testdir"/*/file.txt "$testdir/file.txt"
 
-echo
-echo '--- snake:'
+echo '--- snake'
 echo 'fooBar' | snake
 echo 'FooBarBaz' | snake
 echo 'alreadySnake' | snake
 echo 'XMLParser' | snake
 
-echo
-echo '--- camel:'
+echo '--- camel'
 echo 'foo_bar' | camel
 echo 'foo_bar_baz' | camel
 echo 'SCREAMING_SNAKE' | camel
 
-echo
-echo '--- pareto:'
+echo '--- pareto'
 printf '100\tapples\n50\toranges\n30\tbananas\n20\tgrapes\n' | pareto
 printf 'apples\t100\noranges\t50\nbananas\t30\ngrapes\t20\n' | pareto -n 2
 
-echo
-echo '--- fivenum:'
+echo '--- fivenum'
 printf '1\n2\n3\n4\n5\n' | fivenum
 printf '1\n2\n3\n4\n5\n6\n' | fivenum
 printf '42\n' | fivenum
@@ -190,8 +180,7 @@ printf '10\n20\n' | fivenum
 printf '3\n1\n4\n1\n5\n9\n2\n6\n' | fivenum
 printf '1.5\n2.7\n3.3\n4.1\n5.9\n' | fivenum
 
-echo
-echo '--- overwrite:'
+echo '--- overwrite'
 owtest="$testdir/overwrite_test.txt"
 echo 'original content' >"$owtest"
 cat "$owtest" | overwrite "$owtest" tr a-z A-Z

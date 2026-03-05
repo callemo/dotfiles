@@ -36,21 +36,10 @@ testsnip() {
 	fi
 }
 
-case "${1:-}" in
--g)
-	testsnip
-	testvimrc
-	env - PATH="$DOTFILES/bin:$PATH" HOME="$HOME" DOTFILES="$DOTFILES" sh test.sh 2>&1 |
-		normalize >test.exp
-	echo "Generated test.exp"
-	;;
-*)
-	testsnip
-	testvimrc
-	out=$(mktemp)
-	trap 'rm -f "$out"' EXIT
-	env - PATH="$DOTFILES/bin:$PATH" HOME="$HOME" DOTFILES="$DOTFILES" sh test.sh 2>&1 |
-		normalize >"$out"
-	diff -u test.exp "$out"
-	;;
-esac
+testsnip
+testvimrc
+out=$(mktemp)
+trap 'rm -f "$out"' EXIT
+env - PATH="$DOTFILES/bin:$PATH" HOME="$HOME" DOTFILES="$DOTFILES" sh test.sh 2>&1 |
+	normalize >"$out"
+diff -u test.exp "$out"
