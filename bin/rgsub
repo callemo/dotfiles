@@ -6,9 +6,6 @@
 # and replaces matches. Uses extended regex (sed -E).
 # Defaults to current directory if no paths specified.
 #
-# Uses '@' as sed delimiter. If pattern or replacement contains '@',
-# escape it as '\@'.
-#
 # Options:
 #   -n    Dry run - show diffs of what would change
 #
@@ -40,44 +37,52 @@ r="$1"
 t="$2"
 shift 2
 
-# Default to current directory if no paths specified
 case $# in
 0)	set -- .
 esac
 
-# Platform-specific sed in-place
+# Pick a sed delimiter that doesn't appear in pattern or replacement
+pickdelim() {
+	for d in @ / '!' '%' ',' ':' ';' '|' '#'
+	do
+		case "$r$t" in
+		*"$d"*)	;;
+		*)	echo "$d"; return;;
+		esac
+	done
+	echo "rgsub: no safe delimiter" >&2
+	exit 2
+}
+d=$(pickdelim)
+
 case "$(uname)" in
-Darwin)		sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i '' "$@"; } ;;
-*)		sedinplace() { sed -E -e 's@'"$r"'@'"$t"'@g' -i "$@"; } ;;
+Darwin)	sedinplace() { sed -E -e "s${d}${r}${d}${t}${d}g" -i '' "$@"; } ;;
+*)	sedinplace() { sed -E -e "s${d}${r}${d}${t}${d}g" -i "$@"; } ;;
 esac
 
-# Exit 1 if no matches (like grep)
-grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' >/dev/null || exit 1
+filelist=/tmp/rgsub_files.$$
+tmp=/tmp/rgsub_tmp.$$
+trap 'rm -f $filelist $tmp' 0 1 2 15
 
-# Dry-run mode: show diffs and exit
+grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' >$filelist
+[ -s $filelist ] || exit 1
+
 if [ -n "$nflag" ]
 then
-	tmp=/tmp/rgsub.$$
-	trap 'rm -f $tmp' 0 1 2 15
-
-	grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' |
 	while IFS= read -r file
 	do
-		sed -E -e 's@'"$r"'@'"$t"'@g' "$file" >$tmp
+		sed -E -e "s${d}${r}${d}${t}${d}g" "$file" >$tmp
 		if ! cmp -s "$file" $tmp
 		then
 			echo "file: $file"
 			diff -u "$file" $tmp
 			echo
 		fi
-	done
+	done <$filelist
 	exit
 fi
 
-# Normal mode: replace in-place
-grep -E -R -I -l "$r" "$@" |
-	grep -E -v '(^|/)\.git' |
-	while IFS= read -r file
-	do
-		sedinplace "$file"
-	done
+while IFS= read -r file
+do
+	sedinplace "$file"
+done <$filelist

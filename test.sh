@@ -157,6 +157,12 @@ echo "target text" > "$testdir/file.txt"
 (cd "$testdir" && rgsub 'target' 'FOUND' sub1)
 cat "$testdir"/*/file.txt "$testdir/file.txt"
 
+cat >"$testdir/test7.txt" <<-'END'
+email@example.com
+END
+(cd "$testdir" && rgsub '@example' '@test')
+cat "$testdir/test7.txt"
+
 echo '--- snake'
 echo 'fooBar' | snake
 echo 'FooBarBaz' | snake
