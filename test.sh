@@ -163,6 +163,29 @@ END
 (cd "$testdir" && rgsub '@example' '@test')
 cat "$testdir/test7.txt"
 
+echo '--- n'
+notesdir="$testdir/notes"
+cp -R "$DOTFILES/testdata/n/tag" "$notesdir"
+
+NROOT="$notesdir" ./bin/n -h
+NROOT="$notesdir" ./bin/n tag -h
+NROOT="$notesdir" ./bin/n tag
+NROOT="$notesdir" ./bin/n tag business safari
+NROOT="$notesdir" ./bin/n tag BUSINESS safari
+NROOT="$notesdir" ./bin/n tag business business safari
+NROOT="$notesdir" ./bin/n tag writing safari
+
+echo '--- n xref'
+xrefdir="$testdir/xref"
+cp -R "$DOTFILES/testdata/n/xref" "$xrefdir"
+NROOT="$xrefdir" ./bin/n xref
+sed -n '1,4p' "$xrefdir/alpha.md"
+sed -n '1,4p' "$xrefdir/bravo.md"
+sed -n '1,4p' "$xrefdir/charlie.md"
+sed -n '1,4p' "$xrefdir/echo.md"
+sed -n '1,4p' "$xrefdir/golf.md"
+sed -n '1,4p' "$xrefdir/hotel.md"
+
 echo '--- snake'
 echo 'fooBar' | snake
 echo 'FooBarBaz' | snake

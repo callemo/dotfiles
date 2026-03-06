@@ -115,6 +115,63 @@ FOUND text$
 target text$
 target text$
 email@test.com$
+--- n$
+n: a tool for managing notes$
+Usage:$
+n -h$
+n <command> [arguments]$
+Commands:$
+look\tfind a note by its link key$
+meta\tgenerates a note meta template$
+new\tgenerates a new note filename$
+tag [tag ...]\tlist tags or notes matching all tags$
+xref\tupdate cross references$
+n: a tool for managing notes$
+Usage:$
+n -h$
+n <command> [arguments]$
+Commands:$
+look\tfind a note by its link key$
+meta\tgenerates a note meta template$
+new\tgenerates a new note filename$
+tag [tag ...]\tlist tags or notes matching all tags$
+xref\tupdate cross references$
+3\tbusiness$
+3\tsafari$
+2\ttravel$
+1\twriting$
+TESTDIR/notes/alpha.md$
+TESTDIR/notes/bravo.txt$
+TESTDIR/notes/alpha.md$
+TESTDIR/notes/bravo.txt$
+TESTDIR/notes/alpha.md$
+TESTDIR/notes/bravo.txt$
+--- n xref$
+n: xref: file not found: following [[missing]] from [[echo]]$
+---$
+References:$
+---$
+Alpha links to [[bravo]], [[charlie]], and [[charlie]].$
+---$
+References: [[alpha]]$
+---$
+Bravo links to [[charlie]].$
+---$
+References: [[alpha]] [[bravo]] [[delta]]$
+---$
+Charlie does not link onward.$
+---$
+References:$
+---$
+Echo links to [[missing]].$
+---$
+References: [[foxtrot]]$
+---$
+Golf is a nested-path target.$
+---$
+References: [[foxtrot]]$
+---$
+Hotel is another normalized target.$
 --- snake$
 foo_bar$
 foo_bar_baz$
