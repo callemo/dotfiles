@@ -2,20 +2,26 @@
 # n: a tool for managing notes
 #
 # Usage:
+#	n -h
 #	n <command> [arguments]
 #
 # Commands:
 #	look	find a note by its link key
 #	meta	generates a note meta template
 #	new	generates a new note filename
-#	tag	list tags and tagged notes
+#	tag [tag ...]	list tags or notes matching all tags
 #	xref	update cross references
 #
 
 prefix="${0##*/}:"
+case $0 in
+/*) self=$0 ;;
+*/*) self=$PWD/$0 ;;
+*) self=$(command -v "$0" 2>/dev/null || printf '%s' "$0") ;;
+esac
 log() { echo "$prefix" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
-usage() { sed -En '2,/^[^#]/ s/^#[ 	]//p' "$0" >&2; }
+usage() { sed -En '2,/^[^#]/ s/^#[ 	]//p' "$self" >&2; }
 
 main() {
 	if [ $# -lt 1 ]
@@ -23,6 +29,13 @@ main() {
 		usage
 		exit 2
 	fi
+
+	case $1 in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	esac
 
 	cmd=$1; shift
 
@@ -47,24 +60,57 @@ nlook() {
 }
 
 ntag() {
+	case $1 in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	esac
+
 	nfiles | xargs grep -E -H '^[ 	]*Tags:' |
-	awk 'BEGIN { FS = ":"; OFS = "\t"; query = "'"$1"'" }
+	awk 'BEGIN {
+		FS = ":"
+		OFS = "\t"
+		for (i = 1; i < ARGC; i++) {
+			if (ARGV[i] != "" && !(tolower(ARGV[i]) in query)) {
+				query[tolower(ARGV[i])] = 1
+				nquery += 1
+			}
+			delete ARGV[i]
+		}
+	}
 	{
 		sub("^\./", "", $1)
 		gsub("[ 	#]+", " ", $3)
 		split($3, a, " ")
+		for (tag in have)
+			delete have[tag]
 		for (i in a) {
-			if (query == "")
-				tags[tolower(a[i])] += 1
-			else if (tolower(a[i]) == tolower(query))
+			tag = tolower(a[i])
+			if (tag == "")
+				continue
+			if (nquery == 0)
+				tags[tag] += 1
+			else
+				have[tag] = 1
+		}
+		if (nquery != 0) {
+			ok = 1
+			for (tag in query) {
+				if (!(tag in have)) {
+					ok = 0
+					break
+				}
+			}
+			if (ok)
 				print $1
 		}
 	}
 	END {
-		if (query == "")
+		if (nquery == 0)
 			for (i in tags)
 				print tags[i], i |"sort -k2"
-	}'
+	}' "$@"
 }
 
 nxref() {
@@ -75,6 +121,8 @@ nxref() {
 		awk 'BEGIN { FS = OFS = "\t" }
 		{
 			gsub(/[\[\]]+/, "", $1)
+			sub(/^(Z\/R\/|Z\/R\/n\/)/, "", $1)
+			sub(/[^0-9A-Za-z_\/].*$/, "", $1)
 			printf "%s\t",  $1
 			split($2, a, /,/)
 			for (i in a) {
@@ -86,6 +134,16 @@ nxref() {
 		}' |
 		while IFS='	' read -r key refs
 		do
+			set -- $refs
+			if [ $# -gt 0 ]
+			then
+				refs=$(printf '%s\n' "$@" | sort | paste -sd' ' -)
+				refsfield=" $refs"
+			else
+				refs=
+				refsfield=
+			fi
+
 			f="$(grep -Ei "(^|/)${key}[^/]*$" $tmp | sed 1q)"
 			if [ -z "$f" ]
 			then
@@ -93,7 +151,7 @@ nxref() {
 				continue
 			fi
 
-			sed -E -e '/^---/,/^---/s@^References:.*@References:'"$refs"'@' -i.bak "$f"
+			sed -E -e '/^---/,/^---/s@^References:.*@References:'"$refsfield"'@' -i.bak "$f"
 			rm -f "$f".bak
 		done
 }
