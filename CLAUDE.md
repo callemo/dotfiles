@@ -72,6 +72,10 @@ SQLite FTS5-based search for markdown and text files:
 - Near search: `-n` flag wraps query in `NEAR($q, 100)` for paragraph-level matches
 - Output: TSV format (file path, snippet with 10 words context)
 
+#### Notes Tool (`bin/n`)
+- `tag` accepts multiple tags and treats them as an AND query (for example, `n tag business safari`)
+- `xref` rewrites `References:` frontmatter from reverse links and normalizes `[[Z/R/...]]` and `[[Z/R/n/...]]` targets before lookup
+
 ### Shell Script Conventions
 - POSIX compliance preferred (works across bash, zsh, ksh)
 - Error handling: `log()` writes to stderr, `fatal()` exits with error
@@ -86,6 +90,8 @@ The `./test` script follows a two-phase approach:
 3. **Verification**: Compares `test.out` against `test.exp` using `diff -u`
 
 When modifying utilities:
+- Always run `./test`; do not invoke `test.sh` directly
+- Store reusable integration fixtures under `testdata/` and keep `test.sh` focused on orchestration
 - Update `test.exp` if changing expected output format
 - Integration tests are inline in `./test` script (not separate files)
 - Test coverage focuses on common cases and edge conditions (empty input, special chars)

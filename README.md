@@ -46,7 +46,7 @@ source ~/dotfiles/init.sh
 
 **template** does text substitution with placeholders like `{{1}}` and `{{2}}`.
 
-**n** manages notes with wiki-style linking and tagging.
+**n** manages notes with wiki-style linking and tagging. `n tag` accepts multiple tags as an AND query, and `n xref` rebuilds `References:` frontmatter from reverse links.
 
 **md** processes Markdown files with Pikchr diagram support.
 
@@ -122,7 +122,8 @@ These scripts communicate with Acme via the Plan 9 filesystem protocol (9p).
 ## Tests
 
 Run `./test` to exercise the utilities. The test script runs each tool against
-known inputs and compares the output to expected results. It's not fancy, but it catches regressions.
+known inputs and compares the output to expected results. Reusable fixtures live in `testdata/`.
+It's not fancy, but it catches regressions.
 
 ## Design Notes
 
