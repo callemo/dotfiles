@@ -1,0 +1,24 @@
+#!/bin/sh
+# vis - make non-printing characters visible (TUPE, Kernighan & Pike)
+# Usage: vis [-s] [file ...]
+#   -s  strip non-printing characters instead of encoding them
+strip=0
+case "$1" in
+-s) strip=1; shift ;;
+esac
+awk -v strip="$strip" '
+BEGIN {
+	for (i = 1; i < 256; i++)
+		ord[sprintf("%c", i)] = i
+}
+{
+	for (i = 1; i <= length($0); i++) {
+		c = substr($0, i, 1)
+		if (c ~ /[[:print:][:space:]]/)
+			printf "%s", c
+		else if (!strip)
+			printf "\\%03o", ord[c]
+	}
+	printf "\n"
+}
+' "$@"
