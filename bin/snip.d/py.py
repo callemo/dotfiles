@@ -62,8 +62,61 @@ def _expand_pydir(builder, _args):
     builder.write("progdir = os.path.realpath(os.path.dirname(__file__))")
 
 
+def _expand_pytest(builder, _args):
+    """Python unittest file."""
+    builder.write("#!/usr/bin/env python3")
+    builder.write('"""Unit tests."""')
+    builder.write("import unittest")
+    builder.write("")
+    builder.write("")
+    builder.write("class TestMain(unittest.TestCase):")
+    builder.indent()
+    builder.write("def test_example(self):")
+    builder.indent()
+    builder.write("self.assertEqual(1, 1)")
+    builder.dedent()
+    builder.dedent()
+    builder.write("")
+    builder.write("")
+    builder.write('if __name__ == "__main__":')
+    builder.indent()
+    builder.write("unittest.main()")
+    builder.dedent()
+
+
+def _expand_pycsv(builder, args):
+    """Python CSV filter. [delimiter] - TSV by default."""
+    delim = args[0] if args else r"\t"
+    builder.write("#!/usr/bin/env python3")
+    builder.write('"""CSV/TSV filter."""')
+    builder.write("import csv")
+    builder.write("import os")
+    builder.write("import sys")
+    builder.write("")
+    builder.write("def main():")
+    builder.indent()
+    builder.write(f'reader = csv.reader(sys.stdin, delimiter="{delim}")')
+    builder.write("for row in reader:")
+    builder.indent()
+    builder.write("print(row)")
+    builder.dedent()
+    builder.dedent()
+    builder.write("")
+    builder.write("try:")
+    builder.indent()
+    builder.write("main()")
+    builder.write("sys.stdout.flush()")
+    builder.dedent()
+    builder.write("except (BrokenPipeError, KeyboardInterrupt):")
+    builder.indent()
+    builder.write("os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())")
+    builder.dedent()
+
+
 SNIPPETS = {
     "pyargs": _expand_pyargs,
+    "pycsv": _expand_pycsv,
     "pydir": _expand_pydir,
     "pyfilter": _expand_pyfilter,
+    "pytest": _expand_pytest,
 }
