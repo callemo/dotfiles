@@ -45,7 +45,7 @@ main() {
 	meta) snip nmeta "$@" ;;
 	new) snip nfile "$@" ;;
 	tag) ntag "$@" ;;
-	xref) exec python3 "${self%/*}/xref.py" "$PWD" ;;
+	xref) exec "${self%/*}/xref" "$PWD" ;;
 	*) fatal "unknown command: $cmd" ;;
 	esac
 }
