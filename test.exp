@@ -1,204 +1,274 @@
---- urlencode$
-%0A$
-%20$
-%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D$
-ABCDEFGHIJKLMNOPQRSTUVWXYZ$
-abcdefghijklmnopqrstuvwxyz$
-0123456789-_.~$
-%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6$
---- urldecode$
-!#$%&'()*+,/:;=?@[]$
-!#$%&'()*+,/:;=?@[]$
-!#$%&'()*+,/:;=?@[]$
-ABCDEFGHIJKLMNOPQRSTUVWXYZ$
-abcdefghijklmnopqrstuvwxyz$
-0123456789-_.~$
-\342\202\254\303\244\303\266\303\245\342\200\246$
-$
-line1%3A%20word1%20word2%20word3$
-line2%3A%20word1%20word2%20word3$
-line2%3A%20word1%20word2%20word3$
-$
-line1: word1 word2 word3$
-line2: word1 word2 word3$
-line2: word1 word2 word3$
---- noco$
-[30mBlack[0m$
-[31mRed[0m$
-[32mGreen[0m$
-[33mYellow[0m$
-[34mBlue[0m$
-[35mMagenta[0m$
-[36mCyan[0m$
-[37mWhite[0m$
-[90mBright black[0m$
-[91mBright red[0m$
-[92mBright green[0m$
-[93mBright yellow[0m$
-[94mBright blue[0m$
-[95mBright magenta[0m$
-[96mBright cyan[0m$
-[97mBright white[0m$
---- tabfmt$
+--- urlencode
+%0A
+%20
+%21%23%24%25%26%27%28%29%2A%2B%2C%2F%3A%3B%3D%3F%40%5B%5D
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789-_.~
+%E2%82%AC%C3%A4%C3%B6%C3%A5%E2%80%A6
+--- urldecode
+!#$%&'()*+,/:;=?@[]
+!#$%&'()*+,/:;=?@[]
+!#$%&'()*+,/:;=?@[]
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789-_.~
+€äöå…
+
+line1%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+line2%3A%20word1%20word2%20word3
+
+line1: word1 word2 word3
+line2: word1 word2 word3
+line2: word1 word2 word3
+--- noco
+[30mBlack[0m
+[31mRed[0m
+[32mGreen[0m
+[33mYellow[0m
+[34mBlue[0m
+[35mMagenta[0m
+[36mCyan[0m
+[37mWhite[0m
+[90mBright black[0m
+[91mBright red[0m
+[92mBright green[0m
+[93mBright yellow[0m
+[94mBright blue[0m
+[95mBright magenta[0m
+[96mBright cyan[0m
+[97mBright white[0m
+--- tabfmt
+v_1_1   v_1__2  v_1___3
+v_2___3 v_2_1   v_2__2
+v_3__2  v_3___3 v_3_1
 v_1_1   v_1__2  v_1___3$
-v_2___3 v_2_1   v_2__2$
-v_3__2  v_3___3 v_3_1$
-v_1_1   v_1__2  v_1___3$$
-v_2___3 v_2_1   v_2__2 $$
-v_3__2  v_3___3 v_3_1  $$
-| v_1_1   | v_1__2  | v_1___3 |$
-| v_2___3 | v_2_1   | v_2__2  |$
-| v_3__2  | v_3___3 | v_3_1   |$
-v_1_1 v_1_2 v_1_3$
-v_1_1 | v_1_2 | v_1_3$
---- tabmd$
-| c\\_1        | c\\_\\_2      | c\\_\\_\\_3    |$
-|-------------|-------------|-------------|$
-| v\\_1\\_1     | v\\_1\\_\\_2   | v\\_1\\_\\_\\_3 |$
-| v\\_2\\_\\_\\_3 | v\\_2\\_1     | v\\_2\\_\\_2   |$
-| v\\_3\\_\\_2   | v\\_3\\_\\_\\_3 | v\\_3\\_1     |$
-| c0 &#124; c\\_1 | c\\_\\_2      | c\\_\\_\\_3    |$
-|----------------|-------------|-------------|$
-| v\\_1\\_1        | v\\_1\\_\\_2   | v\\_1\\_\\_\\_3 |$
-| v\\_2\\_\\_\\_3    | v\\_2\\_1     | v\\_2\\_\\_2   |$
-| v\\_3\\_\\_2      | v\\_3\\_\\_\\_3 | v\\_3\\_1     |$
---- csvtab$
-one\ttwo\tthree$
-one\ttwo ,\tthree ","$
---- template$
-{$
-  "lang": "en"$
-  1: "one",$
-  2: "two",$
-  3: "three"$
-}$
-{$
-  "lang": "es"$
-  1: "uno",$
-  2: "dos",$
-  3: "tres"$
-}$
-{$
-  "lang": "it"$
-  1: "uno",$
-  2: "due",$
-  3: "tre"$
-}$
-0$
-{$
-  "lang": "en"$
-  1: "twenty one",$
-  2: "twenty two",$
-  3: "twenty three"$
-}$
-0$
---- fsg$
-bin/fsg$
-bin/fts$
-testdata/fts$
-0$
---- rgsub$
-REPLACED bar$
-REPLACED baz$
-new/location/file.txt$
-another/path/here$
-Dry-run test:$
-0$
-line before$
-line with pattern$
-line after$
-1$
-version X.Y.Z$
-version X.Y.Z$
-Temp files: 0 -> 0$
-FOUND text$
-target text$
-target text$
-email@test.com$
---- n$
-n: a tool for managing notes$
-Usage:$
-n -h$
-n <command> [arguments]$
-Commands:$
-look\tfind a note by its link key$
-meta\tgenerates a note meta template$
-new\tgenerates a new note filename$
-tag [tag ...]\tlist tags or notes matching all tags$
-xref\tupdate cross references$
-n: a tool for managing notes$
-Usage:$
-n -h$
-n <command> [arguments]$
-Commands:$
-look\tfind a note by its link key$
-meta\tgenerates a note meta template$
-new\tgenerates a new note filename$
-tag [tag ...]\tlist tags or notes matching all tags$
-xref\tupdate cross references$
-3\tbusiness$
-3\tsafari$
-2\ttravel$
-1\twriting$
-TESTDIR/notes/alpha.md$
-TESTDIR/notes/bravo.txt$
-TESTDIR/notes/alpha.md$
-TESTDIR/notes/bravo.txt$
-TESTDIR/notes/alpha.md$
-TESTDIR/notes/bravo.txt$
---- n xref$
-n: xref: file not found: following [[missing]] from [[echo]]$
----$
-References:$
----$
-Alpha links to [[bravo]], [[charlie]], and [[charlie]].$
----$
-References: [[alpha]]$
----$
-Bravo links to [[charlie]].$
----$
-References: [[alpha]] [[bravo]] [[delta]]$
----$
-Charlie does not link onward.$
----$
-References:$
----$
-Echo links to [[missing]].$
----$
-References: [[foxtrot]]$
----$
-Golf is a nested-path target.$
----$
-References: [[foxtrot]]$
----$
-Hotel is another normalized target.$
---- snake$
-foo_bar$
-foo_bar_baz$
-already_snake$
-xmlparser$
---- camel$
-FooBar$
-FooBarBaz$
-SCREAMINGSNAKE$
---- pareto$
-100\t50%\t50%\tapples$
-50\t25%\t75%\toranges$
-30\t15%\t90%\tbananas$
-20\t10%\t100%\tgrapes$
-apples\t100\t50%\t50%$
-oranges\t50\t25%\t75%$
-bananas\t30\t15%\t90%$
-grapes\t20\t10%\t100%$
---- fivenum$
-1 2 3 4 5$
-1 2 3.5 5 6$
-42 42 42 42 42$
-10 10 15 20 20$
-1 1.5 3.5 5.5 9$
-1.5 2.7 3.3 4.1 5.9$
---- overwrite$
-ORIGINAL CONTENT$
-line3$
-line2$
-line1$
+v_2___3 v_2_1   v_2__2 $
+v_3__2  v_3___3 v_3_1  $
+| v_1_1   | v_1__2  | v_1___3 |
+| v_2___3 | v_2_1   | v_2__2  |
+| v_3__2  | v_3___3 | v_3_1   |
+v_1_1 v_1_2 v_1_3
+v_1_1 | v_1_2 | v_1_3
+--- tabmd
+| c\_1        | c\_\_2      | c\_\_\_3    |
+|-------------|-------------|-------------|
+| v\_1\_1     | v\_1\_\_2   | v\_1\_\_\_3 |
+| v\_2\_\_\_3 | v\_2\_1     | v\_2\_\_2   |
+| v\_3\_\_2   | v\_3\_\_\_3 | v\_3\_1     |
+| c0 &#124; c\_1 | c\_\_2      | c\_\_\_3    |
+|----------------|-------------|-------------|
+| v\_1\_1        | v\_1\_\_2   | v\_1\_\_\_3 |
+| v\_2\_\_\_3    | v\_2\_1     | v\_2\_\_2   |
+| v\_3\_\_2      | v\_3\_\_\_3 | v\_3\_1     |
+--- csvtab
+one	two	three
+one	two ,	three ","
+--- template
+{
+  "lang": "en"
+  1: "one",
+  2: "two",
+  3: "three"
+}
+{
+  "lang": "es"
+  1: "uno",
+  2: "dos",
+  3: "tres"
+}
+{
+  "lang": "it"
+  1: "uno",
+  2: "due",
+  3: "tre"
+}
+0
+{
+  "lang": "en"
+  1: "twenty one",
+  2: "twenty two",
+  3: "twenty three"
+}
+0
+--- fsg
+bin/fsg
+bin/fts
+testdata/fts
+0
+--- rgsub
+REPLACED bar
+REPLACED baz
+new/location/file.txt
+another/path/here
+Dry-run test:
+0
+line before
+line with pattern
+line after
+1
+version X.Y.Z
+version X.Y.Z
+Temp files: 0 -> 0
+FOUND text
+target text
+target text
+email@test.com
+--- n
+n: a tool for managing notes
+Usage:
+n -h
+n <command> [arguments]
+Commands:
+look	find a note by its link key
+meta	generates a note meta template
+new	generates a new note filename
+tag [tag ...]	list tags or notes matching all tags
+xref	update cross references
+n: unknown command: garbage
+1
+n: a tool for managing notes
+Usage:
+n -h
+n <command> [arguments]
+Commands:
+look	find a note by its link key
+meta	generates a note meta template
+new	generates a new note filename
+tag [tag ...]	list tags or notes matching all tags
+xref	update cross references
+3	business
+3	safari
+2	travel
+1	writing
+TESTDIR/notes/alpha.md
+TESTDIR/notes/bravo.txt
+TESTDIR/notes/alpha.md
+TESTDIR/notes/bravo.txt
+TESTDIR/notes/alpha.md
+TESTDIR/notes/bravo.txt
+--- n look
+alpha.md
+202603111200-target-note.md
+v1.2-release.md
+--- n xref
+n: xref: file not found: following [[missing]] from [[echo]]
+---
+References: [[202603111158-short-source]] [[202603111201-source-note]]
+---
+Target note for backlink regression coverage.
+---
+References: [[subdir-src]]
+---
+Alpha links to [[bravo]], [[charlie]], and [[charlie]].
+---
+References: [[alpha]]
+---
+Bravo links to [[charlie]].
+---
+References: [[alpha]] [[bravo]] [[delta]]
+---
+Charlie does not link onward.
+---
+References:
+---
+Echo links to [[missing]].
+---
+References: [[foxtrot]]
+---
+Golf is a nested-path target.
+---
+References: [[foxtrot]]
+---
+Hotel is another normalized target.
+---
+References:
+---
+Subdir source links to [[alpha]].
+---
+References: [[202603111299-ambig-src]]
+---
+Apple target.
+---
+References: [[202603111298-apricot-src]]
+---
+Apricot target.
+---
+References: [[dot-source]]
+---
+Note with dot in name.
+---
+References:
+---
+Wrong file that should not match v1.2-release.
+---
+References:
+---
+Short source links to [[202603111200]].
+---
+References:
+---
+Source note links to [[202603111200-target-note]].
+---
+References:
+---
+Apricot source links to [[202603111300-apricot]].
+---
+References:
+---
+Ambiguous source links to [[202603111300]] and [[202603111300-apple]].
+---
+References:
+---
+Delta links to [[charlie]].
+---
+References:
+---
+Source links to [[v1.2-release]].
+---
+References:
+---
+Foxtrot links to [[Z/R/n/golf]], [[Z/R/hotel]], and [[golf]].
+---
+References: [[full-path-src]] [[short-name-src]]
+---
+Target in a subdirectory.
+---
+References:
+---
+Full path source links to [[sub/target]].
+---
+References:
+---
+Short name source links to [[target]].
+--- snake
+foo_bar
+foo_bar_baz
+already_snake
+xmlparser
+--- camel
+FooBar
+FooBarBaz
+SCREAMINGSNAKE
+--- pareto
+100	50%	50%	apples
+50	25%	75%	oranges
+30	15%	90%	bananas
+20	10%	100%	grapes
+apples	100	50%	50%
+oranges	50	25%	75%
+bananas	30	15%	90%
+grapes	20	10%	100%
+--- fivenum
+1 2 3 4 5
+1 2 3.5 5 6
+42 42 42 42 42
+10 10 15 20 20
+1 1.5 3.5 5.5 9
+1.5 2.7 3.3 4.1 5.9
+--- overwrite
+ORIGINAL CONTENT
+line3
+line2
+line1

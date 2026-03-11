@@ -12,8 +12,7 @@ esac
 normalize() {
 	sed -e 's|/tmp/test1\.[0-9]*|TMPFILE|g' \
 	    -e 's|/tmp/rgsub_test\.[0-9]*|TESTDIR|g' |
-		LC_ALL=C sed -n l |
-		sed 's/\\\{1,\}_/\\\\_/g'
+		vis
 }
 
 testvimrc() {

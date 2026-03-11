@@ -13,19 +13,18 @@
 #	xref	update cross references
 #
 
-prefix="${0##*/}:"
 case $0 in
 /*) self=$0 ;;
 */*) self=$PWD/$0 ;;
 *) self=$(command -v "$0" 2>/dev/null || printf '%s' "$0") ;;
 esac
-log() { echo "$prefix" "$@" >&2; }
+log() { echo "${0##*/}:" "$@" >&2; }
 fatal() { log "$@"; exit 1; }
 usage() { sed -En '2,/^[^#]/ s/^#[ 	]//p' "$self" >&2; }
+edots() { printf '%s' "$1" | sed 's/\./\\./g'; }
 
 main() {
-	if [ $# -lt 1 ]
-	then
+	if [ $# -lt 1 ]; then
 		usage
 		exit 2
 	fi
@@ -47,16 +46,17 @@ main() {
 	new) snip nfile "$@" ;;
 	tag) ntag "$@" ;;
 	xref) nxref "$@" ;;
+	*) fatal "unknown command: $cmd" ;;
 	esac
 }
 
 nlook() {
-	if [ $# -lt 1 ]
-	then
+	if [ $# -lt 1 ]; then
 		fatal 'look: too few arguments'
 	fi
 
-	nfiles | grep -Ei "(^|/)$1[^/]*$" | sed 1q
+	p=$(edots "$1")
+	nfiles | grep -Ei "(^|/)${p}[^/]*$" | sed 1q
 }
 
 ntag() {
@@ -80,7 +80,7 @@ ntag() {
 		}
 	}
 	{
-		sub("^\./", "", $1)
+		sub(/^[.]\//, "", $1)
 		gsub("[ 	#]+", " ", $3)
 		split($3, a, " ")
 		for (tag in have)
@@ -114,58 +114,75 @@ ntag() {
 }
 
 nxref() {
-	tmp=/tmp/nxref.files
-	nfiles >$tmp
+	tmp=$(mktemp)
+	nfiles >"$tmp"
 	trap 'rm -f "$tmp"' EXIT
-	nreverselinks |
+	nrevlinks |
 		awk 'BEGIN { FS = OFS = "\t" }
 		{
 			gsub(/[\[\]]+/, "", $1)
 			sub(/^(Z\/R\/|Z\/R\/n\/)/, "", $1)
-			sub(/[^0-9A-Za-z_\/].*$/, "", $1)
 			printf "%s\t",  $1
 			split($2, a, /,/)
 			for (i in a) {
 				sub(/^\.\/(Z\/R\/|Z\/R\/n\/)?/, "", a[i])
-				sub(/[^0-9A-Za-z_\/].*$/, "", a[i])
+				sub(/\.(md|txt)$/, "", a[i])
 				printf " [[%s]]", a[i]
 			}
 			printf "\n"
 		}' |
-		while IFS='	' read -r key refs
-		do
+		while IFS='	' read -r key refs; do
 			set -- $refs
-			if [ $# -gt 0 ]
-			then
-				refs=$(printf '%s\n' "$@" | sort | paste -sd' ' -)
-				refsfield=" $refs"
+			if [ $# -gt 0 ]; then
+				refs=" $(printf '%s\n' "$@" | sort | paste -sd' ' -)"
 			else
 				refs=
-				refsfield=
 			fi
-
-			f="$(grep -Ei "(^|/)${key}[^/]*$" $tmp | sed 1q)"
-			if [ -z "$f" ]
-			then
-				log "xref: file not found: following [[$key]] from $refs"
+			key=$(edots "$key")
+			f="$(grep -Ei "(^|/)${key}[^/]*$" "$tmp" | sed 1q)"
+			if [ -z "$f" ]; then
+				log "xref: file not found: following [[$key]] from$refs"
 				continue
 			fi
-
-			sed -E -e '/^---/,/^---/s@^References:.*@References:'"$refsfield"'@' -i.bak "$f"
+			sed -E -e '/^---/,/^---/s@^References:.*@References:'"$refs"'@' -i.bak "$f"
 			rm -f "$f".bak
 		done
 }
 
-nreverselinks() {
+nrevlinks() {
 	nlinks |
 		awk 'BEGIN { FS = OFS = "\t" }
 		{
 			split($2, a, /,/)
 			for (i in a) {
-				rlinks[a[i]] = rlinks[a[i]] $1 ","
+				key = a[i]
+				gsub(/[\[\]]+/, "", key)
+				sub(/^(Z\/R\/|Z\/R\/n\/)/, "", key)
+				if (!seen[key, $1]++)
+					rlinks[key] = rlinks[key] $1 ","
 			}
 		}
 		END {
+			for (k in rlinks) {
+				delete cand
+				nc = 0
+				for (m in rlinks)
+					if (k != m && length(k) < length(m) && \
+					   (substr(m, 1, length(k)) == k || \
+					    substr(m, length(m) - length(k)) == "/" k)) {
+						cand[nc++] = m
+					}
+				if (nc == 1)
+					merge[k] = cand[0]
+			}
+			for (k in merge) {
+				m = merge[k]
+				n = split(rlinks[k], srcs, /,/)
+				for (j = 1; j <= n; j++)
+					if (srcs[j] != "" && !seen[m, srcs[j]]++)
+						rlinks[m] = rlinks[m] srcs[j] ","
+				delete rlinks[k]
+			}
 			for (src in rlinks) {
 				sub(/,$/, "", rlinks[src])
 				print src, rlinks[src]
@@ -194,7 +211,7 @@ nlinks() {
 }
 
 nfiles() {
-	find -L $PWD -type f | grep -E '\.(txt|md)$' | sort
+	find -L "$PWD" -type f | grep -E '\.(txt|md)$' | sort
 }
 
 main "$@"
