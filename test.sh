@@ -3,9 +3,9 @@
 
 : "${DOTFILES:=$HOME/dotfiles}"
 
-case "$PATH" in
+case $PATH in
 $DOTFILES/bin:*) ;;
-*)               PATH="$DOTFILES/bin:$PATH"; export PATH;;
+*) PATH="$DOTFILES/bin:$PATH"; export PATH ;;
 esac
 
 echo '--- urlencode'
@@ -79,7 +79,6 @@ one,"two ,","three "","""' | csvtab
 
 echo '--- template'
 tmpl=/tmp/test1.$$
-trap 'rm -r $tmpl' 0
 cat <<-'END' >$tmpl
 {
   "lang": "{{1}}"
@@ -104,87 +103,117 @@ fsg '/(fsg|fts)$' | sort
 echo $?
 
 echo '--- rgsub'
-testdir=/tmp/rgsub_test.$$
-mkdir -p "$testdir"
-trap 'rm -rf "$testdir"' EXIT
+td=/tmp/rgsub_test.$$
+mkdir -p "$td"
+trap 'rm -f "$tmpl"; rm -rf "$td"' EXIT
 
-cat >"$testdir/test1.txt" <<-'END'
+cat >"$td/test1.txt" <<-'END'
 foo bar
 foo baz
 END
-(cd "$testdir" && rgsub 'foo' 'REPLACED')
-cat "$testdir/test1.txt"
+(cd "$td" && rgsub 'foo' 'REPLACED')
+cat "$td/test1.txt"
 
-cat >"$testdir/test2.txt" <<-'END'
+cat >"$td/test2.txt" <<-'END'
 path/to/file.txt
 another/path/here
 END
-(cd "$testdir" && rgsub 'path/to' 'new/location')
-cat "$testdir/test2.txt"
+(cd "$td" && rgsub 'path/to' 'new/location')
+cat "$td/test2.txt"
 
-cat >"$testdir/test3.txt" <<-'END'
+cat >"$td/test3.txt" <<-'END'
 line before
 line with pattern
 line after
 END
 echo 'Dry-run test:'
-(cd "$testdir" && rgsub -n 'pattern' 'CHANGED' >/dev/null 2>&1)
+(cd "$td" && rgsub -n 'pattern' 'CHANGED' >/dev/null 2>&1)
 echo $?
-cat "$testdir/test3.txt"
+cat "$td/test3.txt"
 
-(cd "$testdir" && rgsub 'NOTFOUND' 'anything' >/dev/null 2>&1)
+(cd "$td" && rgsub 'NOTFOUND' 'anything' >/dev/null 2>&1)
 echo $?
 
-cat >"$testdir/test5.txt" <<-'END'
+cat >"$td/test5.txt" <<-'END'
 version 1.2.3
 version 4.5.6
 END
-(cd "$testdir" && rgsub 'version [0-9.]+' 'version X.Y.Z')
-cat "$testdir/test5.txt"
+(cd "$td" && rgsub 'version [0-9.]+' 'version X.Y.Z')
+cat "$td/test5.txt"
 
-before=$(ls /tmp/rgsub.* 2>/dev/null | wc -l | tr -d ' ')
-cat >"$testdir/test6.txt" <<-'END'
+n0=$(set -- /tmp/rgsub.*; [ -e "$1" ] && echo "$#" || echo 0)
+cat >"$td/test6.txt" <<-'END'
 test data
 END
-(cd "$testdir" && rgsub -n 'test' 'changed' >/dev/null 2>&1)
-after=$(ls /tmp/rgsub.* 2>/dev/null | wc -l | tr -d ' ')
-echo "Temp files: $before -> $after"
+(cd "$td" && rgsub -n 'test' 'changed' >/dev/null 2>&1)
+n1=$(set -- /tmp/rgsub.*; [ -e "$1" ] && echo "$#" || echo 0)
+echo "Temp files: $n0 -> $n1"
 
-mkdir "$testdir/sub1" "$testdir/sub2"
-echo "target text" > "$testdir/sub1/file.txt"
-echo "target text" > "$testdir/sub2/file.txt"
-echo "target text" > "$testdir/file.txt"
-(cd "$testdir" && rgsub 'target' 'FOUND' sub1)
-cat "$testdir"/*/file.txt "$testdir/file.txt"
+mkdir "$td/sub1" "$td/sub2"
+echo "target text" >"$td/sub1/file.txt"
+echo "target text" >"$td/sub2/file.txt"
+echo "target text" >"$td/file.txt"
+(cd "$td" && rgsub 'target' 'FOUND' sub1)
+cat "$td"/*/file.txt "$td/file.txt"
 
-cat >"$testdir/test7.txt" <<-'END'
+cat >"$td/test7.txt" <<-'END'
 email@example.com
 END
-(cd "$testdir" && rgsub '@example' '@test')
-cat "$testdir/test7.txt"
+(cd "$td" && rgsub '@example' '@test')
+cat "$td/test7.txt"
 
 echo '--- n'
-notesdir="$testdir/notes"
-cp -R "$DOTFILES/testdata/n/tag" "$notesdir"
+nd="$td/notes"
+cp -R "$DOTFILES/testdata/n/tag" "$nd"
 
-NROOT="$notesdir" ./bin/n -h
-NROOT="$notesdir" ./bin/n tag -h
-NROOT="$notesdir" ./bin/n tag
-NROOT="$notesdir" ./bin/n tag business safari
-NROOT="$notesdir" ./bin/n tag BUSINESS safari
-NROOT="$notesdir" ./bin/n tag business business safari
-NROOT="$notesdir" ./bin/n tag writing safari
+NROOT="$nd" ./bin/n -h
+NROOT="$nd" ./bin/n garbage 2>&1; echo $?
+NROOT="$nd" ./bin/n tag -h
+NROOT="$nd" ./bin/n tag
+NROOT="$nd" ./bin/n tag business safari
+NROOT="$nd" ./bin/n tag BUSINESS safari
+NROOT="$nd" ./bin/n tag business business safari
+NROOT="$nd" ./bin/n tag writing safari
+NROOT="$nd" ./bin/n tag nonexistent
+
+echo '--- n look'
+ld="$td/look"
+cp -R "$DOTFILES/testdata/n/xref" "$ld"
+NROOT="$ld" ./bin/n look alpha | sed "s|$ld/||"
+NROOT="$ld" ./bin/n look 202603111200 | sed "s|$ld/||"
+NROOT="$ld" ./bin/n look nonexistent | sed "s|$ld/||"
+NROOT="$ld" ./bin/n look v1.2-release | sed "s|$ld/||"
 
 echo '--- n xref'
-xrefdir="$testdir/xref"
-cp -R "$DOTFILES/testdata/n/xref" "$xrefdir"
-NROOT="$xrefdir" ./bin/n xref
-sed -n '1,4p' "$xrefdir/alpha.md"
-sed -n '1,4p' "$xrefdir/bravo.md"
-sed -n '1,4p' "$xrefdir/charlie.md"
-sed -n '1,4p' "$xrefdir/echo.md"
-sed -n '1,4p' "$xrefdir/golf.md"
-sed -n '1,4p' "$xrefdir/hotel.md"
+xd="$td/xref"
+cp -R "$DOTFILES/testdata/n/xref" "$xd"
+NROOT="$xd" ./bin/n xref
+for f in \
+	202603111200-target-note.md \
+	alpha.md \
+	bravo.md \
+	charlie.md \
+	echo.md \
+	golf.md \
+	hotel.md \
+	Z/R/n/subdir-src.md \
+	202603111300-apple.md \
+	202603111300-apricot.md \
+	v1.2-release.md \
+	v1-2-release.md \
+	202603111158-short-source.txt \
+	202603111201-source-note.md \
+	202603111298-apricot-src.md \
+	202603111299-ambig-src.md \
+	delta.md \
+	dot-source.md \
+	foxtrot.md \
+	sub/target.md \
+	full-path-src.md \
+	short-name-src.md
+do
+	sed -n '1,4p' "$xd/$f"
+done
 
 echo '--- snake'
 echo 'fooBar' | snake
@@ -210,12 +239,12 @@ printf '3\n1\n4\n1\n5\n9\n2\n6\n' | fivenum
 printf '1.5\n2.7\n3.3\n4.1\n5.9\n' | fivenum
 
 echo '--- overwrite'
-owtest="$testdir/overwrite_test.txt"
-echo 'original content' >"$owtest"
-cat "$owtest" | overwrite "$owtest" tr a-z A-Z
-cat "$owtest"
+f="$td/overwrite_test.txt"
+echo 'original content' >"$f"
+cat "$f" | overwrite "$f" tr a-z A-Z
+cat "$f"
 echo 'line1
 line2
-line3' >"$owtest"
-cat "$owtest" | overwrite "$owtest" sort -r
-cat "$owtest"
+line3' >"$f"
+cat "$f" | overwrite "$f" sort -r
+cat "$f"
