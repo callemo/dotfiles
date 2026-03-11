@@ -6,7 +6,11 @@ import tempfile
 import unittest
 
 import importlib.util
-_spec = importlib.util.spec_from_file_location("xref", os.path.join(os.path.dirname(__file__), "bin", "xref.py"))
+import importlib.machinery
+_loader = importlib.machinery.SourceFileLoader(
+    "xref", os.path.join(os.path.dirname(__file__) or ".", "bin", "xref")
+)
+_spec = importlib.util.spec_from_loader("xref", _loader)
 xref = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(xref)
 
@@ -74,8 +78,8 @@ class TestXref(unittest.TestCase):
         shutil.rmtree(self.tmp)
 
     def test_charlie_refs(self):
-        warnings = xref.run(self.root)
-        with open(os.path.join(self.root, "charlie.md")) as f:
+        xref.run(self.root)
+        with open(os.path.join(self.root, "charlie.md"), encoding='utf-8') as f:
             text = f.read()
         self.assertIn("[[alpha]]", text)
         self.assertIn("[[bravo]]", text)
@@ -87,39 +91,39 @@ class TestXref(unittest.TestCase):
 
     def test_target_note(self):
         xref.run(self.root)
-        with open(os.path.join(self.root, "202603111200-target-note.md")) as f:
+        with open(os.path.join(self.root, "202603111200-target-note.md"), encoding='utf-8') as f:
             text = f.read()
         self.assertIn("[[202603111158-short-source]]", text)
         self.assertIn("[[202603111201-source-note]]", text)
 
     def test_subdir_src(self):
         xref.run(self.root)
-        with open(os.path.join(self.root, "alpha.md")) as f:
+        with open(os.path.join(self.root, "alpha.md"), encoding='utf-8') as f:
             text = f.read()
         self.assertIn("[[subdir-src]]", text)
 
     def test_dot_in_filename(self):
         xref.run(self.root)
-        with open(os.path.join(self.root, "v1.2-release.md")) as f:
+        with open(os.path.join(self.root, "v1.2-release.md"), encoding='utf-8') as f:
             text = f.read()
         self.assertIn("[[dot-source]]", text)
 
     def test_sub_target(self):
         xref.run(self.root)
-        with open(os.path.join(self.root, "sub/target.md")) as f:
+        with open(os.path.join(self.root, "sub/target.md"), encoding='utf-8') as f:
             text = f.read()
         self.assertIn("[[full-path-src]]", text)
         self.assertIn("[[short-name-src]]", text)
 
     def test_golf_foxtrot_refs(self):
         xref.run(self.root)
-        with open(os.path.join(self.root, "golf.md")) as f:
+        with open(os.path.join(self.root, "golf.md"), encoding='utf-8') as f:
             text = f.read()
         self.assertIn("[[foxtrot]]", text)
 
     def test_no_spurious_refs(self):
         xref.run(self.root)
-        with open(os.path.join(self.root, "echo.md")) as f:
+        with open(os.path.join(self.root, "echo.md"), encoding='utf-8') as f:
             text = f.read()
         self.assertIn("References:\n", text)  # empty refs
 
@@ -155,7 +159,7 @@ class TestXref(unittest.TestCase):
         }
         for name, want in expect.items():
             path = os.path.join(self.root, name)
-            with open(path) as f:
+            with open(path, encoding='utf-8') as f:
                 # first 4 lines
                 got = "\n".join(f.read().splitlines()[:4])
             self.assertEqual(got, want, f"mismatch in {name}")

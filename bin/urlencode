@@ -32,5 +32,6 @@ try:
             encode(args.files, safe="\n")
         else:
             encode(args.files)
-except KeyboardInterrupt:
-    pass
+    sys.stdout.flush()
+except (BrokenPipeError, KeyboardInterrupt):
+    os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())

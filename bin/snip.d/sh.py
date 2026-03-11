@@ -111,7 +111,7 @@ def _expand_shscript(builder, _args):
     builder.write("usage")
     builder.dedent()
     builder.write(";;")
-    builder.write(r"?\)")
+    builder.write(r"\?)")
     builder.indent()
     builder.write("usage")
     builder.dedent()

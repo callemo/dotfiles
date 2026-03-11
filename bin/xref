@@ -31,7 +31,7 @@ def links(root):
     out = []
     for path in files(root):
         seen, ll = set(), []
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding='utf-8', errors='replace') as f:
             for line in f:
                 if line.strip().startswith('References:'):
                     continue
@@ -46,12 +46,11 @@ def links(root):
 
 
 def revlinks(root):
-    raw = defaultdict(list)
+    raw = defaultdict(set)
     for src, targets in links(root):
         for t in targets:
             key = prefix_re.sub('', t)
-            if src not in raw[key]:
-                raw[key].append(src)
+            raw[key].add(src)
 
     merge = {}
     for k in list(raw):
@@ -62,12 +61,10 @@ def revlinks(root):
             merge[k] = cands[0]
 
     for k, m in merge.items():
-        for src in raw[k]:
-            if src not in raw[m]:
-                raw[m].append(src)
+        raw[m].update(raw[k])
         del raw[k]
 
-    return dict(raw)
+    return {k: sorted(v) for k, v in raw.items()}
 
 
 def find(fs, key):
@@ -108,7 +105,7 @@ def run(root):
             continue
 
         refs = ' '.join(sorted(f'[[{stem(s, root)}]]' for s in sources))
-        with open(target, encoding='utf-8') as f:
+        with open(target, encoding='utf-8', errors='replace') as f:
             text = f.read()
         with open(target, 'w', encoding='utf-8') as f:
             f.write(rewrite(text, refs))

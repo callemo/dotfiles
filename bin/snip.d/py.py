@@ -23,7 +23,7 @@ def _expand_pyargs(builder, args):
     builder.write("args = parser.parse_args()")
 
 
-def _expand_pyfilter(builder, args):
+def _expand_pyfilter(builder, _args):
     """Python command line filter."""
     builder.write("#!/usr/bin/env python3")
     builder.write('"""Command line filter."""')

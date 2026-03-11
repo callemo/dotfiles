@@ -77,7 +77,10 @@ class IndentBuilder:
 
     def write(self, line):
         """Add a line with proper indentation."""
-        self.lines.append(self.tab * self.level + line)
+        if line:
+            self.lines.append(self.tab * self.level + line)
+        else:
+            self.lines.append("")
         return self
 
     def indent(self):
@@ -105,17 +108,15 @@ def _load_modules():
     for path in sorted(glob.glob(os.path.join(snip_dir, "*.py"))):
         name = os.path.basename(path)[:-3]
         spec = importlib.util.spec_from_file_location(f"snip_d.{name}", path)
+        if spec is None:
+            continue
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         if hasattr(mod, "SNIPPETS"):
             SNIPPETS.update(mod.SNIPPETS)
-        # Re-export _expand_* functions into this module's namespace
-        for attr in dir(mod):
-            if attr.startswith("_expand_"):
-                globals()[attr] = getattr(mod, attr)
 
 _load_modules()
 
 
 if __name__ == "__main__":
-    sys.exit(main() or 0)
+    sys.exit(main())

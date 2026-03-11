@@ -1,7 +1,7 @@
 """Go snippet expansions."""
 
 
-def _expand_gobasic(builder, args):
+def _expand_gobasic(builder, _args):
     """Go basic program structure."""
     builder.write("package main")
     builder.write("")
@@ -18,7 +18,7 @@ def _expand_gobasic(builder, args):
     builder.write("}")
 
 
-def _expand_goerr(builder, args):
+def _expand_goerr(builder, _args):
     """Go error handling pattern."""
     builder.write("import (")
     builder.indent()
@@ -141,7 +141,7 @@ def _expand_gostruct(builder, args):
     builder.write("}")
 
 
-def _expand_gocli(builder, args):
+def _expand_gocli(builder, _args):
     """Go command-line flags."""
     builder.write("package main")
     builder.write("")
@@ -238,7 +238,7 @@ def _expand_gocli(builder, args):
     builder.write("}")
 
 
-def _expand_gojson(builder, args):
+def _expand_gojson(builder, _args):
     """Go JSON marshaling and unmarshaling."""
     builder.write("package main")
     builder.write("")
@@ -329,7 +329,7 @@ def _expand_gojson(builder, args):
     builder.write("}")
 
 
-def _expand_gohttp(builder, args):
+def _expand_gohttp(builder, _args):
     """Go HTTP server."""
     builder.write("package main")
     builder.write("")
@@ -434,7 +434,7 @@ def _expand_gohttp(builder, args):
     builder.write("}")
 
 
-def _expand_goch(builder, args):
+def _expand_goch(builder, _args):
     """Go concurrency with goroutines and channels."""
     builder.write("package main")
     builder.write("")
@@ -489,7 +489,7 @@ def _expand_goch(builder, args):
     builder.write("}")
 
 
-def _expand_gowg(builder, args):
+def _expand_gowg(builder, _args):
     """Go WaitGroup for synchronization."""
     builder.write("package main")
     builder.write("")
@@ -529,7 +529,7 @@ def _expand_gowg(builder, args):
     builder.write("}")
 
 
-def _expand_goctx(builder, args):
+def _expand_goctx(builder, _args):
     """Go context usage patterns."""
     builder.write("package main")
     builder.write("")
@@ -617,7 +617,7 @@ def _expand_gomod(builder, args):
     builder.write("// go mod tidy")
 
 
-def _expand_goapi(builder, args):
+def _expand_goapi(builder, _args):
     """Go REST API boilerplate."""
     builder.write("package main")
     builder.write("")
@@ -875,9 +875,16 @@ def _expand_gotest(builder, args):
         format_str = "%v"
 
     # Build error message with appropriate formatting
-    params_fmt = ", ".join([f"tc.{chr(97+i)}" for i in range(len(param_types))])
+    params_fmt = ", ".join(
+        [f"tc.{chr(97+i)}" for i in range(len(param_types))]
+    )
+    verbs = ", ".join(["%v"] * len(param_types))
+    errfmt = (
+        f'{func_name}({verbs}) = {format_str};'
+        f' expected {format_str}'
+    )
     builder.write(
-        f't.Errorf("{func_name}({", ".join(["%v"]*len(param_types))}) = {format_str}; expected {format_str}", {params_fmt}, got, tc.expected)'
+        f't.Errorf("{errfmt}", {params_fmt}, got, tc.expected)'
     )
     builder.dedent()
     builder.write("}")
