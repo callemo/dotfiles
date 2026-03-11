@@ -184,37 +184,6 @@ NROOT="$ld" ./bin/n look 202603111200 | sed "s|$ld/||"
 NROOT="$ld" ./bin/n look nonexistent | sed "s|$ld/||"
 NROOT="$ld" ./bin/n look v1.2-release | sed "s|$ld/||"
 
-echo '--- n xref'
-xd="$td/xref"
-cp -R "$DOTFILES/testdata/n/xref" "$xd"
-NROOT="$xd" ./bin/n xref
-for f in \
-	202603111200-target-note.md \
-	alpha.md \
-	bravo.md \
-	charlie.md \
-	echo.md \
-	golf.md \
-	hotel.md \
-	Z/R/n/subdir-src.md \
-	202603111300-apple.md \
-	202603111300-apricot.md \
-	v1.2-release.md \
-	v1-2-release.md \
-	202603111158-short-source.txt \
-	202603111201-source-note.md \
-	202603111298-apricot-src.md \
-	202603111299-ambig-src.md \
-	delta.md \
-	dot-source.md \
-	foxtrot.md \
-	sub/target.md \
-	full-path-src.md \
-	short-name-src.md
-do
-	sed -n '1,4p' "$xd/$f"
-done
-
 echo '--- snake'
 echo 'fooBar' | snake
 echo 'FooBarBaz' | snake

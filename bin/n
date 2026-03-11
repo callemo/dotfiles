@@ -45,7 +45,7 @@ main() {
 	meta) snip nmeta "$@" ;;
 	new) snip nfile "$@" ;;
 	tag) ntag "$@" ;;
-	xref) nxref "$@" ;;
+	xref) exec python3 "${self%/*}/xref.py" "$PWD" ;;
 	*) fatal "unknown command: $cmd" ;;
 	esac
 }
@@ -111,103 +111,6 @@ ntag() {
 			for (i in tags)
 				print tags[i], i |"sort -k2"
 	}' "$@"
-}
-
-nxref() {
-	tmp=$(mktemp)
-	nfiles >"$tmp"
-	trap 'rm -f "$tmp"' EXIT
-	nrevlinks |
-		awk 'BEGIN { FS = OFS = "\t" }
-		{
-			gsub(/[\[\]]+/, "", $1)
-			sub(/^(Z\/R\/|Z\/R\/n\/)/, "", $1)
-			printf "%s\t",  $1
-			split($2, a, /,/)
-			for (i in a) {
-				sub(/^\.\/(Z\/R\/|Z\/R\/n\/)?/, "", a[i])
-				sub(/\.(md|txt)$/, "", a[i])
-				printf " [[%s]]", a[i]
-			}
-			printf "\n"
-		}' |
-		while IFS='	' read -r key refs; do
-			set -- $refs
-			if [ $# -gt 0 ]; then
-				refs=" $(printf '%s\n' "$@" | sort | paste -sd' ' -)"
-			else
-				refs=
-			fi
-			key=$(edots "$key")
-			f="$(grep -Ei "(^|/)${key}[^/]*$" "$tmp" | sed 1q)"
-			if [ -z "$f" ]; then
-				log "xref: file not found: following [[$key]] from$refs"
-				continue
-			fi
-			sed -E -e '/^---/,/^---/s@^References:.*@References:'"$refs"'@' -i.bak "$f"
-			rm -f "$f".bak
-		done
-}
-
-nrevlinks() {
-	nlinks |
-		awk 'BEGIN { FS = OFS = "\t" }
-		{
-			split($2, a, /,/)
-			for (i in a) {
-				key = a[i]
-				gsub(/[\[\]]+/, "", key)
-				sub(/^(Z\/R\/|Z\/R\/n\/)/, "", key)
-				if (!seen[key, $1]++)
-					rlinks[key] = rlinks[key] $1 ","
-			}
-		}
-		END {
-			for (k in rlinks) {
-				delete cand
-				nc = 0
-				for (m in rlinks)
-					if (k != m && length(k) < length(m) && \
-					   (substr(m, 1, length(k)) == k || \
-					    substr(m, length(m) - length(k)) == "/" k)) {
-						cand[nc++] = m
-					}
-				if (nc == 1)
-					merge[k] = cand[0]
-			}
-			for (k in merge) {
-				m = merge[k]
-				n = split(rlinks[k], srcs, /,/)
-				for (j = 1; j <= n; j++)
-					if (srcs[j] != "" && !seen[m, srcs[j]]++)
-						rlinks[m] = rlinks[m] srcs[j] ","
-				delete rlinks[k]
-			}
-			for (src in rlinks) {
-				sub(/,$/, "", rlinks[src])
-				print src, rlinks[src]
-			}
-		}'
-}
-
-nlinks() {
-	grep -ERI '\[\[[0-9A-Za-z_/.-]+\]\]' . | grep -Ev '^[^:]+:References:' | sort |
-		awk 'BEGIN { FS = ":"; OFS = "\t" }
-		{
-			line = $0
-			while(match(line, /\[\[[0-9A-Za-z_\/.-]+\]\]/)) {
-				l = substr(line, RSTART, RLENGTH)
-				if (!index(links[$1], l))
-					links[$1] = links[$1] l ","
-				line = substr(line, RSTART+RLENGTH)
-			}
-		}
-		END {
-			for (file in links) {
-				sub(/,$/, "", links[file])
-				print file, links[file]
-			}
-		}'
 }
 
 nfiles() {
