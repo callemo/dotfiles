@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Converts time since the epoc to ISO 8601 and prints it."""
+"""Converts time since the epoch to ISO 8601 and prints it."""
 
 import sys
 import datetime
 
 try:
-    print(datetime.datetime.fromtimestamp(int(sys.argv[1])).isoformat())
+    print(datetime.datetime.fromtimestamp(int(sys.argv[1]), tz=datetime.timezone.utc).isoformat())
 except (IndexError, ValueError) as err:
     raise SystemExit("usage: isodate unixtime") from err
