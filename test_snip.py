@@ -1,14 +1,27 @@
 #!/usr/bin/env python3
 """Unit tests for the snippet program."""
 
+import importlib.util
+import io
+import os
+import subprocess
+import sys
 import unittest
 from unittest.mock import patch
-import io
-import sys
-import subprocess
-import os
 
-from bin.snip import IndentBuilder, expand_snippet, main, SNIPPETS
+# Import snip module via importlib (extensionless script)
+_loader = importlib.machinery.SourceFileLoader(
+    "snip", os.path.join(os.path.dirname(__file__) or ".", "bin", "snip")
+)
+_spec = importlib.util.spec_from_loader("snip", _loader)
+snip = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(snip)
+
+IndentBuilder = snip.IndentBuilder
+expand_snippet = snip.expand_snippet
+main = snip.main
+SNIPPETS = snip.SNIPPETS
+
 
 class TestIndentBuilder(unittest.TestCase):
     def setUp(self):
@@ -43,9 +56,17 @@ class TestIndentBuilder(unittest.TestCase):
         builder.write("indented")
         self.assertEqual(builder.text(), "test\n  indented")
 
+    def test_blank_line_no_trailing_whitespace(self):
+        """write('') at indent > 0 should not produce trailing whitespace."""
+        builder = IndentBuilder()
+        builder.indent()
+        builder.write("")
+        self.assertEqual(builder.lines[-1], "")
+
+
 class TestSnippetExpansion(unittest.TestCase):
     def test_expand_snippet(self):
-        def test_snippet(builder, args):
+        def test_snippet(builder, _args):
             builder.write("test")
             return "result"
 
@@ -53,93 +74,118 @@ class TestSnippetExpansion(unittest.TestCase):
         self.assertEqual(result, "result")
 
     def test_expand_snippet_none(self):
-        def test_snippet(builder, args):
+        def test_snippet(builder, _args):
             builder.write("test")
 
         result = expand_snippet(test_snippet)
         self.assertEqual(result, "test")
 
+
 class TestMain(unittest.TestCase):
     def setUp(self):
         self.old_argv = sys.argv
-        self.old_stdout = sys.stdout
-        self.old_stderr = sys.stderr
-        sys.stdout = io.StringIO()
-        sys.stderr = io.StringIO()
 
     def tearDown(self):
         sys.argv = self.old_argv
-        sys.stdout = self.old_stdout
-        sys.stderr = self.old_stderr
 
-    def test_list_snippets(self):
+    @patch('sys.stderr', new_callable=io.StringIO)
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_list_snippets(self, mock_stdout, _mock_stderr):
         sys.argv = ["snip", "-l"]
         main()
-        output = sys.stdout.getvalue()
+        output = mock_stdout.getvalue()
         self.assertIn("Available snippets:", output)
         for name in SNIPPETS:
             self.assertIn(name, output)
 
-    def test_unknown_snippet(self):
+    @patch('sys.stderr', new_callable=io.StringIO)
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_unknown_snippet(self, mock_stdout, mock_stderr):
         sys.argv = ["snip", "unknown"]
         main()
-        self.assertIn("Unknown snippet", sys.stderr.getvalue())
-        self.assertIn("Available snippets:", sys.stdout.getvalue())
+        self.assertIn("Unknown snippet", mock_stderr.getvalue())
+        self.assertIn("Available snippets:", mock_stdout.getvalue())
 
-    def test_help(self):
+    @patch('sys.stderr', new_callable=io.StringIO)
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_help(self, mock_stdout, _mock_stderr):
         sys.argv = ["snip"]
         main()
-        output = sys.stdout.getvalue()
+        output = mock_stdout.getvalue()
         self.assertIn("Available snippets:", output)
 
-    def test_snippet_expansion(self):
+    @patch('sys.stderr', new_callable=io.StringIO)
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_snippet_expansion(self, mock_stdout, _mock_stderr):
         sys.argv = ["snip", "shlog"]
         main()
-        output = sys.stdout.getvalue()
+        output = mock_stdout.getvalue()
         self.assertIn("prog=", output)
         self.assertIn("log()", output)
         self.assertIn("fatal()", output)
 
+
 class TestSnippets(unittest.TestCase):
     def test_shlog(self):
-        from bin.snip import _expand_shlog
         builder = IndentBuilder()
-        _expand_shlog(builder, [])
+        SNIPPETS["shlog"](builder, [])
         result = builder.text()
         self.assertIn("prog=", result)
         self.assertIn("log()", result)
         self.assertIn("fatal()", result)
 
     def test_shopts(self):
-        from bin.snip import _expand_shopts
         builder = IndentBuilder()
-        _expand_shopts(builder, [":abc"])
+        SNIPPETS["shopts"](builder, [":abc"])
         result = builder.text()
         self.assertIn("getopts", result)
         self.assertIn("case", result)
         self.assertIn("shift", result)
 
-    def test_gostruct(self):
-        from bin.snip import _expand_gostruct
+    def test_shscript_unknown_opt_case(self):
+        """shscript must emit \\?) not ?\\) for unknown option case."""
         builder = IndentBuilder()
-        _expand_gostruct(builder, ["User", "Name", "string", "Age", "int"])
+        SNIPPETS["shscript"](builder, [])
+        result = builder.text()
+        self.assertIn(r"\?)", result)
+        self.assertNotIn(r"?\)", result)
+
+    def test_gostruct(self):
+        builder = IndentBuilder()
+        SNIPPETS["gostruct"](builder, ["User", "Name", "string", "Age", "int"])
         result = builder.text()
         self.assertIn("type User struct", result)
         self.assertIn("Name string", result)
         self.assertIn("Age int", result)
         self.assertIn("func NewUser", result)
 
+    def test_nfile_no_title(self):
+        """nfile with no args should not produce a trailing dash."""
+        builder = IndentBuilder()
+        result = SNIPPETS["nfile"](builder, [])
+        self.assertTrue(result.endswith(".txt"))
+        self.assertNotIn("-.txt", result)
+
+    def test_nfile_with_title(self):
+        """nfile with args should include the title."""
+        builder = IndentBuilder()
+        result = SNIPPETS["nfile"](builder, ["hello", "world"])
+        self.assertIn("-hello_world", result)
+        self.assertTrue(result.endswith(".txt"))
+
+
 class TestCLI(unittest.TestCase):
     """Integration tests for the command-line interface."""
 
     def setUp(self):
-        # Get the absolute path to the snip script in dotfiles/bin/snip
-        self.script_path = os.path.join(os.environ['HOME'], 'dotfiles', 'bin', 'snip')
+        self.script_path = os.path.join(
+            os.path.dirname(__file__), 'bin', 'snip'
+        )
 
     def run_snip(self, args):
         """Run the snip command with given arguments and return (stdout, stderr, returncode)."""
         cmd = [self.script_path] + args
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         return result.stdout, result.stderr, result.returncode
 
     def test_list_snippets(self):
@@ -185,7 +231,8 @@ class TestCLI(unittest.TestCase):
 
     def test_gostruct_snippet(self):
         """Test expanding the gostruct snippet with custom fields."""
-        stdout, stderr, returncode = self.run_snip(['gostruct', 'User', 'Name', 'string', 'Age', 'int'])
+        stdout, stderr, returncode = self.run_snip(
+            ['gostruct', 'User', 'Name', 'string', 'Age', 'int'])
         self.assertEqual(returncode, 0)
         self.assertEqual(stderr, '')
         self.assertIn('type User struct', stdout)
@@ -198,17 +245,19 @@ class TestCLI(unittest.TestCase):
         stdout, stderr, returncode = self.run_snip(['-t', '  ', 'shlog'])
         self.assertEqual(returncode, 0)
         self.assertEqual(stderr, '')
-        self.assertIn('log()', stdout)  # Just check if the function exists, not the indentation
+        self.assertIn('log()', stdout)
 
     def test_invalid_tab(self):
         """Test invalid tab character."""
-        stdout, stderr, returncode = self.run_snip(['-t', '', 'shlog'])
-        self.assertEqual(returncode, 0)  # Script accepts empty tab character
+        _stdout, stderr, returncode = self.run_snip(['-t', '', 'shlog'])
+        self.assertEqual(returncode, 0)
         self.assertEqual(stderr, '')
 
     def test_multiple_args(self):
         """Test passing multiple arguments to a snippet."""
-        stdout, stderr, returncode = self.run_snip(['gostruct', 'User', 'Name', 'string', 'Age', 'int', 'Email', 'string'])
+        stdout, stderr, returncode = self.run_snip(
+            ['gostruct', 'User', 'Name', 'string', 'Age', 'int',
+             'Email', 'string'])
         self.assertEqual(returncode, 0)
         self.assertEqual(stderr, '')
         self.assertIn('Name string', stdout)
@@ -220,7 +269,8 @@ class TestCLI(unittest.TestCase):
         stdout, stderr, returncode = self.run_snip(['gostruct'])
         self.assertEqual(returncode, 0)
         self.assertEqual(stderr, '')
-        self.assertIn('type User struct', stdout)  # Should use default values
+        self.assertIn('type User struct', stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

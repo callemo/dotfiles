@@ -8,8 +8,10 @@ def _expand_nfile(_builder, args):
     """Note file name."""
     note_id = datetime.datetime.today().strftime("%Y%m%d%H%M")
     title = "_".join(args)
-    title = re.sub("[^A-Za-z_-]", "", title)
-    return note_id + "-" + title.lower() + ".txt"
+    title = re.sub("[^A-Za-z0-9_-]", "", title)
+    if title:
+        return note_id + "-" + title.lower() + ".txt"
+    return note_id + ".txt"
 
 
 def _expand_nmeta(builder, args):

@@ -1,4 +1,8 @@
-"""AWK snippet expansions."""
+"""AWK snippet expansions.
+
+Reference material (fields, functions, formats, math, regex, system)
+moved to awk-reference.txt in this directory.
+"""
 
 
 def _expand_awkbasic(builder, _args):
@@ -20,67 +24,6 @@ def _expand_awkbasic(builder, _args):
     builder.write("END {")
     builder.indent()
     builder.write("# summary")
-    builder.dedent()
-    builder.write("}")
-
-
-def _expand_awkfields(builder, _args):
-    """AWK field processing examples."""
-    builder.write("# Field variables")
-    builder.write("# $0  - entire line")
-    builder.write("# $1  - first field")
-    builder.write("# NF  - number of fields")
-    builder.write("# NR  - record number")
-    builder.write("# FS  - field separator (default: whitespace)")
-    builder.write("# OFS - output field separator (default: space)")
-    builder.write("")
-    builder.write("# Print specific fields")
-    builder.write("{ print $1, $3 }")
-    builder.write("")
-    builder.write("# Process all fields")
-    builder.write("{ ")
-    builder.indent()
-    builder.write("for (i = 1; i <= NF; i++)")
-    builder.indent()
-    builder.write("sum += $i")
-    builder.dedent()
-    builder.dedent()
-    builder.write("}")
-
-
-def _expand_awkfunc(builder, _args):
-    """AWK built-in functions."""
-    builder.write("# String functions")
-    builder.write("# length(s)   - length of s")
-    builder.write("# index(s, t) - position of t in s, or 0")
-    builder.write("# match(s, r) - position of regex r in s or 0")
-    builder.write("# split(s, a, fs) - split s into array a using fs")
-    builder.write("# sub(r, s)   - substitute s for first match of r")
-    builder.write("# gsub(r, s)  - substitute s for all matches of r")
-    builder.write("# substr(s, p, n) - n-char substring of s from p")
-    builder.write("")
-    builder.write("# Examples")
-    builder.write("{ ")
-    builder.indent()
-    builder.write("# character count")
-    builder.write("n = length($1)")
-    builder.write("")
-    builder.write("# uppercase (non-standard, use loop instead)")
-    builder.write("# Standard way to uppercase:")
-    builder.write('up = ""')
-    builder.write("for (i = 1; i <= length($1); i++) {")
-    builder.indent()
-    builder.write("c = substr($1, i, 1)")
-    builder.write('if (c >= "a" && c <= "z")')
-    builder.indent()
-    builder.write('c = sprintf("%c", ord(c) - 32)')
-    builder.dedent()
-    builder.write("up = up c")
-    builder.dedent()
-    builder.write("}")
-    builder.write("")
-    builder.write("# replace text")
-    builder.write('gsub(/old/, "new")')
     builder.dedent()
     builder.write("}")
 
@@ -169,122 +112,6 @@ def _expand_awkgroup(builder, _args):
     builder.write("}")
 
 
-def _expand_awkformat(builder, _args):
-    """AWK formatting output."""
-    builder.write("# printf formats")
-    builder.write("# %d - decimal integer")
-    builder.write("# %s - string")
-    builder.write("# %f - floating point")
-    builder.write("# %.2f - float with 2 decimals")
-    builder.write("# %10s - right-justify in 10 chars")
-    builder.write("# %-10s - left-justify in 10 chars")
-    builder.write("")
-    builder.write("# table-like output")
-    builder.write("BEGIN {")
-    builder.indent()
-    builder.write('printf("%-10s %6s %8s\\n", "Item", "Count", "Price")')
-    builder.write('printf("%-10s %6s %8s\\n", "----", "-----", "-----")')
-    builder.dedent()
-    builder.write("}")
-    builder.write("")
-    builder.write("{")
-    builder.indent()
-    builder.write('printf("%-10s %6d %8.2f\\n", $1, $2, $3)')
-    builder.dedent()
-    builder.write("}")
-
-
-def _expand_awkmath(builder, _args):
-    """AWK math operations."""
-    builder.write("# arithmetic operators: + - * / % ^")
-    builder.write("# math functions (standard)")
-    builder.write("# sqrt(x)   - square root")
-    builder.write("# int(x)    - integer part of x")
-    builder.write("# rand()    - random number between 0 and 1")
-    builder.write("# srand(x)  - set seed for rand()")
-    builder.write("")
-    builder.write("# basic stats example")
-    builder.write("{")
-    builder.indent()
-    builder.write("sum += $1")
-    builder.write("sumsq += $1 * $1")
-    builder.write("n++")
-    builder.dedent()
-    builder.write("}")
-    builder.write("")
-    builder.write("END {")
-    builder.indent()
-    builder.write("if (n > 0) {")
-    builder.indent()
-    builder.write("mean = sum / n")
-    builder.write("var = sumsq / n - mean * mean")
-    builder.write("stddev = sqrt(var)")
-    builder.write('print "mean =", mean, "std dev =", stddev')
-    builder.dedent()
-    builder.write("}")
-    builder.dedent()
-    builder.write("}")
-
-
-def _expand_awkregex(builder, _args):
-    """AWK regex patterns."""
-    builder.write("# regex operators")
-    builder.write("# /pattern/  - match pattern")
-    builder.write("# ~ /pattern/ - match pattern")
-    builder.write("# !~ /pattern/ - not match pattern")
-    builder.write("")
-    builder.write("# regex examples")
-    builder.write('/^[0-9]+$/ { print $0 " is a number" }')
-    builder.write("")
-    builder.write('$1 ~ /^[A-Z][a-z]+$/ { print $1 " starts with capital" }')
-    builder.write("")
-    builder.write("# extract with regex (basic matching)")
-    builder.write("{")
-    builder.indent()
-    builder.write("if (match($0, /[0-9]+-[0-9]+/)) {")
-    builder.indent()
-    builder.write("matched = substr($0, RSTART, RLENGTH)")
-    builder.write("# Split manually since we can't rely on capture groups")
-    builder.write("n = split(matched, parts, /-/)")
-    builder.write("if (n == 2)")
-    builder.indent()
-    builder.write('print "range from", parts[1], "to", parts[2]')
-    builder.dedent()
-    builder.dedent()
-    builder.write("}")
-    builder.dedent()
-    builder.write("}")
-    builder.write("")
-    builder.write("# scan a string for multiple matches")
-    builder.write("{")
-    builder.indent()
-    builder.write("# find all numbers in a string")
-    builder.write('s = "There are 42 apples and 17 oranges"')
-    builder.write("pos = 1")
-    builder.write("while (pos <= length(s)) {")
-    builder.indent()
-    builder.write("# look for next digit sequence starting from pos")
-    builder.write("if (match(substr(s, pos), /[0-9]+/)) {")
-    builder.indent()
-    builder.write("# found a match, get its actual position in original string")
-    builder.write("matchpos = pos + RSTART - 1")
-    builder.write("number = substr(s, matchpos, RLENGTH)")
-    builder.write('print "Found number:", number, "at position", matchpos')
-    builder.write("# move past this match for next iteration")
-    builder.write("pos = matchpos + RLENGTH")
-    builder.dedent()
-    builder.write("} else {")
-    builder.indent()
-    builder.write("# no more matches")
-    builder.write("break")
-    builder.dedent()
-    builder.write("}")
-    builder.dedent()
-    builder.write("}")
-    builder.dedent()
-    builder.write("}")
-
-
 def _expand_awkfile(builder, _args):
     """AWK file operations."""
     builder.write("# read from multiple input files")
@@ -312,39 +139,10 @@ def _expand_awkfile(builder, _args):
     builder.write("}")
 
 
-def _expand_awksys(builder, _args):
-    """AWK system commands."""
-    builder.write("# run system command")
-    builder.write("BEGIN {")
-    builder.indent()
-    builder.write("# execute command (portable)")
-    builder.write('system("ls -l")')
-    builder.dedent()
-    builder.write("}")
-    builder.write("")
-    builder.write("# read command output (portable)")
-    builder.write("{")
-    builder.indent()
-    builder.write('cmd = "grep " $1 " /etc/passwd"')
-    builder.write("while ((cmd | getline) > 0)")
-    builder.indent()
-    builder.write("print $0")
-    builder.dedent()
-    builder.write("close(cmd)")
-    builder.dedent()
-    builder.write("}")
-
-
 SNIPPETS = {
     "awkarray": _expand_awkarray,
     "awkbasic": _expand_awkbasic,
     "awkcsv": _expand_awkcsv,
-    "awkfields": _expand_awkfields,
     "awkfile": _expand_awkfile,
-    "awkformat": _expand_awkformat,
-    "awkfunc": _expand_awkfunc,
     "awkgroup": _expand_awkgroup,
-    "awkmath": _expand_awkmath,
-    "awkregex": _expand_awkregex,
-    "awksys": _expand_awksys,
 }
