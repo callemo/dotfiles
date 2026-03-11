@@ -1,24 +1,31 @@
-#!/bin/sh
+#!/usr/bin/env python3
 # vis - make non-printing characters visible (TUPE, Kernighan & Pike)
 # Usage: vis [-s] [file ...]
 #   -s  strip non-printing characters instead of encoding them
-strip=0
-case "$1" in
--s) strip=1; shift ;;
-esac
-awk -v strip="$strip" '
-BEGIN {
-	for (i = 1; i < 256; i++)
-		ord[sprintf("%c", i)] = i
-}
-{
-	for (i = 1; i <= length($0); i++) {
-		c = substr($0, i, 1)
-		if (c ~ /[[:print:][:space:]]/)
-			printf "%s", c
-		else if (!strip)
-			printf "\\%03o", ord[c]
-	}
-	printf "\n"
-}
-' "$@"
+"""Make non-printing characters visible as octal escapes, or strip them."""
+import sys
+
+strip = False
+files = sys.argv[1:]
+if files and files[0] == '-s':
+    strip = True
+    files = files[1:]
+
+def encode(ch):
+    if ch.isprintable() or ch in ' \t\r':
+        return ch
+    if not strip:
+        return ''.join(f'\\{b:03o}' for b in ch.encode('utf-8'))
+    return ''
+
+def proc(f):
+    for line in f:
+        sys.stdout.write(''.join(encode(ch) for ch in line.rstrip('\n')) + '\n')
+
+if files:
+    for path in files:
+        with open(path, encoding='utf-8', errors='surrogateescape') as f:
+            proc(f)
+else:
+    sys.stdin.reconfigure(errors='surrogateescape')
+    proc(sys.stdin)
