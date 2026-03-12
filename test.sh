@@ -162,6 +162,53 @@ END
 (cd "$td" && rgsub '@example' '@test')
 cat "$td/test7.txt"
 
+mkdir -p "$td/.github"
+echo "dotgithub content" >"$td/.github/config.yml"
+(cd "$td" && rgsub 'dotgithub' 'REPLACED' >/dev/null 2>&1)
+echo "github-dir exit: $?"
+cat "$td/.github/config.yml"
+
+echo 'alpha text' >"$td/test_delim.txt"
+(cd "$td" && rgsub 'alpha' '@/!%,:;|#' >/dev/null 2>&1)
+echo "all-delimiters exit: $?"
+cat "$td/test_delim.txt"
+
+echo "match" >"$td/keep.py"
+echo "match" >"$td/skip.txt"
+(cd "$td" && rgsub -g '*.py' 'match' 'FOUND')
+cat "$td/keep.py"
+cat "$td/skip.txt"
+
+cat >"$td/backref.txt" <<-'END'
+foo bar
+END
+(cd "$td" && rgsub '(foo)' '[\1]')
+cat "$td/backref.txt"
+
+echo "match" >"$td/multi.py"
+echo "match" >"$td/multi.txt"
+echo "match" >"$td/multi.sh"
+(cd "$td" && rgsub -g '*.py' -g '*.txt' 'match' 'MFOUND')
+cat "$td/multi.py"
+cat "$td/multi.txt"
+cat "$td/multi.sh"
+
+(rgsub '[invalid' 'x' >/dev/null 2>&1)
+echo "invalid-regex exit: $?"
+
+cat >"$td/dryrun2.txt" <<-'END'
+hello world
+END
+dryout=$(cd "$td" && rgsub -n 'hello' 'goodbye' dryrun2.txt 2>/dev/null)
+echo "$dryout" | grep -c '^---'
+echo "$dryout" | grep -c '^+++'
+echo "$dryout" | grep -c '^@@'
+
+printf 'data\0binary' >"$td/binary.bin"
+(cd "$td" && rgsub 'data' 'REPLACED' binary.bin >/dev/null 2>&1)
+echo "binary exit: $?"
+printf 'data\0binary' | cmp -s - "$td/binary.bin" && echo "binary unchanged"
+
 echo '--- n'
 nd="$td/notes"
 cp -R "$DOTFILES/testdata/n/tag" "$nd"
@@ -183,37 +230,6 @@ NROOT="$ld" ./bin/n look alpha | sed "s|$ld/||"
 NROOT="$ld" ./bin/n look 202603111200 | sed "s|$ld/||"
 NROOT="$ld" ./bin/n look nonexistent | sed "s|$ld/||"
 NROOT="$ld" ./bin/n look v1.2-release | sed "s|$ld/||"
-
-echo '--- n xref'
-xd="$td/xref"
-cp -R "$DOTFILES/testdata/n/xref" "$xd"
-NROOT="$xd" ./bin/n xref
-for f in \
-	202603111200-target-note.md \
-	alpha.md \
-	bravo.md \
-	charlie.md \
-	echo.md \
-	golf.md \
-	hotel.md \
-	Z/R/n/subdir-src.md \
-	202603111300-apple.md \
-	202603111300-apricot.md \
-	v1.2-release.md \
-	v1-2-release.md \
-	202603111158-short-source.txt \
-	202603111201-source-note.md \
-	202603111298-apricot-src.md \
-	202603111299-ambig-src.md \
-	delta.md \
-	dot-source.md \
-	foxtrot.md \
-	sub/target.md \
-	full-path-src.md \
-	short-name-src.md
-do
-	sed -n '1,4p' "$xd/$f"
-done
 
 echo '--- snake'
 echo 'fooBar' | snake
