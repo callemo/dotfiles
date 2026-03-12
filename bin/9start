@@ -36,7 +36,7 @@ if [ -n "$name" ]; then
 		${PLAN9:-/usr/local/plan9}/bin/plumber &
 	fi
 else
-	pgrep '^plumber$' || plumber &
+	pgrep -x plumber > /dev/null 2>&1 || plumber &
 fi
 
 set -- -a "$@"
