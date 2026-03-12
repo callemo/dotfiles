@@ -10,7 +10,7 @@ fi
 cmd='if tmux ls
 then
     tmux attach
-elif [ -e $HOME/tmux.dump ]; then
+elif [ -e "$HOME/tmux.dump" ]; then
     tmux-load
 else
     tmux new

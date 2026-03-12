@@ -95,7 +95,7 @@ def _expand_pycsv(builder, args):
     builder.write("")
     builder.write("def main():")
     builder.indent()
-    builder.write(f'reader = csv.reader(sys.stdin, delimiter="{delim}")')
+    builder.write(f'reader = csv.reader(sys.stdin, delimiter={repr(delim)})')
     builder.write("for row in reader:")
     builder.indent()
     builder.write("print(row)")

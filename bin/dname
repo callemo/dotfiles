@@ -4,4 +4,4 @@ set -eu
 for t in SOA NS MX TXT A AAAA
 do
 	dig "$1" $t
-done | grep -E -v '^$' | grep -E -v '^;'
+done | grep -Ev '^$|^;'

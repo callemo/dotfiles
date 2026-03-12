@@ -64,21 +64,21 @@ filelist=/tmp/rgsub_files.$$
 tmp=/tmp/rgsub_tmp.$$
 trap 'rm -f $filelist $tmp' 0 1 2 15
 
-grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' >$filelist
-[ -s $filelist ] || exit 1
+grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' >"$filelist"
+[ -s "$filelist" ] || exit 1
 
 if [ -n "$nflag" ]
 then
 	while IFS= read -r file
 	do
-		sed -E -e "s${d}${r}${d}${t}${d}g" "$file" >$tmp
-		if ! cmp -s "$file" $tmp
+		sed -E -e "s${d}${r}${d}${t}${d}g" "$file" >"$tmp"
+		if ! cmp -s "$file" "$tmp"
 		then
 			echo "file: $file"
-			diff -u "$file" $tmp
+			diff -u "$file" "$tmp"
 			echo
 		fi
-	done <$filelist
+	done <"$filelist"
 	exit
 fi
 
