@@ -1,88 +1,95 @@
-#!/bin/sh
-# usage: rgsub [-n] <regexp> <text> [path ...]
-# Recursive search and replace using regular expressions.
-#
-# Searches all text files in specified paths (excluding .git/)
-# and replaces matches. Uses extended regex (sed -E).
-# Defaults to current directory if no paths specified.
-#
-# Options:
-#   -n    Dry run - show diffs of what would change
-#
-# Examples:
-#   rgsub 'foo' 'bar'              # Replace in current directory
-#   rgsub 'old/path' 'new/path'    # Paths work (no escaping needed)
-#   rgsub -n 'test' 'prod'         # Preview changes before applying
-#   rgsub 'pattern' 'text' dir1 dir2  # Search specific directories
+#!/usr/bin/env python3
+"""Recursive search and replace using regular expressions."""
 
-PATH=/bin:/usr/bin
+import argparse
+import difflib
+import fnmatch
+import os
+import re
+import sys
 
-usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
+PRUNE = {'.git', '.hg', '.svn', 'node_modules', '__pycache__'}
 
-while getopts :nh f
-do
-	case $f in
-	h)  usage; exit 0;;
-	n)  nflag=$f;;
-	\?) usage; exit 2;;
-	esac
-done
-shift $((OPTIND - 1))
+def isbinary(path):
+    try:
+        with open(path, 'rb') as f:
+            return b'\x00' in f.read(8192)
+    except OSError:
+        return True
 
-case $# in
-0|1)	usage; exit 2
-esac
+def textfiles(paths, globs):
+    for root in paths:
+        if os.path.isfile(root):
+            if not isbinary(root):
+                try:
+                    with open(root, encoding='utf-8', errors='surrogateescape') as f:
+                        yield root, f.read()
+                except OSError:
+                    pass
+            continue
+        for dirpath, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in PRUNE]
+            for name in files:
+                if globs and not any(fnmatch.fnmatch(name, g) for g in globs):
+                    continue
+                path = os.path.join(dirpath, name)
+                if isbinary(path):
+                    continue
+                try:
+                    with open(path, encoding='utf-8', errors='surrogateescape') as f:
+                        yield path, f.read()
+                except OSError:
+                    continue
 
-r="$1"
-t="$2"
-shift 2
+def main():
+    ap = argparse.ArgumentParser(
+        prog='rgsub',
+        usage='rgsub [-n] [-g glob] ... <regexp> <text> [path ...]',
+        description='Recursive search and replace using regular expressions.',
+        epilog=(
+            'Uses Python re (PCRE-like): \\d, \\w, lookaheads, named groups, etc.\n'
+            'Replacement supports backreferences: \\1, \\2, \\g<name>.\n\n'
+            'Examples:\n'
+            '  rgsub foo bar              replace in current directory\n'
+            '  rgsub -n old new           preview changes\n'
+            '  rgsub -g \'*.py\' foo bar   only .py files'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument('-n', action='store_true', help='dry run: show diffs without changing files')
+    ap.add_argument('-g', action='append', dest='globs', default=[], metavar='glob',
+                    help='limit to files matching glob (repeatable)')
+    ap.add_argument('regexp', help='search pattern (Python re)')
+    ap.add_argument('replacement', help='replacement text')
+    ap.add_argument('paths', nargs='*', default=['.'], metavar='path')
 
-case $# in
-0)	set -- .
-esac
+    opts = ap.parse_args()
+    pat, rep, paths = opts.regexp, opts.replacement, opts.paths
 
-# Pick a sed delimiter that doesn't appear in pattern or replacement
-pickdelim() {
-	for d in @ / '!' '%' ',' ':' ';' '|' '#'
-	do
-		case "$r$t" in
-		*"$d"*)	;;
-		*)	echo "$d"; return;;
-		esac
-	done
-	echo "rgsub: no safe delimiter" >&2
-	exit 2
-}
-d=$(pickdelim)
+    try:
+        rx = re.compile(pat)
+    except re.error as e:
+        sys.stderr.write(f'rgsub: invalid regexp: {e}\n')
+        sys.exit(2)
 
-case "$(uname)" in
-Darwin)	sedinplace() { sed -E -e "s${d}${r}${d}${t}${d}g" -i '' "$@"; } ;;
-*)	sedinplace() { sed -E -e "s${d}${r}${d}${t}${d}g" -i "$@"; } ;;
-esac
+    matched = False
+    for path, text in textfiles(paths, opts.globs):
+        if not rx.search(text):
+            continue
+        matched = True
+        newtext = rx.sub(rep, text)
+        if opts.n:
+            if newtext != text:
+                lines = text.splitlines(keepends=True)
+                newlines = newtext.splitlines(keepends=True)
+                diff = difflib.unified_diff(lines, newlines, fromfile=path, tofile=path)
+                sys.stdout.writelines(diff)
+        else:
+            if newtext != text:
+                with open(path, 'w', encoding='utf-8', errors='surrogateescape') as f:
+                    f.write(newtext)
 
-filelist=/tmp/rgsub_files.$$
-tmp=/tmp/rgsub_tmp.$$
-trap 'rm -f $filelist $tmp' 0 1 2 15
+    sys.exit(0 if matched else 1)
 
-grep -E -R -I -l "$r" "$@" | grep -E -v '(^|/)\.git' >"$filelist"
-[ -s "$filelist" ] || exit 1
-
-if [ -n "$nflag" ]
-then
-	while IFS= read -r file
-	do
-		sed -E -e "s${d}${r}${d}${t}${d}g" "$file" >"$tmp"
-		if ! cmp -s "$file" "$tmp"
-		then
-			echo "file: $file"
-			diff -u "$file" "$tmp"
-			echo
-		fi
-	done <"$filelist"
-	exit
-fi
-
-while IFS= read -r file
-do
-	sedinplace "$file"
-done <$filelist
+if __name__ == '__main__':
+    main()

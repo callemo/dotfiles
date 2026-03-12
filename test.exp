@@ -115,6 +115,22 @@ FOUND text
 target text
 target text
 email@test.com
+github-dir exit: 0
+REPLACED content
+all-delimiters exit: 0
+@/!%,:;|# text
+FOUND
+match
+[foo] bar
+MFOUND
+MFOUND
+match
+invalid-regex exit: 2
+1
+1
+1
+binary exit: 1
+binary unchanged
 --- n
 n: a tool for managing notes
 Usage:

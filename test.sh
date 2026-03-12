@@ -162,6 +162,53 @@ END
 (cd "$td" && rgsub '@example' '@test')
 cat "$td/test7.txt"
 
+mkdir -p "$td/.github"
+echo "dotgithub content" >"$td/.github/config.yml"
+(cd "$td" && rgsub 'dotgithub' 'REPLACED' >/dev/null 2>&1)
+echo "github-dir exit: $?"
+cat "$td/.github/config.yml"
+
+echo 'alpha text' >"$td/test_delim.txt"
+(cd "$td" && rgsub 'alpha' '@/!%,:;|#' >/dev/null 2>&1)
+echo "all-delimiters exit: $?"
+cat "$td/test_delim.txt"
+
+echo "match" >"$td/keep.py"
+echo "match" >"$td/skip.txt"
+(cd "$td" && rgsub -g '*.py' 'match' 'FOUND')
+cat "$td/keep.py"
+cat "$td/skip.txt"
+
+cat >"$td/backref.txt" <<-'END'
+foo bar
+END
+(cd "$td" && rgsub '(foo)' '[\1]')
+cat "$td/backref.txt"
+
+echo "match" >"$td/multi.py"
+echo "match" >"$td/multi.txt"
+echo "match" >"$td/multi.sh"
+(cd "$td" && rgsub -g '*.py' -g '*.txt' 'match' 'MFOUND')
+cat "$td/multi.py"
+cat "$td/multi.txt"
+cat "$td/multi.sh"
+
+(rgsub '[invalid' 'x' >/dev/null 2>&1)
+echo "invalid-regex exit: $?"
+
+cat >"$td/dryrun2.txt" <<-'END'
+hello world
+END
+dryout=$(cd "$td" && rgsub -n 'hello' 'goodbye' dryrun2.txt 2>/dev/null)
+echo "$dryout" | grep -c '^---'
+echo "$dryout" | grep -c '^+++'
+echo "$dryout" | grep -c '^@@'
+
+printf 'data\0binary' >"$td/binary.bin"
+(cd "$td" && rgsub 'data' 'REPLACED' binary.bin >/dev/null 2>&1)
+echo "binary exit: $?"
+printf 'data\0binary' | cmp -s - "$td/binary.bin" && echo "binary unchanged"
+
 echo '--- n'
 nd="$td/notes"
 cp -R "$DOTFILES/testdata/n/tag" "$nd"
