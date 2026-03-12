@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Recursive search and replace using regular expressions."""
+
+import argparse
+import difflib
+import fnmatch
+import os
+import re
+import sys
+
+PRUNE = {'.git', '.hg', '.svn', 'node_modules', '__pycache__'}
+
+def isbinary(path):
+    try:
+        with open(path, 'rb') as f:
+            return b'\x00' in f.read(8192)
+    except OSError:
+        return True
+
+def textfiles(paths, globs):
+    for root in paths:
+        if os.path.isfile(root):
+            if not isbinary(root):
+                try:
+                    with open(root, encoding='utf-8', errors='surrogateescape') as f:
+                        yield root, f.read()
+                except OSError:
+                    pass
+            continue
+        for dirpath, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in PRUNE]
+            for name in files:
+                if globs and not any(fnmatch.fnmatch(name, g) for g in globs):
+                    continue
+                path = os.path.join(dirpath, name)
+                if isbinary(path):
+                    continue
+                try:
+                    with open(path, encoding='utf-8', errors='surrogateescape') as f:
+                        yield path, f.read()
+                except OSError:
+                    continue
+
+def main():
+    ap = argparse.ArgumentParser(
+        prog='rgsub',
+        usage='rgsub [-n] [-g glob] ... <regexp> <text> [path ...]',
+        description='Recursive search and replace using regular expressions.',
+        epilog=(
+            'Uses Python re (PCRE-like): \\d, \\w, lookaheads, named groups, etc.\n'
+            'Replacement supports backreferences: \\1, \\2, \\g<name>.\n\n'
+            'Examples:\n'
+            '  rgsub foo bar              replace in current directory\n'
+            '  rgsub -n old new           preview changes\n'
+            '  rgsub -g \'*.py\' foo bar   only .py files'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument('-n', action='store_true', help='dry run: show diffs without changing files')
+    ap.add_argument('-g', action='append', dest='globs', default=[], metavar='glob',
+                    help='limit to files matching glob (repeatable)')
+    ap.add_argument('regexp', help='search pattern (Python re)')
+    ap.add_argument('replacement', help='replacement text')
+    ap.add_argument('paths', nargs='*', default=['.'], metavar='path')
+
+    opts = ap.parse_args()
+    pat, rep, paths = opts.regexp, opts.replacement, opts.paths
+
+    try:
+        rx = re.compile(pat)
+    except re.error as e:
+        sys.stderr.write(f'rgsub: invalid regexp: {e}\n')
+        sys.exit(2)
+
+    matched = False
+    for path, text in textfiles(paths, opts.globs):
+        if not rx.search(text):
+            continue
+        matched = True
+        newtext = rx.sub(rep, text)
+        if opts.n:
+            if newtext != text:
+                lines = text.splitlines(keepends=True)
+                newlines = newtext.splitlines(keepends=True)
+                diff = difflib.unified_diff(lines, newlines, fromfile=path, tofile=path)
+                sys.stdout.writelines(diff)
+        else:
+            if newtext != text:
+                with open(path, 'w', encoding='utf-8', errors='surrogateescape') as f:
+                    f.write(newtext)
+
+    sys.exit(0 if matched else 1)
+
+if __name__ == '__main__':
+    main()
