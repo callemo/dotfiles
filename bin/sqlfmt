@@ -3,5 +3,5 @@
 # Requires https://pypi.org/project/sqlparse/
 # which provides sqlformat
 
-[ $# -lt 1 ] && set - -
+[ $# -eq 0 ] && set -- -
 exec sqlformat -k upper -r "$@"
