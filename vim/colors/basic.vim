@@ -57,6 +57,12 @@ hi DiffDelete ctermfg=1 ctermbg=NONE guifg=Red
 hi DiffChange ctermfg=3 ctermbg=NONE guifg=Yellow
 hi DiffText   ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 
+" 6. Spellchecker
+hi SpellBad   ctermfg=0 guifg=Black
+hi SpellCap   ctermfg=0 guifg=Black
+hi SpellLocal ctermfg=0 guifg=Black
+hi SpellRare  ctermfg=0 guifg=Black
+
 " Link modern groups
 hi link diffAdded DiffAdd
 hi link diffRemoved DiffDelete
