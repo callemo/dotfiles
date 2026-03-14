@@ -15,17 +15,18 @@ set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
 set hlsearch
+set incsearch
 set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
 set noequalalways
 set noexpandtab
 set nofoldenable
-set incsearch
 set nojoinspaces
 set noswapfile
 set nowritebackup
 set nrformats-=octal
+set number
 set path=.,,
 set scrollfocus=1
 set scrolloff=0
@@ -97,7 +98,7 @@ augroup dotfiles
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
 	autocmd InsertLeave,WinEnter * setl cursorline
-	autocmd OptionSet * if &diff | setl nocursorline | endif
+	autocmd OptionSet diff if &diff | setl nocursorline | endif
 
 	if has('patch-8.0.0') && has('terminal')
 		autocmd FileType perl setl et keywordprg=:terminal\ perldoc\ -f
@@ -663,7 +664,7 @@ function! Plumb(wdir, attr, data) abort
 	" URLs
 	let m = matchlist(a:data,
 		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
-		\ . '\([.:][a-zA-Z0-9_@\-]+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+'
+		\ . '\([.:][a-zA-Z0-9_@\-]\+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+'
 		\ . '\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
 	if len(m)
 		call OpenURL(m[0])
