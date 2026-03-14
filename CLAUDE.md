@@ -9,14 +9,14 @@ Personal dotfiles repository containing shell configuration files, utility scrip
 ## Common Development Commands
 
 ### Testing
-```bash
+```sh
 ./test                        # Run full test suite (unit tests + integration tests)
 python3 -m unittest test_snip.py  # Run only snippet system unit tests
 diff -u test.exp test.out     # Verify test output after running ./test
 ```
 
 ### Installation
-```bash
+```sh
 ./install                      # Symlink dotfiles to home directory
 ./vim/get <github_url>        # Install vim plugin from GitHub
 ./vim/get -o <github_url>     # Install optional vim plugin (to ~/.vim/pack/default/opt)
