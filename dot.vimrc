@@ -3,26 +3,30 @@ set nocompatible
 set autoindent
 set autoread
 set backspace=indent,eol,start
+set clipboard=unnamed
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
 set confirm
+set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
+set hlsearch
+set incsearch
 set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
 set noequalalways
 set noexpandtab
 set nofoldenable
-set noincsearch
 set nojoinspaces
 set noswapfile
 set nowritebackup
 set nrformats-=octal
+set number
 set path=.,,
 set scrollfocus=1
 set scrolloff=0
@@ -32,7 +36,7 @@ set showcmd
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
+set statusline=\ %{fnamemodify(getcwd(),':t')}\ ›\ %f\ %=%l:%c\ %y\ %M%R
 set switchbuf=useopen,split
 set tabline=%!TabLine()
 set tabstop=4
@@ -43,10 +47,6 @@ set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 set wildmode=longest,list
-
-if has('mac')
-	set clipboard=unnamed
-endif
 
 if has('syntax') && has('eval')
 	packadd! matchit
@@ -90,9 +90,6 @@ let g:go_term_enabled       = 1
 let g:go_term_mode          = 'split'
 let g:go_term_reuse         = 1
 
-let g:ale_lint_on_insert_leave = 0
-let g:ale_lint_on_text_changed = 0
-
 augroup dotfiles
 	autocmd!
 	autocmd BufReadPost * exe 'silent! normal! g`"'
@@ -101,24 +98,32 @@ augroup dotfiles
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
 	autocmd InsertLeave,WinEnter * setl cursorline
-	autocmd OptionSet * if &diff | setl nocursorline | endif
+	autocmd OptionSet diff if &diff | setl nocursorline | endif
 
-	if v:version > 800 && has('terminal')
+	if has('patch-8.0.0') && has('terminal')
 		autocmd FileType perl setl et keywordprg=:terminal\ perldoc\ -f
 		autocmd FileType python setl keywordprg=:terminal\ pydoc3
-		autocmd TerminalOpen * setl nonumber | noremap <buffer> q i
+		autocmd TerminalWinOpen *
+			\ setl nonumber
+			\ | setl statusline=%{TerminalStatusLine()}
+			\ | noremap <buffer> q i
 	endif
 
 	autocmd FileType c,cpp setl path+=/usr/include
+	autocmd BufNewFile,BufRead *.tidal setfiletype haskell
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	autocmd FileType go nnoremap <buffer> <leader>o :GoDeclsDir<CR>
-	autocmd FileType go nnoremap <buffer> <leader>t :GoTestFile -v<CR>
+	autocmd FileType go nnoremap <buffer> <leader>c :GoCallers<CR>
+	autocmd FileType go nnoremap <buffer> <leader>d :GoDeclsDir<CR>
 	autocmd FileType go nnoremap <buffer> <leader>i :GoInfo<CR>
+	autocmd FileType go nnoremap <buffer> <leader>t :GoTestFile -v<CR>
 	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json setl sw=4 sts=4 et
-	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript " syntax/typescript.vim is too buggy
-	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf        " syntax/yaml.vim is too buggy
+	autocmd FileType lilypond setl et sw=2 ts=2 sts=2 ai fdm=indent fdl=0 fdc=2 cms=%\ %s
+	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript
+		" syntax/typescript.vim is too buggy
+	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf
+		" syntax/yaml.vim is too buggy
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 augroup END
@@ -126,13 +131,25 @@ augroup END
 command! -nargs=+ -complete=file -range
 	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
+command! Date execute "normal! A" . strftime("%Y-%m-%d")
+command! Week execute "normal! A" . strftime("%YW%V")
+
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
 
+command! Tswap call TmuxSwap()
+
+command! -nargs=1 BDelete call BufferDelete(<f-args>, v:false)
+command! -nargs=1 BVDelete call BufferDelete(<f-args>, v:true)
+command! -nargs=1 B call BufferList(<f-args>, v:false)
+command! -nargs=1 BV call BufferList(<f-args>, v:true)
+
 if has('terminal')
-	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <args>)
+	command! -nargs=? -range Send call Send(<range>, <line1>, <line2>, <f-args>)
+	nnoremap <silent> <leader>; :<C-u>call Send(1, line('.'), line('.') + v:count1 - 1)<CR>
+	xnoremap <silent> <leader>; :Send<CR>
 endif
 
 nnoremap <down> <c-e>
@@ -144,20 +161,22 @@ nnoremap <silent> <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <c-w>Q :bwipeout<CR>
 nnoremap <c-w>z :resize<CR>
-nmap     +      <c-w>+
-nmap     -      <c-w>-
+nnoremap + <c-w>+
+nnoremap - <c-w>-
 
-nnoremap <c-l>        :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
-nnoremap <c-p>        :FZF<CR>
-nnoremap <leader>!    :Cmd<space>
-nnoremap <leader>"    :call Tmux()<CR>
-nnoremap <leader>.    :lcd %:p:h<CR>
-nnoremap <leader><CR> :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B    :NERDTreeToggle<CR>
-nnoremap <leader>Bf   :NERDTreeFind<CR>
-nnoremap <leader>Bt   :TagbarToggle<CR>
-nnoremap <leader>f    :Fmt<CR>
-nnoremap <leader>l    :Lint<CR>
+nnoremap <c-l>
+	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-p> :FZF<CR>
+nnoremap <leader>! :Cmd<space>
+nnoremap <leader>" :call TmuxSwap()<CR>
+nnoremap <leader>. :lcd %:p:h<CR>
+nnoremap <leader><CR>
+	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+nnoremap <leader>B :NERDTreeToggle<CR>
+nnoremap <leader>Bf :NERDTreeFind<CR>
+nnoremap <leader>Bt :TagbarToggle<CR>
+nnoremap <leader>f :Fmt<CR>
+nnoremap <leader>l :Lint<CR>
 
 nnoremap m<CR> :make<CR>
 nnoremap m<space> :make<space>
@@ -181,9 +200,10 @@ nnoremap yop :setl invpaste<CR>
 nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
-vnoremap * :call SetVisualSearch()<CR>/<CR>
-vnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
-vnoremap <silent> <leader><CR> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
+	xnoremap * :call SetVisualSearch()<CR>/<CR>
+	xnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
+	xnoremap <silent> <leader><CR>
+	\ :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
@@ -192,10 +212,19 @@ cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
 if !empty($TMUX)
+	" Fix background detection in tmux
+	if &term =~ '^screen'
+		set t_ut=
+	endif
+
 	nnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$') ? ':call system("tmux selectp -t :.+")<CR>' : ':wincmd w<CR>'
+		\ winnr() == winnr('$')
+		\ ? ':call system("tmux selectp -t :.+")<CR>'
+		\ : ':wincmd w<CR>'
 	nnoremap <expr> <silent> <c-k>
-		\ winnr() == 1 ? ':call system("tmux selectp -t :.-")<CR>' : ':wincmd W<CR>'
+		\ winnr() == 1
+		\ ? ':call system("tmux selectp -t :.-")<CR>'
+		\ : ':wincmd W<CR>'
 else
 	nnoremap <silent> <c-j> :wincmd w<CR>
 	nnoremap <silent> <c-k> :wincmd W<CR>
@@ -203,7 +232,8 @@ endif
 
 if has('terminal')
 	tnoremap <c-r><c-r> <c-r>
-	tnoremap <silent> <c-w>+ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
+	tnoremap <silent> <c-w>+
+		\ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
 	tnoremap <silent> <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
 	tnoremap <c-w>z <c-w>:resize<CR>
 	tnoremap <c-w><c-w> <c-w>.
@@ -212,9 +242,13 @@ if has('terminal')
 	tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
 	if !empty($TMUX)
 		tnoremap <expr> <silent> <c-j>
-					\ winnr() == winnr('$') ? '<c-w>:call system("tmux selectp -t :.+")<CR>' : '<c-w>:wincmd w<CR>'
+			\ winnr() == winnr('$')
+			\ ? '<c-w>:call system("tmux selectp -t :.+")<CR>'
+			\ : '<c-w>:wincmd w<CR>'
 		tnoremap <expr> <silent> <c-k>
-					\ winnr() == 1 ?'<c-w>:call system("tmux selectp -t :.-")<CR>' : '<c-w>:wincmd W<CR>'
+			\ winnr() == 1
+			\ ? '<c-w>:call system("tmux selectp -t :.-")<CR>'
+			\ : '<c-w>:wincmd W<CR>'
 	else
 		tnoremap <silent> <c-j> <c-w>:wincmd w<CR>
 		tnoremap <silent> <c-k> <c-w>:wincmd W<CR>
@@ -226,10 +260,10 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nmap <silent> <middlemouse> <leftmouse><leader>!<c-r><c-w><CR>
-nmap <silent> <rightmouse>  <leftmouse><leader><CR>
-vmap <silent> <middlemouse> <leader>!
-vmap <silent> <rightmouse>  <leader><CR>
+nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
+nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+xnoremap <silent> <middlemouse> :<c-u>call ExecVisualText()<CR>
+xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 
 " GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
@@ -243,10 +277,10 @@ endfunction
 " SetVisualSearch literal search of the selected text in visual mode. Any
 " regex special characters are escaped.
 function! SetVisualSearch() abort
-	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.$*~'), "\n$", '', '')
+	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.^$~[]*'), "\n$", '', '')
 endfunction
 
-" Cmd executes a command with an optional rage for input.
+" Cmd executes a command with an optional range for input.
 function! Cmd(cmd, range, line1, line2) abort
 	if g:cmd_async && exists('*job_start')
 		call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
@@ -255,9 +289,9 @@ function! Cmd(cmd, range, line1, line2) abort
 	endif
 endfunction
 
-" MakeTempBuffer creates a scratch buffer returning its name
-function! MakeTempBuffer() abort
-	let bufname = getcwd() . '/+Errors'
+" NewBuffer creates a scratch buffer with the given suffix returning its name
+function! NewBuffer(suffix) abort
+	let bufname = getcwd() . a:suffix
 	if !bufexists(bufname)
 		let bufnr = bufnr(bufname, 1)
 		call setbufvar(bufnr, '&buflisted', 1)
@@ -274,7 +308,7 @@ function! RunCmd(range, line1, line2, cmd) abort
 	silent let output = systemlist(a:cmd, input)
 	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
 	if len(output) > 0 || v:shell_error
-		let bufname = MakeTempBuffer()
+		let bufname = NewBuffer('/+Errors')
 		exe 'sbuffer' bufname
 		call UpdateCurrentWindow(output)
 		if v:shell_error
@@ -286,14 +320,16 @@ endfunction
 
 " RunCmdAsync asynchronously executes a shell command.
 function! RunCmdAsync(range, line1, line2, cmd) abort
-	let bufname = MakeTempBuffer()
+	let bufname = NewBuffer('/+Errors')
 	let opts = {
 		\ 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
 		\ 'callback': 'AsyncCmdOutputHandler',
 		\ 'close_cb': 'AsyncCmdCloseHandler',
-		\ 'exit_cb': 'AsyncCmdExitHandler'
+		\ 'exit_cb': 'AsyncCmdExitHandler',
+		\ 'timeout': 300000,
+		\ 'stoponexit': 'term'
 		\ }
 	if a:range > 0
 		let opts.in_io = 'buffer'
@@ -377,10 +413,20 @@ function! ExecVisualText() abort
 	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
 endfunction
 
-" Tmux swaps the unnamed register with the tmux buffer.
-function! Tmux() abort
+" TmuxSwap swaps the unnamed register with the tmux buffer.
+function! TmuxSwap() abort
+	if !executable('tmux')
+		echohl ErrorMsg | echo 'tmux not found' | echohl None
+		return
+	endif
 	silent let tmp = system('tmux showb')
+	let err = v:shell_error
 	silent call system('tmux loadb -', @")
+	let err = err || v:shell_error
+	if err
+		echohl ErrorMsg | echo 'tmux swap failed' | echohl None
+		return
+	endif
 	let @" = tmp
 endfunction
 
@@ -401,6 +447,11 @@ function! LintFile() abort
 		echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
 		return
 	endif
+	let exe = split(cmd)[0]
+	if !executable(exe)
+		echohl ErrorMsg | echo exe . ' not found' | echohl None
+		return
+	endif
 	update
 	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
@@ -419,35 +470,100 @@ let g:formatters = {
 function! FormatFile(...) abort
 	let fallback = 'prettier --write --log-level warn'
 	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
+	let exe = split(cmd)[0]
+	if !executable(exe)
+		echohl ErrorMsg | echo exe . ' not found' | echohl None
+		return
+	endif
 	update
 	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
 	checktime
 endfunction
 
+" FindVisibleTerminals returns a list of terminal buffer numbers that are visible
+" in the current tab.
+function! FindVisibleTerminals() abort
+	let terminals = []
+	for winnr in range(1, winnr('$'))
+		let bufnr = winbufnr(winnr)
+		if getbufvar(bufnr, '&buftype') ==# 'terminal'
+			call add(terminals, bufnr)
+		endif
+	endfor
+	return terminals
+endfunction
+
+" TmuxSend sends text to a tmux target pane/window.
+function! TmuxSend(target, text) abort
+	if !executable('tmux')
+		echohl ErrorMsg | echo 'tmux not found' | echohl None
+		return v:false
+	endif
+	if empty(a:target)
+		echohl ErrorMsg | echo 'empty tmux target' | echohl None
+		return v:false
+	endif
+	silent call system('tmux load-buffer - \; paste-buffer -d -t ' . shellescape(a:target), a:text)
+	if v:shell_error
+		echohl ErrorMsg | echo 'tmux send failed: ' . a:target | echohl None
+		return v:false
+	endif
+	return v:true
+endfunction
+
+" TermSend sends text to a terminal buffer.
+function! TermSend(target, text) abort
+	try
+		call term_sendkeys(a:target, a:text)
+	catch
+		echohl ErrorMsg | echo 'terminal send failed: ' . string(a:target) | echohl None
+		return v:false
+	endtry
+	return v:true
+endfunction
+
 " Send types the current line or range to a terminal buffer as it was typed
 " by the user.
 function! Send(range, start, end, ...) abort
-	if a:0 > 0
-		let buf = a:1
+	if a:0 > 0 && !empty(a:1)
+		let target = a:1
 	elseif exists('w:send_terminal_buf')
-		let buf = w:send_terminal_buf
+		let target = w:send_terminal_buf
 	else
-		echohl ErrorMsg | echo 'no terminal link' | echohl None
-		return
+		let terminals = FindVisibleTerminals()
+		if len(terminals) == 0
+			echohl ErrorMsg | echo 'no terminal visible' | echohl None
+			return
+		elseif len(terminals) > 1
+			echohl ErrorMsg | echo 'multiple terminals visible, please specify one' | echohl None
+			return
+		endif
+		let target = terminals[0]
 	endif
 	let keys = join(getline(a:start, a:end), "\n")
-	call term_sendkeys(buf, keys)
 	if a:range
-		call term_sendkeys(buf, "\n")
+		let keys .= "\n"
 	endif
-	let w:send_terminal_buf = buf
+	if type(target) == v:t_string && target =~# '^\d\+$'
+		let target = str2nr(target)
+	endif
+	if type(target) == v:t_string && stridx(target, 'T:') == 0
+		if !TmuxSend(strpart(target, 2), keys)
+			return
+		endif
+	else
+		if !TermSend(target, keys)
+			return
+		endif
+	endif
+	let w:send_terminal_buf = target
 endfunction
 
-" TrimTrailingBlanks remove tailing consecutive blanks.
+" TrimTrailingBlanks removes trailing consecutive blanks.
 function! TrimTrailingBlanks() abort
 	let last_pos = getcurpos()
 	let last_search = @/
-	silent! %s/\m\C\s\+$//e
+	noautocmd silent! %s/\m\C\s\+$//e
 	let @/ = last_search
 	call setpos('.', last_pos)
 endfunction
@@ -465,6 +581,21 @@ function! TabLine() abort
 	endfor
 	let s .= '%#TabLineFill#%T'
 	return s
+endfunction
+
+" TerminalStatusLine returns a compact status line for terminal buffers
+function! TerminalStatusLine() abort
+	let job = term_getjob(bufnr('%'))
+	if job == v:null
+		return ''
+	endif
+	let info = job_info(job)
+	let status = info.status
+	let cmd = len(info.cmd) > 0 ? split(info.cmd[0], '/')[-1] : 'unknown'
+	let pid = has_key(info, 'process') ? info.process : 'no-pid'
+	let bufnr = bufnr('%')
+	let cwd = has_key(info, 'cwd') ? fnamemodify(info.cwd, ':t') : fnamemodify(getcwd(), ':t')
+	return printf('%d [%s] %s(%s) %s', bufnr, cwd, cmd, pid, toupper(status))
 endfunction
 
 " TabLabel returns the a label string for the given tab number a:n. If t:label
@@ -516,19 +647,25 @@ function! TabLabel(n) abort
 endfunction
 
 " Rg executes the ripgrep program loading its results on the quickfix window.
-function! Rg(args)
+function! Rg(args) abort
+	if !executable('rg')
+		echohl ErrorMsg | echo 'ripgrep not found' | echohl None
+		return
+	endif
 	let oprg = &grepprg
 	let &grepprg = 'rg --vimgrep'
-	exec 'grep' a:args
+	exec 'lgrep' a:args
 	let &grepprg = oprg
-	botright cwindow
-	silent! cfirst
+	botright lwindow
 endfunction
 
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
 	" URLs
-	let m = matchlist(a:data, '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+\([.:][a-zA-Z0-9_@\-]+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
+	let m = matchlist(a:data,
+		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
+		\ . '\([.:][a-zA-Z0-9_@\-]\+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+'
+		\ . '\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
 	if len(m)
 		call OpenURL(m[0])
 		return
@@ -585,9 +722,9 @@ endfunction
 function! OpenURL(url) abort
 	echom 'url:' a:url
 	if has('mac')
-		call Cmd('open ''' . a:url . '''', 0, 0, 0)
+		call Cmd('open ' . shellescape(a:url), 0, 0, 0)
 	else
-		call Cmd('xdg-open ''' . a:url . '''', 0, 0, 0)
+		call Cmd('xdg-open ' . shellescape(a:url), 0, 0, 0)
 	endif
 endfunction
 
@@ -608,12 +745,90 @@ function! OpenWikilink(name) abort
 	endif
 endfunction
 
+" Fts executes a full-text search using the 'fts' command and populates the
+" location list with the results.
+" @param query: The search query string.
 function! Fts(query) abort
-	call setqflist([], 'r', {
+	if !executable('fts')
+		echohl ErrorMsg | echo 'fts not found' | echohl None
+		return
+	endif
+	call setloclist(0, [], 'r', {
 		\ 'title' : 'Fts ' . a:query,
-		\ 'lines' : systemlist('fts ' . a:query . ' | cut -f 1,2'),
+		\ 'lines' : systemlist('fts ' . shellescape(a:query) . ' | cut -f 1,2'),
 		\ 'efm': '%f	%m' })
-	cwindow
+	lwindow
+endfunction
+
+" BufferList lists all buffers matching or not matching the given pattern.
+" @param pattern: The pattern to match buffer names against.
+" @param inverse: If true, show buffers not matching the pattern instead.
+function! BufferList(pattern, inverse) abort
+	let buffers = getbufinfo({'buflisted': 1})
+	let filtered = []
+
+	for buf in buffers
+		let matches = has_key(buf, 'name') && match(buf.name, a:pattern) != -1
+		if matches != a:inverse
+			call add(filtered, buf)
+		endif
+	endfor
+
+	if empty(filtered)
+		let bufname = NewBuffer('/+Errors')
+		exe 'sbuffer' bufname
+		call setline(1, 'No buffer match: ' . a:pattern)
+		return
+	endif
+
+	" Sort filtered buffers by file path
+	call sort(filtered,
+		\ {a, b -> a.name == b.name ? 0 : a.name > b.name ? 1 : -1})
+
+	let output = []
+	for buf in filtered
+		let prefix = ' '
+		if has_key(buf, 'bufnr') && buf.bufnr == bufnr('%')
+			let prefix = '>'
+		elseif has_key(buf, 'bufnr') && buf.bufnr == bufnr('#')
+			let prefix = '+'
+		endif
+
+		let status = ' '
+		if has_key(buf, 'changed') && buf.changed
+			let status = '*'
+		endif
+
+		if has_key(buf, 'bufnr') && has_key(buf, 'name')
+			call add(output,
+				\ printf("%s%s %-5d %s", prefix, status, buf.bufnr, buf.name))
+		endif
+	endfor
+
+	let bufname = NewBuffer('/+Buffers')
+	exe 'sbuffer' bufname
+	call setline(1, output)
+endfunction
+
+" BufferDelete deletes all buffers whose names match
+" or don't match the given pattern.
+" @param pattern: The pattern to match buffer names against.
+" @param inverse: If true, delete buffers NOT matching the pattern instead.
+function! BufferDelete(pattern, inverse) abort
+	let buffer_list = []
+	for buffer in getbufinfo({'buflisted': 1})
+		let matches = match(buffer.name, a:pattern) != -1
+		if matches != a:inverse
+			call add(buffer_list, buffer.bufnr)
+		endif
+	endfor
+	if empty(buffer_list)
+		let bufname = NewBuffer('/+Errors')
+		exe 'sbuffer' bufname
+		call setline(1, 'No buffer match: ' . a:pattern)
+		return
+	endif
+	execute 'bdelete' join(buffer_list)
 endfunction
 
 if exists('$DOTFILES')
@@ -630,9 +845,12 @@ if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 endif
 
-if filereadable('go.mod')
-	packadd vim-go
-endif
+augroup lazy_plugins
+	autocmd!
+	if filereadable('go.mod')
+		autocmd BufRead,BufNewFile *.go ++once packadd vim-go
+	endif
+augroup END
 
 if filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
