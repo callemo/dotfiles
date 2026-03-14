@@ -1,5 +1,5 @@
 #!/bin/sh
-# tmux-load: loads a tmux session
+# tmux-load: loads a tmux session (index-agnostic version)
 
 awk -F'          ' '
 BEGIN { pw = -1; nw = -1 }
@@ -12,12 +12,20 @@ $1 == "p" {
     d = $4
     prog = $5
     if (w > nw) nw = w
-    if (w == 0 && pw == -1)
-        cmd = cmd sprintf(" send-keys -t 0 '\''cd %s'\'' Enter\\;", d)
-    else if (p == 0)
+    
+    if (pw == -1) {
+        # first pane of first window
+        cmd = cmd sprintf(" send-keys -t %d.%d '\''cd %s'\'' Enter\\;", w, p, d)
+        first_p[w] = p
+    } else if (w != pw) {
+        # first pane of a new window
         cmd = cmd sprintf(" neww -d -t %d -c '\''%s'\''\\;", w, d)
-    else
-        cmd = cmd sprintf(" splitw -d -t %d.0 -c '\''%s'\''\\;", w, d)
+        first_p[w] = p
+    } else {
+        # subsequent pane: split the first pane of this window
+        cmd = cmd sprintf(" splitw -d -t %d.%d -c '\''%s'\''\\;", w, first_p[w], d)
+    }
+
     if (prog == "vim" || prog == "nvim") {
         if (system("test -f " d "/Session.vim") == 0)
             cmd = cmd sprintf(" send-keys -t %d.%d '\''vim -S Session.vim'\'' Enter\\;", w, p)

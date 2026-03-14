@@ -1,42 +1,56 @@
 #!/bin/sh
-progdir="$(cd "${0%/*}" && pwd -P)"
-prefix="${0##*/}:"
-log() { echo "$prefix" "$@" >&2; }
-fatal() { log "$@"; exit 1; }
+# Minimalist install script.
 
-cd "$progdir" || fatal "can't change to dir: $progdir"
+root="$(cd "${0%/*}" && pwd -P)"
+tag="${0##*/}:"
 
-for i in dot.*
-do
-	t="$HOME/${i#dot}"
-	if [ ! -e "$t" ]
-	then
-		log "linking: $t"
-		ln -s "$progdir/$i" "$t"
-	fi
+log() { echo "$tag" "$@" >&2; }
+die() { log "$@"; exit 1; }
+
+cd "$root" || die "cd $root"
+
+for f in dot.*; do
+    [ -e "$f" ] || continue
+    target="$HOME/${f#dot}"
+    
+    if [ "$f" = "dot.config" ]; then
+        # Use find to mirror the config tree
+        find "$f" -type f | while read -r path; do
+            sub="${path#dot.config/}"
+            mkdir -p "$HOME/.config/$(dirname "$sub")"
+            log "link $HOME/.config/$sub"
+            ln -sf "$root/$path" "$HOME/.config/$sub"
+        done
+    else
+        log "link $target"
+        ln -sf "$root/$f" "$target"
+    fi
 done
 
-if [ ! -e "$HOME/.gitignore" ]
-then
-	log 'configuring git global excludesfile'
-	ln -s "$progdir/.gitignore" "$HOME/.gitignore"
-	git config --global core.excludesfile "$HOME/.gitignore"
+if [ ! -e "$HOME/.gitignore" ]; then
+    log 'git exclude'
+    ln -sf "$root/.gitignore" "$HOME/.gitignore"
+    git config --global core.excludesfile "$HOME/.gitignore"
 fi
 
-if [ ! -e "$HOME/lib" ]
-then
-	log 'linking $HOME/lib'
-	ln -s "$progdir/lib" "$HOME/lib"
+if [ ! -e "$HOME/lib" ]; then
+    log 'link lib'
+    ln -sf "$root/lib" "$HOME/lib"
 fi
 
 set -x
 
-./vim/get    https://github.com/preservim/nerdtree
-./vim/get    https://github.com/preservim/tagbar
-./vim/get    https://github.com/tpope/vim-commentary
-./vim/get    https://github.com/tpope/vim-eunuch
-./vim/get    https://github.com/tpope/vim-fugitive
-./vim/get    https://github.com/tpope/vim-obsession
-./vim/get    https://github.com/tpope/vim-repeat
-./vim/get    https://github.com/tpope/vim-surround
-./vim/get -o https://github.com/fatih/vim-go
+# Plugin data list
+while read -r url; do
+    ./vim/get "$url"
+done <<EOF
+https://github.com/preservim/nerdtree
+https://github.com/preservim/tagbar
+https://github.com/tpope/vim-commentary
+https://github.com/tpope/vim-eunuch
+https://github.com/tpope/vim-fugitive
+https://github.com/tpope/vim-obsession
+https://github.com/tpope/vim-repeat
+https://github.com/tpope/vim-surround
+https://github.com/fatih/vim-go
+EOF
