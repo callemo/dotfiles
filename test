@@ -12,8 +12,7 @@ esac
 normalize() {
 	sed -e 's|/tmp/test1\.[0-9]*|TMPFILE|g' \
 	    -e 's|/tmp/rgsub_test\.[0-9]*|TESTDIR|g' |
-		LC_ALL=C sed -n l |
-		sed 's/\\\{1,\}_/\\\\_/g'
+		"$DOTFILES/bin/vis"
 }
 
 testvimrc() {
@@ -40,6 +39,7 @@ testsnip
 testvimrc
 out=$(mktemp)
 trap 'rm -f "$out" fts.db' EXIT
-env - PATH="$DOTFILES/bin:$PATH" HOME="$HOME" DOTFILES="$DOTFILES" sh test.sh 2>&1 |
-	normalize >"$out"
+env - PATH="$DOTFILES/bin:$PATH" \
+	HOME="$HOME" DOTFILES="$DOTFILES" \
+	sh test.sh 2>&1 | normalize >"$out"
 diff -u test.exp "$out"
