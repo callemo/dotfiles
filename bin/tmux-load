@@ -1,5 +1,14 @@
 #!/bin/sh
-# tmux-load: loads a tmux session (index-agnostic version)
+# tmux-load: restores a tmux session from a dump file (default: ~/tmux.dump)
+#
+# Creates a new detached session with the saved name and path, then recreates
+# each window and pane with the saved working directory. Additional panes in a
+# window are split from the window's first pane. If a pane was running vim or
+# nvim, vim is restarted and Session.vim is sourced if present in that
+# directory. Custom window names are restored. Finally the previously active
+# window is selected, all window layouts are reapplied, and the session is
+# attached. Index-agnostic: window indices from the dump are not assumed to be
+# available in the new session.
 
 awk -F'          ' '
 BEGIN { pw = -1; nw = -1 }
