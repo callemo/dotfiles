@@ -1,22 +1,7 @@
 " ---------------------------------------------------------------------
 " File: basic.vim
-" Description: A minimalist theme inspired by Plan 9 Acme editor
-" Author: Based on basic theme with subtle, non-distractive colors
+" Description: A minimalist theme that trusts the terminal palette
 " ---------------------------------------------------------------------
-"
-" Color Philosophy:
-" - Minimal syntax highlighting to reduce visual noise
-" - Subtle contrast that's easy on the eyes
-" - Plan 9 Acme-inspired purple for folded sections
-" - Clean separation between UI and content
-"
-" Main Colors:
-" Light: #ffffff bg, #000000 fg, #5d4e75 purple accents
-" Dark:  #292a30 bg, #ffffff fg, #b8a9d1 purple accents
-"
-" =============================================================================
-" Color Scheme Setup
-" =============================================================================
 
 hi clear
 if exists('syntax_on')
@@ -25,132 +10,53 @@ endif
 
 let g:colors_name = 'basic'
 
-let s:highlight_groups = [
-	\ 'Comment', 'Constant', 'CursorLine', 'CursorLineNr', 'Delimiter',
-	\ 'DiffAdd', 'DiffChange', 'DiffDelete', 'DiffText', 'Error', 'ErrorMsg',
-	\ 'Folded', 'Function', 'Identifier', 'LineNr', 'MatchParen', 'NonText',
-	\ 'PreProc', 'Search', 'Special', 'SpellBad', 'SpellCap', 'SpellLocal',
-	\ 'SpellRare', 'Statement', 'StatusLine', 'StatusLineNC', 'StatusLineTerm',
-	\ 'StatusLineTermNC', 'TabLine', 'TabLineFill', 'TabLineSel', 'Title',
-	\ 'Todo', 'Type', 'VertSplit', 'Visual', 'WarningMsg', 'WildMenu'
-	\ ]
-for s:g in s:highlight_groups
-	exe 'hi! ' . s:g . ' term=NONE cterm=NONE ctermfg=NONE ctermbg=NONE gui=NONE guifg=NONE guibg=NONE'
-endfor
+" 1. Trust the terminal background
+hi Normal ctermbg=NONE guibg=NONE
 
-" =============================================================================
-" UI Element Overrides
-" =============================================================================
+" 2. Status Bar (accent)
+" Active: ctermbg=4 (Blue), ctermfg=0 (Black)
+hi StatusLine   cterm=bold ctermfg=0 ctermbg=4 gui=bold guifg=Black guibg=Blue
+" Inactive: ctermbg=238 (Dark Grey), ctermfg=250 (Light Grey)
+hi StatusLineNC cterm=NONE ctermfg=250 ctermbg=238 gui=NONE guifg=#bcbcbc guibg=#444444
+" TabLines: match the StatusLines
+hi TabLineSel   cterm=bold ctermfg=0 ctermbg=4 gui=bold guifg=Black guibg=Blue
+hi TabLine      cterm=NONE ctermfg=250 ctermbg=238 gui=NONE guifg=#bcbcbc guibg=#444444
+hi TabLineFill  cterm=NONE ctermfg=NONE ctermbg=NONE
+hi VertSplit    cterm=NONE ctermfg=238 ctermbg=238 guifg=#444444 guibg=#444444
 
-hi ErrorMsg guifg=#000000 guibg=#f74a4a ctermfg=16 ctermbg=203
-hi Pmenu ctermbg=DarkGray ctermfg=White
-hi PmenuSel ctermbg=73 ctermfg=Black
-hi SpellBad ctermbg=DarkRed ctermfg=White gui=undercurl
-hi SpellCap ctermbg=DarkBlue ctermfg=White gui=undercurl
-hi SpellLocal ctermbg=DarkCyan ctermfg=White gui=undercurl
-hi SpellRare ctermbg=DarkMagenta ctermfg=White gui=undercurl
-hi StatusLine ctermbg=73 ctermfg=Black guibg=#5f9ea0 guifg=#000000
-hi TabLineSel ctermbg=73 ctermfg=Black
-hi WarningMsg guifg=#000000 guibg=#efb759 ctermfg=16 ctermbg=215
+" 3. Minimal Syntax (ANSI-indexed)
+hi Comment    ctermfg=8  guifg=Grey
+hi Constant   ctermfg=1  guifg=Red
+hi String     ctermfg=1  guifg=Red
+hi Statement  cterm=bold ctermfg=NONE gui=bold
+hi Identifier ctermfg=NONE
+hi Type       ctermfg=NONE
+hi PreProc    ctermfg=NONE
+hi Special    ctermfg=3  guifg=Yellow
 
-" =============================================================================
-" Light Background Colors
-" =============================================================================
-
-if &background ==# 'light'
-	hi Comment guifg=#707f8b ctermfg=241
-	" hi CursorLine guibg=#e8f2ff
-	hi CursorLineNr guifg=#000000 ctermfg=16
-	hi DiffAdd guifg=#176f2c guibg=#d1f4d1 ctermfg=22 ctermbg=194
-	hi DiffChange guifg=#b08800 guibg=#fff5b4 ctermfg=136 ctermbg=229
-	hi DiffDelete guifg=#cb2431 guibg=#ffd7d5 ctermfg=160 ctermbg=224
-	hi DiffText guifg=#735c0f guibg=#ffeaa7 ctermfg=94 ctermbg=223
-	hi ErrorMsg guibg=#f74a4a ctermbg=203
-	hi Folded guifg=#5d4e75 guibg=#f0e6ff ctermfg=60 ctermbg=189
-	hi Function guifg=#077cae ctermfg=31
-	hi Keyword guifg=#9b2393 ctermfg=90
-	hi NonText guifg=#a6a6a6 ctermfg=145
-	hi Normal guifg=#000000 guibg=#ffffff
-	hi Number guifg=#1c00cf ctermfg=20
-	hi PreProc guifg=#78492d ctermfg=94
-	hi Search guifg=#262626 guibg=#e5e5e5 ctermfg=235 ctermbg=254
-	hi StatusLineNC guifg=#a6a6a6 ctermfg=145 gui=reverse cterm=reverse
-	hi String guifg=#d13121 ctermfg=124
-	hi Visual guibg=#b2d7fd ctermbg=153
-	hi helpHyperTextJump guifg=#0e38fa ctermfg=27
-	" Modern vim highlight groups
-	hi ColorColumn guibg=#f0f0f0 ctermbg=255
-	hi CursorColumn guibg=#f5f5f5 ctermbg=255
-	hi SignColumn guibg=#ffffff ctermbg=15
-	hi Conceal guifg=#a0a0a0 ctermfg=145
-	hi SpecialKey guifg=#cccccc ctermfg=252
-	hi Directory guifg=#077cae ctermfg=31
-	hi Question guifg=#078f00 ctermfg=28
-	hi MoreMsg guifg=#078f00 ctermfg=28
-	hi ModeMsg guifg=#000000 ctermfg=16
-
-" =============================================================================
-" Dark Background Colors
-" =============================================================================
-
-else  " background is dark
-	hi Comment guifg=#7f8c97 ctermfg=102
-	" hi CursorLine guibg=#2f3239
-	hi CursorLineNr guifg=#ffffff
-	hi DiffAdd guifg=#85e89d guibg=#244032 ctermfg=115 ctermbg=22
-	hi DiffChange guifg=#ffea7f guibg=#341a00 ctermfg=222 ctermbg=58
-	hi DiffDelete guifg=#f97583 guibg=#462c32 ctermfg=210 ctermbg=52
-	hi DiffText guifg=#ffdf5d guibg=#4d2d00 ctermfg=221 ctermbg=94
-	hi Folded guifg=#b8a9d1 guibg=#3d3447 ctermfg=146 ctermbg=60
-	hi Function guifg=#4fb0ca ctermfg=74
-	hi Keyword guifg=#fe7bb1 ctermfg=211
-	hi NonText guifg=#747478 ctermfg=102
-	hi Normal guifg=#ffffff guibg=#292a30
-	hi Number guifg=#d9c981 ctermfg=186
-	hi PreProc guifg=#ffa157 ctermfg=215
-	hi Search guifg=#ffffff guibg=#545558 ctermfg=231 ctermbg=59
-	hi StatusLineNC guifg=#747478 ctermfg=102 gui=reverse cterm=reverse
-	hi String guifg=#ff8272 ctermfg=203
-	hi Visual guibg=#646f82 ctermbg=60
-	hi helpHyperTextJump guifg=#6699fb ctermfg=69
-	" Modern vim highlight groups
-	hi ColorColumn guibg=#3a3a3a ctermbg=59
-	hi CursorColumn guibg=#35363c ctermbg=59
-	hi SignColumn guibg=#292a30 ctermbg=235
-	hi Conceal guifg=#6a6a6a ctermfg=242
-	hi SpecialKey guifg=#505050 ctermfg=239
-	hi Directory guifg=#4fb0ca ctermfg=74
-	hi Question guifg=#50c878 ctermfg=78
-	hi MoreMsg guifg=#50c878 ctermfg=78
-	hi ModeMsg guifg=#ffffff ctermfg=231
+" 4. UI & Selection
+if &background ==# 'dark'
+	hi CursorLine cterm=NONE ctermbg=235 gui=NONE guibg=#262626
+else
+	hi CursorLine cterm=NONE ctermbg=254 gui=NONE guibg=#e4e4e4
 endif
+hi Visual     ctermfg=0 ctermbg=6 guifg=Black guibg=Cyan
+hi Search     ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
+hi LineNr     ctermfg=8 guifg=Grey
+hi NonText    ctermfg=8 guifg=Grey
+hi Folded     ctermfg=5 ctermbg=NONE guifg=Magenta guibg=NONE
+hi MatchParen ctermbg=8 ctermfg=15
 
-" =============================================================================
-" Highlight Group Links
-" =============================================================================
+" 5. Errors & Diffs
+hi ErrorMsg   ctermfg=7 ctermbg=1 guifg=White guibg=Red
+hi WarningMsg ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
+hi DiffAdd    ctermfg=2 ctermbg=NONE guifg=Green
+hi DiffDelete ctermfg=1 ctermbg=NONE guifg=Red
+hi DiffChange ctermfg=3 ctermbg=NONE guifg=Yellow
+hi DiffText   ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 
+" Link modern groups
 hi link diffAdded DiffAdd
 hi link diffRemoved DiffDelete
-hi link LineNr NonText
-hi link MatchParen Search
-hi link pythonBuiltin Keyword
-hi link pythonStatement Keyword
-hi link rubyDefine Keyword
-hi link rubyStringDelimiter String
-hi link StatusLineTerm StatusLine
-hi link StatusLineTermNC StatusLineNC
-hi link Todo Title
-hi link VertSplit StatusLineNC
-hi link vimOption Keyword
-
-" =============================================================================
-" Terminal Colors
-" =============================================================================
-
-if &background ==# 'light'
-  " Light theme terminal colors - muted and harmonious with GUI theme
-  let g:terminal_ansi_colors = ['#e5e5e5', '#d13121', '#078f00', '#78492d', '#077cae', '#9b2393', '#5f9ea0', '#262626', '#8a99a6', '#d13121', '#078f00', '#78492d', '#077cae', '#9b2393', '#5f9ea0', '#000000']
-else  " &background ==# 'dark'
-  " Dark theme terminal colors - aligned with GUI theme palette
-  let g:terminal_ansi_colors = ['#292a30', '#ff8272', '#50c878', '#ffa157', '#4fb0ca', '#fe7bb1', '#5f9ea0', '#ffffff', '#747478', '#ff8272', '#50c878', '#ffa157', '#4fb0ca', '#fe7bb1', '#5f9ea0', '#ffffff']
-endif
+hi link Pmenu StatusLineNC
+hi link PmenuSel StatusLine

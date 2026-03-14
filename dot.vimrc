@@ -3,15 +3,18 @@ set nocompatible
 set autoindent
 set autoread
 set backspace=indent,eol,start
+set clipboard=unnamed
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
 set confirm
+set cursorline
 set dictionary+=/usr/share/dict/words
 set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
+set hlsearch
 set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
@@ -32,7 +35,7 @@ set showcmd
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=[%{fnamemodify(getcwd('%'),':t')}]\ %f:%l:%-2c\ %M%R%Y
+set statusline=\ %{fnamemodify(getcwd(),':t')}\ ›\ %f\ %=%l:%c\ %y\ %M%R
 set switchbuf=useopen,split
 set tabline=%!TabLine()
 set tabstop=4
@@ -43,10 +46,6 @@ set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
 set wildmenu
 set wildmode=longest,list
-
-if has('mac')
-	set clipboard=unnamed
-endif
 
 if has('syntax') && has('eval')
 	packadd! matchit
