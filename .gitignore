@@ -1,15 +1,13 @@
 acme.dump
 .DS_Store
 .env
-.idea/
-*.iml
 .ipynb_checkpoints/
+*.local.json
 node_modules/
 *.pyc
 __pycache__/
 Session.vim
 /tags
-/test.exp
 /test.out
 /tmp/
 .venv/
