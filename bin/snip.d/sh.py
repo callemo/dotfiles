@@ -56,7 +56,7 @@ def _expand_shopts(builder, args):
 
 def _expand_shdir(builder, _args):
     """Shell program directory."""
-    builder.write('progdir="$(cd "$(dirname "$0")" && pwd)"')
+    builder.write('dir="$(cd "$(dirname "$0")" && pwd)"')
 
 
 def _expand_shcase(builder, args):
