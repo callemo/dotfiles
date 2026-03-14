@@ -21,7 +21,7 @@ set nobackup
 set noequalalways
 set noexpandtab
 set nofoldenable
-set noincsearch
+set incsearch
 set nojoinspaces
 set noswapfile
 set nowritebackup

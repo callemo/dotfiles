@@ -41,14 +41,16 @@ else
 	hi CursorLine cterm=NONE ctermbg=254 gui=NONE guibg=#e4e4e4
 endif
 hi Visual     ctermfg=0 ctermbg=6 guifg=Black guibg=Cyan
-hi Search     ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
-hi LineNr     ctermfg=8 guifg=Grey
+hi Search    cterm=reverse ctermfg=0 ctermbg=3 gui=reverse guifg=Black guibg=Yellow
+hi CurSearch cterm=NONE    ctermfg=0 ctermbg=3 gui=NONE    guifg=Black guibg=Yellow
+hi LineNr       ctermfg=8 guifg=Grey
+hi CursorLineNr cterm=reverse ctermfg=0 ctermbg=3 gui=reverse guifg=Black guibg=Yellow
 hi NonText    ctermfg=8 guifg=Grey
 hi Folded     ctermfg=5 ctermbg=NONE guifg=Magenta guibg=NONE
 hi MatchParen ctermbg=8 ctermfg=15
 
 " 5. Errors & Diffs
-hi ErrorMsg   ctermfg=7 ctermbg=1 guifg=White guibg=Red
+hi ErrorMsg   ctermfg=0 ctermbg=1 guifg=Black guibg=Red
 hi WarningMsg ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
 hi DiffAdd    ctermfg=2 ctermbg=NONE guifg=Green
 hi DiffDelete ctermfg=1 ctermbg=NONE guifg=Red
