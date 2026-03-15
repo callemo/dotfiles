@@ -1,0 +1,35 @@
+#!/bin/sh
+# usage: pp [-Dsymbol[=value] ...] [file ...]
+# Minimal recursive text preprocessor.
+# Replaces #pp:include, #pp:ifdef, and #pp:endif directives.
+#
+# Options:
+#   -Dsymbol=value  Define symbol with value
+#   -Dsymbol        Define symbol (value defaults to 1)
+#
+
+exec awk '
+function p(f,  s) {
+	if (v[f]++) { print "pp: loop " f > "/dev/stderr"; exit 1 }
+	while ((getline s < f) > 0) {
+		if (sub(/^#pp:ifdef[ \t]+/, "", s)) { d++; c[d] = c[d-1] && (s in D); continue }
+		if (s ~ /^#pp:endif/) { if (d) d--; continue }
+		if (!c[d]) continue
+		if (sub(/^#pp:include[ \t]+/, "", s)) { p(s); continue }
+		print s
+	}
+	close(f)
+	v[f]--
+}
+BEGIN {
+	c[0] = 1; d = 0
+	for (i = 1; i < ARGC; i++) {
+		if (!sub(/^-D/, "", ARGV[i])) { F[n++] = ARGV[i]; continue }
+		j = index(ARGV[i], "=")
+		if (j) D[substr(ARGV[i], 1, j-1)] = substr(ARGV[i], j+1)
+		else   D[ARGV[i]] = 1
+	}
+	if (!n) F[n++] = "-"
+	for (i = 0; i < n; i++) p(F[i])
+	exit
+}' "$@"

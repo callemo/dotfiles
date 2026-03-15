@@ -264,3 +264,28 @@ line2
 line3' >"$f"
 cat "$f" | overwrite "$f" sort -r
 cat "$f"
+
+echo '--- pp'
+# passthrough / stdin
+printf 'hello\nworld\n' | ./bin/pp
+# ifdef: defined symbol → emit
+printf '#pp:ifdef FOO\nyes\n#pp:endif\n' | ./bin/pp -DFOO
+# ifdef: undefined symbol → suppress
+printf '#pp:ifdef BAR\nno\n#pp:endif\n' | ./bin/pp
+# endif restores emit
+printf 'before\n#pp:ifdef UNDEF\nhidden\n#pp:endif\nafter\n' | ./bin/pp
+# nested ifdef: both defined
+printf '#pp:ifdef A\n#pp:ifdef B\nnested\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA -DB
+# nested ifdef: only outer defined
+printf '#pp:ifdef A\n#pp:ifdef B\nnested\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA
+# -D with value: symbol still defined
+printf '#pp:ifdef VER\nhas version\n#pp:endif\n' | ./bin/pp -DVER=2
+# include file
+./bin/pp testdata/pp/include_hello.pp
+# recursive include (deep.pp → include_hello.pp → hello.pp)
+./bin/pp testdata/pp/deep.pp
+# include inside false ifdef: file not opened (no error)
+printf '#pp:ifdef NOPE\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp
+echo $?
+# circular include: detects cycle, exits nonzero
+./bin/pp testdata/pp/cycle_a.pp 2>/dev/null; echo $?
