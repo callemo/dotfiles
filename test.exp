@@ -198,3 +198,19 @@ ORIGINAL CONTENT
 line3
 line2
 line1
+--- pp
+hello
+world
+yes
+before
+after
+nested
+has version
+before include
+Hello from hello.pp
+after include
+before include
+Hello from hello.pp
+after include
+0
+1
