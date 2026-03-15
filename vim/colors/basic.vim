@@ -26,8 +26,8 @@ hi VertSplit    cterm=NONE ctermfg=238 ctermbg=238 guifg=#444444 guibg=#444444
 
 " 3. Minimal Syntax (ANSI-indexed)
 hi Comment    ctermfg=8  guifg=Grey
-hi Constant   ctermfg=1  guifg=Red
-hi String     ctermfg=1  guifg=Red
+hi Constant   ctermfg=5  guifg=Magenta
+hi String     ctermfg=NONE guifg=NONE
 hi Statement  cterm=bold ctermfg=NONE gui=bold
 hi Identifier ctermfg=NONE
 hi Type       ctermfg=NONE
@@ -40,7 +40,7 @@ if &background ==# 'dark'
 else
 	hi CursorLine cterm=NONE ctermbg=254 gui=NONE guibg=#e4e4e4
 endif
-hi Visual     ctermfg=0 ctermbg=6 guifg=Black guibg=Cyan
+hi Visual     ctermfg=0 ctermbg=4 guifg=Black guibg=Blue
 hi Search    cterm=reverse ctermfg=0 ctermbg=3 gui=reverse guifg=Black guibg=Yellow
 hi CurSearch cterm=NONE    ctermfg=0 ctermbg=3 gui=NONE    guifg=Black guibg=Yellow
 hi LineNr       ctermfg=8 guifg=Grey

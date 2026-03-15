@@ -3,7 +3,9 @@ set nocompatible
 set autoindent
 set autoread
 set backspace=indent,eol,start
-set clipboard=unnamed
+if has('clipboard')
+	set clipboard=unnamed
+endif
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
@@ -92,6 +94,9 @@ let g:go_term_reuse         = 1
 
 augroup dotfiles
 	autocmd!
+	if !has('clipboard')
+		autocmd TextYankPost * if v:event.operator ==# 'y' | call OscYank(getreg('"')) | endif
+	endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
 	autocmd BufWritePre * :call TrimTrailingBlanks()
@@ -413,6 +418,14 @@ function! ExecVisualText() abort
 	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
 endfunction
 
+" OscYank sends text to the system clipboard via OSC 52 escape sequence.
+" Works through tmux (set-clipboard on) and over SSH.
+function! OscYank(text) abort
+	let encoded = system('printf %s ' . shellescape(a:text) . ' | base64 | tr -d "\n"')
+	let osc = "\e]52;c;" . encoded . "\x07"
+	call writefile([osc], '/dev/tty', 'b')
+endfunction
+
 " TmuxSwap swaps the unnamed register with the tmux buffer.
 function! TmuxSwap() abort
 	if !executable('tmux')
@@ -428,6 +441,7 @@ function! TmuxSwap() abort
 		return
 	endif
 	let @" = tmp
+	call OscYank(@")
 endfunction
 
 let g:linters = {
