@@ -1,12 +1,5 @@
 set nocompatible
 
-" Disable modifyOtherKeys — breaks Ctrl+key mappings in Ghostty.
-if &term =~# 'ghostty\|xterm'
-	set t_TI=
-	set t_TE=
-endif
-
-
 set autoindent
 set autoread
 set backspace=indent,eol,start
