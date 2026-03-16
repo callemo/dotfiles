@@ -217,11 +217,6 @@ cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
 if !empty($TMUX)
-	" Fix background detection in tmux
-	if &term =~ '^screen'
-		set t_ut=
-	endif
-
 	nnoremap <expr> <silent> <c-j>
 		\ winnr() == winnr('$')
 		\ ? ':call system("tmux selectp -t :.+")<CR>'

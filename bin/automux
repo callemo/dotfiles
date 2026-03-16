@@ -11,7 +11,7 @@ cmd='if tmux ls
 then
     tmux attach
 elif [ -e "$HOME/tmux.dump" ]; then
-    tmux-load
+	tsl
 else
     tmux new
 fi'

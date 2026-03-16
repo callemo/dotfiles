@@ -1,0 +1,67 @@
+#!/bin/sh
+# tsd: dump tmux session
+# Usage: tsd [file]
+
+f="${1:-$HOME/tmux.dump}"
+dir=${f%/*}
+base=${f##*/}
+[ "$dir" = "$f" ] && dir=.
+t=$(mktemp "$dir/.${base}.XXXXXX") || exit 1
+trap 'rm -f "$t"' 0
+
+sep=$(printf '\037')
+
+esc() {
+	printf '%s' "$1" | awk '
+	BEGIN { ORS = ""; first = 1 }
+	{
+		if (!first)
+			printf "\\n"
+		first = 0
+		for (i = 1; i <= length($0); i++) {
+			c = substr($0, i, 1)
+			if (c == "\\")
+				printf "\\\\"
+			else if (c == "\t")
+				printf "\\t"
+			else if (c == "\r")
+				printf "\\r"
+			else
+				printf "%s", c
+		}
+	}'
+}
+
+rec() {
+	tag=$1
+	shift
+	printf '%s\n' "$tag"
+	for field do
+		esc "$field"
+		printf '\n'
+	done
+}
+
+path=$(tmux display -p '#{session_path}')
+name=$(tmux display -p '#{session_name}')
+wfmt=$(printf 'w%s#{window_index}%s#{window_flags}%s#{automatic-rename}%s#{window_name}%s#{window_layout}' "$sep" "$sep" "$sep" "$sep" "$sep")
+
+{
+	rec s "${path:-$PWD}" "${name:-dump}"
+
+	tmux list-windows -F "$wfmt" |
+	while IFS="$sep" read -r kind index flags auto win_name layout; do
+		rec "$kind" "$index" "$flags" "$auto" "$win_name" "$layout"
+	done
+
+	tmux list-windows -F '#{window_index}' |
+	while IFS= read -r w; do
+		pfmt=$(printf 'p%s%s%s#{pane_index}%s#{pane_current_path}%s#{pane_current_command}' "$sep" "$w" "$sep" "$sep" "$sep")
+		tmux list-panes -t "$w" -F "$pfmt" |
+		while IFS="$sep" read -r kind win pane dir prog; do
+			rec "$kind" "$win" "$pane" "$dir" "$prog"
+		done
+	done
+} > "$t"
+
+mv "$t" "$f"

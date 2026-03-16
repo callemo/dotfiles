@@ -16,5 +16,8 @@ cursor-style = block
 cursor-style-blink = false
 shell-integration-features = no-cursor
 
+# macOS: Option key acts as Alt.
+macos-option-as-alt = true
+
 # Linux: tmux manages tabs.
 gtk-tabs-location = hidden

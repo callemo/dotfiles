@@ -1,0 +1,30 @@
+#!/bin/sh
+# Usage: tdev <sidecmd> [<sidecmd2>]
+
+if [ -z "$1" ]; then
+	echo "Usage: tdev <sidecmd> [<sidecmd2>]" >&2
+	exit 1
+fi
+
+if [ -z "$TMUX" ]; then
+	echo "You must start tmux to use tdev." >&2
+	exit 1
+fi
+
+dir=$PWD
+pane=$TMUX_PANE
+cmd1=$1
+cmd2=$2
+
+tmux rename-window -t "$pane" "$(basename "$dir")"
+tmux split-window -v -p 27 -t "$pane" -c "$dir"
+side=$(tmux split-window -h -p 42 -t "$pane" -c "$dir" -P -F '#{pane_id}')
+
+if [ -n "$cmd2" ]; then
+	low=$(tmux split-window -v -t "$side" -c "$dir" -P -F '#{pane_id}')
+	tmux send-keys -t "$low" "$cmd2" C-m
+fi
+
+tmux send-keys -t "$side" "$cmd1" C-m
+tmux send-keys -t "$pane" "${EDITOR:-vim} ." C-m
+tmux select-pane -t "$pane"
