@@ -1,5 +1,12 @@
 set nocompatible
 
+" Disable modifyOtherKeys — breaks Ctrl+key mappings in Ghostty.
+if &term =~# 'ghostty\|xterm'
+	set t_TI=
+	set t_TE=
+endif
+
+
 set autoindent
 set autoread
 set backspace=indent,eol,start
@@ -279,8 +286,7 @@ function! GetVisualText() abort
 	return text
 endfunction
 
-" SetVisualSearch literal search of the selected text in visual mode. Any
-" regex special characters are escaped.
+" SetVisualSearch sets / to a literal search of the visual selection.
 function! SetVisualSearch() abort
 	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.^$~[]*'), "\n$", '', '')
 endfunction
@@ -402,8 +408,7 @@ function! AsyncCmdDone(job) abort
 	call remove(g:cmd_async_tasks, pid)
 endfunction
 
-" UpdateCurrentWindow appends texts to the active buffer and moves the
-" cursor to the bottom.
+" UpdateCurrentWindow appends text to the active buffer.
 function! UpdateCurrentWindow(text) abort
 	if wordcount().bytes == 0
 		call setline(1, a:text)
@@ -418,8 +423,7 @@ function! ExecVisualText() abort
 	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
 endfunction
 
-" OscYank sends text to the system clipboard via OSC 52 escape sequence.
-" Works through tmux (set-clipboard on) and over SSH.
+" OscYank copies text to clipboard via OSC 52.
 function! OscYank(text) abort
 	let encoded = system('printf %s ' . shellescape(a:text) . ' | base64 | tr -d "\n"')
 	let osc = "\e]52;c;" . encoded . "\x07"
@@ -494,8 +498,7 @@ function! FormatFile(...) abort
 	checktime
 endfunction
 
-" FindVisibleTerminals returns a list of terminal buffer numbers that are visible
-" in the current tab.
+" FindVisibleTerminals returns visible terminal buffer numbers in the current tab.
 function! FindVisibleTerminals() abort
 	let terminals = []
 	for winnr in range(1, winnr('$'))
@@ -536,8 +539,7 @@ function! TermSend(target, text) abort
 	return v:true
 endfunction
 
-" Send types the current line or range to a terminal buffer as it was typed
-" by the user.
+" Send sends the current line or range to a terminal buffer.
 function! Send(range, start, end, ...) abort
 	if a:0 > 0 && !empty(a:1)
 		let target = a:1
@@ -612,8 +614,7 @@ function! TerminalStatusLine() abort
 	return printf('%d [%s] %s(%s) %s', bufnr, cwd, cmd, pid, toupper(status))
 endfunction
 
-" TabLabel returns the a label string for the given tab number a:n. If t:label
-" exists then returns it instead.
+" TabLabel returns the display label for tab a:n, preferring t:label.
 function! TabLabel(n) abort
 	let tabl = gettabvar(a:n, 'label')
 	if !empty(tabl)
@@ -759,9 +760,7 @@ function! OpenWikilink(name) abort
 	endif
 endfunction
 
-" Fts executes a full-text search using the 'fts' command and populates the
-" location list with the results.
-" @param query: The search query string.
+" Fts runs fts and populates the location list.
 function! Fts(query) abort
 	if !executable('fts')
 		echohl ErrorMsg | echo 'fts not found' | echohl None
@@ -774,9 +773,7 @@ function! Fts(query) abort
 	lwindow
 endfunction
 
-" BufferList lists all buffers matching or not matching the given pattern.
-" @param pattern: The pattern to match buffer names against.
-" @param inverse: If true, show buffers not matching the pattern instead.
+" BufferList lists buffers matching pattern; inverse inverts the filter.
 function! BufferList(pattern, inverse) abort
 	let buffers = getbufinfo({'buflisted': 1})
 	let filtered = []
@@ -824,10 +821,7 @@ function! BufferList(pattern, inverse) abort
 	call setline(1, output)
 endfunction
 
-" BufferDelete deletes all buffers whose names match
-" or don't match the given pattern.
-" @param pattern: The pattern to match buffer names against.
-" @param inverse: If true, delete buffers NOT matching the pattern instead.
+" BufferDelete deletes buffers matching pattern; inverse inverts the filter.
 function! BufferDelete(pattern, inverse) abort
 	let buffer_list = []
 	for buffer in getbufinfo({'buflisted': 1})
