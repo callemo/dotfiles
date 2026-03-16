@@ -1,4 +1,11 @@
+keybinding:
+  universal:
+    gotoBottom: G
+    scrollUpMain-alt1: <c-u>
+    scrollDownMain-alt1: <c-d>
+
 gui:
+  scrollHeight: 10
   theme:
     activeBorderColor:
       - blue
