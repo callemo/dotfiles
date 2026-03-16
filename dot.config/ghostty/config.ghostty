@@ -1,3 +1,6 @@
+# Use xterm-256color for maximum compatibility (SSH, OpenBSD, etc.)
+term = xterm-256color
+
 theme = dark:Kanagawa Wave,light:Kanagawa Lotus
 font-size = 11
 
