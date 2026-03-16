@@ -1,8 +1,3 @@
-" ---------------------------------------------------------------------
-" File: basic.vim
-" Description: A minimalist theme that trusts the terminal palette
-" ---------------------------------------------------------------------
-
 hi clear
 if exists('syntax_on')
 	syntax reset
@@ -10,60 +5,55 @@ endif
 
 let g:colors_name = 'basic'
 
-" 1. Trust the terminal background
-hi Normal ctermbg=NONE guibg=NONE
+hi Normal ctermbg=NONE
 
-" 2. Status Bar (accent)
-" Active: ctermbg=4 (Blue), ctermfg=0 (Black)
-hi StatusLine   cterm=bold ctermfg=0 ctermbg=4 gui=bold guifg=Black guibg=Blue
-" Inactive: ctermbg=238 (Dark Grey), ctermfg=250 (Light Grey)
-hi StatusLineNC cterm=NONE ctermfg=250 ctermbg=238 gui=NONE guifg=#bcbcbc guibg=#444444
-" TabLines: match the StatusLines
-hi TabLineSel   cterm=bold ctermfg=0 ctermbg=4 gui=bold guifg=Black guibg=Blue
-hi TabLine      cterm=NONE ctermfg=250 ctermbg=238 gui=NONE guifg=#bcbcbc guibg=#444444
-hi TabLineFill  cterm=NONE ctermfg=NONE ctermbg=NONE
-hi VertSplit    cterm=NONE ctermfg=238 ctermbg=238 guifg=#444444 guibg=#444444
+" Status bar
+hi StatusLine   cterm=bold ctermfg=0 ctermbg=4
+hi StatusLineNC cterm=NONE ctermfg=250 ctermbg=238
+hi TabLineSel   cterm=bold ctermfg=0 ctermbg=4
+hi TabLine      cterm=NONE ctermfg=250 ctermbg=238
+hi TabLineFill  cterm=NONE
+hi VertSplit    cterm=NONE ctermfg=238 ctermbg=238
 
-" 3. Minimal Syntax (ANSI-indexed)
-hi Comment    ctermfg=8  guifg=Grey
-hi Constant   ctermfg=5  guifg=Magenta
-hi String     ctermfg=NONE guifg=NONE
-hi Statement  cterm=bold ctermfg=NONE gui=bold
+" Syntax — NONE overrides vim's built-in defaults after syntax reset
+hi Comment    ctermfg=8
+hi Constant   ctermfg=5
+hi String     ctermfg=NONE
+hi Statement  cterm=bold
 hi Identifier ctermfg=NONE
 hi Type       ctermfg=NONE
 hi PreProc    ctermfg=NONE
-hi Special    ctermfg=3  guifg=Yellow
+hi Special    ctermfg=3
 
-" 4. UI & Selection
+" UI
 if &background ==# 'dark'
-	hi CursorLine cterm=NONE ctermbg=235 gui=NONE guibg=#262626
+	hi CursorLine cterm=NONE ctermbg=235
 else
-	hi CursorLine cterm=NONE ctermbg=254 gui=NONE guibg=#e4e4e4
+	hi CursorLine cterm=NONE ctermbg=254
 endif
-hi Visual     ctermfg=0 ctermbg=4 guifg=Black guibg=Blue
-hi Search    cterm=reverse ctermfg=0 ctermbg=3 gui=reverse guifg=Black guibg=Yellow
-hi CurSearch cterm=NONE    ctermfg=0 ctermbg=3 gui=NONE    guifg=Black guibg=Yellow
-hi LineNr       ctermfg=8 guifg=Grey
-hi CursorLineNr cterm=reverse ctermfg=0 ctermbg=3 gui=reverse guifg=Black guibg=Yellow
-hi NonText    ctermfg=8 guifg=Grey
-hi Folded     ctermfg=5 ctermbg=NONE guifg=Magenta guibg=NONE
-hi MatchParen ctermbg=8 ctermfg=15
+hi Visual         ctermfg=0 ctermbg=4
+hi Search         cterm=NONE ctermfg=0 ctermbg=3
+hi CurSearch      cterm=bold ctermfg=0 ctermbg=11
+hi LineNr         ctermfg=8
+hi CursorLineNr   cterm=reverse ctermfg=0 ctermbg=3
+hi NonText        ctermfg=8
+hi Folded         ctermfg=5
+hi MatchParen     ctermbg=8 ctermfg=15
 
-" 5. Errors & Diffs
-hi ErrorMsg   ctermfg=0 ctermbg=1 guifg=Black guibg=Red
-hi WarningMsg ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
-hi DiffAdd    ctermfg=2 ctermbg=NONE guifg=Green
-hi DiffDelete ctermfg=1 ctermbg=NONE guifg=Red
-hi DiffChange ctermfg=3 ctermbg=NONE guifg=Yellow
-hi DiffText   ctermfg=0 ctermbg=3 guifg=Black guibg=Yellow
+" Errors & diffs
+hi ErrorMsg   ctermfg=0 ctermbg=1
+hi WarningMsg ctermfg=0 ctermbg=3
+hi DiffAdd    ctermfg=2
+hi DiffDelete ctermfg=1
+hi DiffChange ctermfg=3
+hi DiffText   ctermfg=0 ctermbg=3
 
-" 6. Spellchecker
-hi SpellBad   ctermfg=0 guifg=Black
-hi SpellCap   ctermfg=0 guifg=Black
-hi SpellLocal ctermfg=0 guifg=Black
-hi SpellRare  ctermfg=0 guifg=Black
+" Spell
+hi SpellBad   ctermfg=0
+hi SpellCap   ctermfg=0
+hi SpellLocal ctermfg=0
+hi SpellRare  ctermfg=0
 
-" Link modern groups
 hi link diffAdded DiffAdd
 hi link diffRemoved DiffDelete
 hi link Pmenu StatusLineNC
