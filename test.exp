@@ -214,3 +214,45 @@ Hello from hello.pp
 after include
 0
 1
+--- tsd/tsl
+s
+TESTDIR/session|root
+sess\\demo
+w
+0
+-
+0
+main\tview
+layout-main
+w
+2
+*
+1
+logs
+tiled
+p
+0
+0
+TESTDIR/proj\ta
+zsh
+p
+0
+1
+TESTDIR/proj|b
+vim
+p
+2
+0
+TESTDIR/proj c
+vim
+new-session	-d	-P	-F	#{window_id}\t#{pane_id}	-s	sess\\demo	-c	TESTDIR/session\|root
+send-keys	-t	%10	cd -- 'TESTDIR/proj\ta'	C-m
+rename-window	-t	@1	main\tview
+split-window	-d	-P	-F	#{pane_id}	-t	%10	-c	TESTDIR/proj\|b
+send-keys	-t	%11	vim -S Session.vim	C-m
+new-window	-d	-P	-F	#{window_id}\t#{pane_id}	-t	sess\\demo:2	-c	TESTDIR/proj c
+send-keys	-t	%20	vim	C-m
+select-layout	-t	@1	layout-main
+select-layout	-t	@2	tiled
+select-window	-t	@2
+switch-client	-t	sess\\demo

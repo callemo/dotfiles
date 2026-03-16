@@ -1,0 +1,177 @@
+#!/bin/sh
+# tsl: restore tmux session from a tsd dump
+
+f="${1:-$HOME/tmux.dump}"
+[ ! -f "$f" ] && { echo "no dump file: $f" >&2; exit 1; }
+
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/tsl.XXXXXX") || exit 1
+trap 'rm -rf "$tmp"' 0
+
+q() {
+	printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+}
+
+unesc() {
+	printf '%s' "$1" | awk '
+	BEGIN { ORS = "" }
+	{
+		for (i = 1; i <= length($0); i++) {
+			c = substr($0, i, 1)
+			if (c != "\\") {
+				printf "%s", c
+				continue
+			}
+			i++
+			c = substr($0, i, 1)
+			if (c == "n")
+				printf "\n"
+			else if (c == "t")
+				printf "\t"
+			else if (c == "r")
+				printf "\r"
+			else
+				printf "%s", c
+		}
+	}'
+}
+
+read1() {
+	IFS= read -r value || return 1
+	unesc "$value"
+}
+
+put() {
+	printf '%s\n' "$2" > "$tmp/$1"
+}
+
+get() {
+	[ -f "$tmp/$1" ] || return 1
+	IFS= read -r value < "$tmp/$1" || return 1
+	printf '%s' "$value"
+}
+
+uniq_sess() {
+	base=$1
+	name=$base
+	i=
+
+	while tmux has-session -t "$name" 2>/dev/null; do
+		if [ -z "$i" ]; then
+			i=1
+			name=${base}-restored
+		else
+			i=$((i + 1))
+			name=${base}-restored-$i
+		fi
+	done
+
+	printf '%s' "$name"
+}
+
+vim_restore() {
+	pane=$1
+	dir=$2
+	prog=$3
+
+	case $prog in
+	*vim*)
+		if [ -f "$dir/Session.vim" ]; then
+			tmux send-keys -t "$pane" 'vim -S Session.vim' C-m
+		else
+			tmux send-keys -t "$pane" 'vim' C-m
+		fi
+		;;
+	esac
+}
+
+sess=
+spath=
+first=
+active=
+
+while IFS= read -r kind; do
+	case $kind in
+	'')
+		continue
+		;;
+	s)
+		spath=$(read1) || exit 1
+		sess=$(uniq_sess "$(read1)") || exit 1
+		set -- $(tmux new-session -d -P -F '#{window_id}	#{pane_id}' -s "$sess" -c "$spath") || exit 1
+		put first.win "$1"
+		put first.pane "$2"
+		;;
+	w)
+		w=$(read1) || exit 1
+		flags=$(read1) || exit 1
+		auto=$(read1) || exit 1
+		name=$(read1) || exit 1
+		layout=$(read1) || exit 1
+		[ -n "$first" ] || first=$w
+		case $flags in
+		*\**)
+			active=$w
+			;;
+		esac
+		put "w.$w.auto" "$auto"
+		put "w.$w.name" "$name"
+		put "w.$w.layout" "$layout"
+		printf '%s\n' "$w" >> "$tmp/window.order"
+		;;
+	p)
+		w=$(read1) || exit 1
+		read1 >/dev/null || exit 1
+		d=$(read1) || exit 1
+		prog=$(read1) || exit 1
+
+		if ! get "w.$w.id" >/dev/null 2>&1; then
+			auto=$(get "w.$w.auto")
+			name=$(get "w.$w.name")
+
+			if [ "$w" = "$first" ]; then
+				win=$(get first.win)
+				pane=$(get first.pane)
+				if [ "$d" != "$spath" ]; then
+					tmux send-keys -t "$pane" "cd -- $(q "$d")" C-m
+				fi
+			else
+				set -- $(tmux new-window -d -P -F '#{window_id}	#{pane_id}' -t "$sess:$w" -c "$d") || exit 1
+				win=$1
+				pane=$2
+			fi
+
+			put "w.$w.id" "$win"
+			put "w.$w.anchor" "$pane"
+
+			if [ "$auto" = 0 ]; then
+				tmux rename-window -t "$win" "$name"
+			fi
+		else
+			win=$(get "w.$w.id")
+			anchor=$(get "w.$w.anchor")
+			pane=$(tmux split-window -d -P -F '#{pane_id}' -t "$anchor" -c "$d") || exit 1
+		fi
+
+		vim_restore "$pane" "$d" "$prog"
+		;;
+	esac
+done < "$f"
+
+if [ -f "$tmp/window.order" ]; then
+	while IFS= read -r w; do
+		layout=$(get "w.$w.layout") || continue
+		win=$(get "w.$w.id") || continue
+		tmux select-layout -t "$win" "$layout"
+	done < "$tmp/window.order"
+fi
+
+if [ -n "$active" ]; then
+	win=$(get "w.$active.id")
+	[ -n "$win" ] && tmux select-window -t "$win"
+fi
+
+if [ -n "$TMUX" ]; then
+	tmux switch-client -t "$sess"
+else
+	tmux attach-session -t "$sess"
+fi

@@ -289,3 +289,131 @@ printf '#pp:ifdef NOPE\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | .
 echo $?
 # circular include: detects cycle, exits nonzero
 ./bin/pp testdata/pp/cycle_a.pp 2>/dev/null; echo $?
+
+echo '--- tsd/tsl'
+tmuxbin="$td/tmuxbin"
+tmuxstate="$td/tmux-state"
+tmuxlog="$td/tmux.log"
+dump="$td/tmux.dump"
+pane0path=$(printf '%s/proj\ta' "$td")
+mkdir -p "$tmuxbin" "$tmuxstate" "$td/home" "$td/session|root" "$pane0path" "$td/proj|b" "$td/proj c"
+touch "$td/proj|b/Session.vim"
+
+cat >"$tmuxbin/tmux" <<'END'
+#!/bin/sh
+
+log=${TMUX_TEST_LOG:?}
+state=${TMUX_TEST_STATE:?}
+
+record() {
+  printf '%s' "$(escape "$1")" >> "$log"
+  shift
+  for arg do
+    printf '\t%s' "$(escape "$arg")" >> "$log"
+  done
+  printf '\n' >> "$log"
+}
+
+escape() {
+  printf '%s' "$1" | awk '
+  BEGIN { ORS = "" }
+  {
+    for (i = 1; i <= length($0); i++) {
+      c = substr($0, i, 1)
+      if (c == "\\")
+        printf "\\\\"
+      else if (c == "|")
+        printf "\\|"
+      else if (c == "\t")
+        printf "\\t"
+      else
+        printf "%s", c
+    }
+  }'
+}
+
+case $1 in
+display)
+  case $3 in
+  '#{session_path}')
+    printf '%s\n' "$TMUX_MOCK_SESSION_PATH"
+    ;;
+  '#{session_name}')
+    printf '%s\n' "$TMUX_MOCK_SESSION_NAME"
+    ;;
+  esac
+  ;;
+has-session)
+  exit 1
+  ;;
+list-windows)
+  case $3 in
+  '#{window_index}')
+    printf '0\n2\n'
+    ;;
+  *)
+    printf 'w\0370\037-\0370\037main\tview\037layout-main\n'
+    printf 'w\0372\037*\0371\037logs\037tiled\n'
+    ;;
+  esac
+  ;;
+list-panes)
+  case $3 in
+  0)
+    printf 'p\0370\0370\037%s\037zsh\n' "$TMUX_MOCK_PANE0_PATH"
+    printf 'p\0370\0371\037%s\037vim\n' "$TMUX_MOCK_PANE1_PATH"
+    ;;
+  2)
+    printf 'p\0372\0370\037%s\037vim\n' "$TMUX_MOCK_PANE2_PATH"
+    ;;
+  esac
+  ;;
+new-session)
+  record "$@"
+  printf '@1\t%%10\n'
+  ;;
+new-window)
+  record "$@"
+  printf '@2\t%%20\n'
+  ;;
+split-window)
+  record "$@"
+  printf '%%11\n'
+  ;;
+rename-window|send-keys|select-layout|select-window|attach-session|switch-client)
+  record "$@"
+  ;;
+*)
+  echo "unknown tmux command: $1" >&2
+  exit 1
+  ;;
+esac
+END
+chmod +x "$tmuxbin/tmux"
+
+TMUX_MOCK_SESSION_PATH="$td/session root" \
+TMUX_MOCK_SESSION_PATH="$td/session|root" \
+TMUX_MOCK_SESSION_NAME='sess\demo' \
+TMUX_MOCK_PANE0_PATH="$pane0path" \
+TMUX_MOCK_PANE1_PATH="$td/proj|b" \
+TMUX_MOCK_PANE2_PATH="$td/proj c" \
+PATH="$tmuxbin:$PATH" \
+TMUX_TEST_LOG="$tmuxlog" \
+TMUX_TEST_STATE="$tmuxstate" \
+  ./bin/tsd "$dump"
+sed "s|$td|TESTDIR|g" "$dump"
+
+: > "$tmuxlog"
+rm -rf "$tmuxstate"
+mkdir "$tmuxstate"
+TMUX_MOCK_SESSION_PATH="$td/session|root" \
+TMUX_MOCK_SESSION_NAME='sess\demo' \
+TMUX_MOCK_PANE0_PATH="$pane0path" \
+TMUX_MOCK_PANE1_PATH="$td/proj|b" \
+TMUX_MOCK_PANE2_PATH="$td/proj c" \
+PATH="$tmuxbin:$PATH" \
+TMUX_TEST_LOG="$tmuxlog" \
+TMUX_TEST_STATE="$tmuxstate" \
+	TMUX='mock-client' \
+  ./bin/tsl "$dump"
+sed "s|$td|TESTDIR|g" "$tmuxlog"
