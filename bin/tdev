@@ -17,8 +17,8 @@ cmd1=$1
 cmd2=$2
 
 tmux rename-window -t "$pane" "$(basename "$dir")"
-tmux split-window -v -p 27 -t "$pane" -c "$dir"
-side=$(tmux split-window -h -p 42 -t "$pane" -c "$dir" -P -F '#{pane_id}')
+tmux split-window -v -l 27% -t "$pane" -c "$dir"
+side=$(tmux split-window -h -l 42% -t "$pane" -c "$dir" -P -F '#{pane_id}')
 
 if [ -n "$cmd2" ]; then
 	low=$(tmux split-window -v -t "$side" -c "$dir" -P -F '#{pane_id}')
