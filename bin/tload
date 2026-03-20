@@ -1,43 +1,14 @@
 #!/bin/sh
-# tsl: restore tmux session from a tsd dump
+# tload: restore tmux session from a tdump dump
 
 f="${1:-$HOME/tmux.dump}"
 [ ! -f "$f" ] && { echo "no dump file: $f" >&2; exit 1; }
 
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/tsl.XXXXXX") || exit 1
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/tload.XXXXXX") || exit 1
 trap 'rm -rf "$tmp"' 0
 
 q() {
 	printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
-}
-
-unesc() {
-	printf '%s' "$1" | awk '
-	BEGIN { ORS = "" }
-	{
-		for (i = 1; i <= length($0); i++) {
-			c = substr($0, i, 1)
-			if (c != "\\") {
-				printf "%s", c
-				continue
-			}
-			i++
-			c = substr($0, i, 1)
-			if (c == "n")
-				printf "\n"
-			else if (c == "t")
-				printf "\t"
-			else if (c == "r")
-				printf "\r"
-			else
-				printf "%s", c
-		}
-	}'
-}
-
-read1() {
-	IFS= read -r value || return 1
-	unesc "$value"
 }
 
 put() {
@@ -95,39 +66,35 @@ while IFS= read -r kind; do
 		continue
 		;;
 	s)
-		spath=$(read1) || exit 1
-		sess=$(uniq_sess "$(read1)") || exit 1
+		IFS= read -r spath || exit 1
+		IFS= read -r sname || exit 1
+		sess=$(uniq_sess "$sname") || exit 1
 		set -- $(tmux new-session -d -P -F '#{window_id}	#{pane_id}' -s "$sess" -c "$spath") || exit 1
 		put first.win "$1"
 		put first.pane "$2"
 		;;
 	w)
-		w=$(read1) || exit 1
-		flags=$(read1) || exit 1
-		auto=$(read1) || exit 1
-		name=$(read1) || exit 1
-		layout=$(read1) || exit 1
+		IFS= read -r w || exit 1
+		IFS= read -r flags || exit 1
+		IFS= read -r _ || exit 1
+		IFS= read -r _ || exit 1
+		IFS= read -r layout || exit 1
 		[ -n "$first" ] || first=$w
 		case $flags in
 		*\**)
 			active=$w
 			;;
 		esac
-		put "w.$w.auto" "$auto"
-		put "w.$w.name" "$name"
 		put "w.$w.layout" "$layout"
 		printf '%s\n' "$w" >> "$tmp/window.order"
 		;;
 	p)
-		w=$(read1) || exit 1
-		read1 >/dev/null || exit 1
-		d=$(read1) || exit 1
-		prog=$(read1) || exit 1
+		IFS= read -r w || exit 1
+		IFS= read -r _ || exit 1
+		IFS= read -r d || exit 1
+		IFS= read -r prog || exit 1
 
 		if ! get "w.$w.id" >/dev/null 2>&1; then
-			auto=$(get "w.$w.auto")
-			name=$(get "w.$w.name")
-
 			if [ "$w" = "$first" ]; then
 				win=$(get first.win)
 				pane=$(get first.pane)
@@ -143,9 +110,6 @@ while IFS= read -r kind; do
 			put "w.$w.id" "$win"
 			put "w.$w.anchor" "$pane"
 
-			if [ "$auto" = 0 ]; then
-				tmux rename-window -t "$win" "$name"
-			fi
 		else
 			win=$(get "w.$w.id")
 			anchor=$(get "w.$w.anchor")

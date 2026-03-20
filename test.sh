@@ -290,7 +290,7 @@ echo $?
 # circular include: detects cycle, exits nonzero
 ./bin/pp testdata/pp/cycle_a.pp 2>/dev/null; echo $?
 
-echo '--- tsd/tsl'
+echo '--- tdump/tload'
 tmuxbin="$td/tmuxbin"
 tmuxstate="$td/tmux-state"
 tmuxlog="$td/tmux.log"
@@ -334,39 +334,19 @@ escape() {
 
 case $1 in
 display)
-  case $3 in
-  '#{session_path}')
-    printf '%s\n' "$TMUX_MOCK_SESSION_PATH"
-    ;;
-  '#{session_name}')
-    printf '%s\n' "$TMUX_MOCK_SESSION_NAME"
-    ;;
-  esac
+  printf 's\n%s\n%s\n' "$TMUX_MOCK_SESSION_PATH" "$TMUX_MOCK_SESSION_NAME"
   ;;
 has-session)
   exit 1
   ;;
 list-windows)
-  case $3 in
-  '#{window_index}')
-    printf '0\n2\n'
-    ;;
-  *)
-    printf 'w\0370\037-\0370\037main\tview\037layout-main\n'
-    printf 'w\0372\037*\0371\037logs\037tiled\n'
-    ;;
-  esac
+  printf 'w\n0\n-\n0\nmain\tview\nlayout-main\n'
+  printf 'w\n2\n*\n1\nlogs\ntiled\n'
   ;;
 list-panes)
-  case $3 in
-  0)
-    printf 'p\0370\0370\037%s\037zsh\n' "$TMUX_MOCK_PANE0_PATH"
-    printf 'p\0370\0371\037%s\037vim\n' "$TMUX_MOCK_PANE1_PATH"
-    ;;
-  2)
-    printf 'p\0372\0370\037%s\037vim\n' "$TMUX_MOCK_PANE2_PATH"
-    ;;
-  esac
+  printf 'p\n0\n0\n%s\nzsh\n' "$TMUX_MOCK_PANE0_PATH"
+  printf 'p\n0\n1\n%s\nvim\n' "$TMUX_MOCK_PANE1_PATH"
+  printf 'p\n2\n0\n%s\nvim\n' "$TMUX_MOCK_PANE2_PATH"
   ;;
 new-session)
   record "$@"
@@ -400,7 +380,7 @@ TMUX_MOCK_PANE2_PATH="$td/proj c" \
 PATH="$tmuxbin:$PATH" \
 TMUX_TEST_LOG="$tmuxlog" \
 TMUX_TEST_STATE="$tmuxstate" \
-  ./bin/tsd "$dump"
+  ./bin/tdump "$dump"
 sed "s|$td|TESTDIR|g" "$dump"
 
 : > "$tmuxlog"
@@ -415,5 +395,5 @@ PATH="$tmuxbin:$PATH" \
 TMUX_TEST_LOG="$tmuxlog" \
 TMUX_TEST_STATE="$tmuxstate" \
 	TMUX='mock-client' \
-  ./bin/tsl "$dump"
+  ./bin/tload "$dump"
 sed "s|$td|TESTDIR|g" "$tmuxlog"
