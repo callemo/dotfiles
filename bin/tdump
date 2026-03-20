@@ -1,0 +1,30 @@
+#!/bin/sh
+# tdump: dump tmux session
+# Usage: tdump [file]
+
+f="${1:-$HOME/tmux.dump}"
+dir=${f%/*}
+[ "$dir" = "$f" ] && dir=.
+t=$(mktemp "$dir/.${f##*/}.XXXXXX") || exit 1
+trap 'rm -f "$t"' 0
+
+{
+	tmux display -p 's
+#{session_path}
+#{session_name}'
+
+	tmux list-windows -F 'w
+#{window_index}
+#{window_flags}
+#{automatic-rename}
+#{window_name}
+#{window_layout}'
+
+	tmux list-panes -s -F 'p
+#{window_index}
+#{pane_index}
+#{pane_current_path}
+#{pane_current_command}'
+} >"$t"
+
+mv "$t" "$f"
