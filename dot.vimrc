@@ -44,6 +44,9 @@ set tabline=%!TabLine()
 set tabstop=4
 set textwidth=0
 set updatetime=300
+set notimeout
+set ttimeout
+set ttimeoutlen=50
 set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
@@ -136,8 +139,10 @@ augroup END
 command! -nargs=+ -complete=file -range
 	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
-command! Date execute "normal! A" . strftime("%Y-%m-%d")
-command! Week execute "normal! A" . strftime("%YW%V")
+inoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
+inoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
+cnoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
+cnoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
@@ -177,9 +182,7 @@ nnoremap <leader>" :call TmuxSwap()<CR>
 nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B :NERDTreeToggle<CR>
-nnoremap <leader>Bf :NERDTreeFind<CR>
-nnoremap <leader>Bt :TagbarToggle<CR>
+nnoremap <leader>B :call NERDTreeFindToggle()<CR>
 nnoremap <leader>f :Fmt<CR>
 nnoremap <leader>l :Lint<CR>
 
@@ -825,6 +828,17 @@ function! BufferDelete(pattern, inverse) abort
 		return
 	endif
 	execute 'bdelete' join(buffer_list)
+endfunction
+
+" NERDTreeFindToggle closes NERDTree if open, otherwise opens it focused on the current file.
+function! NERDTreeFindToggle() abort
+	if exists('g:NERDTree') && g:NERDTree.IsOpen()
+		NERDTreeClose
+	elseif expand('%:p') !=# ''
+		NERDTreeFind
+	else
+		NERDTreeToggle
+	endif
 endfunction
 
 if exists('$DOTFILES')
