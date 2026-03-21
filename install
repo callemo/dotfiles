@@ -2,58 +2,72 @@
 # Minimalist install script.
 
 root="$(cd "${0%/*}" && pwd -P)"
-tag="${0##*/}:"
+PATH="$root/bin:$PATH"
 
-log() { echo "$tag" "$@" >&2; }
-die() { log "$@"; exit 1; }
+log()   { echo "${0##*/}: $*" >&2; }
+fatal() { log "$@"; exit 1; }
 
-cd "$root" || die "cd $root"
+cd "$root" || fatal "cd $root"
 
-# Append line ($1) to file ($2) only if not already present.
-fileline() { grep -qxF "$1" "$2" || printf '\n%s\n' "$1" >> "$2"; }
+# ensure line exists in file (ERE pattern matching)
+# exit: 0=unchanged, 1=updated, >1=error
+fileline() {
+	local pattern line file sedpat sedtext
+	pattern=$1 line=$2 file=$3
+	grep -qxF "$line" "$file" 2>/dev/null && return 0
+	if grep -qE "$pattern" "$file" 2>/dev/null; then
+		sedpat=$(printf '%s\n' "$pattern" | sed 's/[@&]/\\&/g')
+		sedtext=$(printf '%s\n' "$line" | sed 's/[@&]/\\&/g')
+		overwrite "$file" sed -Ee 's@'"$sedpat"'.*@'"$sedtext"'@' "$file"
+		log "$file: $pattern: replaced"
+		return
+	fi
+	printf '%s\n' "$line" >>"$file"
+	log "$file: $pattern: added"
+}
 
 for f in dot.*; do
-    [ -e "$f" ] || continue
-    target="$HOME/${f#dot}"
-    
-    if [ "$f" = "dot.config" ]; then
-        # Use find to mirror the config tree
-        find "$f" -type f | while read -r path; do
-            sub="${path#dot.config/}"
-            mkdir -p "$HOME/.config/$(dirname "$sub")"
-            log "link $HOME/.config/$sub"
-            ln -sf "$root/$path" "$HOME/.config/$sub"
-        done
-    else
-        log "link $target"
-        ln -sf "$root/$f" "$target"
-    fi
+	[ -e "$f" ] || continue
+	target="$HOME/${f#dot}"
+
+	if [ "$f" != "dot.config" ]; then
+		log "link $target"
+		ln -sf "$root/$f" "$target"
+		continue
+	fi
+	find "$f" -type f | while read -r path; do
+		sub="${path#dot.config/}"
+		mkdir -p "$HOME/.config/$(dirname "$sub")"
+		log "link $HOME/.config/$sub"
+		ln -sf "$root/$path" "$HOME/.config/$sub"
+	done
 done
 
-if [ ! -e "$HOME/.gitignore" ]; then
-    log 'git exclude'
-    ln -sf "$root/.gitignore" "$HOME/.gitignore"
-    git config --global core.excludesfile "$HOME/.gitignore"
-fi
+[ -e "$HOME/.gitignore" ] || {
+	log 'git exclude'
+	ln -sf "$root/.gitignore" "$HOME/.gitignore"
+	git config --global core.excludesfile "$HOME/.gitignore"
+}
 
-if [ ! -e "$HOME/lib" ]; then
-    log 'link lib'
-    ln -sf "$root/lib" "$HOME/lib"
-fi
+[ -e "$HOME/lib" ] || { log 'link lib'; ln -sf "$root/lib" "$HOME/lib"; }
+
+# Wire init.sh into shell rc files; normalize any existing variant form.
+for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+	[ -f "$rc" ] || continue
+	fileline '^\. .*dotfiles/init\.sh' '. ~/dotfiles/init.sh' "$rc"
+done
 
 # On systems with a base config layer (e.g. Omarchy), patch its tmux template to
 # source our user overrides so they survive any config refresh commands.
-tmux_template="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
-if [ -f "$tmux_template" ]; then
-    log 'patch tmux template'
-    fileline 'source-file -q ~/.config/tmux/user.conf' "$tmux_template"
-fi
+tmpl="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
+[ -f "$tmpl" ] && fileline '^source-file.*user\.conf' 'source-file -q ~/.config/tmux/user.conf' "$tmpl"
 
-set -x
+fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
 # Plugin data list
 while read -r url; do
-    ./vim/get "$url"
+	log "vim plugin $url"
+	./vim/get "$url" </dev/null || fatal "vim plugin failed: $url"
 done <<EOF
 https://github.com/preservim/nerdtree
 https://github.com/preservim/tagbar
