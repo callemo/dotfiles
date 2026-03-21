@@ -3,7 +3,9 @@ set nocompatible
 set autoindent
 set autoread
 set backspace=indent,eol,start
-set clipboard=unnamed
+if has('clipboard')
+	set clipboard=unnamed
+endif
 set cmdheight=2
 set commentstring=#%s
 set complete-=i
@@ -42,6 +44,9 @@ set tabline=%!TabLine()
 set tabstop=4
 set textwidth=0
 set updatetime=300
+set notimeout
+set ttimeout
+set ttimeoutlen=50
 set viewoptions-=options
 set visualbell
 set wildignore=*.o,*~,*.pyc,*/.git/*,*/.DS_Store
@@ -92,6 +97,9 @@ let g:go_term_reuse         = 1
 
 augroup dotfiles
 	autocmd!
+	if !has('clipboard')
+		autocmd TextYankPost * if v:event.operator ==# 'y' | call OscYank(getreg('"')) | endif
+	endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
 	autocmd BufWritePre * :call TrimTrailingBlanks()
@@ -131,8 +139,10 @@ augroup END
 command! -nargs=+ -complete=file -range
 	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
-command! Date execute "normal! A" . strftime("%Y-%m-%d")
-command! Week execute "normal! A" . strftime("%YW%V")
+inoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
+inoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
+cnoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
+cnoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
 
 command!          Lint call LintFile()
 command! -nargs=? Fmt call FormatFile(<f-args>)
@@ -172,9 +182,7 @@ nnoremap <leader>" :call TmuxSwap()<CR>
 nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B :NERDTreeToggle<CR>
-nnoremap <leader>Bf :NERDTreeFind<CR>
-nnoremap <leader>Bt :TagbarToggle<CR>
+nnoremap <leader>B :call NERDTreeFindToggle()<CR>
 nnoremap <leader>f :Fmt<CR>
 nnoremap <leader>l :Lint<CR>
 
@@ -212,11 +220,6 @@ cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
 if !empty($TMUX)
-	" Fix background detection in tmux
-	if &term =~ '^screen'
-		set t_ut=
-	endif
-
 	nnoremap <expr> <silent> <c-j>
 		\ winnr() == winnr('$')
 		\ ? ':call system("tmux selectp -t :.+")<CR>'
@@ -274,8 +277,7 @@ function! GetVisualText() abort
 	return text
 endfunction
 
-" SetVisualSearch literal search of the selected text in visual mode. Any
-" regex special characters are escaped.
+" SetVisualSearch sets / to a literal search of the visual selection.
 function! SetVisualSearch() abort
 	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.^$~[]*'), "\n$", '', '')
 endfunction
@@ -397,8 +399,7 @@ function! AsyncCmdDone(job) abort
 	call remove(g:cmd_async_tasks, pid)
 endfunction
 
-" UpdateCurrentWindow appends texts to the active buffer and moves the
-" cursor to the bottom.
+" UpdateCurrentWindow appends text to the active buffer.
 function! UpdateCurrentWindow(text) abort
 	if wordcount().bytes == 0
 		call setline(1, a:text)
@@ -411,6 +412,13 @@ endfunction
 " ExecVisualText executes the selected visual text as the command.
 function! ExecVisualText() abort
 	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
+endfunction
+
+" OscYank copies text to clipboard via OSC 52.
+function! OscYank(text) abort
+	let encoded = system('printf %s ' . shellescape(a:text) . ' | base64 | tr -d "\n"')
+	let osc = "\e]52;c;" . encoded . "\x07"
+	call writefile([osc], '/dev/tty', 'b')
 endfunction
 
 " TmuxSwap swaps the unnamed register with the tmux buffer.
@@ -428,6 +436,7 @@ function! TmuxSwap() abort
 		return
 	endif
 	let @" = tmp
+	call OscYank(@")
 endfunction
 
 let g:linters = {
@@ -480,8 +489,7 @@ function! FormatFile(...) abort
 	checktime
 endfunction
 
-" FindVisibleTerminals returns a list of terminal buffer numbers that are visible
-" in the current tab.
+" FindVisibleTerminals returns visible terminal buffer numbers in the current tab.
 function! FindVisibleTerminals() abort
 	let terminals = []
 	for winnr in range(1, winnr('$'))
@@ -522,8 +530,7 @@ function! TermSend(target, text) abort
 	return v:true
 endfunction
 
-" Send types the current line or range to a terminal buffer as it was typed
-" by the user.
+" Send sends the current line or range to a terminal buffer.
 function! Send(range, start, end, ...) abort
 	if a:0 > 0 && !empty(a:1)
 		let target = a:1
@@ -598,8 +605,7 @@ function! TerminalStatusLine() abort
 	return printf('%d [%s] %s(%s) %s', bufnr, cwd, cmd, pid, toupper(status))
 endfunction
 
-" TabLabel returns the a label string for the given tab number a:n. If t:label
-" exists then returns it instead.
+" TabLabel returns the display label for tab a:n, preferring t:label.
 function! TabLabel(n) abort
 	let tabl = gettabvar(a:n, 'label')
 	if !empty(tabl)
@@ -745,9 +751,7 @@ function! OpenWikilink(name) abort
 	endif
 endfunction
 
-" Fts executes a full-text search using the 'fts' command and populates the
-" location list with the results.
-" @param query: The search query string.
+" Fts runs fts and populates the location list.
 function! Fts(query) abort
 	if !executable('fts')
 		echohl ErrorMsg | echo 'fts not found' | echohl None
@@ -760,9 +764,7 @@ function! Fts(query) abort
 	lwindow
 endfunction
 
-" BufferList lists all buffers matching or not matching the given pattern.
-" @param pattern: The pattern to match buffer names against.
-" @param inverse: If true, show buffers not matching the pattern instead.
+" BufferList lists buffers matching pattern; inverse inverts the filter.
 function! BufferList(pattern, inverse) abort
 	let buffers = getbufinfo({'buflisted': 1})
 	let filtered = []
@@ -810,10 +812,7 @@ function! BufferList(pattern, inverse) abort
 	call setline(1, output)
 endfunction
 
-" BufferDelete deletes all buffers whose names match
-" or don't match the given pattern.
-" @param pattern: The pattern to match buffer names against.
-" @param inverse: If true, delete buffers NOT matching the pattern instead.
+" BufferDelete deletes buffers matching pattern; inverse inverts the filter.
 function! BufferDelete(pattern, inverse) abort
 	let buffer_list = []
 	for buffer in getbufinfo({'buflisted': 1})
@@ -829,6 +828,17 @@ function! BufferDelete(pattern, inverse) abort
 		return
 	endif
 	execute 'bdelete' join(buffer_list)
+endfunction
+
+" NERDTreeFindToggle closes NERDTree if open, otherwise opens it focused on the current file.
+function! NERDTreeFindToggle() abort
+	if exists('g:NERDTree') && g:NERDTree.IsOpen()
+		NERDTreeClose
+	elseif expand('%:p') !=# ''
+		NERDTreeFind
+	else
+		NERDTreeToggle
+	endif
 endfunction
 
 if exists('$DOTFILES')
