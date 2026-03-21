@@ -9,6 +9,9 @@ die() { log "$@"; exit 1; }
 
 cd "$root" || die "cd $root"
 
+# Append line ($1) to file ($2) only if not already present.
+fileline() { grep -qxF "$1" "$2" || printf '\n%s\n' "$1" >> "$2"; }
+
 for f in dot.*; do
     [ -e "$f" ] || continue
     target="$HOME/${f#dot}"
@@ -36,6 +39,14 @@ fi
 if [ ! -e "$HOME/lib" ]; then
     log 'link lib'
     ln -sf "$root/lib" "$HOME/lib"
+fi
+
+# On systems with a base config layer (e.g. Omarchy), patch its tmux template to
+# source our user overrides so they survive any config refresh commands.
+tmux_template="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
+if [ -f "$tmux_template" ]; then
+    log 'patch tmux template'
+    fileline 'source-file -q ~/.config/tmux/user.conf' "$tmux_template"
 fi
 
 set -x
