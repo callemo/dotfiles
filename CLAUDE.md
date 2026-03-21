@@ -34,21 +34,10 @@ diff -u test.exp test.out     # Verify test output after running ./test
 ### Key Architectural Patterns
 
 #### Snippet System (`bin/snip`)
-Python-based code generation system using the `IndentBuilder` class:
-- Snippets registered in `SNIPPETS` dictionary mapping names to generator functions
-- Generator functions receive `IndentBuilder` instance and args list
-- `IndentBuilder` maintains indentation level and builds output via `write()`, `indent()`, `dedent()`
-- Template categories: shell (sh*), Go (go*), AWK (awk*), Python (py*), notes (n*)
-- Adding new snippets: define function with `@snippet` decorator (or manually add to SNIPPETS dict)
+Python code generator using `IndentBuilder`; snippets registered via `@snippet` decorator in `SNIPPETS` dict. Categories: shell (sh*), Go (go*), AWK (awk*), Python (py*), notes (n*).
 
 #### Acme Integration (`acme/`)
-Scripts communicate with Acme via Plan 9 filesystem protocol (9p):
-- `9p read acme/$winid/body` - read window content
-- `9p write acme/$winid/data` - replace window content
-- `9p write acme/$winid/ctl` - send control commands (mark, nomark, dot=addr, show)
-- `9p rdwr acme/$winid/addr` - get/set cursor position
-- Key pattern in `acme/afmt`: save position → format code → restore position
-- Scripts use environment variables: `$winid` (window ID), `$samfile` (filename)
+Scripts talk to Acme via 9p (`9p read/write acme/$winid/{body,data,ctl,addr}`). Key env vars: `$winid`, `$samfile`. Pattern in `acme/afmt`: save position → format → restore.
 
 #### Filter Pattern (Text Processing Tools)
 All text utilities follow consistent filter architecture:
@@ -81,7 +70,14 @@ SQLite FTS5-based search for markdown and text files:
 - Error handling: `log()` writes to stderr, `fatal()` exits with error
 - Help text: embedded in comments at top of file, extracted via sed pattern
 - Working directory: scripts use `cd "${0%/*}"` or absolute paths to avoid dependency on pwd
-- PATH management: `init.sh` uses `_merge_path()` to avoid duplicates
+- PATH management: `init.sh` uses `_pathinsert()` to prepend dirs to PATH without duplicates
+- Indentation: tabs only (no spaces) in all shell scripts
+- Style: K&R flat logic — early exit/continue over nested if/else; `||`/`&&` guards for single-action checks
+- `fileline pattern line file` — 3-arg helper (ERE pattern to match/replace, exact line to write, target file); delegates to `bin/overwrite` for atomic rewrites; matches style in `~/code/devops/*/lib.sh`
+- `bin/overwrite` exists — do not inline an overwrite function in scripts, use it from PATH
+- Vim plugin loop uses heredoc for stdin; commands inside must redirect `</dev/null` or git will consume heredoc lines
+- `dot.config/` special case in `install`: contents mirrored into `~/.config/` tree individually, not symlinked as a dir
+- Project Claude settings: `.claude/settings.local.json` (gitignored; hooks, extra dirs, personal overrides)
 
 ### Testing Strategy
 The `./test` script follows a two-phase approach:
