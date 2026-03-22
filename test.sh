@@ -287,8 +287,17 @@ printf '#pp:ifdef VER\nhas version\n#pp:endif\n' | ./bin/pp -DVER=2
 # include inside false ifdef: file not opened (no error)
 printf '#pp:ifdef NOPE\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp
 echo $?
+# missing file in unconditional include: should fail loudly
+printf '#pp:include testdata/pp/nonexistent.pp\n' | ./bin/pp; echo $?
+# missing file in true ifdef: should fail loudly
+printf '#pp:ifdef YEP\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp -DYEP; echo $?
 # circular include: detects cycle, exits nonzero
 ./bin/pp testdata/pp/cycle_a.pp 2>/dev/null; echo $?
+# unclosed ifdef: should fail
+printf '#pp:ifdef A\nhello\n' | ./bin/pp -DA 2>/dev/null; echo $?
+# stray endif: warns but succeeds
+printf '#pp:endif\nhello\n' | ./bin/pp 2>/dev/null
+echo $?
 
 echo '--- tdump/tload'
 tmuxbin="$td/tmuxbin"

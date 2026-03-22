@@ -213,7 +213,15 @@ before include
 Hello from hello.pp
 after include
 0
+pp: testdata/pp/nonexistent.pp: cannot read
 1
+pp: testdata/pp/nonexistent.pp: cannot read
+1
+1
+hello
+1
+hello
+0
 --- tdump/tload
 s
 TESTDIR/session|root
