@@ -278,8 +278,12 @@ printf 'before\n#pp:ifdef UNDEF\nhidden\n#pp:endif\nafter\n' | ./bin/pp
 printf '#pp:ifdef A\n#pp:ifdef B\nnested\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA -DB
 # nested ifdef: only outer defined
 printf '#pp:ifdef A\n#pp:ifdef B\nnested\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA
-# -D with value: symbol still defined
-printf '#pp:ifdef VER\nhas version\n#pp:endif\n' | ./bin/pp -DVER=2
+# ifndef: undefined symbol → emit
+printf '#pp:ifndef BAR\nyes\n#pp:endif\n' | ./bin/pp
+# ifndef: defined symbol → suppress
+printf '#pp:ifndef FOO\nno\n#pp:endif\n' | ./bin/pp -DFOO
+# nested ifdef/ifndef
+printf '#pp:ifdef A\n#pp:ifndef B\nonly A\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA
 # include file
 ./bin/pp testdata/pp/include_hello.pp
 # recursive include (deep.pp → include_hello.pp → hello.pp)
@@ -287,8 +291,17 @@ printf '#pp:ifdef VER\nhas version\n#pp:endif\n' | ./bin/pp -DVER=2
 # include inside false ifdef: file not opened (no error)
 printf '#pp:ifdef NOPE\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp
 echo $?
+# missing file in unconditional include: should fail loudly
+printf '#pp:include testdata/pp/nonexistent.pp\n' | ./bin/pp; echo $?
+# missing file in true ifdef: should fail loudly
+printf '#pp:ifdef YEP\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp -DYEP; echo $?
 # circular include: detects cycle, exits nonzero
 ./bin/pp testdata/pp/cycle_a.pp 2>/dev/null; echo $?
+# unclosed ifdef: should fail
+printf '#pp:ifdef A\nhello\n' | ./bin/pp -DA 2>/dev/null; echo $?
+# stray endif: warns but succeeds
+printf '#pp:endif\nhello\n' | ./bin/pp 2>/dev/null
+echo $?
 
 echo '--- tdump/tload'
 tmuxbin="$td/tmuxbin"
