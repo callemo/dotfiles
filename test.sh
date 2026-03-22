@@ -278,8 +278,12 @@ printf 'before\n#pp:ifdef UNDEF\nhidden\n#pp:endif\nafter\n' | ./bin/pp
 printf '#pp:ifdef A\n#pp:ifdef B\nnested\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA -DB
 # nested ifdef: only outer defined
 printf '#pp:ifdef A\n#pp:ifdef B\nnested\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA
-# -D with value: symbol still defined
-printf '#pp:ifdef VER\nhas version\n#pp:endif\n' | ./bin/pp -DVER=2
+# ifndef: undefined symbol → emit
+printf '#pp:ifndef BAR\nyes\n#pp:endif\n' | ./bin/pp
+# ifndef: defined symbol → suppress
+printf '#pp:ifndef FOO\nno\n#pp:endif\n' | ./bin/pp -DFOO
+# nested ifdef/ifndef
+printf '#pp:ifdef A\n#pp:ifndef B\nonly A\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA
 # include file
 ./bin/pp testdata/pp/include_hello.pp
 # recursive include (deep.pp → include_hello.pp → hello.pp)

@@ -1,11 +1,25 @@
 #!/bin/sh
-# usage: pp [-Dsymbol[=value] ...] [file ...]
-# Minimal recursive text preprocessor.
-# Replaces #pp:include, #pp:ifdef, and #pp:endif directives.
+# usage: pp [-Dsymbol ...] [file ...]
+# Pp is a minimal preprocessor.  It reads each file in sequence and
+# writes it to the standard output, interpreting the directives below.
+# If no file is given, the standard input is read.
+#
+#   #pp:ifdef S    if S is defined, emit lines up to matching endif
+#   #pp:ifndef S   if S is not defined, emit lines up to matching endif
+#   #pp:endif      close the innermost ifdef or ifndef
+#   #pp:include F  replace this line with the contents of file F
+#
+# Directives may be nested to any depth.  Lines within a false block
+# are suppressed; a false #pp:include is not opened.  Circular
+# includes are detected and cause an error exit.
 #
 # Options:
-#   -Dsymbol=value  Define symbol with value
-#   -Dsymbol        Define symbol (value defaults to 1)
+#   -Dsymbol  define symbol (only membership is tested, not value)
+#
+# Examples:
+#   pp -DPDP11 file.txt
+#   pp -DPDP11 -DNOFLOAT a.txt b.txt
+#   cat file.txt | pp -DSMALL
 #
 
 exec awk '
@@ -16,6 +30,11 @@ function p(f,  s, r, d0) {
 		if (sub(/^#pp:ifdef[ \t]+/, "", s)) {
 			d++
 			emit[d] = emit[d-1] && (s in D)
+			continue
+		}
+		if (sub(/^#pp:ifndef[ \t]+/, "", s)) {
+			d++
+			emit[d] = emit[d-1] && !(s in D)
 			continue
 		}
 		if (s ~ /^#pp:endif/) {
@@ -42,9 +61,7 @@ BEGIN {
 	emit[0] = 1; d = 0
 	for (i = 1; i < ARGC; i++) {
 		if (!sub(/^-D/, "", ARGV[i])) { F[n++] = ARGV[i]; continue }
-		j = index(ARGV[i], "=")
-		if (j) D[substr(ARGV[i], 1, j-1)] = substr(ARGV[i], j+1)
-		else   D[ARGV[i]] = 1
+		D[ARGV[i]] = 1
 	}
 	if (!n) F[n++] = "-"
 	for (i = 0; i < n; i++) p(F[i])

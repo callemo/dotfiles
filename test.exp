@@ -205,7 +205,8 @@ yes
 before
 after
 nested
-has version
+yes
+only A
 before include
 Hello from hello.pp
 after include
