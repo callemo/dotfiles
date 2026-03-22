@@ -61,9 +61,15 @@ SQLite FTS5-based search for markdown and text files:
 - Near search: `-n` flag wraps query in `NEAR($q, 100)` for paragraph-level matches
 - Output: TSV format (file path, snippet with 10 words context)
 
+#### Preprocessor (`bin/pp`)
+AWK-based minimal C-style preprocessor:
+- Directives: `#pp:ifdef S`, `#pp:ifndef S`, `#pp:endif`, `#pp:include F`
+- Symbols defined via `-Dsymbol` flags (membership only, no values)
+- Detects circular includes; reads stdin if no files given
+
 #### Notes Tool (`bin/n`)
 - `tag` accepts multiple tags and treats them as an AND query (for example, `n tag business safari`)
-- `xref` rewrites `References:` frontmatter from reverse links and normalizes `[[Z/R/...]]` and `[[Z/R/n/...]]` targets before lookup
+- `xref` sub-command (or standalone `bin/xref [dir]`) rewrites `References:` frontmatter from reverse links; normalizes `[[Z/R/...]]` and `[[Z/R/n/...]]` targets; uses `$NROOT` env var as default dir
 
 ### Shell Script Conventions
 - POSIX compliance preferred (works across bash, zsh, ksh)

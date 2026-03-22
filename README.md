@@ -46,7 +46,9 @@ source ~/dotfiles/init.sh
 
 **template** does text substitution with placeholders like `{{1}}` and `{{2}}`.
 
-**n** manages notes with wiki-style linking and tagging. `n tag` accepts multiple tags as an AND query, and `n xref` rebuilds `References:` frontmatter from reverse links.
+**n** manages notes with wiki-style linking and tagging. `n tag` accepts multiple tags as an AND query. **xref** rebuilds `References:` frontmatter from reverse links (also available as `n xref`; uses `$NROOT` as default directory).
+
+**pp** is a minimal AWK-based preprocessor supporting `#pp:ifdef`, `#pp:ifndef`, `#pp:endif`, and `#pp:include` directives, with `-Dsymbol` flags.
 
 **md** processes Markdown files with Pikchr diagram support.
 
@@ -85,7 +87,6 @@ The repository includes dotfiles for various tools. Run `./install` to symlink t
 | **dot.Xdefaults**      | X configuration                                               |
 | **dot.xsession**       | X session startup script                                      |
 | **dot.fvwmrc**         | FVWM window manager configuration                             |
-| **dot.alacritty.toml** | Alacritty terminal emulator configuration                     |
 | **dot.nexrc**          | Nex/vi editor configuration                                   |
 | **dot.ripgreprc**      | ripgrep default settings                                      |
 | **dot.perltidyrc**     | Perl::Tidy code formatter configuration                       |
