@@ -22,6 +22,7 @@ set laststatus=2
 set listchars=eol:$,tab:>\ ,space:.
 set nobackup
 set noequalalways
+set winminheight=0
 set noexpandtab
 set nofoldenable
 set nojoinspaces
@@ -136,6 +137,7 @@ command! -nargs=* Fts call Fts(<q-args>)
 
 command! Tswap call TmuxSwap()
 
+command!           Sort   call SortWindows()
 command! -nargs=1 BDelete call BufferDelete(<f-args>, v:false)
 command! -nargs=1 BVDelete call BufferDelete(<f-args>, v:true)
 command! -nargs=1 B call BufferList(<f-args>, v:false)
@@ -736,6 +738,16 @@ function! Fts(query) abort
 		\ 'lines' : systemlist('fts ' . shellescape(a:query) . ' | cut -f 1,2'),
 		\ 'efm': '%f	%m' })
 	lwindow
+endfunction
+
+" SortWindows sorts visible splits in the current tab by buffer name.
+function! SortWindows() abort
+	let wins = range(1, winnr('$'))
+	let bufs = map(copy(wins), {_, n -> winbufnr(n)})
+	let sorted = sort(copy(bufs), {a, b -> bufname(a) > bufname(b) ? 1 : -1})
+	for i in range(len(wins))
+		call win_execute(win_getid(wins[i]), 'buffer ' . sorted[i])
+	endfor
 endfunction
 
 " BufferList lists buffers matching pattern; inverse inverts the filter.
