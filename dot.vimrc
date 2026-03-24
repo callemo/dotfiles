@@ -6,7 +6,7 @@ set backspace=indent,eol,start
 if has('clipboard')
 	set clipboard=unnamed
 endif
-set cmdheight=2
+set cmdheight=1
 set commentstring=#%s
 set complete-=i
 set confirm
@@ -30,7 +30,6 @@ set nowritebackup
 set nrformats-=octal
 set number
 set path=.,,
-set scrollfocus=1
 set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
@@ -70,22 +69,6 @@ let g:loaded_netrwPlugin = 1
 let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
-let g:NERDTreeShowHidden=1
-let g:NERDTreeSortHiddenFirst=1
-let g:NERDTreeWinPos='right'
-let g:NERDTreeWinSize=40
-let g:NERDTreeMinimalMenu=1
-let g:NERDTreeAutoDeleteBuffer=1
-let g:NERDTreeMapJumpNextSibling=''
-let g:NERDTreeMapJumpPrevSibling=''
-let g:NERDTreeMapToggleFilters=''
-let g:NERDTreeMapJumpParent=''
-let g:NERDTreeMapOpenRecursively="+"
-let g:NERDTreeMapCloseChildren="-"
-let g:NERDTreeMapPreview='p'
-let g:NERDTreeMapActivateNode='gf'
-let g:NERDTreeMapOpenSplit='<C-x>'
-let g:NERDTreeMapOpenInTab='<C-t>'
 
 let g:go_def_mode           = 'gopls'
 let g:go_info_mode          = 'gopls'
@@ -134,6 +117,8 @@ augroup dotfiles
 		" syntax/yaml.vim is too buggy
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
+	autocmd FileType dirvish
+			\ nnoremap <buffer> <CR> :<C-U>call dirvish#open('split', 0)<CR>
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -182,7 +167,7 @@ nnoremap <leader>" :call TmuxSwap()<CR>
 nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <leader>B :call NERDTreeFindToggle()<CR>
+nnoremap <leader>B :call DirvishToggle()<CR>
 nnoremap <leader>f :Fmt<CR>
 nnoremap <leader>l :Lint<CR>
 
@@ -208,10 +193,10 @@ nnoremap yop :setl invpaste<CR>
 nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
-	xnoremap * :call SetVisualSearch()<CR>/<CR>
-	xnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
-	xnoremap <silent> <leader><CR>
-	\ :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
+xnoremap * :call SetVisualSearch()<CR>/<CR>
+xnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
+xnoremap <silent> <leader><CR>
+		\ :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
@@ -327,7 +312,6 @@ function! RunCmdAsync(range, line1, line2, cmd) abort
 		\ 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
-		\ 'callback': 'AsyncCmdOutputHandler',
 		\ 'close_cb': 'AsyncCmdCloseHandler',
 		\ 'exit_cb': 'AsyncCmdExitHandler',
 		\ 'timeout': 300000,
@@ -342,22 +326,11 @@ function! RunCmdAsync(range, line1, line2, cmd) abort
 	let job = job_start([&sh, &shcf, a:cmd], opts)
 	let pid = job_info(job).process
 	let name = split(a:cmd)[0]
-	if !exists('g:cmd_async_tasks')
-		let g:cmd_async_tasks = {}
-	endif
 	let g:cmd_async_tasks[pid] = {
 		\ 'name': name,
-		\ 'output': 0,
 		\ 'exited': -1,
 		\ 'closed': 0
 		\ }
-endfunction
-
-" AsyncCmdOutputHandler job output handler.
-function! AsyncCmdOutputHandler(channel, msg) abort
-	let job = ch_getjob(a:channel)
-	let pid = job_info(job).process
-	let g:cmd_async_tasks[pid].output += 1
 endfunction
 
 " AsyncCmdCloseHandler channel close handler.
@@ -387,8 +360,8 @@ function! AsyncCmdDone(job) abort
 	let pid = job_info(a:job).process
 	let name = g:cmd_async_tasks[pid].name
 	let code = g:cmd_async_tasks[pid].exited
-	if g:cmd_async_tasks[pid].output || code > 0
-		let bufnr = ch_getbufnr(a:job, 'out')
+	let bufnr = ch_getbufnr(a:job, 'out')
+	if getbufline(bufnr, 1, '$') != [''] || code > 0
 		exe 'sbuffer' bufnr
 		call cursor(line('$'), '.')
 		if code > 0
@@ -554,6 +527,7 @@ function! Send(range, start, end, ...) abort
 	if type(target) == v:t_string && target =~# '^\d\+$'
 		let target = str2nr(target)
 	endif
+	" T:<pane> targets are routed to tmux; bare numbers route to a terminal buffer
 	if type(target) == v:t_string && stridx(target, 'T:') == 0
 		if !TmuxSend(strpart(target, 2), keys)
 			return
@@ -830,14 +804,14 @@ function! BufferDelete(pattern, inverse) abort
 	execute 'bdelete' join(buffer_list)
 endfunction
 
-" NERDTreeFindToggle closes NERDTree if open, otherwise opens it focused on the current file.
-function! NERDTreeFindToggle() abort
-	if exists('g:NERDTree') && g:NERDTree.IsOpen()
-		NERDTreeClose
+" DirvishToggle opens dirvish for the current file's directory, or closes it if already in dirvish.
+function! DirvishToggle() abort
+	if &filetype ==# 'dirvish'
+		bwipeout
 	elseif expand('%:p') !=# ''
-		NERDTreeFind
+		exe 'Dirvish' expand('%:p:h')
 	else
-		NERDTreeToggle
+		Dirvish
 	endif
 endfunction
 
