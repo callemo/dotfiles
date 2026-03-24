@@ -588,43 +588,26 @@ function! TabLabel(n) abort
 		return tabl
 	endif
 
-	let buflist = tabpagebuflist(a:n)
-	let winnr = tabpagewinnr(a:n)
-	let bufnr = buflist[winnr - 1]
-	let filetype = getbufvar(bufnr, '&filetype')
-	let buftype = getbufvar(bufnr, '&buftype')
-	let label = bufname(bufnr)
+	let bufnr = tabpagebuflist(a:n)[tabpagewinnr(a:n) - 1]
+	let ft = getbufvar(bufnr, '&filetype')
+	let bt = getbufvar(bufnr, '&buftype')
+	let name = bufname(bufnr)
 
-	if filetype == 'fugitive'
-		return '-Fugitive'
-	elseif filetype == 'git'
-		return '-Git'
+	if empty(name)
+		return empty(bt) ? '-' : '-' . bt
 	endif
 
+	let label = fnamemodify(name, ':t')
 	if empty(label)
-		if empty(buftype)
-			return '-'
-		endif
-		return '-' . buftype
+		let label = fnamemodify(name, ':h:t') . '/'
 	endif
 
-	if filereadable(label)
-		let label = fnamemodify(label, ':p:t')
-		if filetype == 'help'
-			let label = '-help:' . label
-		endif
-	elseif isdirectory(label)
-		let label = fnamemodify(label, ':p:~')
-	elseif label[-1:] == '/'
-		let label = split(label, '/')[-1] . '/'
-	else
-		let label = split(label, '/')[-1]
+	if ft ==# 'help'
+		return '-help:' . label
 	endif
-
-	if buftype == 'terminal'
+	if bt ==# 'terminal'
 		return '-terminal:' . label
 	endif
-
 	return label
 endfunction
 
