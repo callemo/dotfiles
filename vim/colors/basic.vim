@@ -43,9 +43,9 @@ hi MatchParen     ctermbg=8 ctermfg=15
 " Errors & diffs
 hi ErrorMsg   ctermfg=0 ctermbg=1
 hi WarningMsg ctermfg=0 ctermbg=3
-hi DiffAdd    ctermfg=2
-hi DiffDelete ctermfg=1
-hi DiffChange ctermfg=3
+hi DiffAdd    ctermfg=2 ctermbg=NONE
+hi DiffDelete ctermfg=1 ctermbg=NONE
+hi DiffChange ctermfg=3 ctermbg=NONE
 hi DiffText   ctermfg=0 ctermbg=3
 
 " Spell
