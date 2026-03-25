@@ -640,8 +640,8 @@ function! Plumb(wdir, attr, data) abort
 	" URLs
 	let m = matchlist(a:data,
 		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
-		\ . '\([.:][a-zA-Z0-9_@\-]\+\)*/\?[a-zA-Z0-9_?,%#~&/\-+=]\+'
-		\ . '\([:.][a-zA-Z0-9_?,%#~&/\-+=]\+\)*')
+		\ . '\([.:][a-zA-Z0-9_@\-]\+\)*'
+		\ . '\(/[a-zA-Z0-9_?,%#~&/\-+=():;!@]*\)*')
 	if len(m)
 		call OpenURL(m[0])
 		return
@@ -655,11 +655,16 @@ function! Plumb(wdir, attr, data) abort
 	endif
 
 	" File with address
-	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):')
+	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):\?')
 	if len(m)
 		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
+		let f = simplify(f)
 		if filereadable(f)
-			if bufexists(f)
+			let w = bufwinnr(f)
+			if w != -1
+				exe w . 'wincmd w'
+				exe m[2]
+			elseif bufexists(f)
 				silent exe 'sbuffer' '+' . m[2] fnameescape(f)
 			else
 				silent exe 'split' '+' . m[2] fnameescape(f)
@@ -672,8 +677,12 @@ function! Plumb(wdir, attr, data) abort
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\)')
 	if len(m)
 		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
+		let f = simplify(f)
 		if filereadable(f)
-			if bufexists(f)
+			let w = bufwinnr(f)
+			if w != -1
+				exe w . 'wincmd w'
+			elseif bufexists(f)
 				silent exe 'sbuffer' fnameescape(f)
 			else
 				silent exe 'split' fnameescape(f)
