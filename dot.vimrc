@@ -1,5 +1,4 @@
 set nocompatible
-
 set autoindent
 set autoread
 set backspace=indent,eol,start
@@ -65,7 +64,6 @@ let mapleader = ' '
 let g:loaded_netrw = 1
 let g:loaded_netrwPlugin = 1
 
-let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
 
@@ -102,6 +100,7 @@ augroup dotfiles
 		" syntax/yaml.vim is too buggy
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
+	autocmd VimEnter * if argc() == 0 && empty(bufname()) | let b = bufnr() | call Dir('') | exe 'bwipeout' b | endif
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -227,7 +226,8 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
+nnoremap <silent> <2-LeftMouse> :if getmousepos().winrow > winheight(0) \| resize \| else \| exe "normal! viw" \| endif<CR>
+nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-a><CR>
 nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> :<c-u>call ExecVisualText()<CR>
 xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
@@ -248,11 +248,7 @@ endfunction
 
 " Cmd executes a command with an optional range for input.
 function! Cmd(cmd, range, line1, line2) abort
-	if g:cmd_async && exists('*job_start')
-		call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
-	else
-		call RunCmd(a:range, a:line1, a:line2, a:cmd)
-	endif
+	call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
 endfunction
 
 " NewBuffer creates a scratch buffer with the given suffix returning its name
@@ -266,22 +262,6 @@ function! NewBuffer(suffix) abort
 		call setbufvar(bufnr, '&swapfile', 0)
 	endif
 	return bufname
-endfunction
-
-" RunCmd executes a shell command
-function! RunCmd(range, line1, line2, cmd) abort
-	let input = a:range > 0 ? getline(a:line1, a:line2) : []
-	silent let output = systemlist(a:cmd, input)
-	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
-	if len(output) > 0 || v:shell_error
-		let bufname = NewBuffer('/+Errors')
-		exe 'sbuffer' bufname
-		call UpdateCurrentWindow(output)
-		if v:shell_error
-			call UpdateCurrentWindow(msg)
-		endif
-	endif
-	echom msg
 endfunction
 
 " RunCmdAsync asynchronously executes a shell command.
@@ -688,19 +668,31 @@ function! BufferMatch(a) abort
 	call UpdateCurrentWindow(map(b, 'bufname(v:val)'))
 endfunction
 
+" Strip ls -F suffix from a directory entry.
+function! DirEntry() abort
+	return substitute(getline('.'), '[*=>@|]$', '', '')
+endfunction
+
+" Strip ls -F suffixes from visual selection.
+function! DirEntries() abort
+	return join(map(getline("'<", "'>"), {_, v -> substitute(v, '[*=>@|]$', '', '')}), ' ')
+endfunction
+
 " Read a directory into a scratch buffer.
 function! Dir(path) abort
 	let d = empty(a:path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(a:path, ':p')
-	let n = 'ls ' . d
-	if bufexists(n) | return execute('sbuffer ' . bufnr(n)) | endif
-	execute 'new ' . fnameescape(n)
+	execute 'new ls\ ' . fnameescape(d)
 	silent execute '%!ls -aF ' . shellescape(d)
 	setlocal buftype=nofile bufhidden=wipe noswapfile filetype=dir readonly
 	let b:dir = d
-	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, substitute(getline('.'), '[*=>@\|]$', '', ''))<CR>
+	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, DirEntry())<CR>
+	" :h strips trailing /, second :h goes up one level
 	nnoremap <silent> <buffer> - :call Dir(fnamemodify(b:dir, ':h:h'))<CR>
-	nnoremap <silent> <buffer> !! :<C-\>eDirBang(substitute(getline('.'), '[*=>@\|]$', '', ''))<CR>
-	xnoremap <silent> <buffer> !! :<C-U><C-\>eDirBang(join(map(getline("'<","'>"), 'substitute(v:val, ''[*=>@\|]$'', '''', '''')'), ' '))<CR>
+	nnoremap <silent> <buffer> !! :<C-\>eDirBang(DirEntry())<CR>
+	xnoremap <silent> <buffer> !! :<C-U><C-\>eDirBang(DirEntries())<CR>
+	nnoremap <silent> <buffer> <leader><CR> :call Plumb(b:dir, {}, DirEntry())<CR>
+	nnoremap <silent> <buffer> <rightmouse> <leftmouse>:call Plumb(b:dir, {}, DirEntry())<CR>
+	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:Cmd <C-R>=DirEntry()<CR><CR>
 endfunction
 
 " Build a Cmd line from directory entries.
