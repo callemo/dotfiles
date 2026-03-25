@@ -107,13 +107,13 @@ augroup dotfiles
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 	autocmd FileType dirvish
-			\ nnoremap <buffer> <CR> :<C-U>call dirvish#open('split', 0)<CR>
-			\|nnoremap <buffer> <leader><CR> :<C-U>call dirvish#open('split', 0)<CR>
-			\|nnoremap <buffer> <rightmouse> <leftmouse>:<C-U>call dirvish#open('split', 0)<CR>
+			\ silent! lcd %
+			\|nnoremap <buffer> <CR> :<C-U>call dirvish#open('split', 0)<CR>
 			\|nnoremap <buffer> <leader>! :<C-U>Cmd <C-R>=getline('.')<CR><CR>
 			\|nnoremap <buffer> <middlemouse> <leftmouse>:<C-U>Cmd <C-R>=getline('.')<CR><CR>
 			\|nnoremap <buffer> !! :<C-\>eDirvishBang(getline('.'))<CR>
 			\|xnoremap <buffer> !! :<C-U><C-\>eDirvishBang(join(getline("'<","'>"),' '))<CR>
+			\|nmap <buffer> <leader><Up> <Plug>(dirvish_up)
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -691,6 +691,10 @@ function! Plumb(wdir, attr, data) abort
 			call PlumbFile(f, '')
 			return
 		endif
+		if isdirectory(f)
+			exe 'split | Dirvish' fnameescape(f)
+			return
+		endif
 	endif
 
 	" Text search
@@ -701,8 +705,6 @@ function! Plumb(wdir, attr, data) abort
 		let @/ = '\<' . a:attr['word'] . '\>'
 		call feedkeys("/\<CR>")
 	endif
-	call clearmatches()
-	call matchadd('Search', getreg('/'))
 endfunction
 
 " OpenURL opens the given URL
