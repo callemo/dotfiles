@@ -71,14 +71,6 @@ let g:cmd_async = 1
 let g:cmd_async_tasks = {}
 
 
-let g:go_def_mode           = 'gopls'
-let g:go_info_mode          = 'gopls'
-let g:go_decls_mode         = 'fzf'
-let g:go_term_close_on_exit = 0
-let g:go_term_enabled       = 1
-let g:go_term_mode          = 'split'
-let g:go_term_reuse         = 1
-
 augroup dotfiles
 	autocmd!
 	if !has('clipboard')
@@ -105,10 +97,6 @@ augroup dotfiles
 	autocmd BufNewFile,BufRead *.tidal setfiletype haskell
 	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
 	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	autocmd FileType go nnoremap <buffer> <leader>c :GoCallers<CR>
-	autocmd FileType go nnoremap <buffer> <leader>d :GoDeclsDir<CR>
-	autocmd FileType go nnoremap <buffer> <leader>i :GoInfo<CR>
-	autocmd FileType go nnoremap <buffer> <leader>t :GoTestFile -v<CR>
 	autocmd FileType groff setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json setl sw=4 sts=4 et
 	autocmd FileType lilypond setl et sw=2 ts=2 sts=2 ai fdm=indent fdl=0 fdc=2 cms=%\ %s
@@ -130,10 +118,11 @@ inoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
 cnoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
 cnoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
 
-command!          Lint call LintFile()
-command! -nargs=? Fmt call FormatFile(<f-args>)
+command! -nargs=? Lint call LintFile(<f-args>)
+command! -nargs=? -range=% Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
+command! -nargs=? Outline call Outline(<f-args>)
 
 command! Tswap call TmuxSwap()
 
@@ -418,17 +407,21 @@ let g:linters = {
 			\ 'bash': 'shellcheck -f gcc',
 			\ 'css': 'stylelint',
 			\ 'go': 'go vet',
+			\ 'json': 'python3 -c "import json,sys;json.load(open(sys.argv[1]))"',
+			\ 'markdown': 'prettier --check',
 			\ 'perl': 'perlcritic',
 			\ 'python': 'pylint -s n',
 			\ 'scss': 'stylelint',
 			\ 'sh': 'shellcheck -f gcc',
+			\ 'yaml': 'python3 -c "import yaml,sys;yaml.safe_load(open(sys.argv[1]))"',
 			\ }
 
 " LintFile runs a linter for the current file.
-function! LintFile() abort
-	let cmd = get(g:linters, &filetype, v:null)
+function! LintFile(...) abort
+	let ft = a:0 ? a:1 : &filetype
+	let cmd = get(g:linters, ft, v:null)
 	if cmd == v:null
-		echohl ErrorMsg | echo 'No linter for ' . &filetype | echohl None
+		echohl ErrorMsg | echo 'No linter for ' . ft | echohl None
 		return
 	endif
 	let exe = split(cmd)[0]
@@ -450,13 +443,31 @@ let g:formatters = {
 			\ 'python': 'black -q',
 			\ }
 
+let g:formatters_stdin = {
+			\ 'c': 'clang-format',
+			\ 'cpp': 'clang-format',
+			\ 'go': 'goimports',
+			\ 'java': 'clang-format',
+			\ 'perl': 'perltidy',
+			\ 'python': 'black -q -',
+			\ }
+
 " FormatFile runs a formatter for the current file.
-function! FormatFile(...) abort
-	let fallback = 'prettier --write --log-level warn'
-	let cmd = a:0 > 0 ? a:1 : get(g:formatters, &filetype, fallback)
+function! FormatFile(...) range abort
+	let ft  = a:0 ? a:1 : &filetype
+	let sel = a:firstline != 1 || a:lastline != line('$')
+	let pfx = sel
+		\ ? 'prettier --stdin-filepath ' . expand('%:S') . ' --log-level warn'
+		\ : 'prettier --write --log-level warn'
+	let cmd = get(sel ? g:formatters_stdin : g:formatters, ft,
+		\ pfx . (a:0 ? ' --parser ' . ft : ''))
 	let exe = split(cmd)[0]
 	if !executable(exe)
 		echohl ErrorMsg | echo exe . ' not found' | echohl None
+		return
+	endif
+	if sel
+		exe a:firstline . ',' . a:lastline . '!' . cmd
 		return
 	endif
 	update
@@ -710,6 +721,19 @@ function! OpenWikilink(name) abort
 	endif
 endfunction
 
+" Outline populates the location list with lines matching pat (default: markdown headings).
+function! Outline(...) abort
+	let pat = a:0 > 0 && !empty(a:1) ? a:1 : '^#\+\s'
+	let items = []
+	for i in range(1, line('$'))
+		if getline(i) =~ pat
+			call add(items, {'bufnr': bufnr('%'), 'lnum': i, 'text': getline(i)})
+		endif
+	endfor
+	call setloclist(0, [], 'r', {'title': 'Outline', 'items': items})
+	lwindow
+endfunction
+
 " Fts runs fts and populates the location list.
 function! Fts(query) abort
 	if !executable('fts')
@@ -804,9 +828,9 @@ function! DirvishToggle() abort
 	if &filetype ==# 'dirvish'
 		bwipeout
 	elseif expand('%:p') !=# ''
-		exe 'Dirvish' expand('%:p:h')
+		exe 'split | Dirvish' expand('%:p:h')
 	else
-		Dirvish
+		split | Dirvish
 	endif
 endfunction
 
@@ -824,11 +848,28 @@ if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 endif
 
+function! LoadVimGo() abort
+	let g:go_def_mode           = 'gopls'
+	let g:go_info_mode          = 'gopls'
+	let g:go_decls_mode         = 'fzf'
+	let g:go_term_close_on_exit = 0
+	let g:go_term_enabled       = 1
+	let g:go_term_mode          = 'split'
+	let g:go_term_reuse         = 1
+	packadd vim-go
+	augroup go_maps
+		autocmd!
+		autocmd FileType go nnoremap <buffer> <leader>c :GoCallers<CR>
+		autocmd FileType go nnoremap <buffer> <leader>d :GoDeclsDir<CR>
+		autocmd FileType go nnoremap <buffer> <leader>i :GoInfo<CR>
+		autocmd FileType go nnoremap <buffer> <leader>t :GoTestFile -v<CR>
+	augroup END
+	doautocmd go_maps FileType
+endfunction
+
 augroup lazy_plugins
 	autocmd!
-	if filereadable('go.mod')
-		autocmd BufRead,BufNewFile *.go ++once packadd vim-go
-	endif
+	autocmd BufRead,BufNewFile *.go ++once call LoadVimGo()
 augroup END
 
 if filereadable(expand('~/.vimrc.local'))
