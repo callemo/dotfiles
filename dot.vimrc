@@ -70,6 +70,9 @@ augroup dotfiles
 	if !has('clipboard')
 		autocmd TextYankPost * if v:event.operator ==# 'y' | call OscYank(getreg('"')) | endif
 	endif
+	if executable('tmux')
+		autocmd TextYankPost * if v:event.operator ==# 'y' | call system('tmux loadb -', getreg('"')) | endif
+	endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
 	autocmd BufWritePre * :call TrimTrailingBlanks()
@@ -126,12 +129,10 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 inoremap <down> <c-o><c-e>
 inoremap <up> <c-o><c-y>
-nnoremap <silent> <c-w>+ :exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
-nnoremap <silent> <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
+nnoremap <silent> <c-w>+ :exe 'resize' (winheight(0) * 2)<CR>
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <c-w>z :resize<CR>
 nnoremap + <c-w>+
-nnoremap - <c-w>-
 
 nnoremap <c-l>
 	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
@@ -139,12 +140,12 @@ nnoremap <c-p> :FZF<CR>
 nnoremap <leader>q :bwipeout<CR>
 nnoremap <leader>Q :bwipeout!<CR>
 nnoremap <leader>! :Cmd<space>
-nnoremap <leader>" :call TmuxSwap()<CR>
 nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap <silent> <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <silent> <leader>B :call DirToggle()<CR>
 nnoremap <leader>f :Fmt<CR>
+nnoremap <silent> <leader>F :let @+ = fnamemodify(expand('%:p'), ':.')<CR>
 nnoremap <leader>l :Lint<CR>
 
 nnoremap m<CR> :make<CR>
@@ -196,8 +197,7 @@ endif
 
 tnoremap <c-r><c-r> <c-r>
 tnoremap <silent> <c-w>+
-	\ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
-tnoremap <silent> <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
+	\ <c-w>:exe 'resize' (winheight(0) * 2)<CR>
 tnoremap <c-w>z <c-w>:resize<CR>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
@@ -222,11 +222,34 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nnoremap <silent> <2-LeftMouse> :if getmousepos().winrow > winheight(0) \| resize \| else \| exe "normal! viw" \| endif<CR>
+nnoremap <silent> <2-LeftMouse> :call WinGrow()<CR>
+nnoremap <silent> <C-LeftMouse> :call WinClose()<CR>
 nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-a><CR>
 nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
+
+" WinGrow: double-click statusline zooms to full, body selects word.
+function! WinGrow() abort
+	let m = getmousepos()
+	let w = m.winid
+	if !w | return | endif
+	if m.winrow > winheight(win_id2win(w))
+		call win_execute(w, 'resize')
+	else
+		exe "normal! \<2-LeftMouse>"
+	endif
+endfunction
+
+" WinClose: ctrl-click statusline closes window.
+function! WinClose() abort
+	let m = getmousepos()
+	let w = m.winid
+	if !w | return | endif
+	if m.winrow > winheight(win_id2win(w))
+		call win_execute(w, 'bwipeout')
+	endif
+endfunction
 
 " GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
@@ -298,24 +321,6 @@ function! OscYank(text) abort
 	let encoded = system('printf %s ' . shellescape(a:text) . ' | base64 | tr -d "\n"')
 	let osc = "\e]52;c;" . encoded . "\x07"
 	call writefile([osc], '/dev/tty', 'b')
-endfunction
-
-" TmuxSwap swaps the unnamed register with the tmux buffer.
-function! TmuxSwap() abort
-	if !executable('tmux')
-		call Err('tmux not found')
-		return
-	endif
-	silent let tmp = system('tmux showb')
-	let err = v:shell_error
-	silent call system('tmux loadb -', @")
-	let err = err || v:shell_error
-	if err
-		call Err('tmux swap failed')
-		return
-	endif
-	let @" = tmp
-	call OscYank(@")
 endfunction
 
 let g:linters = {
@@ -612,33 +617,21 @@ function! DirEntry() abort
 	return substitute(getline('.'), '[*=>@|]$', '', '')
 endfunction
 
-" Strip ls -F suffixes from visual selection.
-function! DirEntries() abort
-	return join(map(getline("'<", "'>"), {_, v -> substitute(v, '[*=>@|]$', '', '')}), ' ')
-endfunction
-
 " Read a directory into a scratch buffer.
 function! Dir(path) abort
 	let d = empty(a:path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(a:path, ':p')
 	let d = d =~# '/$' ? d : d . '/'
 	execute 'new ' . fnameescape(d)
 	silent execute '%!ls -aF ' . shellescape(d)
-	setlocal buftype=nofile bufhidden=wipe noswapfile filetype=dir readonly
+	setlocal buftype=nofile bufhidden=wipe noswapfile filetype=dir
 	let b:dir = d
 	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, DirEntry())<CR>
 	" :h strips trailing /, second :h goes up one level
 	nnoremap <silent> <buffer> - :call Dir(fnamemodify(b:dir, ':h:h'))<CR>
-	nnoremap <silent> <buffer> !! :<C-\>eDirBang(DirEntry())<CR>
-	xnoremap <silent> <buffer> !! :<C-U><C-\>eDirBang(DirEntries())<CR>
 	nnoremap <silent> <buffer> <leader><CR> :call Plumb(b:dir, {}, DirEntry())<CR>
 	nnoremap <silent> <buffer> <rightmouse> <leftmouse>:call Plumb(b:dir, {}, DirEntry())<CR>
 	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:Cmd <C-R>=DirEntry()<CR><CR>
-endfunction
-
-" Build a Cmd line from directory entries.
-function! DirBang(paths) abort
-	call setcmdpos(5)
-	return 'Cmd  ' . a:paths
+	nnoremap <silent> <buffer> <leader>F :let @+ = fnamemodify(b:dir, ':.')<CR>
 endfunction
 
 " Toggle the directory buffer.
