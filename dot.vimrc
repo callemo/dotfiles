@@ -381,7 +381,7 @@ endfunction
 
 " ExecVisualText executes the selected visual text as the command.
 function! ExecVisualText() abort
-	call Cmd(escape(GetVisualText(), '%#'), 0, 0, 0)
+	call Cmd(GetVisualText(), 0, 0, 0)
 endfunction
 
 " OscYank copies text to clipboard via OSC 52.
