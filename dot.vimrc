@@ -125,12 +125,13 @@ function! SendToTmux(line1, line2, target) abort
 	if a:target != ''
 		let w:send_tmux_target = a:target
 	endif
-	if get(w:, 'send_tmux_target', '') != ''
-		let cmd = 'tmux load-buffer - ; tmux paste-buffer -d -t ' . shellescape(w:send_tmux_target)
+	let target = get(w:, 'send_tmux_target', '')
+	let text = join(getline(a:line1, a:line2), "\n") . "\n"
+	if target != ''
+		call system('tmux loadb - \; pasteb -d -t ' . shellescape(target), text)
 	else
-		let cmd = 'tmux load-buffer - ; tmux paste-buffer -d'
+		call system('tmux loadb - \; pasteb -d', text)
 	endif
-	exe 'silent ' . a:line1 . ',' . a:line2 . 'w !' . cmd
 endfunction
 command! -range -nargs=? Send call SendToTmux(<line1>, <line2>, <q-args>)
 nnoremap <silent> <leader>; :Send<CR>
