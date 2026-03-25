@@ -121,7 +121,18 @@ command! -nargs=? Outline call Outline(<f-args>)
 command!           Sort   call SortWindows()
 command! -nargs=1 B call BufferMatch(<q-args>)
 
-command! -range -nargs=? Send silent <line1>,<line2>w !tmux load-buffer - ; tmux paste-buffer -d -t <q-args>
+function! SendToTmux(line1, line2, target) abort
+	if a:target != ''
+		let w:send_tmux_target = a:target
+	endif
+	if get(w:, 'send_tmux_target', '') != ''
+		let cmd = 'tmux load-buffer - ; tmux paste-buffer -d -t ' . shellescape(w:send_tmux_target)
+	else
+		let cmd = 'tmux load-buffer - ; tmux paste-buffer -d'
+	endif
+	exe 'silent ' . a:line1 . ',' . a:line2 . 'w !' . cmd
+endfunction
+command! -range -nargs=? Send call SendToTmux(<line1>, <line2>, <q-args>)
 nnoremap <silent> <leader>; :Send<CR>
 xnoremap <silent> <leader>; :Send<CR>
 
