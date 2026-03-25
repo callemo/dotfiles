@@ -108,6 +108,12 @@ augroup dotfiles
 	autocmd FileType sh setl noet sw=0 sts=0
 	autocmd FileType dirvish
 			\ nnoremap <buffer> <CR> :<C-U>call dirvish#open('split', 0)<CR>
+			\|nnoremap <buffer> <leader><CR> :<C-U>call dirvish#open('split', 0)<CR>
+			\|nnoremap <buffer> <rightmouse> <leftmouse>:<C-U>call dirvish#open('split', 0)<CR>
+			\|nnoremap <buffer> <leader>! :<C-U>Cmd <C-R>=getline('.')<CR><CR>
+			\|nnoremap <buffer> <middlemouse> <leftmouse>:<C-U>Cmd <C-R>=getline('.')<CR><CR>
+			\|nnoremap <buffer> !! :<C-\>eDirvishBang(getline('.'))<CR>
+			\|xnoremap <buffer> !! :<C-U><C-\>eDirvishBang(join(getline("'<","'>"),' '))<CR>
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -635,6 +641,19 @@ function! Rg(args) abort
 	botright lwindow
 endfunction
 
+" PlumbFile opens file f at optional address addr, reusing existing windows.
+function! PlumbFile(f, addr) abort
+	let w = bufwinnr(a:f)
+	if w != -1
+		exe w . 'wincmd w'
+		if !empty(a:addr) | exe a:addr | endif
+	elseif bufexists(a:f)
+		silent exe 'sbuffer' (empty(a:addr) ? '' : '+'.a:addr) fnameescape(a:f)
+	else
+		silent exe 'split' (empty(a:addr) ? '' : '+'.a:addr) fnameescape(a:f)
+	endif
+endfunction
+
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
 	" URLs
@@ -657,18 +676,9 @@ function! Plumb(wdir, attr, data) abort
 	" File with address
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):\?')
 	if len(m)
-		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
-		let f = simplify(f)
+		let f = simplify(m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1])
 		if filereadable(f)
-			let w = bufwinnr(f)
-			if w != -1
-				exe w . 'wincmd w'
-				exe m[2]
-			elseif bufexists(f)
-				silent exe 'sbuffer' '+' . m[2] fnameescape(f)
-			else
-				silent exe 'split' '+' . m[2] fnameescape(f)
-			endif
+			call PlumbFile(f, m[2])
 			return
 		endif
 	endif
@@ -676,17 +686,9 @@ function! Plumb(wdir, attr, data) abort
 	" File
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\)')
 	if len(m)
-		let f = m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1]
-		let f = simplify(f)
+		let f = simplify(m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1])
 		if filereadable(f)
-			let w = bufwinnr(f)
-			if w != -1
-				exe w . 'wincmd w'
-			elseif bufexists(f)
-				silent exe 'sbuffer' fnameescape(f)
-			else
-				silent exe 'split' fnameescape(f)
-			endif
+			call PlumbFile(f, '')
 			return
 		endif
 	endif
@@ -723,11 +725,7 @@ function! OpenWikilink(name) abort
 		return
 	endif
 	echom 'wikilink:' f
-	if bufexists(f)
-		silent exe 'sbuffer' fnameescape(f)
-	else
-		silent exe 'split' fnameescape(f)
-	endif
+	call PlumbFile(f, '')
 endfunction
 
 " Outline populates the location list with lines matching pat (default: markdown headings).
@@ -830,6 +828,12 @@ function! BufferDelete(pattern, inverse) abort
 		return
 	endif
 	execute 'bdelete' join(buffer_list)
+endfunction
+
+" DirvishBang builds a Cmd command line with paths appended and cursor after 'Cmd '.
+function! DirvishBang(paths) abort
+	call setcmdpos(5)
+	return 'Cmd  ' . a:paths
 endfunction
 
 " DirvishToggle opens dirvish for the current file's directory, or closes it if already in dirvish.
