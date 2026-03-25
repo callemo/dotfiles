@@ -65,17 +65,21 @@ tmpl="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
 # Plugin data list
-while read -r url; do
-	log "vim plugin $url"
-	./vim/get "$url" </dev/null || fatal "vim plugin failed: $url"
+while read -r flag url; do
+	if [ -n "$url" ]; then
+		log "vim plugin $flag $url"
+		./vim/get "$flag" "$url" </dev/null || fatal "vim plugin failed: $url"
+	else
+		log "vim plugin $flag"
+		./vim/get "$flag" </dev/null || fatal "vim plugin failed: $flag"
+	fi
 done <<EOF
-https://github.com/preservim/nerdtree
-https://github.com/preservim/tagbar
 https://github.com/tpope/vim-commentary
 https://github.com/tpope/vim-eunuch
 https://github.com/tpope/vim-fugitive
 https://github.com/tpope/vim-obsession
 https://github.com/tpope/vim-repeat
 https://github.com/tpope/vim-surround
-https://github.com/fatih/vim-go
+https://github.com/justinmk/vim-dirvish
+-o https://github.com/fatih/vim-go
 EOF
