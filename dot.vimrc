@@ -1,5 +1,4 @@
 set nocompatible
-
 set autoindent
 set autoread
 set backspace=indent,eol,start
@@ -65,17 +64,17 @@ let mapleader = ' '
 let g:loaded_netrw = 1
 let g:loaded_netrwPlugin = 1
 
-let g:cmd_async = 1
-let g:cmd_async_tasks = {}
-
 
 augroup dotfiles
 	autocmd!
 	if !has('clipboard')
 		autocmd TextYankPost * if v:event.operator ==# 'y' | call OscYank(getreg('"')) | endif
 	endif
+	if executable('tmux')
+		autocmd TextYankPost * if v:event.operator ==# 'y' | call system('tmux loadb -', getreg('"')) | endif
+	endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
-	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
+	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | setl nowrap | endif
 	autocmd BufWritePre * :call TrimTrailingBlanks()
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
@@ -87,7 +86,7 @@ augroup dotfiles
 	autocmd TerminalWinOpen *
 		\ setl nonumber
 		\ | setl statusline=%{TerminalStatusLine()}
-		\ | noremap <buffer> q i
+		\ | nnoremap <buffer> q i
 
 	autocmd FileType c,cpp setl path+=/usr/include
 	autocmd BufNewFile,BufRead *.tidal setfiletype haskell
@@ -102,6 +101,10 @@ augroup dotfiles
 		" syntax/yaml.vim is too buggy
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
+	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call Dir('', 1) | endif
+	" BufReadCmd matches trailing / (dir buffer names); BufReadPost catches :e .
+	autocmd BufReadCmd */ call Dir(expand('<afile>:p'), 1)
+	autocmd BufReadPost * if isdirectory(expand('<afile>:p')) | call Dir(expand('<afile>:p'), 1) | endif
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -116,14 +119,24 @@ command! -nargs=? Lint call LintFile(<f-args>)
 command! -nargs=? -range=% Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
-command! -nargs=? Outline call Outline(<f-args>)
-
-command! Tswap call TmuxSwap()
+command! -nargs=? Oln call Outline(<f-args>)
 
 command!           Sort   call SortWindows()
 command! -nargs=1 B call BufferMatch(<q-args>)
 
-command! -range -nargs=? Send silent <line1>,<line2>w !tmux load-buffer - ; tmux paste-buffer -d -t <q-args>
+function! SendToTmux(line1, line2, target) abort
+	if a:target != ''
+		let w:send_tmux_target = a:target
+	endif
+	let target = get(w:, 'send_tmux_target', '')
+	let text = join(getline(a:line1, a:line2), "\n") . "\n"
+	if target != ''
+		call system('tmux loadb - \; pasteb -d -t ' . shellescape(target), text)
+	else
+		call system('tmux loadb - \; pasteb -d', text)
+	endif
+endfunction
+command! -range -nargs=? Send call SendToTmux(<line1>, <line2>, <q-args>)
 nnoremap <silent> <leader>; :Send<CR>
 xnoremap <silent> <leader>; :Send<CR>
 
@@ -131,25 +144,22 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 inoremap <down> <c-o><c-e>
 inoremap <up> <c-o><c-y>
-nnoremap <silent> <c-w>+ :exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
-nnoremap <silent> <c-w>- :exe 'resize' (winheight(0) * 1/2)<CR>
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <c-w>z :resize<CR>
-nnoremap + <c-w>+
-nnoremap - <c-w>-
+nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR>
 
 nnoremap <c-l>
 	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p> :FZF<CR>
-nnoremap <leader>q :bwipeout<CR>
-nnoremap <leader>Q :bwipeout!<CR>
+nnoremap <leader>q :call CloseBuffer('')<CR>
+nnoremap <leader>Q :call CloseBuffer('!')<CR>
 nnoremap <leader>! :Cmd<space>
-nnoremap <leader>" :call TmuxSwap()<CR>
 nnoremap <leader>. :lcd %:p:h<CR>
-nnoremap <leader><CR>
+nnoremap <silent> <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <silent> <leader>B :call DirToggle()<CR>
 nnoremap <leader>f :Fmt<CR>
+nnoremap <silent> <leader>F :let @+ = fnamemodify(expand('%:p'), ':.')<CR>
 nnoremap <leader>l :Lint<CR>
 
 nnoremap m<CR> :make<CR>
@@ -166,7 +176,7 @@ nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
-nnoremap yoc :setl invignorecase<CR>
+nnoremap yoi :setl invignorecase<CR>
 nnoremap yoh :setl invhlsearch<CR>
 nnoremap yol :setl invlist<CR>
 nnoremap yon :setl invnumber<CR>
@@ -175,7 +185,7 @@ nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 xnoremap * :call SetVisualSearch()<CR>/<CR>
-xnoremap <silent> <leader>! :<c-u>call ExecVisualText()<CR>
+xnoremap <silent> <leader>! :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <leader><CR>
 		\ :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 inoremap <c-a> <home>
@@ -185,52 +195,77 @@ cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
-if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$')
-		\ ? ':call system("tmux selectp -t :.+")<CR>'
-		\ : ':wincmd w<CR>'
-	nnoremap <expr> <silent> <c-k>
-		\ winnr() == 1
-		\ ? ':call system("tmux selectp -t :.-")<CR>'
-		\ : ':wincmd W<CR>'
-else
-	nnoremap <silent> <c-j> :wincmd w<CR>
-	nnoremap <silent> <c-k> :wincmd W<CR>
-endif
+nnoremap <silent> <c-j> :call WinCycleNext()<CR>
+nnoremap <silent> <c-k> :call WinCyclePrev()<CR>
 
 tnoremap <c-r><c-r> <c-r>
-tnoremap <silent> <c-w>+
-	\ <c-w>:exe 'resize' ((winheight(0) * 3/2) + 1)<CR>
-tnoremap <silent> <c-w>- <c-w>:exe 'resize' (winheight(0) * 1/2)<CR>
 tnoremap <c-w>z <c-w>:resize<CR>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <scrollwheelup> <c-\><c-n>
 tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
-if !empty($TMUX)
-	tnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$')
-		\ ? '<c-w>:call system("tmux selectp -t :.+")<CR>'
-		\ : '<c-w>:wincmd w<CR>'
-	tnoremap <expr> <silent> <c-k>
-		\ winnr() == 1
-		\ ? '<c-w>:call system("tmux selectp -t :.-")<CR>'
-		\ : '<c-w>:wincmd W<CR>'
-else
-	tnoremap <silent> <c-j> <c-w>:wincmd w<CR>
-	tnoremap <silent> <c-k> <c-w>:wincmd W<CR>
-endif
+tnoremap <silent> <c-j> <c-w>:call WinCycleNext()<CR>
+tnoremap <silent> <c-k> <c-w>:call WinCyclePrev()<CR>
 
 " Mouse
 set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-w><CR>
+nnoremap <silent> <2-LeftMouse> :call WinDblClick()<CR>
+nnoremap <silent> <C-LeftMouse> :call WinZoom()<CR>
+nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-a><CR>
 nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-xnoremap <silent> <middlemouse> :<c-u>call ExecVisualText()<CR>
+xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
+
+" CloseBuffer: quit if last window, else wipeout the buffer.
+function! CloseBuffer(bang) abort
+	if winnr('$') == 1
+		exe 'quit' . a:bang
+	else
+		exe 'bwipeout' . a:bang
+	endif
+endfunction
+
+" WinCycleNext/Prev: cycle vim windows, falling through to tmux panes at edges.
+function! WinCycleNext() abort
+	if !empty($TMUX) && winnr() == winnr('$')
+		call system("tmux selectp -t :.+")
+	else
+		wincmd w
+	endif
+endfunction
+
+function! WinCyclePrev() abort
+	if !empty($TMUX) && winnr() == 1
+		call system("tmux selectp -t :.-")
+	else
+		wincmd W
+	endif
+endfunction
+
+" WinDblClick: double-click statusline closes window, body selects word.
+function! WinDblClick() abort
+	let m = getmousepos()
+	let w = m.winid
+	if !w | return | endif
+	if m.winrow > winheight(win_id2win(w))
+		call win_execute(w, 'call CloseBuffer("")')
+	else
+		exe "normal! \<2-LeftMouse>"
+	endif
+endfunction
+
+" WinZoom: ctrl-click statusline zooms window to full height.
+function! WinZoom() abort
+	let m = getmousepos()
+	let w = m.winid
+	if !w | return | endif
+	if m.winrow > winheight(win_id2win(w))
+		call win_execute(w, 'resize')
+	endif
+endfunction
 
 " GetVisualText returns the text selected in visual mode.
 function! GetVisualText() abort
@@ -246,13 +281,8 @@ function! SetVisualSearch() abort
 	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.^$~[]*'), "\n$", '', '')
 endfunction
 
-" Cmd executes a command with an optional range for input.
-function! Cmd(cmd, range, line1, line2) abort
-	if g:cmd_async && exists('*job_start')
-		call RunCmdAsync(a:range, a:line1, a:line2, a:cmd)
-	else
-		call RunCmd(a:range, a:line1, a:line2, a:cmd)
-	endif
+function! Err(msg) abort
+	echohl ErrorMsg | echo a:msg | echohl None
 endfunction
 
 " NewBuffer creates a scratch buffer with the given suffix returning its name
@@ -268,31 +298,14 @@ function! NewBuffer(suffix) abort
 	return bufname
 endfunction
 
-" RunCmd executes a shell command
-function! RunCmd(range, line1, line2, cmd) abort
-	let input = a:range > 0 ? getline(a:line1, a:line2) : []
-	silent let output = systemlist(a:cmd, input)
-	let msg = split(a:cmd)[0] . ': exit ' . v:shell_error
-	if len(output) > 0 || v:shell_error
-		let bufname = NewBuffer('/+Errors')
-		exe 'sbuffer' bufname
-		call UpdateCurrentWindow(output)
-		if v:shell_error
-			call UpdateCurrentWindow(msg)
-		endif
-	endif
-	echom msg
-endfunction
-
-" RunCmdAsync asynchronously executes a shell command.
-function! RunCmdAsync(range, line1, line2, cmd) abort
+" Cmd executes a shell command asynchronously, output to +Errors.
+function! Cmd(cmd, range, line1, line2) abort
 	let bufname = NewBuffer('/+Errors')
 	let opts = {
 		\ 'in_io': 'null', 'mode': 'raw',
 		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
-		\ 'close_cb': 'AsyncCmdCloseHandler',
-		\ 'exit_cb': 'AsyncCmdExitHandler',
+		\ 'exit_cb': {job, code -> CmdDone(job, code, split(a:cmd)[0])},
 		\ 'timeout': 300000,
 		\ 'stoponexit': 'term'
 		\ }
@@ -302,68 +315,21 @@ function! RunCmdAsync(range, line1, line2, cmd) abort
 		let opts.in_top = a:line1
 		let opts.in_bot = a:line2
 	endif
-	let job = job_start([&sh, &shcf, a:cmd], opts)
-	let pid = job_info(job).process
-	let name = split(a:cmd)[0]
-	let g:cmd_async_tasks[pid] = {
-		\ 'name': name,
-		\ 'exited': -1,
-		\ 'closed': 0
-		\ }
+	call job_start([&sh, &shcf, a:cmd], opts)
 endfunction
 
-" AsyncCmdCloseHandler channel close handler.
-function! AsyncCmdCloseHandler(channel) abort
-	let job = ch_getjob(a:channel)
-	let pid = job_info(job).process
-	let g:cmd_async_tasks[pid].closed = 1
-
-	if g:cmd_async_tasks[pid].exited != -1
-		call AsyncCmdDone(job)
-	endif
-endfunction
-
-" AsyncCmdExitHandler job exit handler.
-function! AsyncCmdExitHandler(job, code) abort
-	let pid = job_info(a:job).process
-	echom g:cmd_async_tasks[pid].name . ': exit ' . a:code
-	let g:cmd_async_tasks[pid].exited = a:code
-
-	if g:cmd_async_tasks[pid].closed
-		call AsyncCmdDone(a:job)
-	endif
-endfunction
-
-" AsyncCmdDone cleans up after close and exit have finished.
-function! AsyncCmdDone(job) abort
-	let pid = job_info(a:job).process
-	let name = g:cmd_async_tasks[pid].name
-	let code = g:cmd_async_tasks[pid].exited
+" CmdDone handles job completion: show +Errors if output or failure.
+function! CmdDone(job, code, name) abort
+	echom a:name . ': exit ' . a:code
 	let bufnr = ch_getbufnr(a:job, 'out')
-	if getbufline(bufnr, 1, '$') != [''] || code > 0
+	if getbufline(bufnr, 1, '$') != [''] || a:code > 0
 		exe 'sbuffer' bufnr
 		call cursor(line('$'), '.')
-		if code > 0
-			let msg =  name . ': exit ' . code
-			call UpdateCurrentWindow(msg)
+		if a:code > 0
+			call append(line('$'), a:name . ': exit ' . a:code)
+			call cursor(line('$'), '.')
 		endif
 	endif
-	call remove(g:cmd_async_tasks, pid)
-endfunction
-
-" UpdateCurrentWindow appends text to the active buffer.
-function! UpdateCurrentWindow(text) abort
-	if wordcount().bytes == 0
-		call setline(1, a:text)
-	else
-		call append(line('$'), a:text)
-	endif
-	call cursor(line('$'), '.')
-endfunction
-
-" ExecVisualText executes the selected visual text as the command.
-function! ExecVisualText() abort
-	call Cmd(GetVisualText(), 0, 0, 0)
 endfunction
 
 " OscYank copies text to clipboard via OSC 52.
@@ -371,24 +337,6 @@ function! OscYank(text) abort
 	let encoded = system('printf %s ' . shellescape(a:text) . ' | base64 | tr -d "\n"')
 	let osc = "\e]52;c;" . encoded . "\x07"
 	call writefile([osc], '/dev/tty', 'b')
-endfunction
-
-" TmuxSwap swaps the unnamed register with the tmux buffer.
-function! TmuxSwap() abort
-	if !executable('tmux')
-		echohl ErrorMsg | echo 'tmux not found' | echohl None
-		return
-	endif
-	silent let tmp = system('tmux showb')
-	let err = v:shell_error
-	silent call system('tmux loadb -', @")
-	let err = err || v:shell_error
-	if err
-		echohl ErrorMsg | echo 'tmux swap failed' | echohl None
-		return
-	endif
-	let @" = tmp
-	call OscYank(@")
 endfunction
 
 let g:linters = {
@@ -409,12 +357,12 @@ function! LintFile(...) abort
 	let ft = a:0 ? a:1 : &filetype
 	let cmd = get(g:linters, ft, v:null)
 	if cmd == v:null
-		echohl ErrorMsg | echo 'No linter for ' . ft | echohl None
+		call Err('No linter for ' . ft)
 		return
 	endif
 	let exe = split(cmd)[0]
 	if !executable(exe)
-		echohl ErrorMsg | echo exe . ' not found' | echohl None
+		call Err(exe . ' not found')
 		return
 	endif
 	update
@@ -423,21 +371,12 @@ function! LintFile(...) abort
 endfunction
 
 let g:formatters = {
-			\ 'c': 'clang-format -i',
-			\ 'cpp': 'clang-format -i',
-			\ 'go': 'goimports -w',
-			\ 'java': 'clang-format -i',
-			\ 'perl': 'perltidy -b -bext /',
-			\ 'python': 'black -q',
-			\ }
-
-let g:formatters_stdin = {
-			\ 'c': 'clang-format',
-			\ 'cpp': 'clang-format',
-			\ 'go': 'goimports',
-			\ 'java': 'clang-format',
-			\ 'perl': 'perltidy',
-			\ 'python': 'black -q -',
+			\ 'c':      ['clang-format -i', 'clang-format'],
+			\ 'cpp':    ['clang-format -i', 'clang-format'],
+			\ 'go':     ['goimports -w',    'goimports'],
+			\ 'java':   ['clang-format -i', 'clang-format'],
+			\ 'perl':   ['perltidy -b -bext /', 'perltidy'],
+			\ 'python': ['black -q',        'black -q -'],
 			\ }
 
 " FormatFile runs a formatter for the current file.
@@ -447,11 +386,11 @@ function! FormatFile(...) range abort
 	let pfx = sel
 		\ ? 'prettier --stdin-filepath ' . expand('%:S') . ' --log-level warn'
 		\ : 'prettier --write --log-level warn'
-	let cmd = get(sel ? g:formatters_stdin : g:formatters, ft,
-		\ pfx . (a:0 ? ' --parser ' . ft : ''))
+	let pair = get(g:formatters, ft, [])
+	let cmd = empty(pair) ? pfx . (a:0 ? ' --parser ' . ft : '') : pair[sel ? 1 : 0]
 	let exe = split(cmd)[0]
 	if !executable(exe)
-		echohl ErrorMsg | echo exe . ' not found' | echohl None
+		call Err(exe . ' not found')
 		return
 	endif
 	if sel
@@ -510,7 +449,6 @@ function! TabLabel(n) abort
 	endif
 
 	let bufnr = tabpagebuflist(a:n)[tabpagewinnr(a:n) - 1]
-	let ft = getbufvar(bufnr, '&filetype')
 	let bt = getbufvar(bufnr, '&buftype')
 	let name = bufname(bufnr)
 
@@ -523,8 +461,13 @@ function! TabLabel(n) abort
 		let label = fnamemodify(name, ':h:t') . '/'
 	endif
 
-	if ft ==# 'help'
+	if bt ==# 'help'
 		return '-help:' . label
+	endif
+	if bt ==# 'quickfix'
+		let winid = win_getid(tabpagewinnr(a:n), a:n)
+		let info = getwininfo(winid)
+		return (!empty(info) && info[0].loclist ? '-loc:' : '-qf:') . label
 	endif
 	if bt ==# 'terminal'
 		return '-terminal:' . label
@@ -535,7 +478,7 @@ endfunction
 " Rg executes the ripgrep program loading its results on the quickfix window.
 function! Rg(args) abort
 	if !executable('rg')
-		echohl ErrorMsg | echo 'ripgrep not found' | echohl None
+		call Err('ripgrep not found')
 		return
 	endif
 	let oprg = &grepprg
@@ -547,24 +490,26 @@ endfunction
 
 " PlumbFile opens file f at optional address addr, reusing existing windows.
 function! PlumbFile(f, addr) abort
-	let w = bufwinnr(a:f)
+	let f = fnamemodify(a:f, ':.')
+	let w = bufwinnr(f)
 	if w != -1
 		exe w . 'wincmd w'
 		if !empty(a:addr) | exe a:addr | endif
-	elseif bufexists(a:f)
-		silent exe 'sbuffer' (empty(a:addr) ? '' : '+'.a:addr) fnameescape(a:f)
+	elseif bufexists(f)
+		silent exe 'sbuffer' (empty(a:addr) ? '' : '+'.a:addr) fnameescape(f)
 	else
-		silent exe 'split' (empty(a:addr) ? '' : '+'.a:addr) fnameescape(a:f)
+		silent exe 'split' (empty(a:addr) ? '' : '+'.a:addr) fnameescape(f)
 	endif
 endfunction
 
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
+	let data = substitute(a:data, '[):.,;]\+$', '', '')
 	" URLs
-	let m = matchlist(a:data,
+	let m = matchlist(data,
 		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
 		\ . '\([.:][a-zA-Z0-9_@\-]\+\)*'
-		\ . '\(/[a-zA-Z0-9_?,%#~&/\-+=():;!@]*\)*')
+		\ . '\(/[a-zA-Z0-9_?,%#~&/\-+=.@]*\)*')
 	if len(m)
 		call OpenURL(m[0])
 		return
@@ -616,7 +561,7 @@ function! OpenURL(url) abort
 	echom 'url:' a:url
 	if has('mac')
 		call Cmd('open ' . shellescape(a:url), 0, 0, 0)
-	else
+	elseif executable('xdg-open')
 		call Cmd('xdg-open ' . shellescape(a:url), 0, 0, 0)
 	endif
 endfunction
@@ -625,9 +570,7 @@ endfunction
 function! OpenWikilink(name) abort
 	let f = trim(system('n look ' . shellescape(a:name)))
 	if empty(f)
-		echohl ErrorMsg
-		echo 'wikilink: not found:' . a:name
-		echohl None
+		call Err('wikilink: not found:' . a:name)
 		return
 	endif
 	echom 'wikilink:' f
@@ -650,7 +593,7 @@ endfunction
 " Fts runs fts and populates the location list.
 function! Fts(query) abort
 	if !executable('fts')
-		echohl ErrorMsg | echo 'fts not found' | echohl None
+		call Err('fts not found')
 		return
 	endif
 	call setloclist(0, [], 'r', {
@@ -673,40 +616,55 @@ endfunction
 
 " Match buffers by /re/ and optionally delete with /D.
 function! BufferMatch(a) abort
-	let m = matchlist(a:a, '^\/\(.\{-}\)\/\(.*\)$')
-	if empty(m)
-		echohl ErrorMsg | echo 'Usage: :B /regex/[D]' | echohl None
+	let i = stridx(a:a, '/')
+	let j = strridx(a:a, '/')
+	if i == -1 || i == j
+		call Err('Usage: :B /regex/[D]')
 		return
 	endif
-	let b = filter(map(getbufinfo({'bufloaded': 1}), 'v:val.bufnr'), 'bufname(v:val) =~ m[1]')
+	let re = a:a[i+1 : j-1]
+	let tail = a:a[j+1 :]
+	let b = filter(map(getbufinfo({'bufloaded': 1}), 'v:val.bufnr'), 'bufname(v:val) =~ re')
 	if empty(b) | return | endif
-	if m[2] ==? 'd'
+	if tail ==? 'd'
 		exe 'bwipeout' join(b)
 		return
 	endif
 	exe 'sbuffer' NewBuffer('/+Errors')
-	call UpdateCurrentWindow(map(b, 'bufname(v:val)'))
+	call setline(1, map(b, 'bufname(v:val)'))
+endfunction
+
+" Strip ls -F suffix from a directory entry.
+function! DirEntry() abort
+	return substitute(getline('.'), '[*=>@|]$', '', '')
 endfunction
 
 " Read a directory into a scratch buffer.
-function! Dir(path) abort
+function! Dir(path, ...) abort
 	let d = empty(a:path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(a:path, ':p')
-	let n = 'ls ' . d
-	if bufexists(n) | return execute('sbuffer ' . bufnr(n)) | endif
-	execute 'new ' . fnameescape(n)
+	let d = d =~# '/$' ? d : d . '/'
+	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
+		setlocal modifiable
+		silent execute '%!ls -aF ' . shellescape(d)
+		setlocal nomodifiable nomodified
+		return
+	endif
+	let replace = a:0 && a:1
+	if replace
+		noautocmd execute 'file ' . fnameescape(d)
+	else
+		noautocmd execute 'new ' . fnameescape(d)
+	endif
+	setlocal bufhidden=wipe noswapfile filetype=dir
 	silent execute '%!ls -aF ' . shellescape(d)
-	setlocal buftype=nofile bufhidden=wipe noswapfile filetype=dir readonly
+	setlocal nomodifiable nomodified
 	let b:dir = d
-	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, substitute(getline('.'), '[*=>@\|]$', '', ''))<CR>
+	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, DirEntry())<CR>
+	" :h strips trailing /, second :h goes up one level
 	nnoremap <silent> <buffer> - :call Dir(fnamemodify(b:dir, ':h:h'))<CR>
-	nnoremap <silent> <buffer> !! :<C-\>eDirBang(substitute(getline('.'), '[*=>@\|]$', '', ''))<CR>
-	xnoremap <silent> <buffer> !! :<C-U><C-\>eDirBang(join(map(getline("'<","'>"), 'substitute(v:val, ''[*=>@\|]$'', '''', '''')'), ' '))<CR>
-endfunction
-
-" Build a Cmd line from directory entries.
-function! DirBang(paths) abort
-	call setcmdpos(5)
-	return 'Cmd  ' . a:paths
+	nnoremap <silent> <buffer> <leader><CR> :call Plumb(b:dir, {}, DirEntry())<CR>
+	nnoremap <silent> <buffer> <rightmouse> <leftmouse>:call Plumb(b:dir, {}, DirEntry())<CR>
+	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:Cmd <C-R>=DirEntry()<CR><CR>
 endfunction
 
 " Toggle the directory buffer.
