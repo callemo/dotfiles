@@ -37,50 +37,30 @@
 
 ### Core Principle
 
-Define a small set of semantic actions, then let normal mode, visual mode, terminal mode, mouse bindings, and dir-buffer bindings call those actions with different data sources.
-
-### Canonical Actions
-
-- Open or plumb current thing
-- Run command from current thing or selection
-- Copy current path or current dir entry path
-- Close current buffer or window
-- Cycle to next or previous window, with tmux edge handoff
-- Open current dir entry
+Keep the real semantic center in the existing functions such as `Cmd()` and `Plumb()`. Extract only where there is duplicated control flow or shell or tmux logic. Do not add wrappers whose only job is to rename a data source.
 
 ### Modality Rule
 
 - Desktop mouse-first use is the ergonomics baseline.
 - Constrained keyboard-first use is the completeness baseline.
-- If an action matters in both environments, it should exist in both modalities.
-- Mouse-only actions should be limited to genuinely pointer-native gestures such as statusline click behaviors.
+- Mouse and keyboard should share semantics when the action is actually the same.
+- Mouse-only actions should remain only for genuinely pointer-native gestures such as statusline click behaviors.
+- Small local differences in how a mode chooses its input are acceptable and do not need a formal shared interface.
 
 ## Refactor Plan
 
-### Phase 1: Extract Shared Action Helpers
+### Phase 1: Keep The Existing Semantic Center
 
-Add small helpers for the duplicated actions:
+- Keep `Cmd()` as the command-execution center.
+- Keep `Plumb()` as the open-or-plumb center.
+- Keep `WinCycleNext()` and `WinCyclePrev()` as the model for justified extraction: they remove real duplicated control flow.
+- Avoid adding helper families whose only purpose is to wrap one-line argument selection.
 
-- `PlumbCursorThing()`
-- `PlumbVisualSelection()`
-- `PlumbDirEntry()`
-- `CmdCursorThing()`
-- `CmdVisualSelection()`
-- `CmdDirEntry()`
-- `CopyCurrentPath()`
-- `CopyDirPath()` or `CopyDirEntryPath()` depending on desired behavior
+### Phase 2: Simplify Only Where Duplication Is Real
 
-The exact names can change, but the split should be semantic rather than map-specific.
-
-### Phase 2: Rebuild Maps As Thin Frontends
-
-Normal, visual, mouse, and dir-buffer mappings should call helpers instead of embedding `Plumb(...)`, `Cmd(...)`, or register manipulation inline.
-
-Target shape:
-
-- keyboard map selects the right helper
-- mouse map selects the same helper where behavior matches
-- dir buffer swaps in a dir-entry helper instead of duplicating the action body
+- Keep explicit mappings when they are only selecting a different data source such as cursor word, visual selection, or dir entry.
+- Extract code only when the duplicated part is actual logic rather than argument choice.
+- Treat dir-buffer mappings as a local UI layer unless a repeated control-flow pattern emerges.
 
 ### Phase 3: Decide On Two Policy Exceptions
 
@@ -91,14 +71,10 @@ Keep or revisit these intentionally:
 
 These are no longer the first cleanup target. They should only move if they are actually causing friction.
 
-### Phase 4: Optional Table-Driven Cleanup
+### Phase 4: Preserve Cheap, Readable Repetition
 
-If the file still feels repetitive after action extraction:
-
-- generate the `yo` toggle family from a table
-- optionally generate the `[]` next or previous family from a table
-
-This is lower priority than fixing cross-modality action duplication.
+- Keep short explicit map families such as `yo` toggles and `[]` navigation if they remain stable and easy to scan.
+- Do not table-drive these families unless they become materially harder to maintain.
 
 ## Verification
 
@@ -117,9 +93,10 @@ This is lower priority than fixing cross-modality action duplication.
 
 ### Consistency Checks
 
-- Changing the implementation of plumb, command execution, or path copy should require editing one helper per semantic action, not several mappings.
-- Dir buffer behavior should differ only in data source, not in action meaning.
+- Changing the implementation of plumb or command execution should usually happen in `Plumb()` or `Cmd()`, not in a helper taxonomy built around modes.
+- Dir buffer behavior may stay locally expressed if the only difference is the source text.
+- The abstraction threshold is simple: remove repeated logic, keep repeated declarations.
 
 ## Recommended Next Step
 
-Start with the shared action helpers for plumb and command execution. That is the highest-value cleanup because it directly improves both maintainability and dual-modality parity without forcing more key changes.
+Start with the smallest concrete cleanup that removes repeated logic without inventing new layers. The current example to follow is `WinCycleNext()` and `WinCyclePrev()`: extract only when there is real behavior to share, and leave simple map declarations explicit.
