@@ -15,7 +15,7 @@
 
 - Window cycling is now semantically clearer.
   - `<C-j>` and `<C-k>` no longer pretend to be directional movement.
-  - `WinCycleNext()` and `WinCyclePrev()` make the behavior explicit and unify tmux edge handoff.
+  - `FocusNext()` and `FocusPrev()` make the behavior explicit by decoupling window focus from list structures, and unify tmux edge handoff.
   - Normal and terminal mode now share the same navigation helpers instead of duplicating the tmux condition inline.
 - Window zoom no longer overloads Vim's window-command prefix.
   - The custom zoom action now belongs on `<leader>z` instead of `<C-w>z`.
@@ -29,14 +29,14 @@
 - The main semantic actions are still duplicated across modalities and contexts.
   - Plumb current thing is defined separately for normal, visual, mouse, and dir buffers.
   - Run command from current thing or selection is defined separately for keyboard, mouse, and dir buffers.
-- The mouse-first and keyboard-first paths still share behavior by convention rather than through common helpers.
-- Dir buffer actions still duplicate top-level action logic instead of delegating to a shared interface with a dir-specific data source.
+- Modalities treat their input as distinct execution contexts rather than routing a string to a single execution function.
+- Dir buffer actions still duplicate top-level action logic instead of delegating to a shared interface where data simply dictates the target for `Plumb()` or `Cmd()`.
 
 ## Desired Model
 
 ### Core Principle
 
-Keep the real semantic center in the existing functions such as `Cmd()` and `Plumb()`. Extract only where there is duplicated control flow or shell or tmux logic. Do not add wrappers whose only job is to rename a data source.
+Keep the real semantic center in the existing functions such as `Cmd()` and `Plumb()`. Apply the principle "Data dominates" by creating single text-yielding data extraction functions. Do not define parallel control flows or mode-specific wrappers to handle `Plumb()` or `Cmd()` inputs. Instead, feed extracted string text through one common execution path.
 
 ### Modality Rule
 
@@ -52,14 +52,14 @@ Keep the real semantic center in the existing functions such as `Cmd()` and `Plu
 
 - Keep `Cmd()` as the command-execution center.
 - Keep `Plumb()` as the open-or-plumb center.
-- Keep `WinCycleNext()` and `WinCyclePrev()` as the model for justified extraction: they remove real duplicated control flow.
-- Avoid adding helper families whose only purpose is to wrap one-line argument selection.
+- Keep `FocusNext()` and `FocusPrev()` as the model for justified extraction: they decouple from window/list terminology to remove duplicated control flow.
+- Ensure modalities and input mechanisms act only as text-extractors that pipe into single stateless versions of `Cmd()` or `Plumb()`.
 
 ### Phase 2: Simplify Only Where Duplication Is Real
 
-- Keep explicit mappings when they are only selecting a different data source such as cursor word, visual selection, or dir entry.
-- Extract code only when the duplicated part is actual logic rather than argument choice.
-- Treat dir-buffer mappings as a local UI layer unless a repeated control-flow pattern emerges.
+- Consolidate modes (normal, visual, mouse) into a single text-yielding data-extractor function. 
+- Eliminate mode-specific wrapper logic mapping to `Cmd()` or `Plumb()` execution flows.
+- Pass a normalized string out of the UI layer rather than treating modes like unique contexts.
 
 ### Phase 3: Keep Custom Prefixes Honest
 
@@ -95,4 +95,4 @@ Keep the real semantic center in the existing functions such as `Cmd()` and `Plu
 
 ## Recommended Next Step
 
-Start with the smallest concrete cleanup that removes repeated logic without inventing new layers. The current example to follow is `WinCycleNext()` and `WinCyclePrev()`: extract only when there is real behavior to share, and leave simple map declarations explicit.
+Start with renaming `WinCycleNext()` and `WinCyclePrev()` to `FocusNext()` and `FocusPrev()`, focusing strictly on the user state-change instead of Vim lists. Then refactor input data to pipe strings into `Plumb()` and `Cmd()` rather than allowing each mode to handle its own execution path.
