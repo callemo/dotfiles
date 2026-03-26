@@ -492,11 +492,12 @@ endfunction
 
 " Plumb dispatches the handling of an acquisition gesture.
 function! Plumb(wdir, attr, data) abort
+	let data = substitute(a:data, '[):.,;]\+$', '', '')
 	" URLs
-	let m = matchlist(a:data,
+	let m = matchlist(data,
 		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
 		\ . '\([.:][a-zA-Z0-9_@\-]\+\)*'
-		\ . '\(/[a-zA-Z0-9_?,%#~&/\-+=():;!@]*\)*')
+		\ . '\(/[a-zA-Z0-9_?,%#~&/\-+=.@]*\)*')
 	if len(m)
 		call OpenURL(m[0])
 		return
@@ -546,9 +547,9 @@ endfunction
 " OpenURL opens the given URL
 function! OpenURL(url) abort
 	echom 'url:' a:url
-	if has('mac')
+	if executable('open')
 		call Cmd('open ' . shellescape(a:url), 0, 0, 0)
-	else
+	elseif executable('xdg-open')
 		call Cmd('xdg-open ' . shellescape(a:url), 0, 0, 0)
 	endif
 endfunction
