@@ -141,10 +141,9 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 inoremap <down> <c-o><c-e>
 inoremap <up> <c-o><c-y>
-nnoremap <silent> <c-w>+ :exe 'resize' (winheight(0) * 2)<CR>
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <c-w>z :resize<CR>
-nnoremap + <c-w>+
+nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR>
 
 nnoremap <c-l>
 	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
@@ -208,8 +207,6 @@ else
 endif
 
 tnoremap <c-r><c-r> <c-r>
-tnoremap <silent> <c-w>+
-	\ <c-w>:exe 'resize' (winheight(0) * 2)<CR>
 tnoremap <c-w>z <c-w>:resize<CR>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
@@ -235,31 +232,31 @@ if has('mouse_sgr')
 	set ttymouse=sgr
 endif
 nnoremap <silent> <2-LeftMouse> :call WinGrow()<CR>
-nnoremap <silent> <C-LeftMouse> :call WinClose()<CR>
+nnoremap <silent> <C-LeftMouse> :call WinZoom()<CR>
 nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-a><CR>
 nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 
-" WinGrow: double-click statusline zooms to full, body selects word.
+" WinGrow: double-click statusline closes window, body selects word.
 function! WinGrow() abort
 	let m = getmousepos()
 	let w = m.winid
 	if !w | return | endif
 	if m.winrow > winheight(win_id2win(w))
-		call win_execute(w, 'resize')
+		call win_execute(w, 'bwipeout')
 	else
 		exe "normal! \<2-LeftMouse>"
 	endif
 endfunction
 
-" WinClose: ctrl-click statusline closes window.
-function! WinClose() abort
+" WinZoom: ctrl-click statusline zooms window to full height.
+function! WinZoom() abort
 	let m = getmousepos()
 	let w = m.winid
 	if !w | return | endif
 	if m.winrow > winheight(win_id2win(w))
-		call win_execute(w, 'bwipeout')
+		call win_execute(w, 'resize')
 	endif
 endfunction
 
