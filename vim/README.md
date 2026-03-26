@@ -17,13 +17,12 @@
   - `<C-j>` and `<C-k>` no longer pretend to be directional movement.
   - `WinCycleNext()` and `WinCyclePrev()` make the behavior explicit and unify tmux edge handoff.
   - Normal and terminal mode now share the same navigation helpers instead of duplicating the tmux condition inline.
+- Window zoom no longer overloads Vim's window-command prefix.
+  - The custom zoom action now belongs on `<leader>z` instead of `<C-w>z`.
 - The `yo` family is more consistent.
   - `yoi` now matches `ignorecase` better than the previous `yoc`.
-
-### Still Good Enough For Now
-
-- `m<CR>` and `m<Space>` still overload a strong built-in Vim prefix, but this is now a policy choice rather than an accidental inconsistency.
-- `<C-w>z` still uses Vim's window prefix for a custom zoom action. That is acceptable if it is a deliberate house style.
+- The custom `m` make prefix is gone.
+  - This removes an avoidable overload of Vim's mark namespace.
 
 ### Remaining Fragility
 
@@ -62,14 +61,11 @@ Keep the real semantic center in the existing functions such as `Cmd()` and `Plu
 - Extract code only when the duplicated part is actual logic rather than argument choice.
 - Treat dir-buffer mappings as a local UI layer unless a repeated control-flow pattern emerges.
 
-### Phase 3: Decide On Two Policy Exceptions
+### Phase 3: Keep Custom Prefixes Honest
 
-Keep or revisit these intentionally:
-
-- `m` as a custom make prefix
-- `<C-w>z` as a custom zoom action
-
-These are no longer the first cleanup target. They should only move if they are actually causing friction.
+- Prefer `<leader>` for custom actions that are not natural extensions of an existing Vim prefix.
+- Avoid rebuilding a custom namespace on top of strong built-in prefixes such as `m`.
+- Treat future exceptions as explicit policy choices, not casual convenience mappings.
 
 ### Phase 4: Preserve Cheap, Readable Repetition
 

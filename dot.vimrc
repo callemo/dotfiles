@@ -145,7 +145,7 @@ nnoremap <up> <c-y>
 inoremap <down> <c-o><c-e>
 inoremap <up> <c-o><c-y>
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
-nnoremap <c-w>z :resize<CR>
+nnoremap <leader>z :resize<CR>
 nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR>
 
 nnoremap <c-l>
@@ -161,9 +161,6 @@ nnoremap <silent> <leader>B :call DirToggle()<CR>
 nnoremap <leader>f :Fmt<CR>
 nnoremap <silent> <leader>F :let @+ = fnamemodify(expand('%:p'), ':.')<CR>
 nnoremap <leader>l :Lint<CR>
-
-nnoremap m<CR> :make<CR>
-nnoremap m<space> :make<space>
 
 nnoremap ]a :next<CR>
 nnoremap [a :previous<CR>
@@ -199,7 +196,7 @@ nnoremap <silent> <c-j> :call WinCycleNext()<CR>
 nnoremap <silent> <c-k> :call WinCyclePrev()<CR>
 
 tnoremap <c-r><c-r> <c-r>
-tnoremap <c-w>z <c-w>:resize<CR>
+tnoremap <leader>z <c-w>:resize<CR>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <scrollwheelup> <c-\><c-n>
