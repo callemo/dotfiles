@@ -86,7 +86,7 @@ augroup dotfiles
 	autocmd TerminalWinOpen *
 		\ setl nonumber
 		\ | setl statusline=%{TerminalStatusLine()}
-		\ | noremap <buffer> q i
+		\ | nnoremap <buffer> q i
 
 	autocmd FileType c,cpp setl path+=/usr/include
 	autocmd BufNewFile,BufRead *.tidal setfiletype haskell
@@ -176,7 +176,7 @@ nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
 nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
-nnoremap yoc :setl invignorecase<CR>
+nnoremap yoi :setl invignorecase<CR>
 nnoremap yoh :setl invhlsearch<CR>
 nnoremap yol :setl invlist<CR>
 nnoremap yon :setl invnumber<CR>
@@ -195,19 +195,8 @@ cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
-if !empty($TMUX)
-	nnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$')
-		\ ? ':call system("tmux selectp -t :.+")<CR>'
-		\ : ':wincmd w<CR>'
-	nnoremap <expr> <silent> <c-k>
-		\ winnr() == 1
-		\ ? ':call system("tmux selectp -t :.-")<CR>'
-		\ : ':wincmd W<CR>'
-else
-	nnoremap <silent> <c-j> :wincmd w<CR>
-	nnoremap <silent> <c-k> :wincmd W<CR>
-endif
+nnoremap <silent> <c-j> :call WinCycleNext()<CR>
+nnoremap <silent> <c-k> :call WinCyclePrev()<CR>
 
 tnoremap <c-r><c-r> <c-r>
 tnoremap <c-w>z <c-w>:resize<CR>
@@ -215,19 +204,8 @@ tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <scrollwheelup> <c-\><c-n>
 tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
-if !empty($TMUX)
-	tnoremap <expr> <silent> <c-j>
-		\ winnr() == winnr('$')
-		\ ? '<c-w>:call system("tmux selectp -t :.+")<CR>'
-		\ : '<c-w>:wincmd w<CR>'
-	tnoremap <expr> <silent> <c-k>
-		\ winnr() == 1
-		\ ? '<c-w>:call system("tmux selectp -t :.-")<CR>'
-		\ : '<c-w>:wincmd W<CR>'
-else
-	tnoremap <silent> <c-j> <c-w>:wincmd w<CR>
-	tnoremap <silent> <c-k> <c-w>:wincmd W<CR>
-endif
+tnoremap <silent> <c-j> <c-w>:call WinCycleNext()<CR>
+tnoremap <silent> <c-k> <c-w>:call WinCyclePrev()<CR>
 
 " Mouse
 set mouse=nv
@@ -247,6 +225,23 @@ function! CloseBuffer(bang) abort
 		exe 'quit' . a:bang
 	else
 		exe 'bwipeout' . a:bang
+	endif
+endfunction
+
+" WinCycleNext/Prev: cycle vim windows, falling through to tmux panes at edges.
+function! WinCycleNext() abort
+	if !empty($TMUX) && winnr() == winnr('$')
+		call system("tmux selectp -t :.+")
+	else
+		wincmd w
+	endif
+endfunction
+
+function! WinCyclePrev() abort
+	if !empty($TMUX) && winnr() == 1
+		call system("tmux selectp -t :.-")
+	else
+		wincmd W
 	endif
 endfunction
 
@@ -564,7 +559,7 @@ endfunction
 " OpenURL opens the given URL
 function! OpenURL(url) abort
 	echom 'url:' a:url
-	if executable('open')
+	if has('mac')
 		call Cmd('open ' . shellescape(a:url), 0, 0, 0)
 	elseif executable('xdg-open')
 		call Cmd('xdg-open ' . shellescape(a:url), 0, 0, 0)
@@ -670,7 +665,6 @@ function! Dir(path, ...) abort
 	nnoremap <silent> <buffer> <leader><CR> :call Plumb(b:dir, {}, DirEntry())<CR>
 	nnoremap <silent> <buffer> <rightmouse> <leftmouse>:call Plumb(b:dir, {}, DirEntry())<CR>
 	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:Cmd <C-R>=DirEntry()<CR><CR>
-	nnoremap <silent> <buffer> <leader>F :let @+ = fnamemodify(b:dir, ':.')<CR>
 endfunction
 
 " Toggle the directory buffer.
