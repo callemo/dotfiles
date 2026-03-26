@@ -101,7 +101,10 @@ augroup dotfiles
 		" syntax/yaml.vim is too buggy
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
-	autocmd VimEnter * if argc() == 0 && empty(bufname()) | let b = bufnr() | call Dir('') | exe 'bwipeout' b | endif
+	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call Dir('', 1) | endif
+	" BufReadCmd matches trailing / (dir buffer names); BufReadPost catches :e .
+	autocmd BufReadCmd */ call Dir(expand('<afile>:p'), 1)
+	autocmd BufReadPost * if isdirectory(expand('<afile>:p')) | call Dir(expand('<afile>:p'), 1) | endif
 augroup END
 
 command! -nargs=+ -complete=file -range
@@ -148,8 +151,8 @@ nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR
 nnoremap <c-l>
 	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p> :FZF<CR>
-nnoremap <leader>q :bwipeout<CR>
-nnoremap <leader>Q :bwipeout!<CR>
+nnoremap <leader>q :call CloseBuffer('')<CR>
+nnoremap <leader>Q :call CloseBuffer('!')<CR>
 nnoremap <leader>! :Cmd<space>
 nnoremap <leader>. :lcd %:p:h<CR>
 nnoremap <silent> <leader><CR>
@@ -231,20 +234,29 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nnoremap <silent> <2-LeftMouse> :call WinGrow()<CR>
+nnoremap <silent> <2-LeftMouse> :call WinDblClick()<CR>
 nnoremap <silent> <C-LeftMouse> :call WinZoom()<CR>
 nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-a><CR>
 nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 
-" WinGrow: double-click statusline closes window, body selects word.
-function! WinGrow() abort
+" CloseBuffer: quit if last window, else wipeout the buffer.
+function! CloseBuffer(bang) abort
+	if winnr('$') == 1
+		exe 'quit' . a:bang
+	else
+		exe 'bwipeout' . a:bang
+	endif
+endfunction
+
+" WinDblClick: double-click statusline closes window, body selects word.
+function! WinDblClick() abort
 	let m = getmousepos()
 	let w = m.winid
 	if !w | return | endif
 	if m.winrow > winheight(win_id2win(w))
-		call win_execute(w, 'bwipeout')
+		call win_execute(w, 'call CloseBuffer("")')
 	else
 		exe "normal! \<2-LeftMouse>"
 	endif
@@ -459,7 +471,8 @@ function! TabLabel(n) abort
 	endif
 	if bt ==# 'quickfix'
 		let winid = win_getid(tabpagewinnr(a:n), a:n)
-		return (win_gettype(winid) ==# 'loclist' ? '-loc:' : '-qf:') . label
+		let info = getwininfo(winid)
+		return (!empty(info) && info[0].loclist ? '-loc:' : '-qf:') . label
 	endif
 	if bt ==# 'terminal'
 		return '-terminal:' . label
@@ -632,12 +645,24 @@ function! DirEntry() abort
 endfunction
 
 " Read a directory into a scratch buffer.
-function! Dir(path) abort
+function! Dir(path, ...) abort
 	let d = empty(a:path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(a:path, ':p')
 	let d = d =~# '/$' ? d : d . '/'
-	execute 'new ' . fnameescape(d)
+	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
+		setlocal modifiable
+		silent execute '%!ls -aF ' . shellescape(d)
+		setlocal nomodifiable nomodified
+		return
+	endif
+	let replace = a:0 && a:1
+	if replace
+		noautocmd execute 'file ' . fnameescape(d)
+	else
+		noautocmd execute 'new ' . fnameescape(d)
+	endif
+	setlocal bufhidden=wipe noswapfile filetype=dir
 	silent execute '%!ls -aF ' . shellescape(d)
-	setlocal buftype=nofile bufhidden=wipe noswapfile filetype=dir
+	setlocal nomodifiable nomodified
 	let b:dir = d
 	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, DirEntry())<CR>
 	" :h strips trailing /, second :h goes up one level
