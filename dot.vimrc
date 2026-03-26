@@ -74,7 +74,7 @@ augroup dotfiles
 		autocmd TextYankPost * if v:event.operator ==# 'y' | call system('tmux loadb -', getreg('"')) | endif
 	endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
-	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | endif
+	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | setl nowrap | endif
 	autocmd BufWritePre * :call TrimTrailingBlanks()
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
@@ -116,7 +116,7 @@ command! -nargs=? Lint call LintFile(<f-args>)
 command! -nargs=? -range=% Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
 command! -nargs=* Fts call Fts(<q-args>)
-command! -nargs=? Outline call Outline(<f-args>)
+command! -nargs=? Oln call Outline(<f-args>)
 
 command!           Sort   call SortWindows()
 command! -nargs=1 B call BufferMatch(<q-args>)
@@ -456,6 +456,10 @@ function! TabLabel(n) abort
 
 	if bt ==# 'help'
 		return '-help:' . label
+	endif
+	if bt ==# 'quickfix'
+		let winid = win_getid(tabpagewinnr(a:n), a:n)
+		return (win_gettype(winid) ==# 'loclist' ? '-loc:' : '-qf:') . label
 	endif
 	if bt ==# 'terminal'
 		return '-terminal:' . label
