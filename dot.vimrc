@@ -109,16 +109,16 @@ augroup dotfiles
 augroup END
 
 command! -nargs=+ -complete=file -range
-	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
+	\ Cmd call g:Cmd(<q-args>, <range>, <line1>, <line2>)
 
-command! -nargs=? Lint call LintFile(<f-args>)
-command! -nargs=? -range=% Fmt call FormatFile(<line1>, <line2>, <f-args>)
-command! -nargs=* Rg call Rg(<q-args>)
-command! -nargs=* Fts call Fts(<q-args>)
-command! -nargs=? Oln call Outline(<f-args>)
+command! -nargs=? Lint call g:LintFile(<f-args>)
+command! -nargs=? -range=% Fmt call g:FormatFile(<line1>, <line2>, <f-args>)
+command! -nargs=* Rg call g:Rg(<q-args>)
+command! -nargs=* Fts call g:Fts(<q-args>)
+command! -nargs=? Oln call g:Outline(<f-args>)
 
-command!           Sort   call SortWindows()
-command! -nargs=1 B call BufferMatch(<q-args>)
+command!           Sort   call g:SortWindows()
+command! -nargs=1 B call g:BufferMatch(<q-args>)
 
 def g:SendToTmux(line1: number, line2: number, target: string)
 	if target != ''
@@ -132,27 +132,26 @@ def g:SendToTmux(line1: number, line2: number, target: string)
 		system('tmux loadb - \; pasteb -d', text)
 	endif
 enddef
-command! -range -nargs=? Send call SendToTmux(<line1>, <line2>, <q-args>)
+command! -range -nargs=? Send call g:SendToTmux(<line1>, <line2>, <q-args>)
 
 # Leader: custom actions
-nnoremap <leader>! :Cmd<space>
-nnoremap <leader>. :lcd %:p:h<CR>
-nnoremap <silent> <leader>; :Send<CR>
-nnoremap <silent> <leader><CR>
-	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <silent> <leader>B :call DirToggle()<CR>
-nnoremap <silent> <leader>F :let @+ = fnamemodify(expand('%:p'), ':.')<CR>
-nnoremap <leader>Q :call CloseBuffer('!')<CR>
-nnoremap <leader>f :Fmt<CR>
-nnoremap <leader>l :Lint<CR>
-nnoremap <leader>q :call CloseBuffer('')<CR>
-nnoremap <leader>z :resize<CR>
-xnoremap <silent> <leader>! :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
-xnoremap <silent> <leader>; :Send<CR>
-xnoremap <silent> <leader><CR>
-		\ :<c-u>call Plumb(expand('%:h'), {'visual': 1}, GetVisualText())<CR>
+nnoremap <leader>! <cmd>Cmd<space>
+nnoremap <leader>. <cmd>lcd %:p:h<CR>
+nnoremap <silent> <leader>; <cmd>Send<CR>
+nnoremap <silent> <leader><CR> <cmd>g:Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+nnoremap <silent> <leader>B <cmd>g:DirToggle()<CR>
+nnoremap <silent> <leader>F <cmd>let @+ = fnamemodify(expand('%:p'), ':.')<CR>
+nnoremap <leader>Q <cmd>g:CloseBuffer('!')<CR>
+nnoremap <leader>f <cmd>Fmt<CR>
+nnoremap <leader>l <cmd>Lint<CR>
+nnoremap <leader>q <cmd>g:CloseBuffer('')<CR>
+nnoremap <leader>z <cmd>resize<CR>
 
-# [] navigation
+# Visual: data extractors
+xnoremap <silent> <leader>! <cmd>g:Cmd(g:GetVisualText(), 0, 0, 0)<CR>
+xnoremap <silent> <leader>; <cmd>Send<CR>
+xnoremap <silent> <leader><CR> <cmd>g:Plumb(expand('%:h'), {'visual': 1}, g:GetVisualText())<CR>
+xnoremap * <cmd>g:SetVisualSearch()<CR>/<CR>
 nnoremap ]a :next<CR>
 nnoremap [a :previous<CR>
 nnoremap ]b :bnext<CR>
@@ -175,21 +174,17 @@ nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 
-# Ctrl keys
-nnoremap <silent> <c-j> :call FocusNext()<CR>
-nnoremap <silent> <c-k> :call FocusPrev()<CR>
-nnoremap <c-l>
-	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
-nnoremap <c-p> :FZF<CR>
+# Ctrl keys: focus pipeline
+nnoremap <silent> <c-j> <cmd>g:FocusNext()<CR>
+nnoremap <silent> <c-k> <cmd>g:FocusPrev()<CR>
+nnoremap <c-l> <cmd>nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-p> <cmd>FZF<CR>
 
 # Window and scrolling
 nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR>
 nnoremap <down> <c-e>
 nnoremap <up> <c-y>
-
-# Visual
-xnoremap * :call SetVisualSearch()<CR>/<CR>
 
 # Insert and cmdline
 inoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
@@ -205,14 +200,14 @@ cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
-# Terminal
-tnoremap <silent> <c-j> <c-w>:call FocusNext()<CR>
-tnoremap <silent> <c-k> <c-w>:call FocusPrev()<CR>
+# Terminal hand-offs
+tnoremap <silent> <c-j> <cmd>g:FocusNext()<CR>
+tnoremap <silent> <c-k> <cmd>g:FocusPrev()<CR>
 tnoremap <c-r><c-r> <c-r>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
-tnoremap <leader>z <c-w>:resize<CR>
+tnoremap <leader>z <cmd>resize<CR>
 tnoremap <scrollwheelup> <c-\><c-n>
 
 # Mouse: middlemouse = execute, rightmouse = plumb
@@ -220,12 +215,12 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nnoremap <silent> <2-LeftMouse> :call WinDblClick()<CR>
-nnoremap <silent> <C-LeftMouse> :call WinZoom()<CR>
-nnoremap <silent> <middlemouse> <leftmouse>:call Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
-nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
-xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual': 1}, GetVisualText())<CR>
+nnoremap <silent> <2-LeftMouse> <cmd>g:WinDblClick()<CR>
+nnoremap <silent> <C-LeftMouse> <cmd>g:WinZoom()<CR>
+nnoremap <silent> <middlemouse> <leftmouse><cmd>g:Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
+nnoremap <silent> <rightmouse> <leftmouse><cmd>g:Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+xnoremap <silent> <middlemouse> <cmd>g:Cmd(g:GetVisualText(), 0, 0, 0)<CR>
+xnoremap <silent> <rightmouse> <cmd>g:Plumb(expand('%:h'), {'visual': 1}, g:GetVisualText())<CR>
 
 # CloseBuffer: quit if last window, else wipeout the buffer.
 def g:CloseBuffer(bang: string)
@@ -681,12 +676,12 @@ def g:Dir(path: string, replace: bool = false)
 	setlocal nomodifiable nomodified
 	b:dir = d
 	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up
-	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, DirEntry())<CR>
-	nnoremap <silent> <buffer> <leader><CR> :call Plumb(b:dir, {}, DirEntry())<CR>
-	nnoremap <silent> <buffer> <rightmouse> <leftmouse>:call Plumb(b:dir, {}, DirEntry())<CR>
-	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:call Cmd(DirEntry(), 0, 0, 0)<CR>
+	nnoremap <silent> <buffer> <CR> <cmd>g:Plumb(b:dir, {}, g:DirEntry())<CR>
+	nnoremap <silent> <buffer> <leader><CR> <cmd>g:Plumb(b:dir, {}, g:DirEntry())<CR>
+	nnoremap <silent> <buffer> <rightmouse> <leftmouse><cmd>g:Plumb(b:dir, {}, g:DirEntry())<CR>
+	nnoremap <silent> <buffer> <middlemouse> <leftmouse><cmd>g:Cmd(g:DirEntry(), 0, 0, 0)<CR>
 	# :h strips trailing /, second :h goes up one level
-	nnoremap <silent> <buffer> - :call Dir(fnamemodify(b:dir, ':h:h'))<CR>
+	nnoremap <silent> <buffer> - <cmd>g:Dir(fnamemodify(b:dir, ':h:h'))<CR>
 enddef
 
 # Toggle the directory buffer.
