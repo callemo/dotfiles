@@ -21,8 +21,10 @@ call assert_true(exists('*FocusPrev'))
 call assert_false(exists('*WinCycleNext'))
 call assert_false(exists('*WinCyclePrev'))
 
-" Cmd and Plumb are def functions (compiled)
+" All public functions are def (compiled)
 call assert_match('def ', execute('function Cmd'))
+call assert_match('def ', execute('function DirToggle'))
+call assert_match('def ', execute('function LoadVimGo'))
 
 " Data extraction: GetVisualText and DirEntry are pure text extractors
 call assert_true(exists('*GetVisualText'))
