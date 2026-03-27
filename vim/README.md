@@ -1,98 +1,174 @@
-# Vim Keymap Spec And Plan
+```
+VIMRC(1)              Unix Programmer's Manual              VIMRC(1)
 
-## Goals
+NAME
+     dot.vimrc -- personal editor configuration
 
-- Keep the keymap mentally coherent: key names and prefixes should suggest what they do.
-- Reduce duplication so changing one action does not require editing several unrelated mappings.
-- Preserve dual-modality use:
-  - mouse-first on desktop
-  - keyboard-first in constrained environments such as Macs and iPads
-- Treat mouse and keyboard as peer frontends over the same core actions where possible.
+SYNOPSIS
+     vim
 
-## Current Assessment
+DESCRIPTION
+     Dot.vimrc configures Vim 9.1 as a compiled, strictly typed
+     text processing environment.  It requires no plugins for
+     core operation.  On Vim versions lacking vim9script support,
+     a version guard loads minimal settings and exits.
 
-### Improved
+     The architecture follows three principles: data dominates,
+     the keyboard and mouse are peer frontends over shared
+     functions, and all custom logic compiles to bytecode at
+     startup via def.
 
-- Window cycling is now semantically clearer.
-  - `<C-j>` and `<C-k>` no longer pretend to be directional movement.
-  - `FocusNext()` and `FocusPrev()` make the behavior explicit by decoupling window focus from list structures, and unify tmux edge handoff.
-  - Normal and terminal mode now share the same navigation helpers instead of duplicating the tmux condition inline.
-- Window zoom no longer overloads Vim's window-command prefix.
-  - The custom zoom action now belongs on `<leader>z` instead of `<C-w>z`.
-- The `yo` family is more consistent.
-  - `yoi` now matches `ignorecase` better than the previous `yoc`.
-- The custom `m` make prefix is gone.
-  - This removes an avoidable overload of Vim's mark namespace.
+  Execution
+     Cmd cmd                Run cmd asynchronously through the
+                            shell.  Output and errors collect in
+                            a scratch buffer named +Errors.  When
+                            a range is given, the selected lines
+                            are piped as standard input.
 
-### Remaining Fragility
+     Send [target]          Send the current line or visual
+                            selection to a tmux pane.  Target is
+                            remembered per window.
 
-- The main semantic actions are still duplicated across modalities and contexts.
-  - Plumb current thing is defined separately for normal, visual, mouse, and dir buffers.
-  - Run command from current thing or selection is defined separately for keyboard, mouse, and dir buffers.
-- Modalities treat their input as distinct execution contexts rather than routing a string to a single execution function.
-- Dir buffer actions still duplicate top-level action logic instead of delegating to a shared interface where data simply dictates the target for `Plumb()` or `Cmd()`.
+     Lint [filetype]        Run the linter registered for the
+                            current filetype.
 
-## Desired Model
+     Fmt [filetype]         Run the formatter registered for the
+                            current filetype.  A visual range
+                            filters through the formatter.
 
-### Core Principle
+  Navigation
+     Plumb wdir attr data   Route data to the appropriate handler.
+                            Tries, in order: URL, wiki link,
+                            file:line, file, directory, text
+                            search.  URLs open in the system
+                            browser.  Files reuse existing windows.
+                            Text searches set the / register.
 
-Keep the real semantic center in the existing functions such as `Cmd()` and `Plumb()`. Apply the principle "Data dominates" by creating single text-yielding data extraction functions. Do not define parallel control flows or mode-specific wrappers to handle `Plumb()` or `Cmd()` inputs. Instead, feed extracted string text through one common execution path.
+     Rg args                Grep with ripgrep, results to the
+                            location list.
 
-### Modality Rule
+     Fts query              Full-text search via fts(1), results
+                            to the location list.
 
-- Desktop mouse-first use is the ergonomics baseline.
-- Constrained keyboard-first use is the completeness baseline.
-- Mouse and keyboard should share semantics when the action is actually the same.
-- Mouse-only actions should remain only for genuinely pointer-native gestures such as statusline click behaviors.
-- Small local differences in how a mode chooses its input are acceptable and do not need a formal shared interface.
+     Oln [pattern]          Populate the location list with lines
+                            matching pattern (default: markdown
+                            headings).
 
-## Refactor Plan
+  Buffers
+     Dir path [replace]     Read a directory into a scratch buffer
+                            using ls -aF.  If replace is true, the
+                            current buffer is reused.
 
-### Phase 1: Keep The Existing Semantic Center
+     B /regex/[D]           List buffers matching regex.  Append D
+                            to wipeout matched buffers.
 
-- Keep `Cmd()` as the command-execution center.
-- Keep `Plumb()` as the open-or-plumb center.
-- Keep `FocusNext()` and `FocusPrev()` as the model for justified extraction: they decouple from window/list terminology to remove duplicated control flow.
-- Ensure modalities and input mechanisms act only as text-extractors that pipe into single stateless versions of `Cmd()` or `Plumb()`.
+     Sort                   Sort visible windows by buffer name.
 
-### Phase 2: Simplify Only Where Duplication Is Real
+  Focus
+     FocusNext              Cycle focus to the next Vim window.
+                            At the last window, hand off to the
+                            next tmux pane.
 
-- Consolidate modes (normal, visual, mouse) into a single text-yielding data-extractor function. 
-- Eliminate mode-specific wrapper logic mapping to `Cmd()` or `Plumb()` execution flows.
-- Pass a normalized string out of the UI layer rather than treating modes like unique contexts.
+     FocusPrev              Cycle focus to the previous Vim window.
+                            At the first window, hand off to the
+                            previous tmux pane.
 
-### Phase 3: Keep Custom Prefixes Honest
+  Data Extraction
+     GetVisualText          Return the visual selection as a string.
 
-- Prefer `<leader>` for custom actions that are not natural extensions of an existing Vim prefix.
-- Avoid rebuilding a custom namespace on top of strong built-in prefixes such as `m`.
-- Treat future exceptions as explicit policy choices, not casual convenience mappings.
+     DirEntry               Return the current line stripped of
+                            ls -F suffixes.
 
-### Phase 4: Preserve Cheap, Readable Repetition
+     SetVisualSearch        Set the / register to a literal match
+                            of the visual selection.
 
-- Keep short explicit map families such as `yo` toggles and `[]` navigation if they remain stable and easy to scan.
-- Do not table-drive these families unless they become materially harder to maintain.
+KEY BINDINGS
+  Leader (space)
+     !         Prompt for a command and execute via Cmd.
+     .         Set the local directory to the file's directory.
+     ;         Send current line or selection to tmux.
+     CR        Plumb the word under cursor.
+     B         Toggle directory buffer.
+     F         Copy relative file path to clipboard.
+     Q         Force-close buffer.
+     f         Format file.
+     l         Lint file.
+     q         Close buffer.
+     z         Zoom current window.
 
-## Verification
+  Visual
+     !         Execute selection via Cmd.
+     ;         Send selection to tmux.
+     CR        Plumb the visual selection.
+     *         Search for the visual selection literally.
 
-### Desktop Workflow
+  Brackets
+     ]a [a     Next/previous argument.
+     ]b [b     Next/previous buffer.
+     ]l [l     Next/previous location.
+     ]q [q     Next/previous quickfix.
+     ]t [t     Next/previous tab.
 
-- Right click opens or plumbs the clicked thing.
-- Middle click runs the expected command target.
-- Statusline double click and control click preserve window-close and window-zoom behavior.
-- Dir buffer mouse actions match the corresponding keyboard actions.
+  Toggles (yo)
+     b         Background light/dark.
+     h         Highlight search.
+     i         Ignore case.
+     l         List mode.
+     n         Line numbers.
+     p         Paste mode.
+     r         Relative numbers.
+     s         Spell check.
+     w         Line wrap.
 
-### Constrained Workflow
+  Control
+     C-j       FocusNext.
+     C-k       FocusPrev.
+     C-l       Clear search, matches, and redraw.
+     C-p       Fuzzy file finder.
 
-- Every core action can be completed without mouse input.
-- `<C-j>` and `<C-k>` behave consistently in normal and terminal mode.
-- Leader bindings and visual bindings cover the same important actions as mouse bindings.
+  Mouse
+     Middle    Execute word under cursor via Cmd.
+     Right     Plumb word under cursor.
+     2-Left    Double-click statusline closes window;
+               double-click body selects word.
+     C-Left    Control-click statusline zooms window.
 
-### Consistency Checks
+     In visual mode, middle and right operate on the
+     selection instead of the word under cursor.
 
-- Changing the implementation of plumb or command execution should usually happen in `Plumb()` or `Cmd()`, not in a helper taxonomy built around modes.
-- Dir buffer behavior may stay locally expressed if the only difference is the source text.
-- The abstraction threshold is simple: remove repeated logic, keep repeated declarations.
+  Terminal
+     C-j       FocusNext (handed off from terminal mode).
+     C-k       FocusPrev (handed off from terminal mode).
+     C-r       Paste register into terminal.
 
-## Recommended Next Step
+  Dir Buffer
+     CR        Plumb the entry.
+     Middle    Execute the entry via Cmd.
+     Right     Plumb the entry.
+     -         Go up one directory.
 
-Start with renaming `WinCycleNext()` and `WinCyclePrev()` to `FocusNext()` and `FocusPrev()`, focusing strictly on the user state-change instead of Vim lists. Then refactor input data to pipe strings into `Plumb()` and `Cmd()` rather than allowing each mode to handle its own execution path.
+FILES
+     dot.vimrc              Main configuration (vim9script).
+     ~/.vimrc.local         Host-local overrides, sourced last.
+     ~/.vim/pack/default/   Native package directory.
+
+SEE ALSO
+     vim(1), tmux(1), fts(1), fzf(1), rg(1)
+
+DIAGNOSTICS
+     Cmd prints "name: exit code" on job completion.  When the
+     exit code is nonzero or output is nonempty, the +Errors
+     buffer is opened in a split.
+
+     Lint and Fmt report missing executables to the error line.
+
+BUGS
+     The version guard silently degrades to set nocompatible
+     on Vim 8 and below.  No warning is issued.
+
+     Plumb cannot follow symlinks that resolve outside the
+     working directory without an absolute path.
+
+     OscYank shells out to base64(1) and will fail if it is
+     not in PATH.
+```
