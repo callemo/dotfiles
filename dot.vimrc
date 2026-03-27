@@ -185,7 +185,7 @@ nnoremap yow :setl invwrap<CR>
 xnoremap * :call SetVisualSearch()<CR>/<CR>
 xnoremap <silent> <leader>! :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <leader><CR>
-		\ :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
+		\ :<c-u>call Plumb(expand('%:h'), {'visual': 1}, GetVisualText())<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 cnoremap <c-a> <home>
@@ -212,10 +212,11 @@ if has('mouse_sgr')
 endif
 nnoremap <silent> <2-LeftMouse> :call WinDblClick()<CR>
 nnoremap <silent> <C-LeftMouse> :call WinZoom()<CR>
-nnoremap <silent> <middlemouse> <leftmouse>:Cmd <c-r><c-a><CR>
+# middlemouse = execute, rightmouse = plumb (same semantics as keyboard)
+nnoremap <silent> <middlemouse> <leftmouse>:call Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
 nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
-xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
+xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual': 1}, GetVisualText())<CR>
 
 # CloseBuffer: quit if last window, else wipeout the buffer.
 function g:CloseBuffer(bang) abort
@@ -657,12 +658,13 @@ function g:Dir(path, ...) abort
 	silent execute '%!ls -aF ' .. shellescape(d)
 	setlocal nomodifiable nomodified
 	let b:dir = d
+	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up
 	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, DirEntry())<CR>
-	# :h strips trailing /, second :h goes up one level
-	nnoremap <silent> <buffer> - :call Dir(fnamemodify(b:dir, ':h:h'))<CR>
 	nnoremap <silent> <buffer> <leader><CR> :call Plumb(b:dir, {}, DirEntry())<CR>
 	nnoremap <silent> <buffer> <rightmouse> <leftmouse>:call Plumb(b:dir, {}, DirEntry())<CR>
-	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:Cmd <C-R>=DirEntry()<CR><CR>
+	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:call Cmd(DirEntry(), 0, 0, 0)<CR>
+	# :h strips trailing /, second :h goes up one level
+	nnoremap <silent> <buffer> - :call Dir(fnamemodify(b:dir, ':h:h'))<CR>
 endfunction
 
 # Toggle the directory buffer.

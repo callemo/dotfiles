@@ -24,6 +24,13 @@ call assert_false(exists('*WinCyclePrev'))
 " Cmd and Plumb are def functions (compiled)
 call assert_match('def ', execute('function Cmd'))
 
+" Data extraction: GetVisualText and DirEntry are pure text extractors
+call assert_true(exists('*GetVisualText'))
+call assert_true(exists('*DirEntry'))
+
+" Plumb attr: normal-mode maps pass word, visual maps pass visual
+" (verified structurally below via SetVisualSearch; Plumb routing tested via OpenURL)
+
 function! Cmd(cmd, range, line1, line2) abort
 	let g:test_cmd = a:cmd
 endfunction
