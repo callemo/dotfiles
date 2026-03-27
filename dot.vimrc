@@ -1,4 +1,5 @@
-set nocompatible
+if !has('vim9script') | set nocompatible | finish | endif
+vim9script
 set autoindent
 set autoread
 set backspace=indent,eol,start
@@ -58,11 +59,11 @@ runtime! ftplugin/man.vim
 filetype plugin on
 syntax on
 
-let mapleader = ' '
+g:mapleader = ' '
 
-" Disable netrw
-let g:loaded_netrw = 1
-let g:loaded_netrwPlugin = 1
+# Disable netrw
+g:loaded_netrw = 1
+g:loaded_netrwPlugin = 1
 
 
 augroup dotfiles
@@ -96,13 +97,13 @@ augroup dotfiles
 	autocmd FileType javascript,json setl sw=4 sts=4 et
 	autocmd FileType lilypond setl et sw=2 ts=2 sts=2 ai fdm=indent fdl=0 fdc=2 cms=%\ %s
 	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript
-		" syntax/typescript.vim is too buggy
+		# syntax/typescript.vim is too buggy
 	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf
-		" syntax/yaml.vim is too buggy
+		# syntax/yaml.vim is too buggy
 	autocmd FileType markdown,python setl sw=4 sts=4 et
 	autocmd FileType sh setl noet sw=0 sts=0
 	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call Dir('', 1) | endif
-	" BufReadCmd matches trailing / (dir buffer names); BufReadPost catches :e .
+	# BufReadCmd matches trailing / (dir buffer names); BufReadPost catches :e .
 	autocmd BufReadCmd */ call Dir(expand('<afile>:p'), 1)
 	autocmd BufReadPost * if isdirectory(expand('<afile>:p')) | call Dir(expand('<afile>:p'), 1) | endif
 augroup END
@@ -124,14 +125,14 @@ command! -nargs=? Oln call Outline(<f-args>)
 command!           Sort   call SortWindows()
 command! -nargs=1 B call BufferMatch(<q-args>)
 
-function! SendToTmux(line1, line2, target) abort
+function g:SendToTmux(line1, line2, target) abort
 	if a:target != ''
 		let w:send_tmux_target = a:target
 	endif
 	let target = get(w:, 'send_tmux_target', '')
-	let text = join(getline(a:line1, a:line2), "\n") . "\n"
+	let text = join(getline(a:line1, a:line2), "\n") .. "\n"
 	if target != ''
-		call system('tmux loadb - \; pasteb -d -t ' . shellescape(target), text)
+		call system('tmux loadb - \; pasteb -d -t ' .. shellescape(target), text)
 	else
 		call system('tmux loadb - \; pasteb -d', text)
 	endif
@@ -200,11 +201,11 @@ tnoremap <leader>z <c-w>:resize<CR>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <scrollwheelup> <c-\><c-n>
-tnoremap <expr> <c-r> '<c-w>"' . nr2char(getchar())
+tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
 tnoremap <silent> <c-j> <c-w>:call WinCycleNext()<CR>
 tnoremap <silent> <c-k> <c-w>:call WinCyclePrev()<CR>
 
-" Mouse
+# Mouse
 set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
@@ -216,17 +217,17 @@ nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': ex
 xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <rightmouse> :<c-u>call Plumb(expand('%:h'), {'visual':1}, GetVisualText())<CR>
 
-" CloseBuffer: quit if last window, else wipeout the buffer.
-function! CloseBuffer(bang) abort
+# CloseBuffer: quit if last window, else wipeout the buffer.
+function g:CloseBuffer(bang) abort
 	if winnr('$') == 1
-		exe 'quit' . a:bang
+		exe 'quit' .. a:bang
 	else
-		exe 'bwipeout' . a:bang
+		exe 'bwipeout' .. a:bang
 	endif
 endfunction
 
-" WinCycleNext/Prev: cycle vim windows, falling through to tmux panes at edges.
-function! WinCycleNext() abort
+# WinCycleNext/Prev: cycle vim windows, falling through to tmux panes at edges.
+function g:WinCycleNext() abort
 	if !empty($TMUX) && winnr() == winnr('$')
 		call system("tmux selectp -t :.+")
 	else
@@ -234,7 +235,7 @@ function! WinCycleNext() abort
 	endif
 endfunction
 
-function! WinCyclePrev() abort
+function g:WinCyclePrev() abort
 	if !empty($TMUX) && winnr() == 1
 		call system("tmux selectp -t :.-")
 	else
@@ -242,8 +243,8 @@ function! WinCyclePrev() abort
 	endif
 endfunction
 
-" WinDblClick: double-click statusline closes window, body selects word.
-function! WinDblClick() abort
+# WinDblClick: double-click statusline closes window, body selects word.
+function g:WinDblClick() abort
 	let m = getmousepos()
 	let w = m.winid
 	if !w | return | endif
@@ -254,8 +255,8 @@ function! WinDblClick() abort
 	endif
 endfunction
 
-" WinZoom: ctrl-click statusline zooms window to full height.
-function! WinZoom() abort
+# WinZoom: ctrl-click statusline zooms window to full height.
+function g:WinZoom() abort
 	let m = getmousepos()
 	let w = m.winid
 	if !w | return | endif
@@ -264,8 +265,8 @@ function! WinZoom() abort
 	endif
 endfunction
 
-" GetVisualText returns the text selected in visual mode.
-function! GetVisualText() abort
+# GetVisualText returns the text selected in visual mode.
+function g:GetVisualText() abort
 	let reg = @"
 	silent normal! vgvy
 	let text = @"
@@ -273,18 +274,18 @@ function! GetVisualText() abort
 	return text
 endfunction
 
-" SetVisualSearch sets / to a literal search of the visual selection.
-function! SetVisualSearch() abort
-	let @/ = substitute('\m\C' . escape(GetVisualText(), '\.^$~[]*'), "\n$", '', '')
+# SetVisualSearch sets / to a literal search of the visual selection.
+function g:SetVisualSearch() abort
+	let @/ = substitute('\m\C' .. escape(GetVisualText(), '\.^$~[]*'), "\n$", '', '')
 endfunction
 
-function! Err(msg) abort
+function g:Err(msg) abort
 	echohl ErrorMsg | echo a:msg | echohl None
 endfunction
 
-" NewBuffer creates a scratch buffer with the given suffix returning its name
-function! NewBuffer(suffix) abort
-	let bufname = getcwd() . a:suffix
+# NewBuffer creates a scratch buffer with the given suffix returning its name
+function g:NewBuffer(suffix) abort
+	let bufname = getcwd() .. a:suffix
 	if !bufexists(bufname)
 		let bufnr = bufnr(bufname, 1)
 		call setbufvar(bufnr, '&buflisted', 1)
@@ -295,8 +296,8 @@ function! NewBuffer(suffix) abort
 	return bufname
 endfunction
 
-" Cmd executes a shell command asynchronously, output to +Errors.
-function! Cmd(cmd, range, line1, line2) abort
+# Cmd executes a shell command asynchronously, output to +Errors.
+function g:Cmd(cmd, range, line1, line2) abort
 	let bufname = NewBuffer('/+Errors')
 	let opts = {
 		\ 'in_io': 'null', 'mode': 'raw',
@@ -315,92 +316,92 @@ function! Cmd(cmd, range, line1, line2) abort
 	call job_start([&sh, &shcf, a:cmd], opts)
 endfunction
 
-" CmdDone handles job completion: show +Errors if output or failure.
-function! CmdDone(job, code, name) abort
-	echom a:name . ': exit ' . a:code
+# CmdDone handles job completion: show +Errors if output or failure.
+function g:CmdDone(job, code, name) abort
+	echom a:name .. ': exit ' .. a:code
 	let bufnr = ch_getbufnr(a:job, 'out')
 	if getbufline(bufnr, 1, '$') != [''] || a:code > 0
 		exe 'sbuffer' bufnr
 		call cursor(line('$'), '.')
 		if a:code > 0
-			call append(line('$'), a:name . ': exit ' . a:code)
+			call append(line('$'), a:name .. ': exit ' .. a:code)
 			call cursor(line('$'), '.')
 		endif
 	endif
 endfunction
 
-" OscYank copies text to clipboard via OSC 52.
-function! OscYank(text) abort
-	let encoded = system('printf %s ' . shellescape(a:text) . ' | base64 | tr -d "\n"')
-	let osc = "\e]52;c;" . encoded . "\x07"
+# OscYank copies text to clipboard via OSC 52.
+function g:OscYank(text) abort
+	let encoded = system('printf %s ' .. shellescape(a:text) .. ' | base64 | tr -d "\n"')
+	let osc = "\e]52;c;" .. encoded .. "\x07"
 	call writefile([osc], '/dev/tty', 'b')
 endfunction
 
-let g:linters = {
-			\ 'bash': 'shellcheck -f gcc',
-			\ 'css': 'stylelint',
-			\ 'go': 'go vet',
-			\ 'json': 'python3 -c "import json,sys;json.load(open(sys.argv[1]))"',
-			\ 'markdown': 'prettier --check',
-			\ 'perl': 'perlcritic',
-			\ 'python': 'pylint -s n',
-			\ 'scss': 'stylelint',
-			\ 'sh': 'shellcheck -f gcc',
-			\ 'yaml': 'python3 -c "import yaml,sys;yaml.safe_load(open(sys.argv[1]))"',
-			\ }
+g:linters = {
+	'bash': 'shellcheck -f gcc',
+	'css': 'stylelint',
+	'go': 'go vet',
+	'json': 'python3 -c "import json,sys;json.load(open(sys.argv[1]))"',
+	'markdown': 'prettier --check',
+	'perl': 'perlcritic',
+	'python': 'pylint -s n',
+	'scss': 'stylelint',
+	'sh': 'shellcheck -f gcc',
+	'yaml': 'python3 -c "import yaml,sys;yaml.safe_load(open(sys.argv[1]))"',
+	}
 
-" LintFile runs a linter for the current file.
-function! LintFile(...) abort
+# LintFile runs a linter for the current file.
+function g:LintFile(...) abort
 	let ft = a:0 ? a:1 : &filetype
 	let cmd = get(g:linters, ft, v:null)
 	if cmd == v:null
-		call Err('No linter for ' . ft)
+		call Err('No linter for ' .. ft)
 		return
 	endif
 	let exe = split(cmd)[0]
 	if !executable(exe)
-		call Err(exe . ' not found')
+		call Err(exe .. ' not found')
 		return
 	endif
 	update
-	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
+	call Cmd(cmd .. ' ' .. expand('%:S'), 0, 0, 0)
 	checktime
 endfunction
 
-let g:formatters = {
-			\ 'c':      ['clang-format -i', 'clang-format'],
-			\ 'cpp':    ['clang-format -i', 'clang-format'],
-			\ 'go':     ['goimports -w',    'goimports'],
-			\ 'java':   ['clang-format -i', 'clang-format'],
-			\ 'perl':   ['perltidy -b -bext /', 'perltidy'],
-			\ 'python': ['black -q',        'black -q -'],
-			\ }
+g:formatters = {
+	'c':      ['clang-format -i', 'clang-format'],
+	'cpp':    ['clang-format -i', 'clang-format'],
+	'go':     ['goimports -w',    'goimports'],
+	'java':   ['clang-format -i', 'clang-format'],
+	'perl':   ['perltidy -b -bext /', 'perltidy'],
+	'python': ['black -q',        'black -q -'],
+	}
 
-" FormatFile runs a formatter for the current file.
-function! FormatFile(...) range abort
+# FormatFile runs a formatter for the current file.
+function g:FormatFile(...) range abort
 	let ft  = a:0 ? a:1 : &filetype
 	let sel = a:firstline != 1 || a:lastline != line('$')
 	let pfx = sel
-		\ ? 'prettier --stdin-filepath ' . expand('%:S') . ' --log-level warn'
+		\ ? 'prettier --stdin-filepath ' .. expand('%:S') .. ' --log-level warn'
 		\ : 'prettier --write --log-level warn'
 	let pair = get(g:formatters, ft, [])
-	let cmd = empty(pair) ? pfx . (a:0 ? ' --parser ' . ft : '') : pair[sel ? 1 : 0]
+	let cmd = empty(pair) ? pfx .. (a:0 ? ' --parser ' .. ft : '') : pair[sel ? 1 : 0]
 	let exe = split(cmd)[0]
 	if !executable(exe)
-		call Err(exe . ' not found')
+		call Err(exe .. ' not found')
 		return
 	endif
 	if sel
-		exe a:firstline . ',' . a:lastline . '!' . cmd
+		exe a:firstline .. ',' .. a:lastline .. '!' .. cmd
 		return
 	endif
 	update
-	call Cmd(cmd . ' ' . expand('%:S'), 0, 0, 0)
+	call Cmd(cmd .. ' ' .. expand('%:S'), 0, 0, 0)
 	checktime
 endfunction
 
-" TrimTrailingBlanks removes trailing consecutive blanks.
-function! TrimTrailingBlanks() abort
+# TrimTrailingBlanks removes trailing consecutive blanks.
+function g:TrimTrailingBlanks() abort
 	let last_pos = getcurpos()
 	let last_search = @/
 	noautocmd silent! %s/\m\C\s\+$//e
@@ -408,23 +409,23 @@ function! TrimTrailingBlanks() abort
 	call setpos('.', last_pos)
 endfunction
 
-function! TabLine() abort
+function g:TabLine() abort
 	let s = ''
 	for i in range(1, tabpagenr('$'))
 		if i == tabpagenr()
-			let s .= '%#TabLineSel#'
+			let s ..= '%#TabLineSel#'
 		else
-			let s .= '%#TabLine#'
+			let s ..= '%#TabLine#'
 		endif
-		let s .= '%' . i . 'T'
-		let s .= ' %{TabLabel(' . i . ')} '
+		let s ..= '%' .. i .. 'T'
+		let s ..= ' %{TabLabel(' .. i .. ')} '
 	endfor
-	let s .= '%#TabLineFill#%T'
+	let s ..= '%#TabLineFill#%T'
 	return s
 endfunction
 
-" TerminalStatusLine returns a compact status line for terminal buffers
-function! TerminalStatusLine() abort
+# TerminalStatusLine returns a compact status line for terminal buffers
+function g:TerminalStatusLine() abort
 	let job = term_getjob(bufnr('%'))
 	if job == v:null
 		return ''
@@ -438,8 +439,8 @@ function! TerminalStatusLine() abort
 	return printf('%d [%s] %s(%s) %s', bufnr, cwd, cmd, pid, toupper(status))
 endfunction
 
-" TabLabel returns the display label for tab a:n, preferring t:label.
-function! TabLabel(n) abort
+# TabLabel returns the display label for tab a:n, preferring t:label.
+function g:TabLabel(n) abort
 	let tabl = gettabvar(a:n, 'label')
 	if !empty(tabl)
 		return tabl
@@ -450,30 +451,30 @@ function! TabLabel(n) abort
 	let name = bufname(bufnr)
 
 	if empty(name)
-		return empty(bt) ? '-' : '-' . bt
+		return empty(bt) ? '-' : '-' .. bt
 	endif
 
 	let label = fnamemodify(name, ':t')
 	if empty(label)
-		let label = fnamemodify(name, ':h:t') . '/'
+		let label = fnamemodify(name, ':h:t') .. '/'
 	endif
 
 	if bt ==# 'help'
-		return '-help:' . label
+		return '-help:' .. label
 	endif
 	if bt ==# 'quickfix'
 		let winid = win_getid(tabpagewinnr(a:n), a:n)
 		let info = getwininfo(winid)
-		return (!empty(info) && info[0].loclist ? '-loc:' : '-qf:') . label
+		return (!empty(info) && info[0].loclist ? '-loc:' : '-qf:') .. label
 	endif
 	if bt ==# 'terminal'
-		return '-terminal:' . label
+		return '-terminal:' .. label
 	endif
 	return label
 endfunction
 
-" Rg executes the ripgrep program loading its results on the quickfix window.
-function! Rg(args) abort
+# Rg executes the ripgrep program loading its results on the quickfix window.
+function g:Rg(args) abort
 	if !executable('rg')
 		call Err('ripgrep not found')
 		return
@@ -485,12 +486,12 @@ function! Rg(args) abort
 	botright lwindow
 endfunction
 
-" PlumbFile opens file f at optional address addr, reusing existing windows.
-function! PlumbFile(f, addr) abort
+# PlumbFile opens file f at optional address addr, reusing existing windows.
+function g:PlumbFile(f, addr) abort
 	let f = fnamemodify(a:f, ':.')
 	let w = bufwinnr(f)
 	if w != -1
-		exe w . 'wincmd w'
+		exe w .. 'wincmd w'
 		if !empty(a:addr) | exe a:addr | endif
 	elseif bufexists(f)
 		silent exe 'sbuffer' (empty(a:addr) ? '' : '+'.a:addr) fnameescape(f)
@@ -499,40 +500,40 @@ function! PlumbFile(f, addr) abort
 	endif
 endfunction
 
-" Plumb dispatches the handling of an acquisition gesture.
-function! Plumb(wdir, attr, data) abort
+# Plumb dispatches the handling of an acquisition gesture.
+function g:Plumb(wdir, attr, data) abort
 	let data = substitute(a:data, '[):.,;]\+$', '', '')
-	" URLs
+	# URLs
 	let m = matchlist(data,
 		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
-		\ . '\([.:][a-zA-Z0-9_@\-]\+\)*'
-		\ . '\(/[a-zA-Z0-9_?,%#~&/\-+=.@]*\)*')
+		\ .. '\([.:][a-zA-Z0-9_@\-]\+\)*'
+		\ .. '\(/[a-zA-Z0-9_?,%#~&/\-+=.@]*\)*')
 	if len(m)
 		call OpenURL(m[0])
 		return
 	endif
 
-	" Wiki link
+	# Wiki link
 	let m = matchlist(a:data, '\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
 	if len(m)
 		call OpenWikilink(m[1])
 		return
 	endif
 
-	" File with address
+	# File with address
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):\?')
 	if len(m)
-		let f = simplify(m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1])
+		let f = simplify(m[1][0] != '/' ? a:wdir .. '/' .. m[1] : m[1])
 		if filereadable(f)
 			call PlumbFile(f, m[2])
 			return
 		endif
 	endif
 
-	" File
+	# File
 	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\)')
 	if len(m)
-		let f = simplify(m[1][0] != '/' ? a:wdir . '/' . m[1] : m[1])
+		let f = simplify(m[1][0] != '/' ? a:wdir .. '/' .. m[1] : m[1])
 		if filereadable(f)
 			call PlumbFile(f, '')
 			return
@@ -543,39 +544,39 @@ function! Plumb(wdir, attr, data) abort
 		endif
 	endif
 
-	" Text search
+	# Text search
 	if get(a:attr, 'visual', 0)
-		let @/ = substitute('\m\C' . escape(a:data, '\.^$[]*~'), "\n", '\\n', 'g')
+		let @/ = substitute('\m\C' .. escape(a:data, '\.^$[]*~'), "\n", '\\n', 'g')
 		call feedkeys("/\<CR>")
 	elseif has_key(a:attr, 'word')
-		let @/ = '\<' . a:attr['word'] . '\>'
+		let @/ = '\<' .. a:attr['word'] .. '\>'
 		call feedkeys("/\<CR>")
 	endif
 endfunction
 
-" OpenURL opens the given URL
-function! OpenURL(url) abort
+# OpenURL opens the given URL
+function g:OpenURL(url) abort
 	echom 'url:' a:url
 	if has('mac')
-		call Cmd('open ' . shellescape(a:url), 0, 0, 0)
+		call Cmd('open ' .. shellescape(a:url), 0, 0, 0)
 	elseif executable('xdg-open')
-		call Cmd('xdg-open ' . shellescape(a:url), 0, 0, 0)
+		call Cmd('xdg-open ' .. shellescape(a:url), 0, 0, 0)
 	endif
 endfunction
 
-" OpenWikilink searches for a file path and opens it.
-function! OpenWikilink(name) abort
-	let f = trim(system('n look ' . shellescape(a:name)))
+# OpenWikilink searches for a file path and opens it.
+function g:OpenWikilink(name) abort
+	let f = trim(system('n look ' .. shellescape(a:name)))
 	if empty(f)
-		call Err('wikilink: not found:' . a:name)
+		call Err('wikilink: not found:' .. a:name)
 		return
 	endif
 	echom 'wikilink:' f
 	call PlumbFile(f, '')
 endfunction
 
-" Outline populates the location list with lines matching pat (default: markdown headings).
-function! Outline(...) abort
+# Outline populates the location list with lines matching pat (default: markdown headings).
+function g:Outline(...) abort
 	let pat = a:0 > 0 && !empty(a:1) ? a:1 : '^#\+\s'
 	let items = []
 	for i in range(1, line('$'))
@@ -587,32 +588,32 @@ function! Outline(...) abort
 	lwindow
 endfunction
 
-" Fts runs fts and populates the location list.
-function! Fts(query) abort
+# Fts runs fts and populates the location list.
+function g:Fts(query) abort
 	if !executable('fts')
 		call Err('fts not found')
 		return
 	endif
 	call setloclist(0, [], 'r', {
-		\ 'title' : 'Fts ' . a:query,
-		\ 'lines' : systemlist('fts ' . shellescape(a:query) . ' | cut -f 1,2'),
+		\ 'title' : 'Fts ' .. a:query,
+		\ 'lines' : systemlist('fts ' .. shellescape(a:query) .. ' | cut -f 1,2'),
 		\ 'efm': '%f	%m' })
 	lwindow
 endfunction
 
-" Sort visible windows by buffer name.
-function! SortWindows() abort
+# Sort visible windows by buffer name.
+function g:SortWindows() abort
 	let w = range(1, winnr('$'))
 	let b = filter(map(copy(w), 'winbufnr(v:val)'), 'bufexists(v:val) && !empty(bufname(v:val))')
 	if empty(b) | return | endif
 	let s = sort(copy(b), {x, y -> bufname(x) > bufname(y) ? 1 : -1})
 	for i in range(len(s))
-		call win_execute(win_getid(w[i]), 'silent! buffer ' . s[i])
+		call win_execute(win_getid(w[i]), 'silent! buffer ' .. s[i])
 	endfor
 endfunction
 
-" Match buffers by /re/ and optionally delete with /D.
-function! BufferMatch(a) abort
+# Match buffers by /re/ and optionally delete with /D.
+function g:BufferMatch(a) abort
 	let i = stridx(a:a, '/')
 	let j = strridx(a:a, '/')
 	if i == -1 || i == j
@@ -631,52 +632,52 @@ function! BufferMatch(a) abort
 	call setline(1, map(b, 'bufname(v:val)'))
 endfunction
 
-" Strip ls -F suffix from a directory entry.
-function! DirEntry() abort
+# Strip ls -F suffix from a directory entry.
+function g:DirEntry() abort
 	return substitute(getline('.'), '[*=>@|]$', '', '')
 endfunction
 
-" Read a directory into a scratch buffer.
-function! Dir(path, ...) abort
+# Read a directory into a scratch buffer.
+function g:Dir(path, ...) abort
 	let d = empty(a:path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(a:path, ':p')
-	let d = d =~# '/$' ? d : d . '/'
+	let d = d =~# '/$' ? d : d .. '/'
 	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
 		setlocal modifiable
-		silent execute '%!ls -aF ' . shellescape(d)
+		silent execute '%!ls -aF ' .. shellescape(d)
 		setlocal nomodifiable nomodified
 		return
 	endif
 	let replace = a:0 && a:1
 	if replace
-		noautocmd execute 'file ' . fnameescape(d)
+		noautocmd execute 'file ' .. fnameescape(d)
 	else
-		noautocmd execute 'new ' . fnameescape(d)
+		noautocmd execute 'new ' .. fnameescape(d)
 	endif
 	setlocal bufhidden=wipe noswapfile filetype=dir
-	silent execute '%!ls -aF ' . shellescape(d)
+	silent execute '%!ls -aF ' .. shellescape(d)
 	setlocal nomodifiable nomodified
 	let b:dir = d
 	nnoremap <silent> <buffer> <CR> :call Plumb(b:dir, {}, DirEntry())<CR>
-	" :h strips trailing /, second :h goes up one level
+	# :h strips trailing /, second :h goes up one level
 	nnoremap <silent> <buffer> - :call Dir(fnamemodify(b:dir, ':h:h'))<CR>
 	nnoremap <silent> <buffer> <leader><CR> :call Plumb(b:dir, {}, DirEntry())<CR>
 	nnoremap <silent> <buffer> <rightmouse> <leftmouse>:call Plumb(b:dir, {}, DirEntry())<CR>
 	nnoremap <silent> <buffer> <middlemouse> <leftmouse>:Cmd <C-R>=DirEntry()<CR><CR>
 endfunction
 
-" Toggle the directory buffer.
-function! DirToggle() abort
+# Toggle the directory buffer.
+function g:DirToggle() abort
 	if &filetype ==# 'dir' | return execute('bwipeout') | endif
 	call Dir('')
 endfunction
 
 if exists('$DOTFILES')
 	set rtp+=$DOTFILES/vim
-	let $PATH=$DOTFILES . '/acme:' . $PATH
+	$PATH = $DOTFILES .. '/acme:' .. $PATH
 	colorscheme basic
 elseif isdirectory(expand('~/dotfiles'))
 	set rtp+=~/dotfiles/vim
-	let $PATH=$HOME . '/acme:' . $PATH
+	$PATH = $HOME .. '/acme:' .. $PATH
 	colorscheme basic
 endif
 
@@ -684,7 +685,7 @@ if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 endif
 
-function! LoadVimGo() abort
+function g:LoadVimGo() abort
 	let g:go_def_mode           = 'gopls'
 	let g:go_info_mode          = 'gopls'
 	let g:go_decls_mode         = 'fzf'

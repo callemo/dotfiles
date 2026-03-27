@@ -7,13 +7,23 @@ let $PATH = s:root . '/testdata:' . $PATH
 execute 'source' fnameescape(s:root . '/dot.vimrc')
 let s:term_outfile = ''
 
+" Cycle 1: version guard -- vim9script loaded, nocompatible set
+call assert_false(&compatible)
+
+" Cycle 3: top-level variables
+call assert_equal(' ', g:mapleader)
+call assert_equal(1, g:loaded_netrw)
+call assert_equal(1, g:loaded_netrwPlugin)
+
 function! Cmd(cmd, range, line1, line2) abort
 	let g:test_cmd = a:cmd
 endfunction
 
 let s:url = "https://example.com/a'b?x=1&y=2"
 call OpenURL(s:url)
-call assert_equal((has('mac') ? 'open ' : 'xdg-open ') . shellescape(s:url), get(g:, 'test_cmd', ''))
+if has('mac') || executable('xdg-open')
+	call assert_equal((has('mac') ? 'open ' : 'xdg-open ') . shellescape(s:url), get(g:, 'test_cmd', ''))
+endif
 
 let s:fts_tmpdir = tempname()
 call mkdir(s:fts_tmpdir, 'p')
