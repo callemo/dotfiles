@@ -176,8 +176,8 @@ nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 
 # Ctrl keys: focus pipeline
-nnoremap <silent> <c-j> <cmd>call g:FocusNext()<CR>
-nnoremap <silent> <c-k> <cmd>call g:FocusPrev()<CR>
+nnoremap <silent> <c-j> :call g:FocusNext()<CR>
+nnoremap <silent> <c-k> :call g:FocusPrev()<CR>
 nnoremap <c-l> <cmd>nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p> <cmd>FZF<CR>
 
@@ -202,8 +202,8 @@ cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
 # Terminal hand-offs
-tnoremap <silent> <c-j> <cmd>call g:FocusNext()<CR>
-tnoremap <silent> <c-k> <cmd>call g:FocusPrev()<CR>
+tnoremap <silent> <c-j> <c-w>:call g:FocusNext()<CR>
+tnoremap <silent> <c-k> <c-w>:call g:FocusPrev()<CR>
 tnoremap <c-r><c-r> <c-r>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
