@@ -1,5 +1,6 @@
 if !has('vim9script') | set nocompatible | finish | endif
 vim9script
+set nocompatible
 set autoindent
 set autoread
 set backspace=indent,eol,start
@@ -138,20 +139,20 @@ command! -range -nargs=? Send call g:SendToTmux(<line1>, <line2>, <q-args>)
 nnoremap <leader>! <cmd>Cmd<space>
 nnoremap <leader>. <cmd>lcd %:p:h<CR>
 nnoremap <silent> <leader>; <cmd>Send<CR>
-nnoremap <silent> <leader><CR> <cmd>g:Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-nnoremap <silent> <leader>B <cmd>g:DirToggle()<CR>
+nnoremap <silent> <leader><CR> <cmd>call g:Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+nnoremap <silent> <leader>B <cmd>call g:DirToggle()<CR>
 nnoremap <silent> <leader>F <cmd>let @+ = fnamemodify(expand('%:p'), ':.')<CR>
-nnoremap <leader>Q <cmd>g:CloseBuffer('!')<CR>
+nnoremap <leader>Q <cmd>call g:CloseBuffer('!')<CR>
 nnoremap <leader>f <cmd>Fmt<CR>
 nnoremap <leader>l <cmd>Lint<CR>
-nnoremap <leader>q <cmd>g:CloseBuffer('')<CR>
+nnoremap <leader>q <cmd>call g:CloseBuffer('')<CR>
 nnoremap <leader>z <cmd>resize<CR>
 
 # Visual: data extractors
-xnoremap <silent> <leader>! <cmd>g:Cmd(g:GetVisualText(), 0, 0, 0)<CR>
+xnoremap <silent> <leader>! <cmd>call g:Cmd(g:GetVisualText(), 0, 0, 0)<CR>
 xnoremap <silent> <leader>; <cmd>Send<CR>
-xnoremap <silent> <leader><CR> <cmd>g:Plumb(expand('%:h'), {'visual': 1}, g:GetVisualText())<CR>
-xnoremap * <cmd>g:SetVisualSearch()<CR>/<CR>
+xnoremap <silent> <leader><CR> <cmd>call g:Plumb(expand('%:h'), {'visual': 1}, g:GetVisualText())<CR>
+xnoremap * <cmd>call g:SetVisualSearch()<CR>/<CR>
 nnoremap ]a :next<CR>
 nnoremap [a :previous<CR>
 nnoremap ]b :bnext<CR>
@@ -175,8 +176,8 @@ nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
 
 # Ctrl keys: focus pipeline
-nnoremap <silent> <c-j> <cmd>g:FocusNext()<CR>
-nnoremap <silent> <c-k> <cmd>g:FocusPrev()<CR>
+nnoremap <silent> <c-j> <cmd>call g:FocusNext()<CR>
+nnoremap <silent> <c-k> <cmd>call g:FocusPrev()<CR>
 nnoremap <c-l> <cmd>nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p> <cmd>FZF<CR>
 
@@ -201,8 +202,8 @@ cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
 # Terminal hand-offs
-tnoremap <silent> <c-j> <cmd>g:FocusNext()<CR>
-tnoremap <silent> <c-k> <cmd>g:FocusPrev()<CR>
+tnoremap <silent> <c-j> <cmd>call g:FocusNext()<CR>
+tnoremap <silent> <c-k> <cmd>call g:FocusPrev()<CR>
 tnoremap <c-r><c-r> <c-r>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
@@ -215,12 +216,12 @@ set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
-nnoremap <silent> <2-LeftMouse> <cmd>g:WinDblClick()<CR>
-nnoremap <silent> <C-LeftMouse> <cmd>g:WinZoom()<CR>
-nnoremap <silent> <middlemouse> <leftmouse><cmd>g:Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
-nnoremap <silent> <rightmouse> <leftmouse><cmd>g:Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-xnoremap <silent> <middlemouse> <cmd>g:Cmd(g:GetVisualText(), 0, 0, 0)<CR>
-xnoremap <silent> <rightmouse> <cmd>g:Plumb(expand('%:h'), {'visual': 1}, g:GetVisualText())<CR>
+nnoremap <silent> <2-LeftMouse> <cmd>call g:WinDblClick()<CR>
+nnoremap <silent> <C-LeftMouse> <cmd>call g:WinZoom()<CR>
+nnoremap <silent> <middlemouse> <leftmouse><cmd>call g:Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
+nnoremap <silent> <rightmouse> <leftmouse><cmd>call g:Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
+xnoremap <silent> <middlemouse> <cmd>call g:Cmd(g:GetVisualText(), 0, 0, 0)<CR>
+xnoremap <silent> <rightmouse> <cmd>call g:Plumb(expand('%:h'), {'visual': 1}, g:GetVisualText())<CR>
 
 # CloseBuffer: quit if last window, else wipeout the buffer.
 def g:CloseBuffer(bang: string)
@@ -252,7 +253,7 @@ enddef
 def g:WinDblClick()
 	var m = getmousepos()
 	var w = m.winid
-	if !w
+	if w == 0
 		return
 	endif
 	if m.winrow > winheight(win_id2win(w))
@@ -266,7 +267,7 @@ enddef
 def g:WinZoom()
 	var m = getmousepos()
 	var w = m.winid
-	if !w
+	if w == 0
 		return
 	endif
 	if m.winrow > winheight(win_id2win(w))
@@ -403,7 +404,7 @@ def g:FormatFile(line1: number, line2: number, ft: string = &filetype)
 		return
 	endif
 	if sel
-		execute line1 .. ',' .. line2 .. '!' .. cmd
+		execute ':' .. line1 .. ',' .. line2 .. '!' .. cmd
 		return
 	endif
 	update
@@ -452,7 +453,7 @@ enddef
 
 # TabLabel returns the display label for tab n, preferring t:label.
 def g:TabLabel(n: number): string
-	var tabl = gettabvar(n, 'label')
+	var tabl = gettabvar(n, 'label', '')
 	if !empty(tabl)
 		return tabl
 	endif
@@ -476,7 +477,7 @@ def g:TabLabel(n: number): string
 	if bt ==# 'quickfix'
 		var winid = win_getid(tabpagewinnr(n), n)
 		var winfo = getwininfo(winid)
-		return (!empty(winfo) && winfo[0].loclist ? '-loc:' : '-qf:') .. label
+		return (!empty(winfo) && winfo[0].loclist != 0 ? '-loc:' : '-qf:') .. label
 	endif
 	if bt ==# 'terminal'
 		return '-terminal:' .. label
@@ -521,21 +522,21 @@ def g:Plumb(wdir: string, attr: dict<any>, data: string)
 		'\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
 		.. '\([.:][a-zA-Z0-9_@\-]\+\)*'
 		.. '\(/[a-zA-Z0-9_?,%#~&/\-+=.@]*\)*')
-	if len(m)
+	if !empty(m)
 		g:OpenURL(m[0])
 		return
 	endif
 
 	# Wiki link
 	m = matchlist(data, '\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
-	if len(m)
+	if !empty(m)
 		g:OpenWikilink(m[1])
 		return
 	endif
 
 	# File with address
 	m = matchlist(data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):\?')
-	if len(m)
+	if !empty(m)
 		var f = simplify(m[1][0] != '/' ? wdir .. '/' .. m[1] : m[1])
 		if filereadable(f)
 			g:PlumbFile(f, m[2])
@@ -545,7 +546,7 @@ def g:Plumb(wdir: string, attr: dict<any>, data: string)
 
 	# File
 	m = matchlist(data, '^\([a-zA-Z0-9_\-./ ]\+\)')
-	if len(m)
+	if !empty(m)
 		var f = simplify(m[1][0] != '/' ? wdir .. '/' .. m[1] : m[1])
 		if filereadable(f)
 			g:PlumbFile(f, '')
@@ -558,7 +559,7 @@ def g:Plumb(wdir: string, attr: dict<any>, data: string)
 	endif
 
 	# Text search
-	if get(attr, 'visual', 0)
+	if get(attr, 'visual', 0) != 0
 		@/ = substitute('\m\C' .. escape(data, '\.^$[]*~'), "\n", '\\n', 'g')
 		feedkeys("/\<CR>")
 	elseif has_key(attr, 'word')
@@ -662,7 +663,7 @@ def g:Dir(path: string, replace: bool = false)
 	d = d =~# '/$' ? d : d .. '/'
 	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
 		setlocal modifiable
-		silent execute '%!ls -aF ' .. shellescape(d)
+		silent execute ':%!ls -aF ' .. shellescape(d)
 		setlocal nomodifiable nomodified
 		return
 	endif
@@ -671,17 +672,17 @@ def g:Dir(path: string, replace: bool = false)
 	else
 		noautocmd execute 'new ' .. fnameescape(d)
 	endif
-	setlocal bufhidden=wipe noswapfile filetype=dir
-	silent execute '%!ls -aF ' .. shellescape(d)
+	setlocal bufhidden=wipe noswapfile filetype=dir modifiable
+	silent execute ':%!ls -aF ' .. shellescape(d)
 	setlocal nomodifiable nomodified
 	b:dir = d
 	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up
-	nnoremap <silent> <buffer> <CR> <cmd>g:Plumb(b:dir, {}, g:DirEntry())<CR>
-	nnoremap <silent> <buffer> <leader><CR> <cmd>g:Plumb(b:dir, {}, g:DirEntry())<CR>
-	nnoremap <silent> <buffer> <rightmouse> <leftmouse><cmd>g:Plumb(b:dir, {}, g:DirEntry())<CR>
-	nnoremap <silent> <buffer> <middlemouse> <leftmouse><cmd>g:Cmd(g:DirEntry(), 0, 0, 0)<CR>
+	nnoremap <silent> <buffer> <CR> <cmd>call g:Plumb(b:dir, {}, g:DirEntry())<CR>
+	nnoremap <silent> <buffer> <leader><CR> <cmd>call g:Plumb(b:dir, {}, g:DirEntry())<CR>
+	nnoremap <silent> <buffer> <rightmouse> <leftmouse><cmd>call g:Plumb(b:dir, {}, g:DirEntry())<CR>
+	nnoremap <silent> <buffer> <middlemouse> <leftmouse><cmd>call g:Cmd(g:DirEntry(), 0, 0, 0)<CR>
 	# :h strips trailing /, second :h goes up one level
-	nnoremap <silent> <buffer> - <cmd>g:Dir(fnamemodify(b:dir, ':h:h'))<CR>
+	nnoremap <silent> <buffer> - <cmd>call g:Dir(fnamemodify(b:dir, ':h:h'))<CR>
 enddef
 
 # Toggle the directory buffer.

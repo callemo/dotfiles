@@ -62,6 +62,22 @@ else
 endif
 call delete(s:fts_tmpdir, 'rf')
 
+" Dir(): opens a directory buffer with ls output and correct mappings
+let s:dir_tmpdir = tempname()
+call mkdir(s:dir_tmpdir, 'p')
+call writefile(['hello'], s:dir_tmpdir . '/afile.txt')
+enew
+call Dir(s:dir_tmpdir, v:true)
+call assert_equal('dir', &filetype)
+call assert_equal(s:dir_tmpdir . '/', b:dir)
+call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
+" Verify buffer-local CR mapping uses call (not bare function)
+let s:cr_map = maparg('<CR>', 'n', 0, 1)
+call assert_true(!empty(s:cr_map))
+call assert_match('call', s:cr_map.rhs)
+bwipeout
+call delete(s:dir_tmpdir, 'rf')
+
 function! GetVisualText() abort
 	return 'a[b]c'
 endfunction
