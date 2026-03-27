@@ -193,8 +193,8 @@ cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
-nnoremap <silent> <c-j> :call WinCycleNext()<CR>
-nnoremap <silent> <c-k> :call WinCyclePrev()<CR>
+nnoremap <silent> <c-j> :call FocusNext()<CR>
+nnoremap <silent> <c-k> :call FocusPrev()<CR>
 
 tnoremap <c-r><c-r> <c-r>
 tnoremap <leader>z <c-w>:resize<CR>
@@ -202,8 +202,8 @@ tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <scrollwheelup> <c-\><c-n>
 tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
-tnoremap <silent> <c-j> <c-w>:call WinCycleNext()<CR>
-tnoremap <silent> <c-k> <c-w>:call WinCyclePrev()<CR>
+tnoremap <silent> <c-j> <c-w>:call FocusNext()<CR>
+tnoremap <silent> <c-k> <c-w>:call FocusPrev()<CR>
 
 # Mouse
 set mouse=nv
@@ -226,8 +226,8 @@ function g:CloseBuffer(bang) abort
 	endif
 endfunction
 
-# WinCycleNext/Prev: cycle vim windows, falling through to tmux panes at edges.
-function g:WinCycleNext() abort
+# FocusNext/Prev: cycle focus across vim windows and tmux panes.
+function g:FocusNext() abort
 	if !empty($TMUX) && winnr() == winnr('$')
 		call system("tmux selectp -t :.+")
 	else
@@ -235,7 +235,7 @@ function g:WinCycleNext() abort
 	endif
 endfunction
 
-function g:WinCyclePrev() abort
+function g:FocusPrev() abort
 	if !empty($TMUX) && winnr() == 1
 		call system("tmux selectp -t :.-")
 	else
@@ -297,38 +297,38 @@ function g:NewBuffer(suffix) abort
 endfunction
 
 # Cmd executes a shell command asynchronously, output to +Errors.
-function g:Cmd(cmd, range, line1, line2) abort
-	let bufname = NewBuffer('/+Errors')
-	let opts = {
-		\ 'in_io': 'null', 'mode': 'raw',
-		\ 'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
-		\ 'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
-		\ 'exit_cb': {job, code -> CmdDone(job, code, split(a:cmd)[0])},
-		\ 'timeout': 300000,
-		\ 'stoponexit': 'term'
-		\ }
-	if a:range > 0
-		let opts.in_io = 'buffer'
-		let opts.in_buf = bufnr('%')
-		let opts.in_top = a:line1
-		let opts.in_bot = a:line2
+def g:Cmd(cmd: string, range: number, line1: number, line2: number)
+	var bufname = NewBuffer('/+Errors')
+	var opts = {
+		'in_io': 'null', 'mode': 'raw',
+		'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
+		'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
+		'exit_cb': (job, code) => CmdDone(job, code, split(cmd)[0]),
+		'timeout': 300000,
+		'stoponexit': 'term'
+		}
+	if range > 0
+		opts.in_io = 'buffer'
+		opts.in_buf = bufnr('%')
+		opts.in_top = line1
+		opts.in_bot = line2
 	endif
-	call job_start([&sh, &shcf, a:cmd], opts)
-endfunction
+	job_start([&shell, &shellcmdflag, cmd], opts)
+enddef
 
 # CmdDone handles job completion: show +Errors if output or failure.
-function g:CmdDone(job, code, name) abort
-	echom a:name .. ': exit ' .. a:code
-	let bufnr = ch_getbufnr(a:job, 'out')
-	if getbufline(bufnr, 1, '$') != [''] || a:code > 0
+def g:CmdDone(job: job, code: number, name: string)
+	echom name .. ': exit ' .. code
+	var bufnr = ch_getbufnr(job, 'out')
+	if getbufline(bufnr, 1, '$') != [''] || code > 0
 		exe 'sbuffer' bufnr
-		call cursor(line('$'), '.')
-		if a:code > 0
-			call append(line('$'), a:name .. ': exit ' .. a:code)
-			call cursor(line('$'), '.')
+		cursor(line('$'), 1)
+		if code > 0
+			append(line('$'), name .. ': exit ' .. code)
+			cursor(line('$'), 1)
 		endif
 	endif
-endfunction
+enddef
 
 # OscYank copies text to clipboard via OSC 52.
 function g:OscYank(text) abort
@@ -501,58 +501,58 @@ function g:PlumbFile(f, addr) abort
 endfunction
 
 # Plumb dispatches the handling of an acquisition gesture.
-function g:Plumb(wdir, attr, data) abort
-	let data = substitute(a:data, '[):.,;]\+$', '', '')
+def g:Plumb(wdir: string, attr: dict<any>, data: string)
+	var text = substitute(data, '[):.,;]\+$', '', '')
 	# URLs
-	let m = matchlist(data,
-		\ '\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
-		\ .. '\([.:][a-zA-Z0-9_@\-]\+\)*'
-		\ .. '\(/[a-zA-Z0-9_?,%#~&/\-+=.@]*\)*')
+	var m = matchlist(text,
+		'\(https\?\|ftp\)://[a-zA-Z0-9_@\-]\+'
+		.. '\([.:][a-zA-Z0-9_@\-]\+\)*'
+		.. '\(/[a-zA-Z0-9_?,%#~&/\-+=.@]*\)*')
 	if len(m)
-		call OpenURL(m[0])
+		OpenURL(m[0])
 		return
 	endif
 
 	# Wiki link
-	let m = matchlist(a:data, '\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
+	m = matchlist(data, '\[\[\([a-zA-Z0-9_\-./ ]\+\)\]\]')
 	if len(m)
-		call OpenWikilink(m[1])
+		OpenWikilink(m[1])
 		return
 	endif
 
 	# File with address
-	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):\?')
+	m = matchlist(data, '^\([a-zA-Z0-9_\-./ ]\+\):\([0-9]\+\):\?')
 	if len(m)
-		let f = simplify(m[1][0] != '/' ? a:wdir .. '/' .. m[1] : m[1])
+		var f = simplify(m[1][0] != '/' ? wdir .. '/' .. m[1] : m[1])
 		if filereadable(f)
-			call PlumbFile(f, m[2])
+			PlumbFile(f, m[2])
 			return
 		endif
 	endif
 
 	# File
-	let m = matchlist(a:data, '^\([a-zA-Z0-9_\-./ ]\+\)')
+	m = matchlist(data, '^\([a-zA-Z0-9_\-./ ]\+\)')
 	if len(m)
-		let f = simplify(m[1][0] != '/' ? a:wdir .. '/' .. m[1] : m[1])
+		var f = simplify(m[1][0] != '/' ? wdir .. '/' .. m[1] : m[1])
 		if filereadable(f)
-			call PlumbFile(f, '')
+			PlumbFile(f, '')
 			return
 		endif
 		if isdirectory(f)
-			silent call Dir(f)
+			silent Dir(f)
 			return
 		endif
 	endif
 
 	# Text search
-	if get(a:attr, 'visual', 0)
-		let @/ = substitute('\m\C' .. escape(a:data, '\.^$[]*~'), "\n", '\\n', 'g')
-		call feedkeys("/\<CR>")
-	elseif has_key(a:attr, 'word')
-		let @/ = '\<' .. a:attr['word'] .. '\>'
-		call feedkeys("/\<CR>")
+	if get(attr, 'visual', 0)
+		@/ = substitute('\m\C' .. escape(data, '\.^$[]*~'), "\n", '\\n', 'g')
+		feedkeys("/\<CR>")
+	elseif has_key(attr, 'word')
+		@/ = '\<' .. attr['word'] .. '\>'
+		feedkeys("/\<CR>")
 	endif
-endfunction
+enddef
 
 # OpenURL opens the given URL
 function g:OpenURL(url) abort

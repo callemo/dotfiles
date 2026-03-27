@@ -15,6 +15,15 @@ call assert_equal(' ', g:mapleader)
 call assert_equal(1, g:loaded_netrw)
 call assert_equal(1, g:loaded_netrwPlugin)
 
+" FocusNext/FocusPrev exist; WinCycleNext/WinCyclePrev removed
+call assert_true(exists('*FocusNext'))
+call assert_true(exists('*FocusPrev'))
+call assert_false(exists('*WinCycleNext'))
+call assert_false(exists('*WinCyclePrev'))
+
+" Cmd and Plumb are def functions (compiled)
+call assert_match('def ', execute('function Cmd'))
+
 function! Cmd(cmd, range, line1, line2) abort
 	let g:test_cmd = a:cmd
 endfunction
