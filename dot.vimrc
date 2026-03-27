@@ -111,11 +111,6 @@ augroup END
 command! -nargs=+ -complete=file -range
 	\ Cmd call Cmd(<q-args>, <range>, <line1>, <line2>)
 
-inoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
-inoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
-cnoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
-cnoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
-
 command! -nargs=? Lint call LintFile(<f-args>)
 command! -nargs=? -range=% Fmt call FormatFile(<f-args>)
 command! -nargs=* Rg call Rg(<q-args>)
@@ -138,31 +133,26 @@ function g:SendToTmux(line1, line2, target) abort
 	endif
 endfunction
 command! -range -nargs=? Send call SendToTmux(<line1>, <line2>, <q-args>)
-nnoremap <silent> <leader>; :Send<CR>
-xnoremap <silent> <leader>; :Send<CR>
 
-nnoremap <down> <c-e>
-nnoremap <up> <c-y>
-inoremap <down> <c-o><c-e>
-inoremap <up> <c-o><c-y>
-nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
-nnoremap <leader>z :resize<CR>
-nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR>
-
-nnoremap <c-l>
-	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
-nnoremap <c-p> :FZF<CR>
-nnoremap <leader>q :call CloseBuffer('')<CR>
-nnoremap <leader>Q :call CloseBuffer('!')<CR>
+# Leader: custom actions
 nnoremap <leader>! :Cmd<space>
 nnoremap <leader>. :lcd %:p:h<CR>
+nnoremap <silent> <leader>; :Send<CR>
 nnoremap <silent> <leader><CR>
 	\ :call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <silent> <leader>B :call DirToggle()<CR>
-nnoremap <leader>f :Fmt<CR>
 nnoremap <silent> <leader>F :let @+ = fnamemodify(expand('%:p'), ':.')<CR>
+nnoremap <leader>Q :call CloseBuffer('!')<CR>
+nnoremap <leader>f :Fmt<CR>
 nnoremap <leader>l :Lint<CR>
+nnoremap <leader>q :call CloseBuffer('')<CR>
+nnoremap <leader>z :resize<CR>
+xnoremap <silent> <leader>! :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
+xnoremap <silent> <leader>; :Send<CR>
+xnoremap <silent> <leader><CR>
+		\ :<c-u>call Plumb(expand('%:h'), {'visual': 1}, GetVisualText())<CR>
 
+# [] navigation
 nnoremap ]a :next<CR>
 nnoremap [a :previous<CR>
 nnoremap ]b :bnext<CR>
@@ -173,46 +163,65 @@ nnoremap ]q :cnext<CR>
 nnoremap [q :cprevious<CR>
 nnoremap ]t :tabnext<CR>
 nnoremap [t :tabprevious<CR>
+
+# yo toggles
 nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
-nnoremap yoi :setl invignorecase<CR>
 nnoremap yoh :setl invhlsearch<CR>
+nnoremap yoi :setl invignorecase<CR>
 nnoremap yol :setl invlist<CR>
 nnoremap yon :setl invnumber<CR>
 nnoremap yop :setl invpaste<CR>
 nnoremap yor :setl invrelativenumber<CR>
 nnoremap yos :setl invspell<CR>
 nnoremap yow :setl invwrap<CR>
+
+# Ctrl keys
+nnoremap <silent> <c-j> :call FocusNext()<CR>
+nnoremap <silent> <c-k> :call FocusPrev()<CR>
+nnoremap <c-l>
+	\ :nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
+nnoremap <c-p> :FZF<CR>
+
+# Window and scrolling
+nnoremap <c-w>N :new <c-r>=expand('%:h')<CR>/
+nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR>
+nnoremap <down> <c-e>
+nnoremap <up> <c-y>
+
+# Visual
 xnoremap * :call SetVisualSearch()<CR>/<CR>
-xnoremap <silent> <leader>! :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
-xnoremap <silent> <leader><CR>
-		\ :<c-u>call Plumb(expand('%:h'), {'visual': 1}, GetVisualText())<CR>
+
+# Insert and cmdline
+inoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
+inoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
+inoremap <down> <c-o><c-e>
+inoremap <up> <c-o><c-y>
+cnoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
+cnoremap <C-x>w <C-r>=strftime("%YW%V")<CR>
 cnoremap <c-a> <home>
 cnoremap <c-e> <end>
 cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
-nnoremap <silent> <c-j> :call FocusNext()<CR>
-nnoremap <silent> <c-k> :call FocusPrev()<CR>
-
-tnoremap <c-r><c-r> <c-r>
-tnoremap <leader>z <c-w>:resize<CR>
-tnoremap <c-w><c-w> <c-w>.
-tnoremap <c-w>[ <c-\><c-n>
-tnoremap <scrollwheelup> <c-\><c-n>
-tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
+# Terminal
 tnoremap <silent> <c-j> <c-w>:call FocusNext()<CR>
 tnoremap <silent> <c-k> <c-w>:call FocusPrev()<CR>
+tnoremap <c-r><c-r> <c-r>
+tnoremap <c-w><c-w> <c-w>.
+tnoremap <c-w>[ <c-\><c-n>
+tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
+tnoremap <leader>z <c-w>:resize<CR>
+tnoremap <scrollwheelup> <c-\><c-n>
 
-# Mouse
+# Mouse: middlemouse = execute, rightmouse = plumb
 set mouse=nv
 if has('mouse_sgr')
 	set ttymouse=sgr
 endif
 nnoremap <silent> <2-LeftMouse> :call WinDblClick()<CR>
 nnoremap <silent> <C-LeftMouse> :call WinZoom()<CR>
-# middlemouse = execute, rightmouse = plumb (same semantics as keyboard)
 nnoremap <silent> <middlemouse> <leftmouse>:call Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
 nnoremap <silent> <rightmouse> <leftmouse>:call Plumb(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> :<c-u>call Cmd(GetVisualText(), 0, 0, 0)<CR>
