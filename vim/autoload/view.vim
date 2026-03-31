@@ -1,0 +1,263 @@
+vim9script
+
+import autoload 'plumb.vim'
+import autoload 'exec.vim'
+
+# Close: quit if last window, else wipeout the buffer.
+export def Close(bang: string)
+	if winnr('$') == 1
+		exe 'quit' .. bang
+	else
+		exe 'bwipeout' .. bang
+	endif
+enddef
+
+# Next/Prev: cycle focus across vim windows and tmux panes.
+export def Next()
+	if !empty($TMUX) && winnr() == winnr('$')
+		system("tmux selectp -t :.+")
+	else
+		wincmd w
+	endif
+enddef
+
+export def Prev()
+	if !empty($TMUX) && winnr() == 1
+		system("tmux selectp -t :.-")
+	else
+		wincmd W
+	endif
+enddef
+
+# Click2: double-click statusline closes window, body selects word.
+export def Click2()
+	var m = getmousepos()
+	var w = m.winid
+	if w == 0
+		return
+	endif
+	if m.winrow > winheight(win_id2win(w))
+		win_execute(w, 'call view#Close("")')
+	else
+		exe "normal! \<2-LeftMouse>"
+	endif
+enddef
+
+# Zoom: ctrl-click statusline zooms window to full height.
+export def Zoom()
+	var m = getmousepos()
+	var w = m.winid
+	if w == 0
+		return
+	endif
+	if m.winrow > winheight(win_id2win(w))
+		win_execute(w, 'resize')
+	endif
+enddef
+
+# Sort: sort visible windows by buffer name.
+export def Sort()
+	var w = range(1, winnr('$'))
+	var b = filter(map(copy(w), (_, v) => winbufnr(v)),
+		(_, v) => bufexists(v) && !empty(bufname(v)))
+	if empty(b)
+		return
+	endif
+	var s = sort(copy(b), (x, y) => bufname(x) > bufname(y) ? 1 : -1)
+	for i in range(len(s))
+		win_execute(win_getid(w[i]), 'silent! buffer ' .. s[i])
+	endfor
+enddef
+
+# Bufmatch: match buffers by /re/ and optionally delete with /D.
+export def Bufmatch(a: string)
+	var i = stridx(a, '/')
+	var j = strridx(a, '/')
+	if i == -1 || i == j
+		g:Err('Usage: :B /regex/[D]')
+		return
+	endif
+	var re = a[i + 1 : j - 1]
+	var tail = a[j + 1 :]
+	var b = filter(map(getbufinfo({'bufloaded': 1}),
+		(_, v) => v.bufnr),
+		(_, v) => bufname(v) =~ re)
+	if empty(b)
+		return
+	endif
+	if tail ==? 'd'
+		exe 'bwipeout' join(b)
+		return
+	endif
+	var errname = getcwd() .. '/+Errors'
+	if !bufexists(errname)
+		var ebnr = bufnr(errname, 1)
+		setbufvar(ebnr, '&buflisted', 1)
+		setbufvar(ebnr, '&buftype', 'nofile')
+		setbufvar(ebnr, '&number', 0)
+		setbufvar(ebnr, '&swapfile', 0)
+	endif
+	exe 'sbuffer' errname
+	setline(1, map(b, (_, v) => bufname(v)))
+enddef
+
+# Entry: strip ls -F suffix from a directory entry.
+def Entry(): string
+	return substitute(getline('.'), '[*=>@|]$', '', '')
+enddef
+
+# Rename: rename entry under cursor in a Dir buffer.
+def Rename()
+	var old = b:dir .. Entry()
+	var neu = input('Rename: ', old)
+	if neu == '' || neu == old
+		return
+	endif
+	if rename(old, neu) != 0
+		g:Err('rename failed: ' .. old)
+		return
+	endif
+	Dir(b:dir, true)
+enddef
+
+# Delete: delete entry under cursor in a Dir buffer.
+def Delete()
+	var path = b:dir .. Entry()
+	if input('Delete ' .. path .. '? ') !~? '^y'
+		return
+	endif
+	if delete(path, isdirectory(path) ? 'rf' : '') != 0
+		g:Err('delete failed: ' .. path)
+		return
+	endif
+	Dir(b:dir, true)
+enddef
+
+# Dir: read a directory into a scratch buffer.
+export def Dir(path: string, replace: bool = false)
+	var d = empty(path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(path, ':p')
+	d = d =~# '/$' ? d : d .. '/'
+	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
+		setlocal modifiable
+		silent execute ':%!ls -aF ' .. shellescape(d)
+		setlocal nomodifiable nomodified
+		return
+	endif
+	if replace
+		noautocmd execute 'file ' .. fnameescape(d)
+	else
+		noautocmd execute 'new ' .. fnameescape(d)
+	endif
+	setlocal bufhidden=wipe noswapfile filetype=dir modifiable
+	silent execute ':%!ls -aF ' .. shellescape(d)
+	setlocal nomodifiable nomodified
+	b:dir = d
+	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up, <c-j> focus
+	nnoremap <silent> <buffer> <CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
+	nnoremap <silent> <buffer> <leader><CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
+	nnoremap <silent> <buffer> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
+	nnoremap <silent> <buffer> <middlemouse> <leftmouse><ScriptCmd>exec.Cmd(Entry(), 0, 0, 0)<CR>
+	# :h strips trailing /, second :h goes up one level
+	nnoremap <silent> <buffer> - <ScriptCmd>Dir(fnamemodify(b:dir, ':h:h'))<CR>
+	# Explicit <c-j> to prevent global <CR> mapping from shadowing it
+	nnoremap <silent> <buffer> <c-j> <ScriptCmd>Next()<CR>
+	nnoremap <silent> <buffer> <leader>R <ScriptCmd>Rename()<CR>
+	nnoremap <silent> <buffer> <leader>D <ScriptCmd>Delete()<CR>
+enddef
+
+# Browse: toggle the directory buffer.
+export def Browse()
+	if &filetype ==# 'dir'
+		execute('bwipeout')
+		return
+	endif
+	Dir('')
+enddef
+
+# Selection returns the text selected in visual mode.
+export def Selection(): string
+	var reg = @"
+	silent normal! vgvy
+	var text = @"
+	@" = reg
+	return text
+enddef
+
+# SearchSel sets / to a literal search of the visual selection.
+export def SearchSel()
+	@/ = substitute('\m\C' .. escape(Selection(), '\.^$~[]*'), "\n$", '', '')
+enddef
+
+# Trim removes trailing whitespace from all lines.
+export def Trim()
+	var last_pos = getcurpos()
+	var last_search = @/
+	noautocmd silent! :%s/\m\C\s\+$//e
+	@/ = last_search
+	setpos('.', last_pos)
+enddef
+
+# TabLine returns the formatted tab line string.
+export def TabLine(): string
+	var s = ''
+	for i in range(1, tabpagenr('$'))
+		if i == tabpagenr()
+			s ..= '%#TabLineSel#'
+		else
+			s ..= '%#TabLine#'
+		endif
+		s ..= '%' .. i .. 'T'
+		s ..= ' %{view#TabLabel(' .. i .. ')} '
+	endfor
+	s ..= '%#TabLineFill#%T'
+	return s
+enddef
+
+# TabLabel returns the display label for tab n, preferring t:label.
+export def TabLabel(n: number): string
+	var tabl = gettabvar(n, 'label', '')
+	if !empty(tabl)
+		return tabl
+	endif
+
+	var bnr = tabpagebuflist(n)[tabpagewinnr(n) - 1]
+	var bt = getbufvar(bnr, '&buftype')
+	var name = bufname(bnr)
+
+	if empty(name)
+		return empty(bt) ? '-' : '-' .. bt
+	endif
+
+	var label = fnamemodify(name, ':t')
+	if empty(label)
+		label = fnamemodify(name, ':h:t') .. '/'
+	endif
+
+	if bt ==# 'help'
+		return '-help:' .. label
+	endif
+	if bt ==# 'quickfix'
+		var winid = win_getid(tabpagewinnr(n), n)
+		var winfo = getwininfo(winid)
+		return (!empty(winfo) && winfo[0].loclist != 0 ? '-loc:' : '-qf:') .. label
+	endif
+	if bt ==# 'terminal'
+		return '-terminal:' .. label
+	endif
+	return label
+enddef
+
+# TermStatus returns a compact status line for terminal buffers.
+export def TermStatus(): string
+	var job = term_getjob(bufnr('%'))
+	if job == v:null
+		return ''
+	endif
+	var info = job_info(job)
+	var status = info.status
+	var cmd = len(info.cmd) > 0 ? split(info.cmd[0], '/')[-1] : 'unknown'
+	var pid = has_key(info, 'process') ? info.process : 'no-pid'
+	var bnr = bufnr('%')
+	var cwd = has_key(info, 'cwd') ? fnamemodify(info.cwd, ':t') : fnamemodify(getcwd(), ':t')
+	return printf('%d [%s] %s(%s) %s', bnr, cwd, cmd, pid, toupper(status))
+enddef
