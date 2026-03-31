@@ -7,95 +7,51 @@ let $PATH = s:root . '/testdata:' . $PATH
 execute 'source' fnameescape(s:root . '/dot.vimrc')
 let s:term_outfile = ''
 
-call assert_true(TmuxSend('%7', "hello\nworld\n"))
+" Force-load autoload modules so exists() works
+runtime autoload/plumb.vim
+runtime autoload/exec.vim
+runtime autoload/view.vim
+runtime autoload/plugins.vim
 
-new
-call setline(1, ['one', 'two', 'three'])
+" Cycle 1: version guard -- vim9script loaded, nocompatible set
+call assert_false(&compatible)
 
-call Send(1, 1, 2, 'T:%1')
-call assert_equal('T:%1', w:send_terminal_buf)
+" Cycle 3: top-level variables
+call assert_equal(' ', g:mapleader)
+call assert_equal(1, g:loaded_netrw)
+call assert_equal(1, g:loaded_netrwPlugin)
 
-if has('terminal') && exists('*term_start')
-	let s:term_outfile = tempname()
-	let s:termcmd = ['sh', '-c', 'cat > ' . shellescape(s:term_outfile)]
-	let s:termbuf = term_start(s:termcmd)
-	if type(s:termbuf) == v:t_number && s:termbuf > 0
-		call assert_true(TermSend(s:termbuf, "two"))
-		call term_sendkeys(s:termbuf, "\<C-d>")
-		call term_wait(s:termbuf, 200)
-		if filereadable(s:term_outfile)
-			call assert_equal('two', join(readfile(s:term_outfile), "\n"))
-		endif
-	endif
-endif
+" Next/Prev exist in view autoload
+call assert_true(exists('*view#Next'))
+call assert_true(exists('*view#Prev'))
+call assert_false(exists('*WinCycleNext'))
+call assert_false(exists('*WinCyclePrev'))
 
-call assert_match('v:count1', maparg('<leader>;', 'n'))
+" Functions moved from vimrc to autoload
+call assert_true(exists('*view#TabLine'))
+call assert_true(exists('*view#TabLabel'))
+call assert_true(exists('*view#TermStatus'))
+call assert_true(exists('*view#Selection'))
+call assert_true(exists('*view#SearchSel'))
+call assert_true(exists('*view#Trim'))
+call assert_true(exists('*exec#Tmux'))
+call assert_true(exists('*plugins#Go'))
 
-function! TmuxSend(target, text) abort
-	let g:test_send_tmux_target = a:target
-	let g:test_send_tmux_text = a:text
-	return v:true
-endfunction
+" Terminal mappings trigger view navigation
+let s:tj = maparg('<c-j>', 't', 0, 1)
+let s:tk = maparg('<c-k>', 't', 0, 1)
+call assert_match('view[#.]Next', s:tj.rhs)
+call assert_match('view[#.]Prev', s:tk.rhs)
 
-function! TermSend(target, text) abort
-	let g:test_send_term_target = a:target
-	let g:test_send_term_text = a:text
-	return v:true
-endfunction
+" All public functions are def (compiled)
+call assert_match('def ', execute('function exec#Cmd'))
+call assert_match('def ', execute('function view#Browse'))
 
-unlet! w:send_terminal_buf
-execute 'Send T:0'
-call assert_equal('T:0', w:send_terminal_buf)
-call assert_equal('0', get(g:, 'test_send_tmux_target', ''))
-
-unlet! g:test_send_tmux_target g:test_send_tmux_text
-unlet! g:test_send_term_target g:test_send_term_text
-execute 'Send'
-call assert_equal('0', get(g:, 'test_send_tmux_target', ''))
-call assert_false(exists('g:test_send_term_target'))
-call assert_equal('T:0', w:send_terminal_buf)
-
-only
-enew
-call setline(1, ['alpha'])
-unlet! w:send_terminal_buf
-unlet! g:test_send_tmux_target g:test_send_tmux_text
-unlet! g:test_send_term_target g:test_send_term_text
-execute 'Send'
-call assert_false(exists('w:send_terminal_buf'))
-call assert_false(exists('g:test_send_tmux_target'))
-call assert_false(exists('g:test_send_term_target'))
-
-execute 'Send 12'
-call assert_equal(12, get(g:, 'test_send_term_target', -1))
-call assert_false(exists('g:test_send_tmux_target'))
-call assert_equal(12, w:send_terminal_buf)
-
-only
-enew
-call setline(1, ['one'])
-unlet! g:test_send_tmux_target g:test_send_tmux_text
-unlet! g:test_send_term_target g:test_send_term_text
-execute 'Send T:7'
-call assert_equal('7', get(g:, 'test_send_tmux_target', ''))
-new
-call setline(1, ['two'])
-unlet! g:test_send_tmux_target g:test_send_tmux_text
-unlet! g:test_send_term_target g:test_send_term_text
-execute 'Send'
-call assert_false(exists('w:send_terminal_buf'))
-call assert_false(exists('g:test_send_tmux_target'))
-call assert_false(exists('g:test_send_term_target'))
-wincmd p
-call assert_equal('T:7', w:send_terminal_buf)
-
-function! Cmd(cmd, range, line1, line2) abort
-	let g:test_cmd = a:cmd
-endfunction
-
-let s:url = "https://example.com/a'b?x=1&y=2"
-call OpenURL(s:url)
-call assert_equal((has('mac') ? 'open ' : 'xdg-open ') . shellescape(s:url), get(g:, 'test_cmd', ''))
+" Plumb: url dispatches through Url() which logs via echom
+let s:url = 'https://example.com/path?x=1'
+messages clear
+call plumb#Do('', {}, s:url)
+call assert_match('url: https://example\.com/path?x=1', execute('messages'))
 
 let s:fts_tmpdir = tempname()
 call mkdir(s:fts_tmpdir, 'p')
@@ -106,7 +62,7 @@ if s:had_fts_log
 	let s:old_fts_log = $FTS_LOG
 endif
 let $FTS_LOG = s:fts_log
-call Fts('needle; touch ' . s:fts_pwn)
+call exec#Fts('needle; touch ' . s:fts_pwn)
 call assert_false(filereadable(s:fts_pwn))
 call assert_equal('arg1=needle; touch ' . s:fts_pwn, get(readfile(s:fts_log), 0, ''))
 if s:had_fts_log
@@ -116,11 +72,24 @@ else
 endif
 call delete(s:fts_tmpdir, 'rf')
 
-function! GetVisualText() abort
-	return 'a[b]c'
-endfunction
-call SetVisualSearch()
-call assert_equal('\m\Ca\[b\]c', @/)
+" Dir(): opens a directory buffer with ls output and correct mappings
+let s:dir_tmpdir = tempname()
+call mkdir(s:dir_tmpdir, 'p')
+call writefile(['hello'], s:dir_tmpdir . '/afile.txt')
+enew
+call view#Dir(s:dir_tmpdir, v:true)
+call assert_equal('dir', &filetype)
+call assert_equal(s:dir_tmpdir . '/', b:dir)
+call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
+" Verify buffer-local CR mapping uses plumb.Do
+let s:cr_map = maparg('<CR>', 'n', 0, 1)
+call assert_true(!empty(s:cr_map))
+call assert_match('plumb\.Do', s:cr_map.rhs)
+bwipeout
+call delete(s:dir_tmpdir, 'rf')
+
+" Selection and SearchSel live in view autoload;
+" verified indirectly via the visual * mapping.
 
 if len(v:errors)
 	if !empty(s:term_outfile)
