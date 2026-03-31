@@ -88,6 +88,15 @@ def g:Err(msg: string)
 	echohl None
 enddef
 
+if isdirectory(expand('~/.fzf'))
+	set rtp+=~/.fzf
+endif
+
+augroup lazy_plugins
+	autocmd!
+	autocmd BufRead,BufNewFile *.go ++once call plugins.Go()
+augroup END
+
 # ── Autocommands ─────────────────────────────────────────
 augroup dotfiles
 	autocmd!
@@ -160,12 +169,6 @@ nnoremap <leader>l <cmd>Lint<CR>
 nnoremap <leader>q <ScriptCmd>view.Close('')<CR>
 nnoremap <leader>z <cmd>resize<CR>
 
-# ── Visual ───────────────────────────────────────────────
-xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR>
-xnoremap <silent> <leader>; <cmd>Send<CR>
-xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR>
-xnoremap * <ScriptCmd>view.SearchSel()<CR>/<CR>
-
 # ── Brackets ─────────────────────────────────────────────
 nnoremap ]a <cmd>next<CR>
 nnoremap [a <cmd>previous<CR>
@@ -194,11 +197,15 @@ nnoremap <silent> <c-j> <ScriptCmd>view.Next()<CR>
 nnoremap <silent> <c-k> <ScriptCmd>view.Prev()<CR>
 nnoremap <c-l> <cmd>nohlsearch \| call clearmatches() \| diffupdate \| syntax sync fromstart<CR><c-l>
 nnoremap <c-p> <cmd>FZF<CR>
-
-# ── Window ───────────────────────────────────────────────
 nnoremap <silent> + <ScriptCmd>execute('resize ' .. (winheight(0) + max([5, winheight(0) / 2])))<CR>
 nnoremap <down> <c-e>
 nnoremap <up> <c-y>
+
+# ── Visual ───────────────────────────────────────────────
+xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR>
+xnoremap <silent> <leader>; <cmd>Send<CR>
+xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR>
+xnoremap * <ScriptCmd>view.SearchSel()<CR>/<CR>
 
 # ── Insert / cmdline ─────────────────────────────────────
 inoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
@@ -236,15 +243,6 @@ xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1},
 if root != ''
 	colorscheme basic
 endif
-
-if isdirectory(expand('~/.fzf'))
-	set rtp+=~/.fzf
-endif
-
-augroup lazy_plugins
-	autocmd!
-	autocmd BufRead,BufNewFile *.go ++once call plugins.Go()
-augroup END
 
 # ── Local ────────────────────────────────────────────────
 if filereadable(expand('~/.vimrc.local'))
