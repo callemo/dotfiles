@@ -114,30 +114,31 @@ augroup dotfiles
 	autocmd InsertLeave,WinEnter * setl cursorline
 	autocmd OptionSet diff if &diff | setl nocursorline | endif
 
-	autocmd FileType perl setl et keywordprg=:terminal\ perldoc\ -f
-	autocmd FileType python setl keywordprg=:terminal\ pydoc3
 	autocmd TerminalWinOpen *
 		\ setl nonumber
 		\ | setl statusline=%{view#TermStatus()}
 		\ | nnoremap <buffer> q i
-
-	autocmd FileType c,cpp setl path+=/usr/include
-	autocmd BufNewFile,BufRead *.tidal setfiletype haskell
-	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
-	autocmd FileType gitcommit setl spell fdm=syntax fdl=1 iskeyword+=.,-
-	autocmd FileType groff setl commentstring=.\\\"\ %s
-	autocmd FileType javascript,json setl sw=4 sts=4 et
-	autocmd FileType lilypond setl et sw=2 ts=2 sts=2 ai fdm=indent fdl=0 fdc=2 cms=%\ %s
-	autocmd FileType typescript setl sw=4 sts=4 et syn=javascript
-		# syntax/typescript.vim is too buggy
-	autocmd FileType yaml setl ts=2 sw=2 sts=2 et syn=conf
-		# syntax/yaml.vim is too buggy
-	autocmd FileType markdown,python setl sw=4 sts=4 et
-	autocmd FileType sh setl noet sw=0 sts=0
 	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call view.Dir('', true) | endif
 	# BufReadCmd matches trailing / (dir buffer names); BufReadPost catches :e .
 	autocmd BufReadCmd */ call view.Dir(expand('<afile>:p'), true)
 	autocmd BufReadPost * if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
+augroup END
+
+augroup filetypes
+	autocmd!
+	autocmd BufNewFile,BufRead *.tidal    setfiletype haskell
+	autocmd FileType c,cpp                setl path+=/usr/include
+	autocmd FileType css,html,htmldjango,scss setl iskeyword+=-
+	autocmd FileType gitcommit            setl spell fdm=syntax fdl=1 iskeyword+=.,-
+	autocmd FileType groff                setl commentstring=.\\\"\ %s
+	autocmd FileType javascript,json      setl sw=4 sts=4 et
+	autocmd FileType lilypond             setl et sw=2 ts=2 sts=2 ai fdm=indent fdl=0 fdc=2 cms=%\ %s
+	autocmd FileType markdown,python      setl sw=4 sts=4 et
+	autocmd FileType perl                 setl et keywordprg=:terminal\ perldoc\ -f
+	autocmd FileType python               setl keywordprg=:terminal\ pydoc3
+	autocmd FileType sh                   setl noet sw=0 sts=0
+	autocmd FileType typescript           setl sw=4 sts=4 et syn=javascript  # too buggy
+	autocmd FileType yaml                 setl ts=2 sw=2 sts=2 et syn=conf   # too buggy
 augroup END
 
 # ── Commands ─────────────────────────────────────────────
