@@ -82,7 +82,7 @@ g:mapleader = ' '
 g:loaded_netrw = 1
 g:loaded_netrwPlugin = 1
 
-def g:Err(msg: string)
+def! g:Err(msg: string)
 	echohl ErrorMsg
 	echo msg
 	echohl None
@@ -161,7 +161,7 @@ nnoremap <leader>. <cmd>lcd %:p:h<CR>
 nnoremap <silent> <leader>; <cmd>Send<CR>
 nnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <silent> <leader>B <ScriptCmd>view.Browse()<CR>
-nnoremap <silent> <leader>F <cmd>let @+ = fnamemodify(expand('%:p'), ':.')<CR>
+nnoremap <silent> <leader>F <ScriptCmd>has('clipboard') ? setreg('+', fnamemodify(expand('%:p'), ':.')) : exec.Yank(fnamemodify(expand('%:p'), ':.'))<CR>
 nnoremap <leader>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <leader>Q <ScriptCmd>view.Close('!')<CR>
 nnoremap <leader>f <cmd>Fmt<CR>
