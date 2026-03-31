@@ -167,16 +167,16 @@ xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1},
 xnoremap * <ScriptCmd>view.SearchSel()<CR>/<CR>
 
 # ── Brackets ─────────────────────────────────────────────
-nnoremap ]a :next<CR>
-nnoremap [a :previous<CR>
-nnoremap ]b :bnext<CR>
-nnoremap [b :bprevious<CR>
-nnoremap ]l :lnext<CR>
-nnoremap [l :lprevious<CR>
-nnoremap ]q :cnext<CR>
-nnoremap [q :cprevious<CR>
-nnoremap ]t :tabnext<CR>
-nnoremap [t :tabprevious<CR>
+nnoremap ]a <cmd>next<CR>
+nnoremap [a <cmd>previous<CR>
+nnoremap ]b <cmd>bnext<CR>
+nnoremap [b <cmd>bprevious<CR>
+nnoremap ]l <cmd>lnext<CR>
+nnoremap [l <cmd>lprevious<CR>
+nnoremap ]q <cmd>cnext<CR>
+nnoremap [q <cmd>cprevious<CR>
+nnoremap ]t <cmd>tabnext<CR>
+nnoremap [t <cmd>tabprevious<CR>
 
 # ── Toggles ──────────────────────────────────────────────
 nnoremap yob :set background=<c-r>=&bg == 'light' ? 'dark' : 'light'<CR><CR>
@@ -196,7 +196,7 @@ nnoremap <c-l> <cmd>nohlsearch \| call clearmatches() \| diffupdate \| syntax sy
 nnoremap <c-p> <cmd>FZF<CR>
 
 # ── Window ───────────────────────────────────────────────
-nnoremap <silent> + :exe 'resize' (winheight(0) + max([5, winheight(0) / 2]))<CR>
+nnoremap <silent> + <ScriptCmd>execute('resize ' .. (winheight(0) + max([5, winheight(0) / 2])))<CR>
 nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 
@@ -215,8 +215,8 @@ cnoremap <c-n> <down>
 cnoremap <c-p> <up>
 
 # ── Terminal ─────────────────────────────────────────────
-tnoremap <silent> <c-j> <c-w>:call view#Next()<CR>
-tnoremap <silent> <c-k> <c-w>:call view#Prev()<CR>
+tnoremap <silent> <c-j> <ScriptCmd>view.Next()<CR>
+tnoremap <silent> <c-k> <ScriptCmd>view.Prev()<CR>
 tnoremap <c-r><c-r> <c-r>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>

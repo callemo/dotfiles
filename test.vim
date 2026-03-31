@@ -37,6 +37,12 @@ call assert_true(exists('*view#Trim'))
 call assert_true(exists('*exec#Tmux'))
 call assert_true(exists('*plugins#Go'))
 
+" Terminal mappings trigger view navigation
+let s:tj = maparg('<c-j>', 't', 0, 1)
+let s:tk = maparg('<c-k>', 't', 0, 1)
+call assert_match('view[#.]Next', s:tj.rhs)
+call assert_match('view[#.]Prev', s:tk.rhs)
+
 " All public functions are def (compiled)
 call assert_match('def ', execute('function exec#Cmd'))
 call assert_match('def ', execute('function view#Browse'))
