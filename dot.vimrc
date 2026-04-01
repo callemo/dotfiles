@@ -13,20 +13,17 @@ import autoload 'plumb.vim'
 import autoload 'view.vim'
 
 # ── Options ──────────────────────────────────────────────
-set nocompatible
 set autoindent
 set autoread
 set backspace=indent,eol,start
 if has('clipboard')
 	set clipboard=unnamed
 endif
-set cmdheight=1
 set commentstring=#%s
 set complete-=i
 set confirm
 set cursorline
 set dictionary+=/usr/share/dict/words
-set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
@@ -49,7 +46,6 @@ set nowritebackup
 set nrformats-=octal
 set number
 set path=.,,
-set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
 set showcmd
@@ -60,7 +56,6 @@ set statusline=\ %{fnamemodify(getcwd(),':t')}\ ›\ %f\ %=%l:%c\ %y\ %M%R
 set switchbuf=useopen,split
 set tabline=%!view#TabLine()
 set tabstop=4
-set textwidth=0
 set updatetime=300
 set notimeout
 set ttimeout
@@ -225,7 +220,6 @@ cnoremap <c-p> <up>
 # ── Terminal ─────────────────────────────────────────────
 tnoremap <silent> <c-j> <ScriptCmd>view.Next()<CR>
 tnoremap <silent> <c-k> <ScriptCmd>view.Prev()<CR>
-tnoremap <c-r><c-r> <c-r>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
