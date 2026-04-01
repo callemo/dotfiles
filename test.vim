@@ -1,11 +1,9 @@
 set nocompatible
 set nomore
-set shortmess+=I
 
 let s:root = fnamemodify(expand('<sfile>:p'), ':h')
 let $PATH = s:root . '/testdata:' . $PATH
 execute 'source' fnameescape(s:root . '/dot.vimrc')
-let s:term_outfile = ''
 
 " Force-load autoload modules so exists() works
 runtime autoload/plumb.vim
@@ -92,23 +90,10 @@ call delete(s:dir_tmpdir, 'rf')
 " verified indirectly via the visual * mapping.
 
 if len(v:errors)
-	if !empty(s:term_outfile)
-		call delete(s:term_outfile)
-	endif
-	if exists('s:fts_tmpdir') && isdirectory(s:fts_tmpdir)
-		call delete(s:fts_tmpdir, 'rf')
-	endif
 	for e in v:errors
 		echo e
 	endfor
 	cquit 1
-endif
-
-if !empty(s:term_outfile)
-	call delete(s:term_outfile)
-endif
-if exists('s:fts_tmpdir') && isdirectory(s:fts_tmpdir)
-	call delete(s:fts_tmpdir, 'rf')
 endif
 
 qall!
