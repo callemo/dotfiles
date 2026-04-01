@@ -1,18 +1,5 @@
 vim9script
 
-# Scratch creates a scratch buffer with the given suffix returning its name.
-def Scratch(suffix: string): string
-	var bufname = getcwd() .. suffix
-	if !bufexists(bufname)
-		var bnr = bufnr(bufname, 1)
-		setbufvar(bnr, '&buflisted', 1)
-		setbufvar(bnr, '&buftype', 'nofile')
-		setbufvar(bnr, '&number', 0)
-		setbufvar(bnr, '&swapfile', 0)
-	endif
-	return bufname
-enddef
-
 # CmdDone handles job completion: show +Errors if output or failure.
 def CmdDone(job: job, code: number, name: string)
 	echom name .. ': exit ' .. code
@@ -29,12 +16,13 @@ enddef
 
 # Cmd executes a shell command asynchronously, output to +Errors.
 export def Cmd(cmd: string, range: number, line1: number, line2: number)
-	var bufname = Scratch('/+Errors')
+	var bufname = view#Scratch('/+Errors')
+	var prog = empty(cmd) ? [&shell] : split(cmd)
 	var opts = {
-		'in_io': 'null', 'mode': 'raw',
+		'mode': 'raw',
 		'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
-		'exit_cb': (job, code) => CmdDone(job, code, split(cmd)[0]),
+		'exit_cb': (job, code) => CmdDone(job, code, prog[0]),
 		'timeout': 300000,
 		'stoponexit': 'term'
 		}
@@ -43,8 +31,14 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 		opts.in_buf = bufnr('%')
 		opts.in_top = line1
 		opts.in_bot = line2
+		job_start(prog, opts)
+	else
+		opts.in_io = 'pipe'
+		var j = job_start([&shell], opts)
+		var ch = job_getchannel(j)
+		ch_sendraw(ch, empty(cmd) ? expand('<cWORD>') : cmd)
+		ch_close_in(ch)
 	endif
-	job_start([&shell, &shellcmdflag, cmd], opts)
 enddef
 
 # Yank copies text to clipboard via OSC 52.
@@ -117,7 +111,7 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 	checktime
 enddef
 
-# Rg executes the ripgrep program loading its results on the quickfix window.
+# Rg executes the ripgrep program loading its results on the location list.
 export def Rg(args: string)
 	if !executable('rg')
 		g:Err('ripgrep not found')

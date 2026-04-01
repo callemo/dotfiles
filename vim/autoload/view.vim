@@ -3,6 +3,19 @@ vim9script
 import autoload 'plumb.vim'
 import autoload 'exec.vim'
 
+# Scratch creates a scratch buffer with the given suffix returning its name.
+export def Scratch(suffix: string): string
+	var bufname = getcwd() .. suffix
+	if !bufexists(bufname)
+		var bnr = bufnr(bufname, 1)
+		setbufvar(bnr, '&buflisted', 1)
+		setbufvar(bnr, '&buftype', 'nofile')
+		setbufvar(bnr, '&number', 0)
+		setbufvar(bnr, '&swapfile', 0)
+	endif
+	return bufname
+enddef
+
 # Close: quit if last window, else wipeout the buffer.
 export def Close(bang: string)
 	if winnr('$') == 1
@@ -89,15 +102,7 @@ export def Bufmatch(a: string)
 		exe 'bwipeout' join(b)
 		return
 	endif
-	var errname = getcwd() .. '/+Errors'
-	if !bufexists(errname)
-		var ebnr = bufnr(errname, 1)
-		setbufvar(ebnr, '&buflisted', 1)
-		setbufvar(ebnr, '&buftype', 'nofile')
-		setbufvar(ebnr, '&number', 0)
-		setbufvar(ebnr, '&swapfile', 0)
-	endif
-	exe 'sbuffer' errname
+	exe 'sbuffer' Scratch('/+Errors')
 	setline(1, map(b, (_, v) => bufname(v)))
 enddef
 
@@ -138,9 +143,7 @@ export def Dir(path: string, replace: bool = false)
 	var d = empty(path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(path, ':p')
 	d = d =~# '/$' ? d : d .. '/'
 	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
-		setlocal modifiable
 		silent execute ':%!ls -aF ' .. shellescape(d)
-		setlocal nomodifiable nomodified
 		return
 	endif
 	if replace
@@ -148,9 +151,8 @@ export def Dir(path: string, replace: bool = false)
 	else
 		noautocmd execute 'new ' .. fnameescape(d)
 	endif
-	setlocal bufhidden=wipe noswapfile filetype=dir modifiable
+	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
 	silent execute ':%!ls -aF ' .. shellescape(d)
-	setlocal nomodifiable nomodified
 	b:dir = d
 	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up, <c-j> focus
 	nnoremap <silent> <buffer> <CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
@@ -177,7 +179,7 @@ enddef
 # Selection returns the text selected in visual mode.
 export def Selection(): string
 	var reg = @"
-	silent normal! vgvy
+	silent normal! gvy
 	var text = @"
 	@" = reg
 	return text
