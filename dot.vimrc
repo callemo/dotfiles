@@ -52,7 +52,7 @@ set showcmd
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=\ %{fnamemodify(getcwd(),':t')}\ ›\ %f\ %=%l:%c\ %y\ %M%R
+set statusline=\ %{fnamemodify(getcwd(),':t')}\ ›\ %f\ %=%l:%c\ %y\ %{&bt==#'nofile'?'':&modified?'[+]':''}%R
 set switchbuf=useopen,split
 set tabline=%!view#TabLine()
 set tabstop=4
