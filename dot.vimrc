@@ -20,7 +20,6 @@ if has('clipboard')
 	set clipboard=unnamed
 endif
 set commentstring=#%s
-set complete-=i
 set confirm
 set cursorline
 set dictionary+=/usr/share/dict/words
@@ -43,6 +42,7 @@ set nofoldenable
 set nojoinspaces
 set noswapfile
 set nowritebackup
+set complete-=i
 set nrformats-=octal
 set number
 set path=.,,
@@ -137,7 +137,7 @@ augroup filetypes
 augroup END
 
 # ── Commands ─────────────────────────────────────────────
-command! -nargs=+ -complete=file -range
+command! -nargs=? -complete=file -range
 	\ Cmd call exec.Cmd(<q-args>, <range>, <line1>, <line2>)
 
 command! -nargs=? Lint call exec.Lint(<f-args>)
@@ -152,7 +152,7 @@ command! -nargs=1 B    call view.Bufmatch(<q-args>)
 command! -range -nargs=? Send call exec.Tmux(<line1>, <line2>, <q-args>)
 
 # ── Leader ───────────────────────────────────────────────
-nnoremap <leader>! :Cmd<space>
+nnoremap <silent> <leader>! <ScriptCmd>exec.Cmd('', 0, 0, 0)<CR>
 nnoremap <leader>. <cmd>lcd %:p:h<CR>
 nnoremap <silent> <leader>; <cmd>Send<CR>
 nnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
