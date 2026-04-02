@@ -14,15 +14,17 @@ def CmdDone(job: job, code: number, name: string)
 	endif
 enddef
 
-# Cmd executes a shell command asynchronously, output to +Errors.
+# Cmd executes a command asynchronously via /bin/sh -c, output to +Errors.
+# Matches Acme's model: no-range runs cmd with no stdin; range pipes buffer lines.
 export def Cmd(cmd: string, range: number, line1: number, line2: number)
 	var bufname = view#Scratch('/+Errors')
-	var prog = empty(cmd) ? [&shell] : split(cmd)
+	var text = empty(cmd) ? expand('<cWORD>') : cmd
+	var prog = ['/bin/sh', '-c', text]
 	var opts = {
 		'mode': 'raw',
 		'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
 		'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
-		'exit_cb': (job, code) => CmdDone(job, code, prog[0]),
+		'exit_cb': (job, code) => CmdDone(job, code, text),
 		'timeout': 300000,
 		'stoponexit': 'term'
 		}
@@ -31,14 +33,10 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 		opts.in_buf = bufnr('%')
 		opts.in_top = line1
 		opts.in_bot = line2
-		job_start(prog, opts)
 	else
-		opts.in_io = 'pipe'
-		var j = job_start([&shell], opts)
-		var ch = job_getchannel(j)
-		ch_sendraw(ch, empty(cmd) ? expand('<cWORD>') : cmd)
-		ch_close_in(ch)
+		opts.in_io = 'null'
 	endif
+	job_start(prog, opts)
 enddef
 
 # Yank copies text to clipboard via OSC 52.

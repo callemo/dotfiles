@@ -143,7 +143,7 @@ export def Dir(path: string, replace: bool = false)
 	var d = empty(path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(path, ':p')
 	d = d =~# '/$' ? d : d .. '/'
 	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
-		silent execute ':%!ls -aF ' .. shellescape(d)
+		silent execute ':%!/bin/ls -aF ' .. shellescape(d)
 		return
 	endif
 	if replace
@@ -152,7 +152,7 @@ export def Dir(path: string, replace: bool = false)
 		noautocmd execute 'new ' .. fnameescape(d)
 	endif
 	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
-	silent execute ':%!ls -aF ' .. shellescape(d)
+	silent execute ':%!/bin/ls -aF ' .. shellescape(d)
 	b:dir = d
 	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up, <c-j> focus
 	nnoremap <silent> <buffer> <CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
