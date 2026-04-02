@@ -21,6 +21,12 @@ python3 -m unittest test_snip.py # Run snippet unit tests only
 
 ## Vim (`dot.vimrc`)
 Four autoload modules: `plumb` (routing), `exec` (commands), `view` (windows/buffers), `plugins` (lazy loaders). vimrc is declarations only — no `def`/`enddef` except `g:Err`.
+- Acme model: middle-click executes the "dot" (selection or word AS the command) — selection is never stdin to another command
+- `exec.Cmd`: always `/bin/sh -c cmd` — matches Acme's `rc -c` model, no `&shell`
+- `exec.Cmd` without range: `in_io: null` (no stdin, like Acme)
+- `exec.Cmd` with range: buffer lines are stdin (`:%Cmd sort` pipes lines to `sort`)
+- `view#Scratch()` is the shared scratch-buffer factory — `exec.vim` calls it via legacy syntax to avoid circular import
+- Dir buffers are `buftype=nofile` — editable scratch, no `nomodifiable`
 - Autocmd bodies must use `call` for autoload functions (direct-call causes E1091)
 - Ranged ex-commands in `def` need `:` prefix (`:%s/...` not `%s/...` — E1050)
 - Option strings (`set tabline=`) use legacy `module#Func()` syntax (global scope eval)
