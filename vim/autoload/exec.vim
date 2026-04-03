@@ -17,7 +17,8 @@ enddef
 # Cmd executes a command asynchronously via /bin/sh -c, output to +Errors.
 # Matches Acme's model: no-range runs cmd with no stdin; range pipes buffer lines.
 export def Cmd(cmd: string, range: number, line1: number, line2: number)
-	var bufname = view#Scratch('/+Errors')
+	var dir = expand('%:p:h')
+	var bufname = view#Scratch(dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
 	var prog = ['/bin/sh', '-c', text]
 	var opts = {
@@ -28,7 +29,7 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 		'timeout': 300000,
 		'stoponexit': 'term'
 		}
-	opts.cwd = expand('%:p:h')
+	opts.cwd = dir
 	if range > 0
 		opts.in_io = 'buffer'
 		opts.in_buf = bufnr('%')

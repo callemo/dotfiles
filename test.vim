@@ -149,10 +149,11 @@ call exec#Cmd('pwd > ' . s:pwdf, 0, 0, 0)
 call s:WaitFor({-> filereadable(s:pwdf) && readfile(s:pwdf) != []})
 call assert_match(s:cmd_tmpdir, join(readfile(s:pwdf), ''))
 call delete(s:pwdf)
+" +Errors buffer belongs to the buffer's directory, not vim's cwd
+call assert_true(bufexists(s:cmd_tmpdir . '/+Errors'))
 bwipeout
+exe 'bwipeout' bufnr(s:cmd_tmpdir . '/+Errors')
 call delete(s:cmd_tmpdir, 'rf')
-let s:errbnr = bufnr(getcwd() . '/+Errors')
-if s:errbnr > 0 | exe 'bwipeout' s:errbnr | endif
 
 if len(v:errors)
 	for e in v:errors

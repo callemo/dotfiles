@@ -5,7 +5,7 @@ import autoload 'exec.vim'
 
 # Scratch creates a scratch buffer with the given suffix returning its name.
 export def Scratch(suffix: string): string
-	var bufname = getcwd() .. suffix
+	var bufname = suffix[0] == '/' ? suffix : getcwd() .. suffix
 	if !bufexists(bufname)
 		var bnr = bufnr(bufname, 1)
 		setbufvar(bnr, '&buflisted', 1)
@@ -102,7 +102,7 @@ export def Bufmatch(a: string)
 		exe 'bwipeout' join(b)
 		return
 	endif
-	exe 'sbuffer' Scratch('/+Errors')
+	exe 'sbuffer' Scratch(getcwd() .. '/+Errors')
 	setline(1, map(b, (_, v) => bufname(v)))
 enddef
 
