@@ -181,7 +181,7 @@ enddef
 # Selection returns the text selected in visual mode.
 export def Selection(): string
 	var reg = @"
-	silent normal! gvy
+	silent normal! vgvy
 	var text = @"
 	@" = reg
 	return text
