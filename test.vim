@@ -139,6 +139,21 @@ call assert_equal('## Two', s:ll[1].text)
 lclose
 bwipeout
 
+" Cmd(): runs in buffer's directory (Acme model)
+let s:cmd_tmpdir = tempname()
+call mkdir(s:cmd_tmpdir, 'p')
+call writefile([], s:cmd_tmpdir . '/marker')
+exe 'edit' fnameescape(s:cmd_tmpdir . '/marker')
+let s:pwdf = tempname()
+call exec#Cmd('pwd > ' . s:pwdf, 0, 0, 0)
+call s:WaitFor({-> filereadable(s:pwdf) && readfile(s:pwdf) != []})
+call assert_match(s:cmd_tmpdir, join(readfile(s:pwdf), ''))
+call delete(s:pwdf)
+bwipeout
+call delete(s:cmd_tmpdir, 'rf')
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+if s:errbnr > 0 | exe 'bwipeout' s:errbnr | endif
+
 if len(v:errors)
 	for e in v:errors
 		echo e

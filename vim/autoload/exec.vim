@@ -28,6 +28,7 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 		'timeout': 300000,
 		'stoponexit': 'term'
 		}
+	opts.cwd = expand('%:p:h')
 	if range > 0
 		opts.in_io = 'buffer'
 		opts.in_buf = bufnr('%')
