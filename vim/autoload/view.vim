@@ -144,6 +144,7 @@ export def Dir(path: string, replace: bool = false)
 	d = d =~# '/$' ? d : d .. '/'
 	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
 		silent execute ':%!/bin/ls -aF ' .. shellescape(d)
+		setlocal nomodified
 		return
 	endif
 	if replace
@@ -153,6 +154,7 @@ export def Dir(path: string, replace: bool = false)
 	endif
 	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
 	silent execute ':%!/bin/ls -aF ' .. shellescape(d)
+	setlocal nomodified
 	b:dir = d
 	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up, <c-j> focus
 	nnoremap <silent> <buffer> <CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
