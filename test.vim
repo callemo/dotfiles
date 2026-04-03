@@ -89,6 +89,45 @@ call delete(s:dir_tmpdir, 'rf')
 " Selection and SearchSel live in view autoload;
 " verified indirectly via the visual * mapping.
 
+" Cmd(): no-range produces output
+call exec#Cmd('echo cmd-test-ok', 0, 0, 0)
+sleep 500m
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+call assert_match('cmd-test-ok', join(getbufline(s:errbnr, 1, '$'), "\n"))
+exe 'bwipeout' s:errbnr
+
+" Cmd(): ranged pipes buffer lines as stdin
+enew
+call setline(1, ['cherry', 'apple', 'banana'])
+let s:tmpf = tempname()
+call exec#Cmd('sort > ' . s:tmpf, 2, 1, 3)
+sleep 500m
+call assert_equal(['apple', 'banana', 'cherry'], readfile(s:tmpf))
+call delete(s:tmpf)
+bwipeout
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+if s:errbnr > 0 | exe 'bwipeout' s:errbnr | endif
+
+" Cmd(): shell syntax (pipes, redirects) works
+let s:tmpf = tempname()
+call exec#Cmd('echo hello world | tr a-z A-Z > ' . s:tmpf, 0, 0, 0)
+sleep 500m
+call assert_match('HELLO WORLD', join(readfile(s:tmpf), ''))
+call delete(s:tmpf)
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+if s:errbnr > 0 | exe 'bwipeout' s:errbnr | endif
+
+" Toc(): populates location list with heading lines
+enew
+call setline(1, ['# One', 'text', '## Two', 'more'])
+call exec#Toc()
+let s:ll = getloclist(0)
+call assert_equal(2, len(s:ll))
+call assert_equal('# One', s:ll[0].text)
+call assert_equal('## Two', s:ll[1].text)
+lclose
+bwipeout
+
 if len(v:errors)
 	for e in v:errors
 		echo e
