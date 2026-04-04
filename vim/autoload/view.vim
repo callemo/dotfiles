@@ -212,7 +212,7 @@ export def TabLine(): string
 	s ..= '%#TabLineFill#%T'
 	var jobs = exec.Jobs()
 	if !empty(jobs)
-		s ..= '%#TabLine# ' .. jobs .. ' '
+		s ..= '%#TabLine# ' .. escape(jobs, '%') .. ' '
 	endif
 	return s
 enddef

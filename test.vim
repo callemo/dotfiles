@@ -1,10 +1,10 @@
 set nocompatible
 set nomore
-set noconfirm noautowrite noautowriteall
 
 let s:root = fnamemodify(expand('<sfile>:p'), ':h')
 let $PATH = s:root . '/testdata:' . $PATH
 execute 'source' fnameescape(s:root . '/dot.vimrc')
+set noconfirm noautowrite noautowriteall
 
 " Poll until Pred() returns true or timeout (50ms ticks, 5s max).
 function! s:WaitFor(Pred) abort
@@ -95,7 +95,7 @@ call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
 let s:cr_map = maparg('<CR>', 'n', 0, 1)
 call assert_true(!empty(s:cr_map))
 call assert_match('plumb\.Do', s:cr_map.rhs)
-bwipeout
+bwipeout!
 call delete(s:dir_tmpdir, 'rf')
 
 " Selection and SearchSel live in view autoload;
@@ -106,7 +106,7 @@ call exec#Cmd('echo cmd-test-ok', 0, 0, 0)
 call s:WaitFor({-> getbufline(bufnr(getcwd() . '/+Errors'), 1, '$') != ['']})
 let s:errbnr = bufnr(getcwd() . '/+Errors')
 call assert_match('cmd-test-ok', join(getbufline(s:errbnr, 1, '$'), "\n"))
-exe 'bwipeout' s:errbnr
+exe 'bwipeout!' s:errbnr
 
 " Cmd(): ranged pipes buffer lines as stdin
 enew
@@ -116,9 +116,9 @@ call exec#Cmd('sort > ' . s:tmpf, 2, 1, 3)
 call s:WaitFor({-> filereadable(s:tmpf) && readfile(s:tmpf) != []})
 call assert_equal(['apple', 'banana', 'cherry'], readfile(s:tmpf))
 call delete(s:tmpf)
-bwipeout
+bwipeout!
 let s:errbnr = bufnr(getcwd() . '/+Errors')
-if s:errbnr > 0 | exe 'bwipeout' s:errbnr | endif
+if s:errbnr > 0 | exe 'bwipeout!' s:errbnr | endif
 
 " Cmd(): shell syntax (pipes, redirects) works
 let s:tmpf = tempname()
@@ -127,7 +127,7 @@ call s:WaitFor({-> filereadable(s:tmpf) && readfile(s:tmpf) != []})
 call assert_match('HELLO WORLD', join(readfile(s:tmpf), ''))
 call delete(s:tmpf)
 let s:errbnr = bufnr(getcwd() . '/+Errors')
-if s:errbnr > 0 | exe 'bwipeout' s:errbnr | endif
+if s:errbnr > 0 | exe 'bwipeout!' s:errbnr | endif
 
 " Toc(): populates location list with heading lines
 enew
@@ -152,9 +152,28 @@ call assert_match(s:cmd_tmpdir, join(readfile(s:pwdf), ''))
 call delete(s:pwdf)
 " +Errors buffer belongs to the buffer's directory, not vim's cwd
 call assert_true(bufexists(s:cmd_tmpdir . '/+Errors'))
-bwipeout
-exe 'bwipeout' bufnr(s:cmd_tmpdir . '/+Errors')
+bwipeout!
+exe 'bwipeout!' bufnr(s:cmd_tmpdir . '/+Errors')
 call delete(s:cmd_tmpdir, 'rf')
+
+" Cmd(): concurrent jobs both appear in +Errors
+call exec#Cmd('echo job-aaa', 0, 0, 0)
+call exec#Cmd('echo job-bbb', 0, 0, 0)
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+call s:WaitFor({-> join(getbufline(s:errbnr, 1, '$'), "\n") =~ 'job-aaa' && join(getbufline(s:errbnr, 1, '$'), "\n") =~ 'job-bbb'})
+let s:errtxt = join(getbufline(s:errbnr, 1, '$'), "\n")
+call assert_match('job-aaa', s:errtxt)
+call assert_match('job-bbb', s:errtxt)
+exe 'bwipeout!' s:errbnr
+
+" Cmd(): multi-line output preserved
+call exec#Cmd('printf "line1\nline2\nline3"', 0, 0, 0)
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+call s:WaitFor({-> len(getbufline(s:errbnr, 1, '$')) >= 3})
+let s:errtxt = join(getbufline(s:errbnr, 1, '$'), "\n")
+call assert_match('line1', s:errtxt)
+call assert_match('line3', s:errtxt)
+exe 'bwipeout!' s:errbnr
 
 if len(v:errors)
 	for e in v:errors

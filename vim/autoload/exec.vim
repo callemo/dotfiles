@@ -11,10 +11,14 @@ enddef
 # CmdClose fires after all out_cb/err_cb calls complete: show +Errors if needed.
 def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
 	var j = ch_getjob(ch)
-	var code = j != v:null ? job_info(j).exitval : 0
+	var code = job_info(j).exitval
 	filter(running, (_, r) => r != j)
 	redrawtabline
 	if wrote[0] || code > 0
+		# trim leading blank line left by bufload seed
+		if getbufline(bnr, 1) == ['']
+			deletebufline(bnr, 1)
+		endif
 		exe 'sbuffer' bnr
 		cursor(line('$'), 1)
 		if code > 0
@@ -32,12 +36,10 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
 	var bnr = bufnr(bufname)
 	bufload(bnr)
-	var wrote = [false]
+	var wrote = [false]  # list to allow mutation from lambda (vim9 captures by value)
 	var Append = (ch: channel, data: string) => {
 		wrote[0] = true
-		getbufline(bnr, '$') == ['']
-			? setbufline(bnr, '$', [data])
-			: appendbufline(bnr, '$', [data])
+		appendbufline(bnr, '$', split(data, "\n", 1))
 	}
 	var prog = ['/bin/sh', '-c', text]
 	var opts = {
