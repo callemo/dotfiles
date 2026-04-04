@@ -13,20 +13,16 @@ import autoload 'plumb.vim'
 import autoload 'view.vim'
 
 # ── Options ──────────────────────────────────────────────
-set nocompatible
 set autoindent
 set autoread
 set backspace=indent,eol,start
 if has('clipboard')
 	set clipboard=unnamed
 endif
-set cmdheight=1
 set commentstring=#%s
-set complete-=i
 set confirm
 set cursorline
 set dictionary+=/usr/share/dict/words
-set encoding=utf-8
 set fillchars=vert:\ ,fold:-
 set hidden
 set history=1000
@@ -46,21 +42,21 @@ set nofoldenable
 set nojoinspaces
 set noswapfile
 set nowritebackup
+set complete-=i
 set nrformats-=octal
 set number
 set path=.,,
-set scrolloff=0
 set shiftwidth=4
 set shortmess=atI
 set showcmd
+set showtabline=2
 set softtabstop=4
 set splitbelow
 set splitright
-set statusline=\ %{fnamemodify(getcwd(),':t')}\ ›\ %f\ %=%l:%c\ %y\ %M%R
+set statusline=\ %{fnamemodify(getcwd(),':t')}\ ›\ %f\ %=%l:%c\ %y\ %{&bt==#'nofile'?'':&modified?'[+]':''}%R
 set switchbuf=useopen,split
 set tabline=%!view#TabLine()
 set tabstop=4
-set textwidth=0
 set updatetime=300
 set notimeout
 set ttimeout
@@ -142,7 +138,7 @@ augroup filetypes
 augroup END
 
 # ── Commands ─────────────────────────────────────────────
-command! -nargs=+ -complete=file -range
+command! -nargs=? -complete=file -range
 	\ Cmd call exec.Cmd(<q-args>, <range>, <line1>, <line2>)
 
 command! -nargs=? Lint call exec.Lint(<f-args>)
@@ -157,7 +153,7 @@ command! -nargs=1 B    call view.Bufmatch(<q-args>)
 command! -range -nargs=? Send call exec.Tmux(<line1>, <line2>, <q-args>)
 
 # ── Leader ───────────────────────────────────────────────
-nnoremap <leader>! :Cmd<space>
+nnoremap <silent> <leader>! <ScriptCmd>exec.Cmd('', 0, 0, 0)<CR>
 nnoremap <leader>. <cmd>lcd %:p:h<CR>
 nnoremap <silent> <leader>; <cmd>Send<CR>
 nnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
@@ -203,9 +199,9 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 
 # ── Visual ───────────────────────────────────────────────
-xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR>
-xnoremap <silent> <leader>; <cmd>Send<CR>
-xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR>
+xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
+xnoremap <silent> <leader>; <cmd>Send<CR><Esc>
+xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>
 xnoremap * <ScriptCmd>view.SearchSel()<CR>/<CR>
 
 # ── Insert / cmdline ─────────────────────────────────────
@@ -225,7 +221,6 @@ cnoremap <c-p> <up>
 # ── Terminal ─────────────────────────────────────────────
 tnoremap <silent> <c-j> <ScriptCmd>view.Next()<CR>
 tnoremap <silent> <c-k> <ScriptCmd>view.Prev()<CR>
-tnoremap <c-r><c-r> <c-r>
 tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
@@ -237,8 +232,8 @@ nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.Click2()<CR>
 nnoremap <silent> <C-LeftMouse> <ScriptCmd>view.Zoom()<CR>
 nnoremap <silent> <middlemouse> <leftmouse><ScriptCmd>exec.Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
 nnoremap <silent> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR>
-xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR>
+xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
+xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>
 
 # ── Colorscheme ──────────────────────────────────────────
 if root != ''

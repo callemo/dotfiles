@@ -21,7 +21,7 @@ def Url(url: string)
 	echom 'url:' url
 	var cmd = has('mac') ? 'open' : (executable('xdg-open') ? 'xdg-open' : '')
 	if !empty(cmd)
-		job_start([&shell, &shellcmdflag, cmd .. ' ' .. shellescape(url)])
+		job_start(['/bin/sh', '-c', cmd .. ' ' .. shellescape(url)])
 	endif
 enddef
 
