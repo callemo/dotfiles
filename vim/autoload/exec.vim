@@ -1,24 +1,25 @@
 vim9script
 
-# Scratch creates a scratch buffer with the given suffix returning its name.
-def Scratch(suffix: string): string
-	var bufname = getcwd() .. suffix
-	if !bufexists(bufname)
-		var bnr = bufnr(bufname, 1)
-		setbufvar(bnr, '&buflisted', 1)
-		setbufvar(bnr, '&buftype', 'nofile')
-		setbufvar(bnr, '&number', 0)
-		setbufvar(bnr, '&swapfile', 0)
-	endif
-	return bufname
+var running: list<job> = []
+
+# Jobs returns the program names of currently running Cmd jobs.
+export def Jobs(): string
+	return join(map(copy(running),
+		(_, j) => fnamemodify(split(job_info(j).cmd[2])[0], ':t')), ' ')
 enddef
 
-# CmdDone handles job completion: show +Errors if output or failure.
-def CmdDone(job: job, code: number, name: string)
-	echom name .. ': exit ' .. code
-	var bufnr = ch_getbufnr(job, 'out')
-	if getbufline(bufnr, 1, '$') != [''] || code > 0
-		exe 'sbuffer' bufnr
+# CmdClose fires after all out_cb/err_cb calls complete: show +Errors if needed.
+def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
+	var j = ch_getjob(ch)
+	var code = job_info(j).exitval
+	filter(running, (_, r) => r != j)
+	redrawtabline
+	if wrote[0] || code > 0
+		# trim leading blank line left by bufload seed
+		if getbufline(bnr, 1) == ['']
+			deletebufline(bnr, 1)
+		endif
+		exe 'sbuffer' bnr
 		cursor(line('$'), 1)
 		if code > 0
 			append(line('$'), name .. ': exit ' .. code)
@@ -27,15 +28,25 @@ def CmdDone(job: job, code: number, name: string)
 	endif
 enddef
 
-# Cmd executes a shell command asynchronously, output to +Errors.
+# Cmd executes a command asynchronously via /bin/sh -c, output to +Errors.
+# Matches Acme's model: no-range runs cmd with no stdin; range pipes buffer lines.
 export def Cmd(cmd: string, range: number, line1: number, line2: number)
-	var bufname = Scratch('/+Errors')
+	var dir = expand('%:p:h')
+	var bufname = view#Scratch(dir .. '/+Errors')
+	var text = empty(cmd) ? expand('<cWORD>') : cmd
+	var bnr = bufnr(bufname)
+	bufload(bnr)
+	var wrote = [false]  # list to allow mutation from lambda (vim9 captures by value)
+	var Append = (ch: channel, data: string) => {
+		wrote[0] = true
+		appendbufline(bnr, '$', split(data, "\n", 1))
+	}
+	var prog = ['/bin/sh', '-c', text]
 	var opts = {
-		'in_io': 'null', 'mode': 'raw',
-		'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
-		'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
-		'exit_cb': (job, code) => CmdDone(job, code, split(cmd)[0]),
-		'timeout': 300000,
+		'out_cb': Append,
+		'err_cb': Append,
+		'close_cb': (ch) => CmdClose(ch, text, bnr, wrote),
+		'cwd': dir,
 		'stoponexit': 'term'
 		}
 	if range > 0
@@ -43,8 +54,11 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 		opts.in_buf = bufnr('%')
 		opts.in_top = line1
 		opts.in_bot = line2
+	else
+		opts.in_io = 'null'
 	endif
-	job_start([&shell, &shellcmdflag, cmd], opts)
+	add(running, job_start(prog, opts))
+	redrawtabline
 enddef
 
 # Yank copies text to clipboard via OSC 52.
@@ -80,7 +94,7 @@ export def Lint(ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. expand('%:S'), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
 	checktime
 enddef
 
@@ -97,7 +111,7 @@ var formatters = {
 export def Fmt(line1: number, line2: number, ft: string = &filetype)
 	var sel = line1 != 1 || line2 != line('$')
 	var pfx = sel
-		? 'prettier --stdin-filepath ' .. expand('%:S') .. ' --log-level warn'
+		? 'prettier --stdin-filepath ' .. shellescape(expand('%:p')) .. ' --log-level warn'
 		: 'prettier --write --log-level warn'
 	var pair = get(formatters, ft, [])
 	var cmd = empty(pair)
@@ -113,11 +127,11 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. expand('%:S'), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
 	checktime
 enddef
 
-# Rg executes the ripgrep program loading its results on the quickfix window.
+# Rg executes the ripgrep program loading its results on the location list.
 export def Rg(args: string)
 	if !executable('rg')
 		g:Err('ripgrep not found')
