@@ -180,11 +180,7 @@ enddef
 
 # Selection returns the text selected in visual mode.
 export def Selection(): string
-	var reg = @"
-	silent normal! vgvy
-	var text = @"
-	@" = reg
-	return text
+	return join(getregion(getpos('v'), getpos('.'), {type: mode()}), "\n")
 enddef
 
 # SearchSel sets / to a literal search of the visual selection.
