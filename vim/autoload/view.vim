@@ -210,6 +210,10 @@ export def TabLine(): string
 		s ..= ' %{view#TabLabel(' .. i .. ')} '
 	endfor
 	s ..= '%#TabLineFill#%T'
+	var jobs = exec.Jobs()
+	if !empty(jobs)
+		s ..= '%#TabLine# ' .. jobs .. ' '
+	endif
 	return s
 enddef
 

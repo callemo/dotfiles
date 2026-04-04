@@ -20,6 +20,7 @@ python3 -m unittest test_snip.py # Run snippet unit tests only
 - `dot.config/` in `install`: contents mirrored into `~/.config/` individually, not symlinked as a dir
 
 ## Vim (`dot.vimrc`)
+Requires Vim 9.1+ (patch 1-10 minimum for `getregion()`). Tested on 9.1.1706.
 Four autoload modules: `plumb` (routing), `exec` (commands), `view` (windows/buffers), `plugins` (lazy loaders). vimrc is declarations only — no `def`/`enddef` except `g:Err`.
 - Acme model: middle-click executes the "dot" (selection or word AS the command) — selection is never stdin to another command
 - `exec.Cmd`: always `/bin/sh -c cmd` — matches Acme's `rc -c` model, no `&shell`

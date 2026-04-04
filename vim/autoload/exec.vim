@@ -1,11 +1,21 @@
 vim9script
 
-# CmdDone handles job completion: show +Errors if output or failure.
-def CmdDone(job: job, code: number, name: string)
-	echom name .. ': exit ' .. code
-	var bufnr = ch_getbufnr(job, 'out')
-	if getbufline(bufnr, 1, '$') != [''] || code > 0
-		exe 'sbuffer' bufnr
+var running: list<job> = []
+
+# Jobs returns the program names of currently running Cmd jobs.
+export def Jobs(): string
+	return join(map(copy(running),
+		(_, j) => fnamemodify(split(job_info(j).cmd[2])[0], ':t')), ' ')
+enddef
+
+# CmdClose fires after all out_cb/err_cb calls complete: show +Errors if needed.
+def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
+	var j = ch_getjob(ch)
+	var code = j != v:null ? job_info(j).exitval : 0
+	filter(running, (_, r) => r != j)
+	redrawtabline
+	if wrote[0] || code > 0
+		exe 'sbuffer' bnr
 		cursor(line('$'), 1)
 		if code > 0
 			append(line('$'), name .. ': exit ' .. code)
@@ -20,16 +30,23 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 	var dir = expand('%:p:h')
 	var bufname = view#Scratch(dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
+	var bnr = bufnr(bufname)
+	bufload(bnr)
+	var wrote = [false]
+	var Append = (ch: channel, data: string) => {
+		wrote[0] = true
+		getbufline(bnr, '$') == ['']
+			? setbufline(bnr, '$', [data])
+			: appendbufline(bnr, '$', [data])
+	}
 	var prog = ['/bin/sh', '-c', text]
 	var opts = {
-		'mode': 'raw',
-		'out_io': 'buffer', 'out_name': bufname, 'out_msg': 0,
-		'err_io': 'buffer', 'err_name': bufname, 'err_msg': 0,
-		'exit_cb': (job, code) => CmdDone(job, code, text),
-		'timeout': 300000,
+		'out_cb': Append,
+		'err_cb': Append,
+		'close_cb': (ch) => CmdClose(ch, text, bnr, wrote),
+		'cwd': dir,
 		'stoponexit': 'term'
 		}
-	opts.cwd = dir
 	if range > 0
 		opts.in_io = 'buffer'
 		opts.in_buf = bufnr('%')
@@ -38,7 +55,8 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 	else
 		opts.in_io = 'null'
 	endif
-	job_start(prog, opts)
+	add(running, job_start(prog, opts))
+	redrawtabline
 enddef
 
 # Yank copies text to clipboard via OSC 52.
@@ -74,7 +92,7 @@ export def Lint(ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. expand('%:S'), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
 	checktime
 enddef
 
@@ -91,7 +109,7 @@ var formatters = {
 export def Fmt(line1: number, line2: number, ft: string = &filetype)
 	var sel = line1 != 1 || line2 != line('$')
 	var pfx = sel
-		? 'prettier --stdin-filepath ' .. expand('%:S') .. ' --log-level warn'
+		? 'prettier --stdin-filepath ' .. shellescape(expand('%:p')) .. ' --log-level warn'
 		: 'prettier --write --log-level warn'
 	var pair = get(formatters, ft, [])
 	var cmd = empty(pair)
@@ -107,7 +125,7 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. expand('%:S'), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
 	checktime
 enddef
 

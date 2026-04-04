@@ -1,5 +1,6 @@
 set nocompatible
 set nomore
+set noconfirm noautowrite noautowriteall
 
 let s:root = fnamemodify(expand('<sfile>:p'), ':h')
 let $PATH = s:root . '/testdata:' . $PATH
@@ -137,7 +138,7 @@ call assert_equal(2, len(s:ll))
 call assert_equal('# One', s:ll[0].text)
 call assert_equal('## Two', s:ll[1].text)
 lclose
-bwipeout
+bwipeout!
 
 " Cmd(): runs in buffer's directory (Acme model)
 let s:cmd_tmpdir = tempname()

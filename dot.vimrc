@@ -49,6 +49,7 @@ set path=.,,
 set shiftwidth=4
 set shortmess=atI
 set showcmd
+set showtabline=2
 set softtabstop=4
 set splitbelow
 set splitright
@@ -198,9 +199,9 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 
 # ── Visual ───────────────────────────────────────────────
-xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR>
-xnoremap <silent> <leader>; <cmd>Send<CR>
-xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR>
+xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
+xnoremap <silent> <leader>; <cmd>Send<CR><Esc>
+xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>
 xnoremap * <ScriptCmd>view.SearchSel()<CR>/<CR>
 
 # ── Insert / cmdline ─────────────────────────────────────
@@ -231,8 +232,8 @@ nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.Click2()<CR>
 nnoremap <silent> <C-LeftMouse> <ScriptCmd>view.Zoom()<CR>
 nnoremap <silent> <middlemouse> <leftmouse><ScriptCmd>exec.Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
 nnoremap <silent> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR>
-xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR>
+xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
+xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>
 
 # ── Colorscheme ──────────────────────────────────────────
 if root != ''
