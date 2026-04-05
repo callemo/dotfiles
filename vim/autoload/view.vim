@@ -106,9 +106,9 @@ export def Bufmatch(a: string)
 	setline(1, map(b, (_, v) => bufname(v)))
 enddef
 
-# Entry: strip ls -F suffix from a directory entry.
+# Entry: return the directory entry under the cursor.
 def Entry(): string
-	return substitute(getline('.'), '[*=>@|]$', '', '')
+	return getline('.')
 enddef
 
 # Rename: rename entry under cursor in a Dir buffer.
@@ -143,7 +143,7 @@ export def Dir(path: string, replace: bool = false)
 	var d = empty(path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(path, ':p')
 	d = d =~# '/$' ? d : d .. '/'
 	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
-		silent execute ':%!/bin/ls -aF ' .. shellescape(d)
+		silent execute ':%!/bin/ls -1ap ' .. shellescape(d)
 		setlocal nomodified
 		return
 	endif
@@ -153,7 +153,7 @@ export def Dir(path: string, replace: bool = false)
 		noautocmd execute 'new ' .. fnameescape(d)
 	endif
 	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
-	silent execute ':%!/bin/ls -aF ' .. shellescape(d)
+	silent execute ':%!/bin/ls -1ap ' .. shellescape(d)
 	setlocal nomodified
 	b:dir = d
 	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up, <c-j> focus
