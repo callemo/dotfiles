@@ -111,6 +111,24 @@ def Entry(): string
 	return getline('.')
 enddef
 
+# Open: navigate to entry in-place (reuse current window).
+def Open(entry: string)
+	var path = simplify(b:dir .. entry)
+	if isdirectory(path)
+		Dir(path, true)
+		return
+	endif
+	var fp = fnamemodify(path, ':.')
+	var w = bufwinnr(fp)
+	if w != -1
+		exe w .. 'wincmd w'
+	elseif bufexists(fp)
+		exe 'buffer' fnameescape(fp)
+	else
+		exe 'edit' fnameescape(fp)
+	endif
+enddef
+
 # Rename: rename entry under cursor in a Dir buffer.
 def Rename()
 	var old = b:dir .. Entry()
@@ -156,13 +174,14 @@ export def Dir(path: string, replace: bool = false)
 	silent execute ':%!/bin/ls -1ap ' .. shellescape(d)
 	setlocal nomodified
 	b:dir = d
-	# Dir keybindings: CR/rightmouse plumb, middlemouse execute, - go up, <c-j> focus
-	nnoremap <silent> <buffer> <CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
+	# Dir keybindings: CR/- reuse window; rightmouse plumb (split); middlemouse execute
+	nnoremap <silent> <buffer> <CR> <ScriptCmd>Open(Entry())<CR>
 	nnoremap <silent> <buffer> <leader><CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
 	nnoremap <silent> <buffer> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
 	nnoremap <silent> <buffer> <middlemouse> <leftmouse><ScriptCmd>exec.Cmd(Entry(), 0, 0, 0)<CR>
+	nnoremap <silent> <buffer> <c-leftmouse> <leftmouse><ScriptCmd>exec.Cmd(Entry(), 0, 0, 0)<CR>
 	# :h strips trailing /, second :h goes up one level
-	nnoremap <silent> <buffer> - <ScriptCmd>Dir(fnamemodify(b:dir, ':h:h'))<CR>
+	nnoremap <silent> <buffer> - <ScriptCmd>Dir(fnamemodify(b:dir, ':h:h'), true)<CR>
 	# Explicit <c-j> to prevent global <CR> mapping from shadowing it
 	nnoremap <silent> <buffer> <c-j> <ScriptCmd>Next()<CR>
 	nnoremap <silent> <buffer> <leader>R <ScriptCmd>Rename()<CR>
