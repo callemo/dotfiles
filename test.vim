@@ -57,6 +57,22 @@ call assert_match('view[#.]Prev', s:tk.rhs)
 call assert_match('def ', execute('function exec#Cmd'))
 call assert_match('def ', execute('function view#Browse'))
 
+" Clipboard: OSC 52 replaces clipboard=unnamed/tmux integration
+call assert_equal('', &clipboard)
+let s:yank_au = execute('autocmd dotfiles TextYankPost')
+call assert_match('exec\.Yank(getreg(''"''))', s:yank_au)
+if $TMUX != ''
+	call assert_match('tmux loadb', s:yank_au)
+else
+	call assert_false(s:yank_au =~# 'tmux loadb')
+endif
+let s:path_y = maparg('<leader>y', 'n', 0, 1)
+let s:path_Y = maparg('<leader>Y', 'n', 0, 1)
+call assert_match("exec\\.Yank(fnamemodify(expand('%:p'), ':\\.'))", s:path_y.rhs)
+call assert_match("exec\\.Yank(expand('%:p'))", s:path_Y.rhs)
+" Old relative-path clipboard mapping was replaced by <leader>y / <leader>Y.
+call assert_equal('', maparg('<leader>F', 'n'))
+
 " Plumb: url dispatches through Url() which logs via echom
 let s:url = 'https://example.com/path?x=1'
 messages clear
@@ -91,10 +107,10 @@ call view#Dir(s:dir_tmpdir, v:true)
 call assert_equal('dir', &filetype)
 call assert_equal(s:dir_tmpdir . '/', b:dir)
 call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
-" Verify buffer-local CR mapping uses plumb.Do
+" Verify buffer-local CR mapping reuses the current window
 let s:cr_map = maparg('<CR>', 'n', 0, 1)
 call assert_true(!empty(s:cr_map))
-call assert_match('plumb\.Do', s:cr_map.rhs)
+call assert_match('Open(Entry())', s:cr_map.rhs)
 bwipeout!
 call delete(s:dir_tmpdir, 'rf')
 

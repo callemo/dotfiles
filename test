@@ -2,6 +2,7 @@
 # test - run basic tests for dotfiles programs
 
 : "${DOTFILES:=$(pwd)}"
+export DOTFILES
 
 case $(uname) in
 Linux) sed() { command sed -l 4096 "$@"; } ;;

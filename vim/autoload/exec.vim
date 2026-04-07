@@ -63,7 +63,7 @@ enddef
 
 # Yank copies text to clipboard via OSC 52.
 export def Yank(text: string)
-	var encoded = system('printf %s ' .. shellescape(text) .. ' | base64 | tr -d "\n"')
+	var encoded = substitute(system('base64', text), '\n', '', 'g')
 	var osc = "\e]52;c;" .. encoded .. "\x07"
 	writefile([osc], '/dev/tty', 'b')
 enddef
