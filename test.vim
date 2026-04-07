@@ -57,15 +57,11 @@ call assert_match('view[#.]Prev', s:tk.rhs)
 call assert_match('def ', execute('function exec#Cmd'))
 call assert_match('def ', execute('function view#Browse'))
 
-" Clipboard: OSC 52 unconditional; tmux loadb additive when inside tmux
+" Clipboard: OSC 52 only; tmux loadb removed (set-clipboard on handles forwarding)
 call assert_equal('', &clipboard)
 let s:yank_au = execute('autocmd dotfiles TextYankPost')
 call assert_match('exec\.Yank(getreg(''"''))', s:yank_au)
-if $TMUX != ''
-	call assert_match('tmux loadb', s:yank_au)
-else
-	call assert_false(s:yank_au =~# 'tmux loadb')
-endif
+call assert_false(s:yank_au =~# 'tmux loadb')
 let s:path_y = maparg('<leader>y', 'n', 0, 1)
 let s:path_Y = maparg('<leader>Y', 'n', 0, 1)
 call assert_match("exec\\.Yank(fnamemodify(expand('%:p'), ':\\.'))", s:path_y.rhs)
