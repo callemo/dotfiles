@@ -66,6 +66,7 @@ let s:path_y = maparg(' y', 'n', 0, 1)
 let s:path_Y = maparg(' Y', 'n', 0, 1)
 call assert_match("exec\\.Yank(fnamemodify(expand('%:p'), ':\\.'))", s:path_y.rhs)
 call assert_match("exec\\.Yank(expand('%:p'))", s:path_Y.rhs)
+" Old relative-path clipboard mapping was replaced by <leader>y / <leader>Y.
 call assert_equal('', maparg(' F', 'n'))
 
 " Plumb: url dispatches through Url() which logs via echom
