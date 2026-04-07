@@ -64,6 +64,10 @@ enddef
 # Yank copies text to clipboard via OSC 52.
 export def Yank(text: string)
 	var encoded = substitute(system('base64', text), '\n', '', 'g')
+	if v:shell_error != 0
+		g:Err('base64 failed')
+		return
+	endif
 	var osc = "\e]52;c;" .. encoded .. "\x07"
 	writefile([osc], '/dev/tty', 'b')
 enddef
