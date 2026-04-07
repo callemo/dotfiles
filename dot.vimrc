@@ -94,6 +94,9 @@ augroup END
 augroup dotfiles
 	autocmd!
 	autocmd TextYankPost * if v:event.operator ==# 'y' | call exec.Yank(getreg('"')) | endif
+	if $TMUX != ''
+		autocmd TextYankPost * if v:event.operator ==# 'y' | call system('tmux loadb -', getreg('"')) | endif
+	endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | setl nowrap | endif
 	autocmd BufWritePre * call view.Trim()
