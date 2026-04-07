@@ -62,12 +62,12 @@ call assert_equal('', &clipboard)
 let s:yank_au = execute('autocmd dotfiles TextYankPost')
 call assert_match('exec\.Yank(getreg(''"''))', s:yank_au)
 call assert_false(s:yank_au =~# 'tmux loadb')
-let s:path_y = maparg(' y', 'n', 0, 1)
-let s:path_Y = maparg(' Y', 'n', 0, 1)
+let s:path_y = maparg('<leader>y', 'n', 0, 1)
+let s:path_Y = maparg('<leader>Y', 'n', 0, 1)
 call assert_match("exec\\.Yank(fnamemodify(expand('%:p'), ':\\.'))", s:path_y.rhs)
 call assert_match("exec\\.Yank(expand('%:p'))", s:path_Y.rhs)
 " Old relative-path clipboard mapping was replaced by <leader>y / <leader>Y.
-call assert_equal('', maparg(' F', 'n'))
+call assert_equal('', maparg('<leader>F', 'n'))
 
 " Plumb: url dispatches through Url() which logs via echom
 let s:url = 'https://example.com/path?x=1'
