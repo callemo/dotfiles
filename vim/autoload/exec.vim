@@ -1,6 +1,10 @@
 vim9script
 
 var running: list<job> = []
+var base64cmd = executable('base64') ? 'base64'
+	: executable('openssl') ? 'openssl base64'
+	: executable('python3') ? "python3 -c 'import base64,sys;print(base64.b64encode(sys.stdin.buffer.read()).decode(),end=\"\")'"
+	: ''
 
 # Jobs returns the program names of currently running Cmd jobs.
 export def Jobs(): string
@@ -63,7 +67,11 @@ enddef
 
 # Yank copies text to clipboard via OSC 52.
 export def Yank(text: string)
-	var encoded = substitute(system('base64', text), '\n', '', 'g')
+	if empty(base64cmd)
+		g:Err('no base64 encoder found')
+		return
+	endif
+	var encoded = substitute(system(base64cmd, text), '\n', '', 'g')
 	if v:shell_error != 0
 		g:Err('base64 failed')
 		return
