@@ -57,7 +57,7 @@ call assert_match('view[#.]Prev', s:tk.rhs)
 call assert_match('def ', execute('function exec#Cmd'))
 call assert_match('def ', execute('function view#Browse'))
 
-" Clipboard: OSC 52 replaces clipboard=unnamed/tmux integration
+" Clipboard: OSC 52 unconditional; tmux loadb additive when inside tmux
 call assert_equal('', &clipboard)
 let s:yank_au = execute('autocmd dotfiles TextYankPost')
 call assert_match('exec\.Yank(getreg(''"''))', s:yank_au)

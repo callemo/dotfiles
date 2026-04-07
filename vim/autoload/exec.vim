@@ -73,7 +73,7 @@ export def Yank(text: string)
 	endif
 	var encoded = substitute(system(base64cmd, text), '\n', '', 'g')
 	if v:shell_error != 0
-		g:Err('base64 failed')
+		g:Err('base64 failed: ' .. base64cmd .. ' (exit ' .. v:shell_error .. ')')
 		return
 	endif
 	var osc = "\e]52;c;" .. encoded .. "\x07"
