@@ -16,9 +16,6 @@ import autoload 'view.vim'
 set autoindent
 set autoread
 set backspace=indent,eol,start
-if has('clipboard')
-	set clipboard=unnamed
-endif
 set commentstring=#%s
 set confirm
 set cursorline
@@ -96,12 +93,7 @@ augroup END
 # ── Autocommands ─────────────────────────────────────────
 augroup dotfiles
 	autocmd!
-	if !has('clipboard')
-		autocmd TextYankPost * if v:event.operator ==# 'y' | call exec.Yank(getreg('"')) | endif
-	endif
-	if executable('tmux')
-		autocmd TextYankPost * if v:event.operator ==# 'y' | call system('tmux loadb -', getreg('"')) | endif
-	endif
+	autocmd TextYankPost * if v:event.operator ==# 'y' | call exec.Yank(getreg('"')) | endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | setl nowrap | endif
 	autocmd BufWritePre * call view.Trim()
@@ -158,7 +150,8 @@ nnoremap <leader>. <cmd>lcd %:p:h<CR>
 nnoremap <silent> <leader>; <cmd>Send<CR>
 nnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <silent> <leader>B <ScriptCmd>view.Browse()<CR>
-nnoremap <silent> <leader>F <ScriptCmd>has('clipboard') ? setreg('+', fnamemodify(expand('%:p'), ':.')) : exec.Yank(fnamemodify(expand('%:p'), ':.'))<CR>
+nnoremap <silent> <leader>y <ScriptCmd>exec.Yank(fnamemodify(expand('%:p'), ':.'))<CR>
+nnoremap <silent> <leader>Y <ScriptCmd>exec.Yank(expand('%:p'))<CR>
 nnoremap <leader>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <leader>Q <ScriptCmd>view.Close('!')<CR>
 nnoremap <leader>f <cmd>Fmt<CR>
