@@ -42,21 +42,8 @@ export def Prev()
 	endif
 enddef
 
-# Click2: double-click statusline closes window, body selects structural block or word.
-export def Click2()
-	var m = getmousepos()
-	var w = m.winid
-	if w == 0
-		return
-	endif
-	if m.winrow > winheight(win_id2win(w))
-		win_execute(w, 'call view#Close("")')
-		return
-	endif
-
-	win_gotoid(w)
-	cursor(m.line, m.column)
-
+# Expand: select structural block at cursor (brackets/quotes → vi obj, else viw).
+export def Expand()
 	var ln = getline('.')
 	var ci = charcol('.')
 	var c = ln->slice(ci - 1, ci)
@@ -80,6 +67,23 @@ export def Click2()
 	endif
 
 	exe "normal! \<Esc>vi" .. obj[c]
+enddef
+
+# Click2: double-click statusline closes window, body expands structural block or word.
+export def Click2()
+	var m = getmousepos()
+	var w = m.winid
+	if w == 0
+		return
+	endif
+	if m.winrow > winheight(win_id2win(w))
+		win_execute(w, 'call view#Close("")')
+		return
+	endif
+
+	win_gotoid(w)
+	cursor(m.line, m.column)
+	Expand()
 enddef
 
 # Zoom: ctrl-click statusline zooms window to full height.
