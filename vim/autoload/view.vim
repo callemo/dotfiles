@@ -42,7 +42,7 @@ export def Prev()
 	endif
 enddef
 
-# Click2: double-click statusline closes window, body selects word.
+# Click2: double-click statusline closes window, body selects structural block or word.
 export def Click2()
 	var m = getmousepos()
 	var w = m.winid
@@ -51,9 +51,35 @@ export def Click2()
 	endif
 	if m.winrow > winheight(win_id2win(w))
 		win_execute(w, 'call view#Close("")')
-	else
-		exe "normal! \<2-LeftMouse>"
+		return
 	endif
+
+	win_gotoid(w)
+	cursor(m.line, m.column)
+
+	var ln = getline('.')
+	var ci = charcol('.')
+	var c = ln->slice(ci - 1, ci)
+	var cb = ci > 1 ? ln->slice(ci - 2, ci - 1) : ''
+	var pat = '[(){}\[\]<>"''`]'
+	var obj = {
+		'(': 'b', ')': 'b',
+		'{': 'B', '}': 'B',
+		'[': '[', ']': '[',
+		'<': '<', '>': '>',
+		'"': '"', "'": "'", '`': '`'
+	}
+
+	if c =~ pat
+	elseif cb =~ pat
+		c = cb
+		exe 'normal! h'
+	else
+		exe "normal! \<Esc>viw"
+		return
+	endif
+
+	exe "normal! \<Esc>va" .. obj[c]
 enddef
 
 # Zoom: ctrl-click statusline zooms window to full height.
