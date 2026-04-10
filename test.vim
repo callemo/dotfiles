@@ -190,6 +190,7 @@ exe 'bwipeout!' s:errbnr
 " Click2(): function exists and double-click mapping is wired up
 call assert_true(exists('*view#Click2'))
 let s:c2_map = maparg('<2-LeftMouse>', 'n', 0, 1)
+call assert_true(!empty(s:c2_map))
 call assert_match('view[#.]Click2', s:c2_map.rhs)
 
 if len(v:errors)
