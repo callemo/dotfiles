@@ -79,7 +79,7 @@ export def Click2()
 		return
 	endif
 
-	exe "normal! \<Esc>va" .. obj[c]
+	exe "normal! \<Esc>vi" .. obj[c]
 enddef
 
 # Zoom: ctrl-click statusline zooms window to full height.
