@@ -158,6 +158,7 @@ nnoremap <leader>f <cmd>Fmt<CR>
 nnoremap <leader>l <cmd>Lint<CR>
 nnoremap <leader>q <ScriptCmd>view.Close('')<CR>
 nnoremap <leader>z <cmd>resize<CR>
+nnoremap <silent> <leader><leader> <ScriptCmd>view.Expand()<CR>
 
 # ── Brackets ─────────────────────────────────────────────
 nnoremap ]a <cmd>next<CR>

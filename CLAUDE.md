@@ -18,11 +18,13 @@ python3 -m unittest test_snip.py # Run snippet unit tests only
 - `fileline pattern line file` — 3-arg helper delegating to `bin/overwrite`
 - Vim plugin loop uses heredoc for stdin; commands inside must redirect `</dev/null`
 - `dot.config/` in `install`: contents mirrored into `~/.config/` individually, not symlinked as a dir
+- `dot.*` files are symlinked to `~/.*` by `./install` (e.g. `dot.vimrc` → `~/.vimrc`)
 
 ## Vim (`dot.vimrc`)
 Requires Vim 9.1+ (patch 1-10 minimum for `getregion()`). Tested on 9.1.1706.
 Four autoload modules: `plumb` (routing), `exec` (commands), `view` (windows/buffers), `plugins` (lazy loaders). vimrc is declarations only — no `def`/`enddef` except `g:Err`.
 - Acme model: middle-click executes the "dot" (selection or word AS the command) — selection is never stdin to another command
+- `view#Click2`: double-click on/near a bracket or quote selects contents between delimiters (`vi`, not `va`) — Acme excludes delimiters; verified against `plan9port/src/cmd/acme/text.c:textdoubleclick()`
 - `exec.Cmd`: always `/bin/sh -c cmd` — matches Acme's `rc -c` model, no `&shell`
 - `exec.Cmd` without range: `in_io: null` (no stdin, like Acme)
 - `exec.Cmd` with range: buffer lines are stdin (`:%Cmd sort` pipes lines to `sort`)

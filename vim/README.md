@@ -1,5 +1,5 @@
 ```
-VIMRC(1)              Unix Programmer's Manual              VIMRC(1)
+VIMRC
 
 NAME
      dot.vimrc -- personal editor configuration
@@ -29,12 +29,15 @@ DESCRIPTION
               sends lines to a tmux pane.  Yank copies text to the
               system clipboard via OSC 52.
 
-     view     Manage windows and buffers.  Next and Prev cycle focus
-              across Vim windows and tmux panes.  Dir reads a
-              directory into a scratch buffer.  Close quits the last
-              window or wipes the buffer.  Sort orders windows by
-              name.  Selection returns the visual selection.  Trim
-              strips trailing whitespace on write.
+     view     Manage windows and buffers.  Expand selects the
+              structural block at the cursor: contents between
+              matching brackets or quotes, or the inner word.
+              Next and Prev cycle focus across Vim windows and
+              tmux panes.  Dir reads a directory into a scratch
+              buffer.  Close quits the last window or wipes the
+              buffer.  Sort orders windows by name.  Selection
+              returns the visual selection.  Trim strips trailing
+              whitespace on write.
 
      plugins  Lazy loaders for optional packages.  Go loads vim-go
               on first encounter with a .go file.
@@ -57,18 +60,20 @@ KEY BINDINGS
      ;         Send to tmux.
      CR        Plumb word under cursor.
      B         Toggle directory browser.
-     F         Copy relative path to clipboard.
      N         New split in file's directory.
+     y         Copy relative path to clipboard.
+     Y         Copy absolute path to clipboard.
      Q         Force-close buffer.
      f         Format.
      l         Lint.
      q         Close buffer.
      z         Zoom window.
+     <leader>  Expand: select structural block or word.
 
   Visual
-     !         Execute selection.
-     ;         Send selection to tmux.
-     CR        Plumb selection.
+     <leader>! Execute selection.
+     <leader>; Send selection to tmux.
+     <leader>CR Plumb selection.
      *         Literal search for selection.
 
   Brackets
@@ -98,7 +103,7 @@ KEY BINDINGS
   Mouse
      Middle    Execute word under cursor.
      Right     Plumb word under cursor.
-     2-Left    Statusline: close.  Body: select word.
+     2-Left    Statusline: close.  Body: expand.
      C-Left    Statusline: zoom.
 
      In visual mode, middle and right act on the selection.
