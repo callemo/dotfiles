@@ -215,9 +215,9 @@ cnoremap <c-p> <up>
 # ── Terminal ─────────────────────────────────────────────
 tnoremap <silent> <c-j> <ScriptCmd>view.Next()<CR>
 tnoremap <silent> <c-k> <ScriptCmd>view.Prev()<CR>
-tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
-tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
+tnoremap <c-w>] <c-w>""
+
 tnoremap <leader>z <cmd>resize<CR>
 tnoremap <scrollwheelup> <c-\><c-n>
 
