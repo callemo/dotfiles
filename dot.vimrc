@@ -158,6 +158,7 @@ nnoremap <leader>f <cmd>Fmt<CR>
 nnoremap <leader>l <cmd>Lint<CR>
 nnoremap <leader>q <ScriptCmd>view.Close('')<CR>
 nnoremap <leader>z <cmd>resize<CR>
+nnoremap <silent> <leader><leader> <ScriptCmd>view.Expand()<CR>
 
 # ── Brackets ─────────────────────────────────────────────
 nnoremap ]a <cmd>next<CR>
@@ -214,9 +215,9 @@ cnoremap <c-p> <up>
 # ── Terminal ─────────────────────────────────────────────
 tnoremap <silent> <c-j> <ScriptCmd>view.Next()<CR>
 tnoremap <silent> <c-k> <ScriptCmd>view.Prev()<CR>
-tnoremap <c-w><c-w> <c-w>.
 tnoremap <c-w>[ <c-\><c-n>
-tnoremap <expr> <c-r> '<c-w>"' .. nr2char(getchar())
+tnoremap <c-w>] <c-w>""
+
 tnoremap <leader>z <cmd>resize<CR>
 tnoremap <scrollwheelup> <c-\><c-n>
 
