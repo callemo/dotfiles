@@ -38,6 +38,9 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 	var dir = expand('%:p:h')
 	var bufname = view#Scratch(dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
+	if empty(text)
+		return
+	endif
 	var bnr = bufnr(bufname)
 	bufload(bnr)
 	var wrote = [false]  # list to allow mutation from lambda (vim9 captures by value)
