@@ -107,9 +107,9 @@ augroup dotfiles
 		\ | setl statusline=%{view#TermStatus()}
 		\ | nnoremap <buffer> q i
 	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call view.Dir('', true) | endif
-	# BufReadCmd matches trailing / (dir buffer names); BufReadPost catches :e .
+	# BufReadCmd matches trailing / (dir buffer names); BufEnter catches :e .
 	autocmd BufReadCmd */ call view.Dir(expand('<afile>:p'), true)
-	autocmd BufReadPost * if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
+	autocmd BufEnter * if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
 augroup END
 
 augroup filetypes
