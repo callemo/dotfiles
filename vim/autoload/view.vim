@@ -196,9 +196,9 @@ export def Dir(path: string, replace: bool = false)
 		return
 	endif
 	if replace
-		noautocmd execute 'file ' .. fnameescape(d)
+		silent noautocmd execute 'file ' .. fnameescape(d)
 	else
-		noautocmd execute 'new ' .. fnameescape(d)
+		silent noautocmd execute 'new ' .. fnameescape(d)
 	endif
 	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
 	silent execute ':%!/bin/ls -1ap ' .. shellescape(d)

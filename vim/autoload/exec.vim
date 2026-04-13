@@ -347,10 +347,10 @@ export def Load(file: string = '')
 			var fpath = parts[5]
 
 			if filereadable(fpath)
-				execute 'edit' fnameescape(fpath)
+				silent execute 'edit' fnameescape(fpath)
 			else
 				noautocmd enew
-				execute 'file' fnameescape(fpath)
+				silent execute 'file' fnameescape(fpath)
 			endif
 			bufmap[string(oldbnr)] = bufnr()
 			cursor(lnum, cnum)
@@ -373,7 +373,7 @@ export def Load(file: string = '')
 			endfor
 
 			if !empty(fpath)
-				execute 'edit' fnameescape(fpath)
+				silent execute 'edit' fnameescape(fpath)
 			else
 				noautocmd enew
 			endif
@@ -392,7 +392,7 @@ export def Load(file: string = '')
 
 			var newbnr = get(bufmap, string(refbnr), -1)
 			if newbnr > 0
-				execute 'buffer' newbnr
+				silent execute 'buffer' newbnr
 			endif
 			cursor(lnum, cnum)
 
@@ -406,8 +406,6 @@ export def Load(file: string = '')
 
 	# Restore active tab
 	if activetab > 0 && activetab <= tabpagenr('$')
-		execute 'tabnext' activetab
+		silent execute 'tabnext' activetab
 	endif
-
-	echo 'Loaded from ' .. fnamemodify(path, ':~')
 enddef
