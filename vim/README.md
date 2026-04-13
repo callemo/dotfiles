@@ -48,12 +48,14 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
                  built-ins executed directly by vimrc:
 
                  Dump Write the state of vim to the file name, if specified,
-                      or $HOME/vim.dump by default. Tab pages, windows,
+                      or $PWD/vim.dump by default. Tab pages, windows,
                       cursor positions, and unsaved buffer contents are
-                      recorded.
+                      recorded. Unlike Acme, which runs one instance per
+                      namespace, vim runs per-terminal, so we dump in the
+                      working directory.
 
                  Load Restore the state of vim from a file (default
-                      $HOME/vim.dump) created by the Dump command.
+                      $PWD/vim.dump) created by the Dump command.
 
                  Toc  Populate location list with an outline of the current
                       buffer. Patterns are per-filetype.
@@ -121,7 +123,7 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
                       C-p  FZF file finder
                       +    Grow window height
 
-FILES            $HOME/vim.dump
+FILES            $PWD/vim.dump
                       default file for Dump and Load
 
 SEE ALSO         acme(1)

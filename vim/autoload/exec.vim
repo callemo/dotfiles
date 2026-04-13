@@ -195,9 +195,9 @@ enddef
 #   x<tab> <win> <ref>   <line> <col>               zerox
 #   d<tab> <win> <path>                             directory
 
-# Dump saves the current state to file (default: $HOME/vim.dump).
+# Dump saves the current state to file (default: $PWD/vim.dump).
 export def Dump(file: string = '')
-	var path = empty(file) ? expand('$HOME/vim.dump') : fnamemodify(file, ':p')
+	var path = empty(file) ? getcwd() .. '/vim.dump' : fnamemodify(file, ':p')
 	var tmp = tempname()
 
 	var lines: list<string> = []
@@ -280,9 +280,9 @@ export def Dump(file: string = '')
 	echo 'Dumped to ' .. fnamemodify(path, ':~')
 enddef
 
-# Load restores state from file (default: $HOME/vim.dump).
+# Load restores state from file (default: $PWD/vim.dump).
 export def Load(file: string = '')
-	var path = empty(file) ? expand('$HOME/vim.dump') : fnamemodify(file, ':p')
+	var path = empty(file) ? getcwd() .. '/vim.dump' : fnamemodify(file, ':p')
 	if !filereadable(path)
 		g:Err('Load: file not found: ' .. path)
 		return

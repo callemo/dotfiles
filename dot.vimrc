@@ -41,7 +41,7 @@ set noswapfile
 set nowritebackup
 set complete-=i
 set nrformats-=octal
-set number
+set nonumber
 set path=.,,
 set shiftwidth=4
 set shortmess=atI
