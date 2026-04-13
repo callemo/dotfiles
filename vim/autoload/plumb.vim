@@ -1,6 +1,6 @@
 vim9script
 
-# File opens file f at optional address addr, reusing existing windows.
+# file opens file f at optional address addr, reusing existing windows.
 def File(f: string, addr: string)
 	var fp = fnamemodify(f, ':.')
 	var w = bufwinnr(fp)
@@ -16,16 +16,16 @@ def File(f: string, addr: string)
 	endif
 enddef
 
-# Url opens the given URL in the system browser.
-def Url(url: string)
-	echom 'url:' url
+# url opens the given URL in the system browser.
+def Url(link: string)
+	echom 'url:' link
 	var cmd = has('mac') ? 'open' : (executable('xdg-open') ? 'xdg-open' : '')
 	if !empty(cmd)
-		job_start(['/bin/sh', '-c', cmd .. ' ' .. shellescape(url)])
+		job_start(['/bin/sh', '-c', cmd .. ' ' .. shellescape(link)])
 	endif
 enddef
 
-# Wiki searches for a file path and opens it.
+# wiki searches for a file path and opens it.
 def Wiki(name: string)
 	var f = trim(system('n look ' .. shellescape(name)))
 	if empty(f)

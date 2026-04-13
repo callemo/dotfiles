@@ -33,8 +33,8 @@ def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
 enddef
 
 # Cmd executes a command asynchronously via /bin/sh -c, output to +Errors.
-# Matches Acme's model: no-range runs cmd with no stdin; range pipes buffer lines.
-export def Cmd(cmd: string, range: number, line1: number, line2: number)
+# Matches Acme's model: no address runs cmd with no stdin; address pipes addressed lines.
+export def Cmd(cmd: string, addr: number, line1: number, line2: number)
 	var dir = expand('%:p:h')
 	var bufname = view#Scratch(dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
@@ -56,7 +56,7 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 		'cwd': dir,
 		'stoponexit': 'term'
 		}
-	if range > 0
+	if addr > 0
 		opts.in_io = 'buffer'
 		opts.in_buf = bufnr('%')
 		opts.in_top = line1

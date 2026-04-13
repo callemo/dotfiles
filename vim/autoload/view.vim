@@ -3,7 +3,7 @@ vim9script
 import autoload 'plumb.vim'
 import autoload 'exec.vim'
 
-# Scratch creates a scratch buffer with the given suffix returning its name.
+# Scratch creates a temporary buffer with the given suffix returning its name.
 export def Scratch(suffix: string): string
 	var bufname = suffix[0] == '/' ? suffix : getcwd() .. suffix
 	if !bufexists(bufname)
@@ -42,7 +42,7 @@ export def Prev()
 	endif
 enddef
 
-# Expand: select structural block at cursor (brackets/quotes → vi obj, else viw).
+# Expand: select structural block at the current character (brackets/quotes → vi obj, else viw).
 export def Expand()
 	var ln = getline('.')
 	var ci = charcol('.')
@@ -112,12 +112,12 @@ export def Sort()
 	endfor
 enddef
 
-# Bufmatch: match buffers by /re/ and optionally delete with /D.
+# Bufmatch: match buffers by /regular expression/ and optionally delete with /D.
 export def Bufmatch(a: string)
 	var i = stridx(a, '/')
 	var j = strridx(a, '/')
 	if i == -1 || i == j
-		g:Err('Usage: :B /regex/[D]')
+		g:Err('Usage: :B /regular expression/[D]')
 		return
 	endif
 	var re = a[i + 1 : j - 1]
@@ -136,14 +136,14 @@ export def Bufmatch(a: string)
 	setline(1, map(b, (_, v) => bufname(v)))
 enddef
 
-# Entry: return the directory entry under the cursor.
+# entry: return the directory entry under the current character.
 def Entry(): string
 	return getline('.')
 enddef
 
-# Open: navigate to entry in-place (reuse current window).
-def Open(entry: string)
-	var path = simplify(b:dir .. entry)
+# open: navigate to entry in-place (reuse current window).
+def Open(e: string)
+	var path = simplify(b:dir .. e)
 	if isdirectory(path)
 		Dir(path, true)
 		return
@@ -159,8 +159,8 @@ def Open(entry: string)
 	endif
 enddef
 
-# Rename: rename entry under cursor in a Dir buffer.
-def Rename()
+# renameItem: rename entry under the current character in a Dir buffer.
+def RenameItem()
 	var old = b:dir .. Entry()
 	var neu = input('Rename: ', old)
 	if neu == '' || neu == old
@@ -173,8 +173,8 @@ def Rename()
 	Dir(b:dir, true)
 enddef
 
-# Delete: delete entry under cursor in a Dir buffer.
-def Delete()
+# deleteItem: delete entry under the current character in a Dir buffer.
+def DeleteItem()
 	var path = b:dir .. Entry()
 	if input('Delete ' .. path .. '? ') !~? '^y'
 		return
@@ -186,7 +186,7 @@ def Delete()
 	Dir(b:dir, true)
 enddef
 
-# Dir: read a directory into a scratch buffer.
+# Dir: read a directory into a temporary buffer.
 export def Dir(path: string, replace: bool = false)
 	var d = empty(path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(path, ':p')
 	d = d =~# '/$' ? d : d .. '/'
@@ -214,8 +214,8 @@ export def Dir(path: string, replace: bool = false)
 	nnoremap <silent> <buffer> - <ScriptCmd>Dir(fnamemodify(b:dir, ':h:h'), true)<CR>
 	# Explicit <c-j> to prevent global <CR> mapping from shadowing it
 	nnoremap <silent> <buffer> <c-j> <ScriptCmd>Next()<CR>
-	nnoremap <silent> <buffer> <leader>R <ScriptCmd>Rename()<CR>
-	nnoremap <silent> <buffer> <leader>D <ScriptCmd>Delete()<CR>
+	nnoremap <silent> <buffer> <leader>R <ScriptCmd>RenameItem()<CR>
+	nnoremap <silent> <buffer> <leader>D <ScriptCmd>DeleteItem()<CR>
 enddef
 
 # Browse: toggle the directory buffer.
@@ -232,7 +232,7 @@ export def Selection(): string
 	return join(getregion(getpos('v'), getpos('.'), {type: mode()}), "\n")
 enddef
 
-# SearchSel sets / to a literal search of the visual selection.
+# SearchSel sets regular expression to a literal search of the addressed text.
 export def SearchSel()
 	@/ = substitute('\m\C' .. escape(Selection(), '\.^$~[]*'), "\n$", '', '')
 enddef
