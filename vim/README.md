@@ -17,8 +17,7 @@ DESCRIPTION      Dot.vimrc configures Vim 9.1 as a text processing environment.
                       Run external commands. Cmd runs a shell command
                       asynchronously. Lint and Fmt dispatch to per-filetype
                       linters and formatters. Rg greps. Fts does full-text search.
-                      Toc populates the location list. Tmux sends lines to
-                      a tmux pane. Yank copies text via OSC 52.
+                      Tmux sends lines to a tmux pane. Yank copies text via OSC 52.
 
                  view
                       Manage windows and buffers. Expand selects the
@@ -26,7 +25,8 @@ DESCRIPTION      Dot.vimrc configures Vim 9.1 as a text processing environment.
                       focus across Vim windows and tmux panes. Dir reads
                       a directory into a scratch buffer. Close quits the
                       last window. Sort orders windows by name. Selection
-                      returns the visual selection. Trim strips trailing
+                      returns the visual selection. Toc populates the
+                      location list with an outline. Trim strips trailing
                       whitespace.
 
                  plugins
@@ -35,7 +35,7 @@ DESCRIPTION      Dot.vimrc configures Vim 9.1 as a text processing environment.
                  Commands have a simple and regular structure:
 
                  :Cmd cmd
-                      Run cmd; pipe address as stdin.
+                      Run cmd; pipe addressed lines as stdin.
                  :Send [target]
                       Send line or selection to tmux pane.
                  :Lint [filetype]

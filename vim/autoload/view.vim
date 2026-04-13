@@ -246,6 +246,28 @@ export def Trim()
 	setpos('.', last_pos)
 enddef
 
+var outlines = {
+	'go':       '^func\s\|^type\s',
+	'sh':       '^\w\+\s*()',
+	'bash':     '^\w\+\s*()',
+	'perl':     '^sub\s',
+	'python':   '^\(class\s\|def\s\|async\s\+def\s\)',
+	'markdown': '^#\+\s',
+	}
+
+# Toc populates the location list with an outline for the current buffer.
+export def Toc(pat: string = '')
+	var re = empty(pat) ? get(outlines, &filetype, outlines.markdown) : pat
+	var items = []
+	for i in range(1, line('$'))
+		if getline(i) =~ re
+			add(items, {'bufnr': bufnr('%'), 'lnum': i, 'text': getline(i)})
+		endif
+	endfor
+	setloclist(0, [], 'r', {'title': 'Outline', 'items': items})
+	lwindow
+enddef
+
 # TabLine returns the formatted tab line string.
 export def TabLine(): string
 	var s = ''

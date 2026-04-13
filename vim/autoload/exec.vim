@@ -159,18 +159,6 @@ export def Rg(args: string)
 	botright lwindow
 enddef
 
-# Toc populates the location list with lines matching pat (default: markdown headings).
-export def Toc(pat: string = '^#\+\s')
-	var items = []
-	for i in range(1, line('$'))
-		if getline(i) =~ pat
-			add(items, {'bufnr': bufnr('%'), 'lnum': i, 'text': getline(i)})
-		endif
-	endfor
-	setloclist(0, [], 'r', {'title': 'Outline', 'items': items})
-	lwindow
-enddef
-
 # Fts runs fts and populates the location list.
 export def Fts(query: string)
 	if !executable('fts')

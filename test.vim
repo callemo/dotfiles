@@ -144,7 +144,7 @@ if s:errbnr > 0 | exe 'bwipeout!' s:errbnr | endif
 " Toc(): populates location list with heading lines
 enew
 call setline(1, ['# One', 'text', '## Two', 'more'])
-call exec#Toc()
+call view#Toc()
 let s:ll = getloclist(0)
 call assert_equal(2, len(s:ll))
 call assert_equal('# One', s:ll[0].text)
