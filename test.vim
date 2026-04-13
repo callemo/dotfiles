@@ -197,6 +197,55 @@ let s:c2_map = maparg('<2-LeftMouse>', 'n', 0, 1)
 call assert_true(!empty(s:c2_map))
 call assert_match('view[#.]Click2', s:c2_map.rhs)
 
+" Dump/Load: functions exist and commands are defined
+call assert_true(exists('*exec#Dump'))
+call assert_true(exists('*exec#Load'))
+call assert_true(exists(':Dump'))
+call assert_true(exists(':Load'))
+
+" Dump/Load: round-trip preserves clean file
+let s:dump_tmpdir = tempname()
+call mkdir(s:dump_tmpdir, 'p')
+let s:dump_file = s:dump_tmpdir . '/vim.dump'
+let s:test_file = s:dump_tmpdir . '/testfile.txt'
+call writefile(['line1', 'line2'], s:test_file)
+silent! tabonly!
+silent! only!
+exe 'edit' fnameescape(s:test_file)
+call cursor(2, 3)
+call exec#Dump(s:dump_file)
+call assert_true(filereadable(s:dump_file))
+let s:dump_lines = readfile(s:dump_file)
+call assert_match('^f1\t', s:dump_lines[3])
+call assert_match(s:test_file, join(s:dump_lines, "\n"))
+" Load into fresh state
+enew!
+call exec#Load(s:dump_file)
+call assert_equal(fnamemodify(s:test_file, ':p'), expand('%:p'))
+call assert_equal(2, line('.'))
+call delete(s:dump_tmpdir, 'rf')
+
+" Dump/Load: dirty buffer embeds content
+let s:dump_tmpdir = tempname()
+call mkdir(s:dump_tmpdir, 'p')
+let s:dump_file = s:dump_tmpdir . '/vim.dump'
+silent! tabonly!
+silent! only!
+enew
+call setline(1, ['dirty1', 'dirty2', 'dirty3'])
+setlocal modified
+call cursor(2, 1)
+call exec#Dump(s:dump_file)
+let s:dump_lines = readfile(s:dump_file)
+call assert_match('^F1\t', s:dump_lines[3])
+call assert_match('dirty2', join(s:dump_lines, "\n"))
+" Load and verify content restored
+enew!
+call exec#Load(s:dump_file)
+call assert_equal(['dirty1', 'dirty2', 'dirty3'], getline(1, '$'))
+call assert_true(&modified)
+call delete(s:dump_tmpdir, 'rf')
+
 if len(v:errors)
 	for e in v:errors
 		echo e

@@ -252,6 +252,7 @@ var outlines = {
 	'bash':     '^\w\+\s*()',
 	'perl':     '^sub\s',
 	'python':   '^\(class\s\|def\s\|async\s\+def\s\)',
+	'vim':      '^\(export\s\+\)\?def\s',
 	'markdown': '^#\+\s',
 	}
 
@@ -264,7 +265,7 @@ export def Toc(pat: string = '')
 			add(items, {'bufnr': bufnr('%'), 'lnum': i, 'text': getline(i)})
 		endif
 	endfor
-	setloclist(0, [], 'r', {'title': 'Outline', 'items': items})
+	setloclist(0, [], 'r', {'title': 'TOC', 'items': items})
 	lwindow
 enddef
 

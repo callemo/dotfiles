@@ -46,7 +46,9 @@ vim_restore() {
 
 	case $prog in
 	*vim*)
-		if [ -f "$dir/Session.vim" ]; then
+		if [ -f "$dir/vim.dump" ]; then
+			tmux send-keys -t "$pane" "vim -c 'Load $dir/vim.dump'" C-m
+		elif [ -f "$dir/Session.vim" ]; then
 			tmux send-keys -t "$pane" 'vim -S Session.vim' C-m
 		else
 			tmux send-keys -t "$pane" 'vim' C-m

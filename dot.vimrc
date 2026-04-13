@@ -142,6 +142,9 @@ command! -nargs=? Toc call view.Toc(<f-args>)
 command!          Sort call view.Sort()
 command! -nargs=1 B    call view.Bufmatch(<q-args>)
 
+command! -nargs=? -complete=file Dump call exec.Dump(<q-args>)
+command! -nargs=? -complete=file Load call exec.Load(<q-args>)
+
 command! -range -nargs=? Send call exec.Tmux(<line1>, <line2>, <q-args>)
 
 # ── Leader ───────────────────────────────────────────────

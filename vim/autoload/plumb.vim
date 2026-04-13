@@ -38,6 +38,12 @@ enddef
 
 # Open dispatches the handling of an acquisition gesture.
 export def Do(wdir: string, attr: dict<any>, data: string)
+	# Quickfix/location list: jump to entry under cursor
+	if &buftype ==# 'quickfix'
+		exe "normal! \<CR>"
+		return
+	endif
+
 	var text = substitute(data, '[):.,;]\+$', '', '')
 	# URLs
 	var m = matchlist(text,
