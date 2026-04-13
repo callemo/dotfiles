@@ -41,7 +41,7 @@ set noswapfile
 set nowritebackup
 set complete-=i
 set nrformats-=octal
-set number
+set nonumber
 set path=.,,
 set shiftwidth=4
 set shortmess=atI
@@ -107,9 +107,9 @@ augroup dotfiles
 		\ | setl statusline=%{view#TermStatus()}
 		\ | nnoremap <buffer> q i
 	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call view.Dir('', true) | endif
-	# BufReadCmd matches trailing / (dir buffer names); BufReadPost catches :e .
+	# BufReadCmd matches trailing / (dir buffer names); BufEnter catches :e .
 	autocmd BufReadCmd */ call view.Dir(expand('<afile>:p'), true)
-	autocmd BufReadPost * if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
+	autocmd BufEnter * if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
 augroup END
 
 augroup filetypes
@@ -137,10 +137,13 @@ command! -nargs=? Lint call exec.Lint(<f-args>)
 command! -nargs=? -range=% Fmt call exec.Fmt(<line1>, <line2>, <f-args>)
 command! -nargs=* Rg call exec.Rg(<q-args>)
 command! -nargs=* Fts call exec.Fts(<q-args>)
-command! -nargs=? Toc call exec.Toc(<f-args>)
+command! -nargs=? Toc call view.Toc(<f-args>)
 
 command!          Sort call view.Sort()
 command! -nargs=1 B    call view.Bufmatch(<q-args>)
+
+command! -nargs=? -complete=file Dump call exec.Dump(<q-args>)
+command! -nargs=? -complete=file Load call exec.Load(<q-args>)
 
 command! -range -nargs=? Send call exec.Tmux(<line1>, <line2>, <q-args>)
 
@@ -153,6 +156,7 @@ nnoremap <silent> <leader>B <ScriptCmd>view.Browse()<CR>
 nnoremap <silent> <leader>y <ScriptCmd>exec.Yank(fnamemodify(expand('%:p'), ':.'))<CR>
 nnoremap <silent> <leader>Y <ScriptCmd>exec.Yank(expand('%:p'))<CR>
 nnoremap <leader>N :new <c-r>=expand('%:h')<CR>/
+nnoremap <silent> <leader>D <cmd>Dump<CR>
 nnoremap <leader>Q <ScriptCmd>view.Close('!')<CR>
 nnoremap <leader>f <cmd>Fmt<CR>
 nnoremap <leader>l <cmd>Lint<CR>
@@ -222,9 +226,9 @@ tnoremap <leader>z <cmd>resize<CR>
 tnoremap <scrollwheelup> <c-\><c-n>
 
 # ── Mouse ────────────────────────────────────────────────
-nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.Click2()<CR>
+nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.DblClick()<CR>
 nnoremap <silent> <C-LeftMouse> <ScriptCmd>view.Zoom()<CR>
-nnoremap <silent> <middlemouse> <leftmouse><ScriptCmd>exec.Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
+nnoremap <silent> <middlemouse> <leftmouse><ScriptCmd>view.MidClick()<CR>
 nnoremap <silent> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
 xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>

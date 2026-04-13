@@ -33,8 +33,8 @@ def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
 enddef
 
 # Cmd executes a command asynchronously via /bin/sh -c, output to +Errors.
-# Matches Acme's model: no-range runs cmd with no stdin; range pipes buffer lines.
-export def Cmd(cmd: string, range: number, line1: number, line2: number)
+# Matches Acme's model: no address runs cmd with no stdin; address pipes addressed lines.
+export def Cmd(cmd: string, addr: number, line1: number, line2: number)
 	var dir = expand('%:p:h')
 	var bufname = view#Scratch(dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
@@ -56,7 +56,7 @@ export def Cmd(cmd: string, range: number, line1: number, line2: number)
 		'cwd': dir,
 		'stoponexit': 'term'
 		}
-	if range > 0
+	if addr > 0
 		opts.in_io = 'buffer'
 		opts.in_buf = bufnr('%')
 		opts.in_top = line1
@@ -159,18 +159,6 @@ export def Rg(args: string)
 	botright lwindow
 enddef
 
-# Toc populates the location list with lines matching pat (default: markdown headings).
-export def Toc(pat: string = '^#\+\s')
-	var items = []
-	for i in range(1, line('$'))
-		if getline(i) =~ pat
-			add(items, {'bufnr': bufnr('%'), 'lnum': i, 'text': getline(i)})
-		endif
-	endfor
-	setloclist(0, [], 'r', {'title': 'Outline', 'items': items})
-	lwindow
-enddef
-
 # Fts runs fts and populates the location list.
 export def Fts(query: string)
 	if !executable('fts')
@@ -195,5 +183,229 @@ export def Tmux(line1: number, line2: number, target: string)
 		system('tmux loadb - \; pasteb -d -t ' .. shellescape(tgt), text)
 	else
 		system('tmux loadb - \; pasteb -d', text)
+	endif
+enddef
+
+# ── Dump/Load ────────────────────────────────────────────
+# Acme-style session dump/load.
+# Format: header + per-tab + per-window records.
+# Record types:
+#   f<tab> <win> <bufnr> <line> <col> <path>       clean file
+#   F<tab> <win> <bufnr> <line> <col> <nlines> <path>  dirty (content follows)
+#   x<tab> <win> <ref>   <line> <col>               zerox
+#   d<tab> <win> <path>                             directory
+
+# Dump saves the current state to file (default: $PWD/vim.dump).
+export def Dump(file: string = '')
+	var path = empty(file) ? getcwd() .. '/vim.dump' : fnamemodify(file, ':p')
+	var tmp = tempname()
+
+	var lines: list<string> = []
+
+	# Header: working directory, active tab
+	add(lines, getcwd())
+	add(lines, string(tabpagenr()))
+
+	# Track dumped buffers for zerox detection (Acme dumpid pattern)
+	var dumped: list<number> = []
+
+	for ti in range(1, tabpagenr('$'))
+		var wins = tabpagebuflist(ti)
+		if empty(wins)
+			continue
+		endif
+
+		add(lines, 't' .. ti)
+
+		for wi in range(1, len(wins))
+			var w = win_getid(wi, ti)
+			var info = getwininfo(w)[0]
+			var bnr = info.bufnr
+			var bt = getbufvar(bnr, '&buftype')
+			var ft = getbufvar(bnr, '&filetype')
+
+			# Skip special buffers (quickfix, help, terminal)
+			if bt =~# 'quickfix\|help\|terminal'
+				continue
+			endif
+
+			var lnum = line('.', w)
+			var cnum = col('.', w)
+
+			# Directory buffer (must have b:dir set by view#Dir)
+			if ft ==# 'dir'
+				var dpath = getbufvar(bnr, 'dir', '')
+				if !empty(dpath)
+					add(lines, 'd' .. ti .. "\t" .. wi .. "\t" .. dpath)
+					continue
+				endif
+				# ft=dir but no b:dir — fall through to file handling
+			endif
+
+			var bname = bufname(bnr)
+			var fpath = empty(bname) ? '' : fnamemodify(bname, ':p')
+
+			# Empty unnamed buffer — skip
+			if empty(fpath) && !getbufvar(bnr, '&modified') && getbufline(bnr, 1, '$') == ['']
+				continue
+			endif
+
+			# Zerox: buffer already dumped, this is a second window
+			if index(dumped, bnr) >= 0
+				add(lines, 'x' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum)
+				continue
+			endif
+
+			add(dumped, bnr)
+
+			if !getbufvar(bnr, '&modified') && !empty(fpath) && filereadable(fpath)
+				# f: clean file on disk
+				add(lines, 'f' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. fpath)
+			else
+				# F: dirty or new file — embed content
+				var content = getbufline(bnr, 1, '$')
+				add(lines, 'F' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
+				extend(lines, content)
+			endif
+		endfor
+	endfor
+
+	# Atomic write via tempfile + rename (Acme pattern)
+	writefile(lines, tmp)
+	if rename(tmp, path) != 0
+		g:Err('Dump: rename failed')
+		delete(tmp)
+		return
+	endif
+	echo 'Dumped to ' .. fnamemodify(path, ':~')
+enddef
+
+# Load restores state from file (default: $PWD/vim.dump).
+export def Load(file: string = '')
+	var path = empty(file) ? getcwd() .. '/vim.dump' : fnamemodify(file, ':p')
+	if !filereadable(path)
+		g:Err('Load: file not found: ' .. path)
+		return
+	endif
+
+	var lines = readfile(path)
+	if len(lines) < 2
+		g:Err('Load: invalid dump file')
+		return
+	endif
+
+	var idx = 0
+	var wdir = lines[idx]
+	idx += 1
+	var activetab = str2nr(lines[idx])
+	idx += 1
+
+	# Change to saved working directory
+	if isdirectory(wdir)
+		noautocmd execute 'cd' fnameescape(wdir)
+	endif
+
+	# Map old bufnr → new bufnr for zerox references
+	var bufmap: dict<number> = {}
+
+	# Close all windows except one (clean slate)
+	silent! noautocmd tabonly!
+	silent! noautocmd only!
+	noautocmd enew!
+
+	var curtab = 1
+	var firstwin = true
+
+	while idx < len(lines)
+		var line = lines[idx]
+		idx += 1
+
+		var rectype = line[0]
+		var parts = split(line[1 :], "\t")
+
+		if rectype ==# 't'
+			var tn = str2nr(parts[0])
+			if tn > curtab
+				noautocmd tabnew
+				curtab = tn
+			endif
+			firstwin = true
+			continue
+		endif
+
+		# All window records: split unless first window
+		if !firstwin
+			noautocmd split
+		endif
+		firstwin = false
+
+		if rectype ==# 'f'
+			# f<tab> <win> <bufnr> <line> <col> <path>
+			var oldbnr = str2nr(parts[2])
+			var lnum = str2nr(parts[3])
+			var cnum = str2nr(parts[4])
+			var fpath = parts[5]
+
+			if filereadable(fpath)
+				silent execute 'edit' fnameescape(fpath)
+			else
+				noautocmd enew
+				silent execute 'file' fnameescape(fpath)
+			endif
+			bufmap[string(oldbnr)] = bufnr()
+			cursor(lnum, cnum)
+
+		elseif rectype ==# 'F'
+			# F<tab> <win> <bufnr> <line> <col> <nlines> <path>
+			var oldbnr = str2nr(parts[2])
+			var lnum = str2nr(parts[3])
+			var cnum = str2nr(parts[4])
+			var nlines = str2nr(parts[5])
+			var fpath = len(parts) > 6 ? parts[6] : ''
+
+			# Read embedded content
+			var content: list<string> = []
+			for _ in range(nlines)
+				if idx < len(lines)
+					add(content, lines[idx])
+					idx += 1
+				endif
+			endfor
+
+			if !empty(fpath)
+				silent execute 'edit' fnameescape(fpath)
+			else
+				noautocmd enew
+			endif
+			bufmap[string(oldbnr)] = bufnr()
+
+			silent! :%delete _
+			setline(1, content)
+			setlocal modified
+			cursor(lnum, cnum)
+
+		elseif rectype ==# 'x'
+			# x<tab> <win> <ref> <line> <col>
+			var refbnr = str2nr(parts[2])
+			var lnum = str2nr(parts[3])
+			var cnum = str2nr(parts[4])
+
+			var newbnr = get(bufmap, string(refbnr), -1)
+			if newbnr > 0
+				silent execute 'buffer' newbnr
+			endif
+			cursor(lnum, cnum)
+
+		elseif rectype ==# 'd'
+			# d<tab> <win> <path>
+			var dpath = parts[2]
+			noautocmd enew
+			call view#Dir(dpath, true)
+		endif
+	endwhile
+
+	# Restore active tab
+	if activetab > 0 && activetab <= tabpagenr('$')
+		silent execute 'tabnext' activetab
 	endif
 enddef
