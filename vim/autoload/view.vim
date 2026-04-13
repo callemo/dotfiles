@@ -191,7 +191,7 @@ export def Dir(path: string, replace: bool = false)
 	var d = empty(path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(path, ':p')
 	d = d =~# '/$' ? d : d .. '/'
 	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
-		silent execute ':%!/bin/ls -1ap ' .. shellescape(d)
+		silent execute ':%!/bin/ls -1ap ' .. shellescape(d) .. ' | grep -v "^\\.\\.\\?/$"'
 		setlocal nomodified
 		return
 	endif
@@ -201,7 +201,7 @@ export def Dir(path: string, replace: bool = false)
 		silent noautocmd execute 'new ' .. fnameescape(d)
 	endif
 	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
-	silent execute ':%!/bin/ls -1ap ' .. shellescape(d)
+	silent execute ':%!/bin/ls -1ap ' .. shellescape(d) .. ' | grep -v "^\\.\\.\\?/$"'
 	setlocal nomodified
 	b:dir = d
 	# Dir keybindings: CR/- reuse window; rightmouse plumb (split); middlemouse execute
