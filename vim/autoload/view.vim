@@ -98,11 +98,12 @@ export def Zoom()
 	endif
 enddef
 
-# MidClick: middle-click statusline zooms (active window), body executes word.
+# MidClick: middle-click statusline zooms window, body executes word.
 export def MidClick()
 	var m = getmousepos()
-	if m.winid == win_getid() && m.winrow > winheight(0)
-		resize
+	var w = m.winid
+	if w != 0 && m.winrow > winheight(win_id2win(w))
+		win_execute(w, 'resize')
 		return
 	endif
 	exec.Cmd(expand('<cWORD>'), 0, 0, 0)
