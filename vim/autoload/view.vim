@@ -98,20 +98,13 @@ export def Zoom()
 	endif
 enddef
 
-# MidClick: middle-click statusline zooms, body executes word.
+# MidClick: middle-click statusline zooms (active window), body executes word.
 export def MidClick()
 	var m = getmousepos()
-	var w = m.winid
-	if w == 0
-		return
-	endif
-	if m.winrow > winheight(win_id2win(w))
-		win_gotoid(w)
+	if m.winid == win_getid() && m.winrow > winheight(0)
 		resize
 		return
 	endif
-	win_gotoid(w)
-	cursor(m.line, m.column)
 	exec.Cmd(expand('<cWORD>'), 0, 0, 0)
 enddef
 
@@ -231,8 +224,8 @@ export def Dir(path: string, replace: bool = false)
 	nnoremap <silent> <buffer> - <ScriptCmd>Dir(fnamemodify(b:dir, ':h:h'), true)<CR>
 	# Explicit <c-j> to prevent global <CR> mapping from shadowing it
 	nnoremap <silent> <buffer> <c-j> <ScriptCmd>Next()<CR>
-	nnoremap <silent> <buffer> <leader>R <ScriptCmd>RenameItem()<CR>
-	nnoremap <silent> <buffer> <leader>D <ScriptCmd>DeleteItem()<CR>
+	nnoremap <silent> <buffer> <leader>r <ScriptCmd>RenameItem()<CR>
+	nnoremap <silent> <buffer> <leader>d <ScriptCmd>DeleteItem()<CR>
 enddef
 
 # Browse: toggle the directory buffer.

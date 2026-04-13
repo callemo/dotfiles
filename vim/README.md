@@ -17,7 +17,7 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
 
                  Button 2 executes the selected text or word under cursor
                  as a shell command. Output appears in an Errors buffer.
-                 On the status line, zooms the window (same as ctrl-click).
+                 On the active window's status line, zooms the window.
 
                  Button 3 locates or acquires the file described by the
                  indicated text. If the text is a URL, open the browser.
@@ -37,10 +37,10 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
               Directory buffers
                  In directory buffers, additional bindings apply:
 
-                      CR   Open file or descend into directory
-                      -    Go up one directory level
-                      R    Rename item under cursor
-                      D    Delete item under cursor
+                      CR       Open file or descend into directory
+                      -        Go up one directory level
+                      r        Rename item under cursor (leader)
+                      d        Delete item under cursor (leader)
 
               Commands
                  Commands have a simple and regular structure: a command
@@ -82,10 +82,11 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
 
                       !        Prompt for shell command
                       CR       Plumb word or selection
-                      <space>  Expand selection to structural block
+                      space    Expand selection to structural block
                       .        Change local directory to file's directory
                       ;        Send line to tmux pane
                       B        Toggle directory browser
+                      D        Dump session state
                       N        New file in current file's directory
                       f        Format buffer
                       l        Lint buffer
