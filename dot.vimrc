@@ -225,9 +225,9 @@ tnoremap <leader>z <cmd>resize<CR>
 tnoremap <scrollwheelup> <c-\><c-n>
 
 # ── Mouse ────────────────────────────────────────────────
-nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.Click2()<CR>
+nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.DblClick()<CR>
 nnoremap <silent> <C-LeftMouse> <ScriptCmd>view.Zoom()<CR>
-nnoremap <silent> <middlemouse> <leftmouse><ScriptCmd>exec.Cmd(expand('<cWORD>'), 0, 0, 0)<CR>
+nnoremap <silent> <middlemouse> <ScriptCmd>view.MidClick()<CR>
 nnoremap <silent> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
 xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>

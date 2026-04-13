@@ -69,8 +69,8 @@ export def Expand()
 	exe "normal! \<Esc>vi" .. obj[c]
 enddef
 
-# Click2: double-click statusline closes window, body expands structural block or word.
-export def Click2()
+# DblClick: double-click statusline closes window, body expands structural block or word.
+export def DblClick()
 	var m = getmousepos()
 	var w = m.winid
 	if w == 0
@@ -96,6 +96,23 @@ export def Zoom()
 	if m.winrow > winheight(win_id2win(w))
 		win_execute(w, 'resize')
 	endif
+enddef
+
+# MidClick: middle-click statusline zooms, body executes word.
+export def MidClick()
+	var m = getmousepos()
+	var w = m.winid
+	if w == 0
+		return
+	endif
+	if m.winrow > winheight(win_id2win(w))
+		win_gotoid(w)
+		resize
+		return
+	endif
+	win_gotoid(w)
+	cursor(m.line, m.column)
+	exec.Cmd(expand('<cWORD>'), 0, 0, 0)
 enddef
 
 # Sort: sort visible windows by buffer name.

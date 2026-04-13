@@ -17,6 +17,7 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
 
                  Button 2 executes the selected text or word under cursor
                  as a shell command. Output appears in an Errors buffer.
+                 On the status line, zooms the window (same as ctrl-click).
 
                  Button 3 locates or acquires the file described by the
                  indicated text. If the text is a URL, open the browser.
