@@ -1,99 +1,127 @@
-NAME             vimrc -- personal editor configuration
+NAME             vimrc -- text editor configuration
 
 SYNOPSIS         vim
 
-DESCRIPTION      Dot.vimrc configures Vim 9.1 as a text processing environment.
-                 It requires vim9script. No plugins are required for core operation.
+DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
+                 Plain files display as text; directories display as
+                 lists of their components, with subdirectory names
+                 suffixed by a slash.
 
-                 Four autoload modules supply all custom logic:
+              Mouse
+                 The behavior of each mouse button is as follows.
 
-                 plumb
-                      Route text to the appropriate handler. Given a word
-                      or selection, try in order: URL, wiki link, file:line,
-                      file, directory, text search. URLs open in the system
-                      browser.
+                 Button 1 selects text. Double-clicking on a bracket or
+                 quote selects contents between delimiters; otherwise
+                 selects the word. Double-clicking the status line closes
+                 the window. Ctrl-click zooms the window.
 
-                 exec
-                      Run external commands. Cmd runs a shell command
-                      asynchronously. Lint and Fmt dispatch to per-filetype
-                      linters and formatters. Rg greps. Fts does full-text search.
-                      Tmux sends lines to a tmux pane. Yank copies text via OSC 52.
+                 Button 2 executes the selected text or word under cursor
+                 as a shell command. Output appears in an Errors buffer.
 
-                 view
-                      Manage windows and buffers. Expand selects the
-                      structural block at the cursor. Next and Prev cycle
-                      focus across Vim windows and tmux panes. Dir reads
-                      a directory into a scratch buffer. Close quits the
-                      last window. Sort orders windows by name. Selection
-                      returns the visual selection. Toc populates the
-                      location list with an outline. Trim strips trailing
-                      whitespace.
+                 Button 3 locates or acquires the file described by the
+                 indicated text. If the text is a URL, open the browser.
+                 If the text is a wiki link ([[name]]), open it. If the
+                 text names an existing file, open it. If the text is a
+                 file name followed by a colon and line number (file.c:27),
+                 open the file and go to that line. In a quickfix buffer,
+                 jump to the entry under cursor. Otherwise search for the
+                 text in the current buffer.
 
-                 plugins
-                      Lazy loaders for optional packages.
+              Directory context
+                 Each window's buffer names a directory: explicitly if the
+                 window holds a directory; implicitly if it holds a file.
+                 This directory provides context for interpreting relative
+                 file names.
 
-                 Commands have a simple and regular structure:
+              Directory buffers
+                 In directory buffers, additional bindings apply:
 
-                 :Cmd cmd
-                      Run cmd; pipe addressed lines as stdin.
-                 :Send [target]
-                      Send line or selection to tmux pane.
-                 :Lint [filetype]
-                      Run linter.
-                 :Fmt [filetype]
-                      Run formatter.
-                 :Rg args
-                      Grep to location list.
-                 :Fts query
-                      Full-text search to location list.
-                 :Toc [pattern]
-                      Outline to location list.
-                 :Sort
-                      Sort windows by buffer name.
-                 :B /regex/[D]
-                      List or delete matching buffers.
+                      CR   Open file or descend into directory
+                      -    Go up one directory level
+                      R    Rename item under cursor
+                      D    Delete item under cursor
 
-                 Key bindings are as follows:
+              Commands
+                 Commands have a simple and regular structure: a command
+                 name, possibly followed by arguments. Some commands are
+                 built-ins executed directly by vimrc:
 
-                 Leader (space)
-                      ! Prompt for Cmd.
-                      . lcd to file's directory.
-                      ; Send to tmux.
-                      CR Plumb.
-                      B Toggle directory browser.
-                      N New split in file's directory.
-                      y Copy relative path.
-                      Y Copy absolute path.
-                      Q Force-close buffer.
-                      f Format.
-                      l Lint.
-                      q Close buffer.
-                      z Zoom window.
+                 Dump Write the state of vim to the file name, if specified,
+                      or $HOME/vim.dump by default. Tab pages, windows,
+                      cursor positions, and unsaved buffer contents are
+                      recorded.
 
-                 Visual
-                      <leader>! Execute selection.
-                      <leader>; Send selection to tmux.
-                      <leader>CR Plumb selection.
-                      * Literal search for selection.
+                 Load Restore the state of vim from a file (default
+                      $HOME/vim.dump) created by the Dump command.
 
-                 Brackets
-                      ]a [a Next/previous argument.
-                      ]b [b Next/previous buffer.
-                      ]l [l Next/previous location.
-                      ]q [q Next/previous quickfix.
-                      ]t [t Next/previous tab.
+                 Toc  Populate location list with an outline of the current
+                      buffer. Patterns are per-filetype.
 
-                 Toggles (yo)
-                      b Background. h Hlsearch. i Ignorecase.
-                      l List. n Number. p Paste.
-                      r Relativenumber. s Spell. w Wrap.
+                 Sort Arrange windows in the tab from top to bottom in
+                      lexicographical order based on their names.
 
-                 Control
-                      C-j Next window/tmux pane.
-                      C-k Previous window/tmux pane.
-                      C-l Clear search, redraw.
+                 Cmd  Run a shell command. Addressed lines become stdin;
+                      output replaces them or appears in Errors.
 
-FILES            /tmp/Errors temporary
-                 dot.vimrc is used to implement the configuration.
+                 Fmt  Run per-filetype formatter on buffer.
+
+                 Lint Run per-filetype linter; output to Errors buffer.
+
+                 Rg   Grep; output to location list.
+
+                 Fts  Full-text search; output to location list.
+
+                 Send Send line or selection to a tmux pane.
+
+                 B    List buffers matching regex; with trailing D, delete
+                      them.
+
+              Keybindings
+                 Leader is space. Bindings:
+
+                      !        Prompt for shell command
+                      CR       Plumb word or selection
+                      <space>  Expand selection to structural block
+                      .        Change local directory to file's directory
+                      ;        Send line to tmux pane
+                      B        Toggle directory browser
+                      N        New file in current file's directory
+                      f        Format buffer
+                      l        Lint buffer
+                      q        Close buffer
+                      Q        Force-close buffer
+                      y        Yank relative path to clipboard
+                      Y        Yank absolute path to clipboard
+                      z        Zoom window
+
+                 In visual mode, ! executes selection, ; sends selection
+                 to tmux, CR plumbs selection, and * searches for selection.
+
+                 Brackets navigate:
+
+                      ]a [a    Next/previous argument
+                      ]b [b    Next/previous buffer
+                      ]l [l    Next/previous location
+                      ]q [q    Next/previous quickfix
+                      ]t [t    Next/previous tab
+
+                 Toggles (yo prefix):
+
+                      b  Background     h  Hlsearch      i  Ignorecase
+                      l  List           n  Number        p  Paste
+                      r  Relativenumber s  Spell         w  Wrap
+
+                 Control keys:
+
+                      C-j  Next window or tmux pane
+                      C-k  Previous window or tmux pane
+                      C-l  Clear search, redraw
+                      C-p  FZF file finder
+                      +    Grow window height
+
+FILES            $HOME/vim.dump
+                      default file for Dump and Load
+
+SEE ALSO         acme(1)
 
 OWNER            cgj
