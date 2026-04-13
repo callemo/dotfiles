@@ -1,0 +1,3 @@
+#!/bin/sh
+# Mock for tests to prevent opening the system browser
+exit 0
