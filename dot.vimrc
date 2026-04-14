@@ -157,6 +157,7 @@ nnoremap <silent> <leader>y <ScriptCmd>exec.Yank(fnamemodify(expand('%:p'), ':.'
 nnoremap <silent> <leader>Y <ScriptCmd>exec.Yank(expand('%:p'))<CR>
 nnoremap <leader>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <silent> <leader>D <cmd>Dump<CR>
+nnoremap <silent> <leader>E <cmd>Dump<CR><cmd>qall<CR>
 nnoremap <leader>Q <ScriptCmd>view.Close('!')<CR>
 nnoremap <leader>f <cmd>Fmt<CR>
 nnoremap <leader>l <cmd>Lint<CR>

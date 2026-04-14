@@ -202,6 +202,8 @@ call assert_true(exists('*exec#Dump'))
 call assert_true(exists('*exec#Load'))
 call assert_true(exists(':Dump'))
 call assert_true(exists(':Load'))
+let s:dk_map = maparg('<leader>E', 'n', 0, 1)
+call assert_true(!empty(s:dk_map))
 
 " Dump/Load: round-trip preserves clean file
 let s:dump_tmpdir = tempname()
