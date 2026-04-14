@@ -36,6 +36,9 @@ Four autoload modules: `plumb` (routing), `exec` (commands), `view` (windows/buf
 - Terminal `<c-w>:` mappings use legacy `call module#Func()` syntax
 - Circular imports avoided via legacy `module#Func()` (plumb→view uses `view#Dir()`)
 - `test.vim` needs `runtime autoload/module.vim` before `exists()` checks
+- `<cmd>Cmd \| next<CR>` passes `\| next` as arg when `Cmd` takes `-nargs=?`; use two `<cmd>…<CR>` pairs instead
+- `<leader>D` dumps session to `$PWD/vim.dump`; `<leader>E` dumps and quits (mnemonic: Acme's Exit) (`qall` — like Acme's `Exit`, no force)
+- `vim.dump` is in the global gitignore (`~/.gitignore`)
 
 ## Snippet System (`bin/snip`)
 Python code generator using `IndentBuilder`; snippets registered via `@snippet` decorator. Categories: sh*, go*, awk*, py*, n*.

@@ -21,7 +21,7 @@ The script won't overwrite existing files.
 To use the utilities, add `bin/` to your PATH or source `init.sh`:
 
 ```sh
-source ~/dotfiles/init.sh
+. ~/dotfiles/init.sh
 ```
 
 ## Some Useful Tools

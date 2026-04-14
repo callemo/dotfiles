@@ -89,6 +89,7 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
                       ;        Send line to tmux pane
                       B        Toggle directory browser
                       D        Dump session state
+                     E        Dump session state and exit
                       N        New file in current file's directory
                       f        Format buffer
                       l        Lint buffer
