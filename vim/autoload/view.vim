@@ -8,6 +8,7 @@ export def Scratch(suffix: string): string
 	var bufname = suffix[0] == '/' ? suffix : getcwd() .. suffix
 	if !bufexists(bufname)
 		var bnr = bufnr(bufname, 1)
+		setbufvar(bnr, '&bufhidden', 'wipe')
 		setbufvar(bnr, '&buflisted', 1)
 		setbufvar(bnr, '&buftype', 'nofile')
 		setbufvar(bnr, '&number', 0)
