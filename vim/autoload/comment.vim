@@ -14,7 +14,7 @@ export def Toggle(type = ''): string
 	var uncomment = true
 	for nr in range(lnum1, lnum2)
 		var line = getline(nr)
-		if line =~ '\S' && line !~ '^\s*' .. lp
+		if line =~ '\S' && line !~ '^' .. lp
 			uncomment = false
 			break
 		endif
@@ -23,9 +23,9 @@ export def Toggle(type = ''): string
 	for nr in range(lnum1, lnum2)
 		var line = getline(nr)
 		if uncomment
-			line = substitute(line, '^\(\s*\)' .. lp .. '\m \?', '\1', '')
+			line = substitute(line, '^' .. lp .. '\m \?', '', '')
 		elseif line =~ '\S'
-			line = substitute(line, '^\(\s*\)', '\1' .. l .. ' ', '')
+			line = l .. ' ' .. line
 		endif
 		add(lines, line)
 	endfor
