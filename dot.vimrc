@@ -104,7 +104,7 @@ augroup dotfiles
 
 	autocmd TerminalWinOpen *
 		\ setl nonumber
-		\ | setl statusline=%{view#TermStatus()}
+		\ | setl statusline=%{%view#TermStatus()%}
 		\ | nnoremap <buffer> q i
 	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call view.Dir('', true) | endif
 	# BufReadCmd matches trailing / (dir buffer names); BufEnter catches :e .

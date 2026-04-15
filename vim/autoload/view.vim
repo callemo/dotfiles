@@ -334,17 +334,38 @@ export def TabLabel(n: number): string
 	return label
 enddef
 
-# TermStatus returns a compact status line for terminal buffers.
+# TermStatus returns a terminal status line matching the normal layout.
 export def TermStatus(): string
+	var cwd = fnamemodify(getcwd(), ':t')
+	var cmd = 'terminal'
+	var pid = ''
+	var status = ''
 	var job = term_getjob(bufnr('%'))
-	if job == v:null
-		return ''
+	if job != v:null
+		var info = job_info(job)
+		if has_key(info, 'cwd') && !empty(info.cwd)
+			cwd = fnamemodify(info.cwd, ':t')
+		endif
+		if has_key(info, 'cmd') && len(info.cmd) > 0
+			var tail = split(info.cmd[-1], '/')[-1]
+			var words = split(tail)
+			if !empty(words)
+				cmd = words[0]
+			elseif !empty(tail)
+				cmd = tail
+			endif
+		endif
+		if has_key(info, 'process')
+			pid = string(info.process)
+		endif
+		status = has_key(info, 'status') ? toupper(info.status) : ''
 	endif
-	var info = job_info(job)
-	var status = info.status
-	var cmd = len(info.cmd) > 0 ? split(info.cmd[0], '/')[-1] : 'unknown'
-	var pid = has_key(info, 'process') ? info.process : 'no-pid'
-	var bnr = bufnr('%')
-	var cwd = has_key(info, 'cwd') ? fnamemodify(info.cwd, ':t') : fnamemodify(getcwd(), ':t')
-	return printf('%d [%s] %s(%s) %s', bnr, cwd, cmd, pid, toupper(status))
+
+	var file = pid == '' ? cmd : cmd .. '(' .. pid .. ')'
+	if !empty(status)
+		file ..= ' ' .. status
+	endif
+	var lhs = substitute(cwd, '%', '%%', 'g') .. ' › ' .. substitute(file, '%', '%%', 'g')
+	var rhs = '[term]'
+	return lhs .. '%=' .. rhs
 enddef
