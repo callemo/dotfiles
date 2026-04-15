@@ -211,6 +211,9 @@ export def Dir(path: string, replace: bool = false)
 	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
 	silent execute ':%!/bin/ls -1ap ' .. shellescape(d) .. ' | grep -v "^\\.\\.\\?/$"'
 	setlocal nomodified
+	if !replace
+		exe 'resize' min([max([3, line('$')]), &lines / 2])
+	endif
 	b:dir = d
 	# Dir keybindings: CR/- reuse window; rightmouse plumb (split); middlemouse execute
 	nnoremap <silent> <buffer> <CR> <ScriptCmd>Open(Entry())<CR>

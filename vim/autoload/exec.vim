@@ -177,6 +177,7 @@ enddef
 # Acme-style session dump/load.
 # Format: header + per-tab + per-window records.
 # Record types:
+#   t<N> [<height>...]                                tab (heights optional)
 #   f<tab> <win> <bufnr> <line> <col> <path>       clean file
 #   F<tab> <win> <bufnr> <line> <col> <nlines> <path>  dirty (content follows)
 #   x<tab> <win> <ref>   <line> <col>               zerox
@@ -202,7 +203,9 @@ export def Dump(file: string = '')
 			continue
 		endif
 
+		var tline_idx = len(lines)
 		add(lines, 't' .. ti)
+		var heights: list<number> = []
 
 		for wi in range(1, len(wins))
 			var w = win_getid(wi, ti)
@@ -224,6 +227,7 @@ export def Dump(file: string = '')
 				var dpath = getbufvar(bnr, 'dir', '')
 				if !empty(dpath)
 					add(lines, 'd' .. ti .. "\t" .. wi .. "\t" .. dpath)
+					add(heights, info.height)
 					continue
 				endif
 				# ft=dir but no b:dir — fall through to file handling
@@ -240,6 +244,7 @@ export def Dump(file: string = '')
 			# Zerox: buffer already dumped, this is a second window
 			if index(dumped, bnr) >= 0
 				add(lines, 'x' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum)
+				add(heights, info.height)
 				continue
 			endif
 
@@ -254,7 +259,13 @@ export def Dump(file: string = '')
 				add(lines, 'F' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
 				extend(lines, content)
 			endif
+			add(heights, info.height)
 		endfor
+
+		# Update t record with window heights
+		if !empty(heights)
+			lines[tline_idx] = 't' .. ti .. "\t" .. join(map(copy(heights), (_, v) => string(v)), "\t")
+		endif
 	endfor
 
 	# Atomic write via tempfile + rename (Acme pattern)
@@ -302,6 +313,8 @@ export def Load(file: string = '')
 
 	var curtab = 1
 	var firstwin = true
+	var tabwins: list<number> = []
+	var tabheights: list<string> = []
 
 	while idx < len(lines)
 		var line = lines[idx]
@@ -311,6 +324,15 @@ export def Load(file: string = '')
 		var parts = split(line[1 :], "\t")
 
 		if rectype ==# 't'
+			# Apply pending heights from previous tab
+			for i in range(min([len(tabheights), len(tabwins)]))
+				var h = str2nr(tabheights[i])
+				if h > 0
+					win_execute(tabwins[i], 'resize ' .. h)
+				endif
+			endfor
+			tabwins = []
+			tabheights = len(parts) > 1 ? parts[1 :] : []
 			var tn = str2nr(parts[0])
 			if tn > curtab
 				noautocmd tabnew
@@ -389,7 +411,17 @@ export def Load(file: string = '')
 			noautocmd enew
 			call view#Dir(dpath, true)
 		endif
+
+		add(tabwins, win_getid())
 	endwhile
+
+	# Apply heights for last tab
+	for i in range(min([len(tabheights), len(tabwins)]))
+		var h = str2nr(tabheights[i])
+		if h > 0
+			win_execute(tabwins[i], 'resize ' .. h)
+		endif
+	endfor
 
 	# Restore active tab
 	if activetab > 0 && activetab <= tabpagenr('$')
