@@ -146,19 +146,6 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 	checktime
 enddef
 
-# Rg executes the ripgrep program loading its results on the location list.
-export def Rg(args: string)
-	if !executable('rg')
-		g:Err('ripgrep not found')
-		return
-	endif
-	var oprg = &grepprg
-	&grepprg = 'rg --vimgrep'
-	execute 'lgrep' args
-	&grepprg = oprg
-	botright lwindow
-enddef
-
 # Fts runs fts and populates the location list.
 export def Fts(query: string)
 	if !executable('fts')

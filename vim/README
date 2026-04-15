@@ -70,8 +70,6 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
 
                  Lint Run per-filetype linter; output to Errors buffer.
 
-                 Rg   Grep; output to location list.
-
                  Fts  Full-text search; output to location list.
 
                  Send Send line or selection to a tmux pane.
