@@ -89,6 +89,7 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
                       D        Dump session state
                      E        Dump session state and exit
                       N        New file in current file's directory
+                      c        Toggle comment (operator: c{motion}, cc)
                       f        Format buffer
                       l        Lint buffer
                       q        Close buffer

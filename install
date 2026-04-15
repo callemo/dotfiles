@@ -74,7 +74,6 @@ while read -r flag url; do
 		./vim/get "$flag" </dev/null || fatal "vim plugin failed: $flag"
 	fi
 done <<EOF
-https://github.com/tpope/vim-commentary
 https://github.com/tpope/vim-eunuch
 https://github.com/tpope/vim-fugitive
 https://github.com/tpope/vim-repeat

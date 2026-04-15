@@ -7,6 +7,7 @@ if root != ''
 	$PATH = root .. '/acme:' .. $PATH
 endif
 
+import autoload 'comment.vim'
 import autoload 'exec.vim'
 import autoload 'plugins.vim'
 import autoload 'plumb.vim'
@@ -158,6 +159,9 @@ nnoremap <leader>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <silent> <leader>D <cmd>Dump<CR>
 nnoremap <silent> <leader>E <cmd>Dump<CR><cmd>qall<CR>
 nnoremap <leader>Q <ScriptCmd>view.Close('!')<CR>
+nnoremap <expr> <leader>c comment.Toggle()
+nnoremap <expr> <leader>cc comment.Toggle() .. '_'
+xnoremap <expr> <leader>c comment.Toggle()
 nnoremap <leader>f <cmd>Fmt<CR>
 nnoremap <leader>l <cmd>Lint<CR>
 nnoremap <leader>q <ScriptCmd>view.Close('')<CR>
