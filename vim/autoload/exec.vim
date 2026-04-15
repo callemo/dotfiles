@@ -24,11 +24,11 @@ def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
 			deletebufline(bnr, 1)
 		endif
 		exe 'sbuffer' bnr
-		cursor(line('$'), 1)
 		if code > 0
 			append(line('$'), name .. ': exit ' .. code)
-			cursor(line('$'), 1)
 		endif
+		cursor(line('$'), 1)
+		exe 'resize' min([max([3, line('$')]), &lines / 2])
 	endif
 enddef
 
@@ -109,7 +109,7 @@ export def Lint(ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
 	checktime
 enddef
 
@@ -142,21 +142,8 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
 	checktime
-enddef
-
-# Rg executes the ripgrep program loading its results on the location list.
-export def Rg(args: string)
-	if !executable('rg')
-		g:Err('ripgrep not found')
-		return
-	endif
-	var oprg = &grepprg
-	&grepprg = 'rg --vimgrep'
-	execute 'lgrep' args
-	&grepprg = oprg
-	botright lwindow
 enddef
 
 # Fts runs fts and populates the location list.
@@ -169,7 +156,7 @@ export def Fts(query: string)
 		'title': 'Fts ' .. query,
 		'lines': systemlist('fts ' .. shellescape(query) .. ' | cut -f 1,2'),
 		'efm': '%f	%m'})
-	lwindow
+	exe 'lwindow' min([max([3, len(getloclist(0))]), &lines / 2])
 enddef
 
 # SendToTmux sends lines to a tmux pane.
@@ -190,8 +177,10 @@ enddef
 # Acme-style session dump/load.
 # Format: header + per-tab + per-window records.
 # Record types:
+#   t<N> [<height>...]                                tab (heights optional)
 #   f<tab> <win> <bufnr> <line> <col> <path>       clean file
 #   F<tab> <win> <bufnr> <line> <col> <nlines> <path>  dirty (content follows)
+#   s<tab> <win> <bufnr> <line> <col> <nlines> <path>  scratch (nofile, content follows)
 #   x<tab> <win> <ref>   <line> <col>               zerox
 #   d<tab> <win> <path>                             directory
 
@@ -215,7 +204,9 @@ export def Dump(file: string = '')
 			continue
 		endif
 
+		var tline_idx = len(lines)
 		add(lines, 't' .. ti)
+		var heights: list<number> = []
 
 		for wi in range(1, len(wins))
 			var w = win_getid(wi, ti)
@@ -237,6 +228,7 @@ export def Dump(file: string = '')
 				var dpath = getbufvar(bnr, 'dir', '')
 				if !empty(dpath)
 					add(lines, 'd' .. ti .. "\t" .. wi .. "\t" .. dpath)
+					add(heights, info.height)
 					continue
 				endif
 				# ft=dir but no b:dir — fall through to file handling
@@ -253,12 +245,18 @@ export def Dump(file: string = '')
 			# Zerox: buffer already dumped, this is a second window
 			if index(dumped, bnr) >= 0
 				add(lines, 'x' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum)
+				add(heights, info.height)
 				continue
 			endif
 
 			add(dumped, bnr)
 
-			if !getbufvar(bnr, '&modified') && !empty(fpath) && filereadable(fpath)
+			# s: scratch buffer (nofile) — embed content
+			if bt ==# 'nofile'
+				var content = getbufline(bnr, 1, '$')
+				add(lines, 's' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
+				extend(lines, content)
+			elseif !getbufvar(bnr, '&modified') && !empty(fpath) && filereadable(fpath)
 				# f: clean file on disk
 				add(lines, 'f' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. fpath)
 			else
@@ -267,7 +265,13 @@ export def Dump(file: string = '')
 				add(lines, 'F' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
 				extend(lines, content)
 			endif
+			add(heights, info.height)
 		endfor
+
+		# Update t record with window heights
+		if !empty(heights)
+			lines[tline_idx] = 't' .. ti .. "\t" .. join(map(copy(heights), (_, v) => string(v)), "\t")
+		endif
 	endfor
 
 	# Atomic write via tempfile + rename (Acme pattern)
@@ -315,6 +319,8 @@ export def Load(file: string = '')
 
 	var curtab = 1
 	var firstwin = true
+	var tabwins: list<number> = []
+	var tabheights: list<string> = []
 
 	while idx < len(lines)
 		var line = lines[idx]
@@ -324,6 +330,15 @@ export def Load(file: string = '')
 		var parts = split(line[1 :], "\t")
 
 		if rectype ==# 't'
+			# Apply pending heights from previous tab
+			for i in range(min([len(tabheights), len(tabwins)]))
+				var h = str2nr(tabheights[i])
+				if h > 0
+					win_execute(tabwins[i], 'resize ' .. h)
+				endif
+			endfor
+			tabwins = []
+			tabheights = len(parts) > 1 ? parts[1 :] : []
 			var tn = str2nr(parts[0])
 			if tn > curtab
 				noautocmd tabnew
@@ -401,8 +416,39 @@ export def Load(file: string = '')
 			var dpath = parts[2]
 			noautocmd enew
 			call view#Dir(dpath, true)
+
+		elseif rectype ==# 's'
+			# s<tab> <win> <bufnr> <line> <col> <nlines> <path>
+			var lnum = str2nr(parts[3])
+			var cnum = str2nr(parts[4])
+			var nlines = str2nr(parts[5])
+			var fpath = len(parts) > 6 ? parts[6] : ''
+
+			var content: list<string> = []
+			for _ in range(nlines)
+				if idx < len(lines)
+					add(content, lines[idx])
+					idx += 1
+				endif
+			endfor
+
+			exe 'buffer' view#Scratch(fpath)
+			silent! :%delete _
+			setline(1, content)
+			setlocal nomodified
+			cursor(lnum, cnum)
 		endif
+
+		add(tabwins, win_getid())
 	endwhile
+
+	# Apply heights for last tab
+	for i in range(min([len(tabheights), len(tabwins)]))
+		var h = str2nr(tabheights[i])
+		if h > 0
+			win_execute(tabwins[i], 'resize ' .. h)
+		endif
+	endfor
 
 	# Restore active tab
 	if activetab > 0 && activetab <= tabpagenr('$')

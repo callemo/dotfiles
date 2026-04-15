@@ -8,6 +8,7 @@ export def Scratch(suffix: string): string
 	var bufname = suffix[0] == '/' ? suffix : getcwd() .. suffix
 	if !bufexists(bufname)
 		var bnr = bufnr(bufname, 1)
+		setbufvar(bnr, '&bufhidden', 'wipe')
 		setbufvar(bnr, '&buflisted', 1)
 		setbufvar(bnr, '&buftype', 'nofile')
 		setbufvar(bnr, '&number', 0)
@@ -21,7 +22,7 @@ export def Close(bang: string)
 	if winnr('$') == 1
 		exe 'quit' .. bang
 	else
-		exe 'bwipeout' .. bang
+		exe 'close' .. bang
 	endif
 enddef
 
@@ -145,6 +146,7 @@ export def Bufmatch(a: string)
 	endif
 	exe 'sbuffer' Scratch(getcwd() .. '/+Errors')
 	setline(1, map(b, (_, v) => bufname(v)))
+	exe 'resize' min([max([3, line('$')]), &lines / 2])
 enddef
 
 # entry: return the directory entry under the current character.
@@ -162,7 +164,7 @@ def Open(e: string)
 	var fp = fnamemodify(path, ':.')
 	var w = bufwinnr(fp)
 	if w != -1
-		exe w .. 'wincmd w'
+		exe ':' .. w .. 'wincmd w'
 	elseif bufexists(fp)
 		exe 'buffer' fnameescape(fp)
 	else
@@ -214,6 +216,9 @@ export def Dir(path: string, replace: bool = false)
 	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
 	silent execute ':%!/bin/ls -1ap ' .. shellescape(d) .. ' | grep -v "^\\.\\.\\?/$"'
 	setlocal nomodified
+	if !replace
+		exe 'resize' min([max([3, line('$')]), &lines / 2])
+	endif
 	b:dir = d
 	# Dir keybindings: CR/- reuse window; rightmouse plumb (split); middlemouse execute
 	nnoremap <silent> <buffer> <CR> <ScriptCmd>Open(Entry())<CR>
@@ -277,7 +282,7 @@ export def Toc(pat: string = '')
 		endif
 	endfor
 	setloclist(0, [], 'r', {'title': 'TOC', 'items': items})
-	lwindow
+	exe 'lwindow' min([max([3, len(items)]), &lines / 2])
 enddef
 
 # TabLine returns the formatted tab line string.
@@ -334,17 +339,58 @@ export def TabLabel(n: number): string
 	return label
 enddef
 
-# TermStatus returns a compact status line for terminal buffers.
-export def TermStatus(): string
-	var job = term_getjob(bufnr('%'))
-	if job == v:null
-		return ''
+# StatusGrow: grow the current window like + mapping.
+def StatusGrow(w: number)
+	win_execute(w, 'execute "resize " .. (winheight(0) + max([5, winheight(0) / 2]))')
+enddef
+
+# Click: single-click handler; column 1 of statusline grows window.
+export def Click()
+	var m = getmousepos()
+	var w = m.winid
+	if w == 0
+		feedkeys("\<LeftMouse>", 'n')
+		return
 	endif
-	var info = job_info(job)
-	var status = info.status
-	var cmd = len(info.cmd) > 0 ? split(info.cmd[0], '/')[-1] : 'unknown'
-	var pid = has_key(info, 'process') ? info.process : 'no-pid'
-	var bnr = bufnr('%')
-	var cwd = has_key(info, 'cwd') ? fnamemodify(info.cwd, ':t') : fnamemodify(getcwd(), ':t')
-	return printf('%d [%s] %s(%s) %s', bnr, cwd, cmd, pid, toupper(status))
+	if m.winrow > winheight(win_id2win(w)) && m.wincol == 1
+		StatusGrow(w)
+		return
+	endif
+	feedkeys("\<LeftMouse>", 'n')
+enddef
+
+# TermStatus returns a terminal status line matching the normal layout.
+export def TermStatus(): string
+	var cwd = fnamemodify(getcwd(), ':t')
+	var cmd = 'terminal'
+	var pid = ''
+	var status = ''
+	var job = term_getjob(bufnr('%'))
+	if job != v:null
+		var info = job_info(job)
+		if has_key(info, 'cwd') && !empty(info.cwd)
+			cwd = fnamemodify(info.cwd, ':t')
+		endif
+		if has_key(info, 'cmd') && len(info.cmd) > 0
+			var tail = split(info.cmd[-1], '/')[-1]
+			var words = split(tail)
+			if !empty(words)
+				cmd = words[0]
+			elseif !empty(tail)
+				cmd = tail
+			endif
+		endif
+		if has_key(info, 'process')
+			pid = string(info.process)
+		endif
+		status = has_key(info, 'status') ? toupper(info.status) : ''
+	endif
+
+	var file = pid == '' ? cmd : cmd .. '(' .. pid .. ')'
+	if !empty(status)
+		file ..= ' ' .. status
+	endif
+	var lhs = substitute(cwd, '%', '%%', 'g') .. ' › ' .. substitute(file, '%', '%%', 'g')
+	var rhs = '[term]'
+	return lhs .. '%=' .. rhs
 enddef

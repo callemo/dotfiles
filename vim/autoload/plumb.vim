@@ -5,9 +5,9 @@ def File(f: string, addr: string)
 	var fp = fnamemodify(f, ':.')
 	var w = bufwinnr(fp)
 	if w != -1
-		exe w .. 'wincmd w'
+		exe ':' .. w .. 'wincmd w'
 		if !empty(addr)
-			exe addr
+			exe ':' .. addr
 		endif
 	elseif bufexists(fp)
 		silent exe 'sbuffer' (empty(addr) ? '' : '+' .. addr) fnameescape(fp)
