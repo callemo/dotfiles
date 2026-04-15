@@ -162,7 +162,7 @@ def Open(e: string)
 	var fp = fnamemodify(path, ':.')
 	var w = bufwinnr(fp)
 	if w != -1
-		exe w .. 'wincmd w'
+		exe ':' .. w .. 'wincmd w'
 	elseif bufexists(fp)
 		exe 'buffer' fnameescape(fp)
 	else
