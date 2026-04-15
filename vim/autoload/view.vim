@@ -141,6 +141,7 @@ export def Bufmatch(a: string)
 	endif
 	exe 'sbuffer' Scratch(getcwd() .. '/+Errors')
 	setline(1, map(b, (_, v) => bufname(v)))
+	exe 'resize' min([max([3, line('$')]), &lines / 2])
 enddef
 
 # entry: return the directory entry under the current character.
@@ -273,7 +274,7 @@ export def Toc(pat: string = '')
 		endif
 	endfor
 	setloclist(0, [], 'r', {'title': 'TOC', 'items': items})
-	lwindow
+	exe 'lwindow' min([max([3, len(items)]), &lines / 2])
 enddef
 
 # TabLine returns the formatted tab line string.

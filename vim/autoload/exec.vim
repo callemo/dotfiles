@@ -24,11 +24,11 @@ def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
 			deletebufline(bnr, 1)
 		endif
 		exe 'sbuffer' bnr
-		cursor(line('$'), 1)
 		if code > 0
 			append(line('$'), name .. ': exit ' .. code)
-			cursor(line('$'), 1)
 		endif
+		cursor(line('$'), 1)
+		exe 'resize' min([max([3, line('$')]), &lines / 2])
 	endif
 enddef
 
@@ -109,7 +109,7 @@ export def Lint(ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
 	checktime
 enddef
 
@@ -142,7 +142,7 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. shellescape(expand('%:p')), 0, 0, 0)
+	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
 	checktime
 enddef
 
@@ -156,7 +156,7 @@ export def Fts(query: string)
 		'title': 'Fts ' .. query,
 		'lines': systemlist('fts ' .. shellescape(query) .. ' | cut -f 1,2'),
 		'efm': '%f	%m'})
-	lwindow
+	exe 'lwindow' min([max([3, len(getloclist(0))]), &lines / 2])
 enddef
 
 # SendToTmux sends lines to a tmux pane.
