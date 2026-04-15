@@ -180,6 +180,7 @@ enddef
 #   t<N> [<height>...]                                tab (heights optional)
 #   f<tab> <win> <bufnr> <line> <col> <path>       clean file
 #   F<tab> <win> <bufnr> <line> <col> <nlines> <path>  dirty (content follows)
+#   s<tab> <win> <bufnr> <line> <col> <nlines> <path>  scratch (nofile, content follows)
 #   x<tab> <win> <ref>   <line> <col>               zerox
 #   d<tab> <win> <path>                             directory
 
@@ -250,7 +251,12 @@ export def Dump(file: string = '')
 
 			add(dumped, bnr)
 
-			if !getbufvar(bnr, '&modified') && !empty(fpath) && filereadable(fpath)
+			# s: scratch buffer (nofile) — embed content
+			if bt ==# 'nofile'
+				var content = getbufline(bnr, 1, '$')
+				add(lines, 's' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
+				extend(lines, content)
+			elseif !getbufvar(bnr, '&modified') && !empty(fpath) && filereadable(fpath)
 				# f: clean file on disk
 				add(lines, 'f' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. fpath)
 			else
@@ -410,6 +416,27 @@ export def Load(file: string = '')
 			var dpath = parts[2]
 			noautocmd enew
 			call view#Dir(dpath, true)
+
+		elseif rectype ==# 's'
+			# s<tab> <win> <bufnr> <line> <col> <nlines> <path>
+			var lnum = str2nr(parts[3])
+			var cnum = str2nr(parts[4])
+			var nlines = str2nr(parts[5])
+			var fpath = len(parts) > 6 ? parts[6] : ''
+
+			var content: list<string> = []
+			for _ in range(nlines)
+				if idx < len(lines)
+					add(content, lines[idx])
+					idx += 1
+				endif
+			endfor
+
+			exe 'buffer' view#Scratch(fpath)
+			silent! :%delete _
+			setline(1, content)
+			setlocal nomodified
+			cursor(lnum, cnum)
 		endif
 
 		add(tabwins, win_getid())
