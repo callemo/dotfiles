@@ -153,6 +153,7 @@ nnoremap <leader>. <cmd>lcd %:p:h<CR>
 nnoremap <silent> <leader>; <cmd>Send<CR>
 nnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
 nnoremap <silent> <leader>B <ScriptCmd>view.Browse()<CR>
+nnoremap <silent> - <ScriptCmd>view.Dir('', true)<CR>
 nnoremap <silent> <leader>y <ScriptCmd>exec.Yank(fnamemodify(expand('%:p'), ':.'))<CR>
 nnoremap <silent> <leader>Y <ScriptCmd>exec.Yank(expand('%:p'))<CR>
 nnoremap <leader>N :new <c-r>=expand('%:h')<CR>/

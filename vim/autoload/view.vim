@@ -19,7 +19,11 @@ enddef
 
 # Close: quit if last window, else wipeout the buffer.
 export def Close(bang: string)
-	exe 'close' .. bang
+	if winnr('$') == 1
+		exe 'quit' .. bang
+	else
+		exe 'close' .. bang
+	endif
 enddef
 
 # Next/Prev: cycle focus across vim windows and tmux panes.
