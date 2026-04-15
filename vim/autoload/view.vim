@@ -334,6 +334,26 @@ export def TabLabel(n: number): string
 	return label
 enddef
 
+# StatusGrow: grow the current window like + mapping.
+def StatusGrow(w: number)
+	win_execute(w, 'execute "resize " .. (winheight(0) + max([5, winheight(0) / 2]))')
+enddef
+
+# Click: single-click handler; column 1 of statusline grows window.
+export def Click()
+	var m = getmousepos()
+	var w = m.winid
+	if w == 0
+		feedkeys("\<LeftMouse>", 'n')
+		return
+	endif
+	if m.winrow > winheight(win_id2win(w)) && m.wincol == 1
+		StatusGrow(w)
+		return
+	endif
+	feedkeys("\<LeftMouse>", 'n')
+enddef
+
 # TermStatus returns a terminal status line matching the normal layout.
 export def TermStatus(): string
 	var cwd = fnamemodify(getcwd(), ':t')

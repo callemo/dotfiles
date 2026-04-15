@@ -227,6 +227,7 @@ tnoremap <leader>z <cmd>resize<CR>
 tnoremap <scrollwheelup> <c-\><c-n>
 
 # ── Mouse ────────────────────────────────────────────────
+nnoremap <silent> <LeftMouse> <ScriptCmd>view.Click()<CR>
 nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.DblClick()<CR>
 nnoremap <silent> <C-LeftMouse> <ScriptCmd>view.Zoom()<CR>
 nnoremap <silent> <middlemouse> <leftmouse><ScriptCmd>view.MidClick()<CR>
