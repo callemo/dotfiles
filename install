@@ -65,6 +65,15 @@ tmpl="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
 # Plugin data list
+plugins=$(mktemp) || fatal "mktemp failed"
+cat >"$plugins" <<EOF
+https://github.com/tpope/vim-eunuch
+https://github.com/tpope/vim-fugitive
+https://github.com/tpope/vim-repeat
+https://github.com/tpope/vim-surround
+-o https://github.com/fatih/vim-go
+EOF
+
 while read -r flag url; do
 	if [ -n "$url" ]; then
 		log "vim plugin $flag $url"
@@ -73,10 +82,15 @@ while read -r flag url; do
 		log "vim plugin $flag"
 		./vim/get "$flag" </dev/null || fatal "vim plugin failed: $flag"
 	fi
-done <<EOF
-https://github.com/tpope/vim-eunuch
-https://github.com/tpope/vim-fugitive
-https://github.com/tpope/vim-repeat
-https://github.com/tpope/vim-surround
--o https://github.com/fatih/vim-go
-EOF
+done <"$plugins"
+
+# Prune undeclared start/ plugins
+startdir="$HOME/.vim/pack/default/start"
+[ -d "$startdir" ] || { rm -f "$plugins"; exit 0; }
+ls "$startdir" | awk -v startdir="$startdir" '
+	FNR==NR { if (!/^-o/) { n=split($1,a,"/"); declared[a[n]]=1 } next }
+	$0 in declared { next }
+	{ print "install: vim prune " $0 > "/dev/stderr"
+	  system("rm -rf " startdir "/" $0) }
+' "$plugins" -
+rm -f "$plugins"
