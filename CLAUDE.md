@@ -22,7 +22,7 @@ python3 -m unittest test_snip.py # Run snippet unit tests only
 
 ## Vim (`dot.vimrc`)
 Requires Vim 9.1+ (patch 1-10 minimum for `getregion()`). Tested on 9.1.1706.
-Four autoload modules: `plumb` (routing), `exec` (commands), `view` (windows/buffers), `plugins` (lazy loaders). vimrc is declarations only — no `def`/`enddef` except `g:Err`.
+Autoload modules: `plumb` (routing), `exec` (commands), `view` (windows/buffers), `text` (text ops), `plugins` (lazy loaders). vimrc is declarations only — no `def`/`enddef` except `g:Err`.
 - Acme model: middle-click executes the "dot" (selection or word AS the command) — selection is never stdin to another command
 - `view#Click2`: double-click on/near a bracket or quote selects contents between delimiters (`vi`, not `va`) — Acme excludes delimiters; verified against `plan9port/src/cmd/acme/text.c:textdoubleclick()`
 - `exec.Cmd`: always `/bin/sh -c cmd` — matches Acme's `rc -c` model, no `&shell`

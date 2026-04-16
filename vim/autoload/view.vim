@@ -2,6 +2,7 @@ vim9script
 
 import autoload 'plumb.vim'
 import autoload 'exec.vim'
+import autoload 'text.vim'
 
 # Scratch creates a temporary buffer with the given suffix returning its name.
 export def Scratch(suffix: string): string
@@ -43,33 +44,6 @@ export def Prev()
 	endif
 enddef
 
-# Expand: select structural block at the current character (brackets/quotes → vi obj, else viw).
-export def Expand()
-	var ln = getline('.')
-	var ci = charcol('.')
-	var c = ln->slice(ci - 1, ci)
-	var cb = ci > 1 ? ln->slice(ci - 2, ci - 1) : ''
-	var pat = '[(){}\[\]<>"''`]'
-	var obj = {
-		'(': 'b', ')': 'b',
-		'{': 'B', '}': 'B',
-		'[': '[', ']': '[',
-		'<': '<', '>': '>',
-		'"': '"', "'": "'", '`': '`'
-	}
-
-	if c =~ pat
-	elseif cb =~ pat
-		c = cb
-		exe 'normal! h'
-	else
-		exe "normal! \<Esc>viw"
-		return
-	endif
-
-	exe "normal! \<Esc>vi" .. obj[c]
-enddef
-
 # DblClick: double-click statusline closes window, body expands structural block or word.
 export def DblClick()
 	var m = getmousepos()
@@ -84,7 +58,7 @@ export def DblClick()
 
 	win_gotoid(w)
 	cursor(m.line, m.column)
-	Expand()
+	text.Expand()
 enddef
 
 # Zoom: ctrl-click statusline zooms window to full height.
@@ -241,25 +215,6 @@ export def Browse()
 		return
 	endif
 	Dir('')
-enddef
-
-# Selection returns the text selected in visual mode.
-export def Selection(): string
-	return join(getregion(getpos('v'), getpos('.'), {type: mode()}), "\n")
-enddef
-
-# SearchSel sets regular expression to a literal search of the addressed text.
-export def SearchSel()
-	@/ = substitute('\m\C' .. escape(Selection(), '\.^$~[]*'), "\n$", '', '')
-enddef
-
-# Trim removes trailing whitespace from all lines.
-export def Trim()
-	var last_pos = getcurpos()
-	var last_search = @/
-	noautocmd silent! :%s/\m\C\s\+$//e
-	@/ = last_search
-	setpos('.', last_pos)
 enddef
 
 var outlines = {

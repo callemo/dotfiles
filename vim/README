@@ -85,9 +85,10 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
                       space    Expand selection to structural block
                       .        Change local directory to file's directory
                       ;        Send line to tmux pane
+                      -        Browse current directory in place
                       B        Toggle directory browser
                       D        Dump session state
-                     E        Dump session state and exit
+                      E        Dump session state and exit
                       N        New file in current file's directory
                       c        Toggle comment (operator: c{motion}, cc)
                       f        Format buffer

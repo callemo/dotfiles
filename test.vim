@@ -22,6 +22,7 @@ runtime autoload/plumb.vim
 runtime autoload/exec.vim
 runtime autoload/view.vim
 runtime autoload/plugins.vim
+runtime autoload/text.vim
 
 " Cycle 1: version guard -- vim9script loaded, nocompatible set
 call assert_false(&compatible)
@@ -41,9 +42,9 @@ call assert_false(exists('*WinCyclePrev'))
 call assert_true(exists('*view#TabLine'))
 call assert_true(exists('*view#TabLabel'))
 call assert_true(exists('*view#TermStatus'))
-call assert_true(exists('*view#Selection'))
-call assert_true(exists('*view#SearchSel'))
-call assert_true(exists('*view#Trim'))
+call assert_true(exists('*text#Selection'))
+call assert_true(exists('*text#SearchSel'))
+call assert_true(exists('*text#Trim'))
 call assert_true(exists('*exec#Tmux'))
 call assert_true(exists('*plugins#Go'))
 
@@ -188,11 +189,11 @@ call assert_match('line3', s:errtxt)
 exe 'bwipeout!' s:errbnr
 
 " DblClick/Expand: functions exist and mappings are wired up
-call assert_true(exists('*view#Expand'))
+call assert_true(exists('*text#Expand'))
 call assert_true(exists('*view#DblClick'))
 let s:expand_map = maparg('<Space><Space>', 'n', 0, 1)
 call assert_true(!empty(s:expand_map))
-call assert_match('view[#.]Expand', s:expand_map.rhs)
+call assert_match('text[#.]Expand', s:expand_map.rhs)
 let s:c2_map = maparg('<2-LeftMouse>', 'n', 0, 1)
 call assert_true(!empty(s:c2_map))
 call assert_match('view[#.]DblClick', s:c2_map.rhs)
