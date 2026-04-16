@@ -7,7 +7,7 @@ if root != ''
 	$PATH = root .. '/acme:' .. $PATH
 endif
 
-import autoload 'comment.vim'
+import autoload 'text.vim'
 import autoload 'exec.vim'
 import autoload 'plugins.vim'
 import autoload 'plumb.vim'
@@ -97,7 +97,7 @@ augroup dotfiles
 	autocmd TextYankPost * if v:event.operator ==# 'y' | call exec.Yank(getreg('"')) | endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | setl nowrap | endif
-	autocmd BufWritePre * call view.Trim()
+	autocmd BufWritePre * call text.Trim()
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
 	autocmd InsertEnter,WinLeave * setl nocursorline
 	autocmd InsertLeave,WinEnter * setl cursorline
@@ -160,14 +160,14 @@ nnoremap <leader>N :new <c-r>=expand('%:h')<CR>/
 nnoremap <silent> <leader>D <cmd>Dump<CR>
 nnoremap <silent> <leader>E <cmd>Dump<CR><cmd>qall<CR>
 nnoremap <leader>Q <ScriptCmd>view.Close('!')<CR>
-nnoremap <expr> <leader>c comment.Toggle()
-nnoremap <expr> <leader>cc comment.Toggle() .. '_'
-xnoremap <expr> <leader>c comment.Toggle()
+nnoremap <expr> <leader>c text.Comment()
+nnoremap <expr> <leader>cc text.Comment() .. '_'
+xnoremap <expr> <leader>c text.Comment()
 nnoremap <leader>f <cmd>Fmt<CR>
 nnoremap <leader>l <cmd>Lint<CR>
 nnoremap <leader>q <ScriptCmd>view.Close('')<CR>
 nnoremap <leader>z <cmd>resize<CR>
-nnoremap <silent> <leader><leader> <ScriptCmd>view.Expand()<CR>
+nnoremap <silent> <leader><leader> <ScriptCmd>text.Expand()<CR>
 
 # ── Brackets ─────────────────────────────────────────────
 nnoremap ]a <cmd>next<CR>
@@ -202,10 +202,10 @@ nnoremap <down> <c-e>
 nnoremap <up> <c-y>
 
 # ── Visual ───────────────────────────────────────────────
-xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
+xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(text.Selection(), 0, 0, 0)<CR><Esc>
 xnoremap <silent> <leader>; <cmd>Send<CR><Esc>
-xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>
-xnoremap * <ScriptCmd>view.SearchSel()<CR>/<CR>
+xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, text.Selection())<CR><Esc>
+xnoremap * <ScriptCmd>text.SearchSel()<CR>/<CR>
 
 # ── Insert / cmdline ─────────────────────────────────────
 inoremap <C-x>d <C-r>=strftime("%Y-%m-%d")<CR>
@@ -236,8 +236,8 @@ nnoremap <silent> <2-LeftMouse> <ScriptCmd>view.DblClick()<CR>
 nnoremap <silent> <C-LeftMouse> <ScriptCmd>view.Zoom()<CR>
 nnoremap <silent> <middlemouse> <leftmouse><ScriptCmd>view.MidClick()<CR>
 nnoremap <silent> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(expand('%:h'), {'word': expand('<cword>')}, expand('<cWORD>'))<CR>
-xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(view.Selection(), 0, 0, 0)<CR><Esc>
-xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, view.Selection())<CR><Esc>
+xnoremap <silent> <middlemouse> <ScriptCmd>exec.Cmd(text.Selection(), 0, 0, 0)<CR><Esc>
+xnoremap <silent> <rightmouse> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, text.Selection())<CR><Esc>
 
 # ── Colorscheme ──────────────────────────────────────────
 if root != ''
