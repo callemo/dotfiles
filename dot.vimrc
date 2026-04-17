@@ -109,7 +109,7 @@ augroup dotfiles
 		\ | nnoremap <buffer> q i
 	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call view.Dir('', true) | endif
 	# BufReadCmd matches trailing / (dir buffer names); BufEnter catches :e .
-	autocmd BufReadCmd */ call view.Dir(expand('<afile>:p'), true)
+	autocmd BufReadCmd */ if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
 	autocmd BufEnter * if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
 augroup END
 
