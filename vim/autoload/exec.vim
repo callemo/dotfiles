@@ -28,7 +28,7 @@ def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
 			append(line('$'), name .. ': exit ' .. code)
 		endif
 		cursor(line('$'), 1)
-		exe 'resize' min([max([3, line('$')]), &lines / 2])
+		exe 'resize' view#Fit(line('$'))
 	endif
 enddef
 
@@ -156,7 +156,7 @@ export def Fts(query: string)
 		'title': 'Fts ' .. query,
 		'lines': systemlist('fts ' .. shellescape(query) .. ' | cut -f 1,2'),
 		'efm': '%f	%m'})
-	exe 'lwindow' min([max([3, len(getloclist(0))]), &lines / 2])
+	exe 'lwindow' view#Fit(len(getloclist(0)))
 enddef
 
 # SendToTmux sends lines to a tmux pane.

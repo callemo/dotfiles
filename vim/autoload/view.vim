@@ -18,6 +18,11 @@ export def Scratch(suffix: string): string
 	return bufname
 enddef
 
+# Fit returns a window size fitting n lines, clamped to [3, &lines / 2].
+export def Fit(n: number): number
+	return min([max([3, n]), &lines / 2])
+enddef
+
 # Close: quit if last window, else wipeout the buffer.
 export def Close(bang: string)
 	if winnr('$') == 1
@@ -120,7 +125,7 @@ export def Bufmatch(a: string)
 	endif
 	exe 'sbuffer' Scratch(getcwd() .. '/+Errors')
 	setline(1, map(b, (_, v) => bufname(v)))
-	exe 'resize' min([max([3, line('$')]), &lines / 2])
+	exe 'resize' Fit(line('$'))
 enddef
 
 # entry: return the directory entry under the current character.
@@ -191,7 +196,7 @@ export def Dir(path: string, replace: bool = false)
 	silent execute ':%!/bin/ls -1ap ' .. shellescape(d) .. ' | grep -v "^\\.\\.\\?/$"'
 	setlocal nomodified
 	if !replace
-		exe 'resize' min([max([3, line('$')]), &lines / 2])
+		exe 'resize' Fit(line('$'))
 	endif
 	b:dir = d
 	# Dir keybindings: CR/- reuse window; rightmouse plumb (split); middlemouse execute
@@ -237,7 +242,7 @@ export def Toc(pat: string = '')
 		endif
 	endfor
 	setloclist(0, [], 'r', {'title': 'TOC', 'items': items})
-	exe 'lwindow' min([max([3, len(items)]), &lines / 2])
+	exe 'lwindow' Fit(len(items))
 enddef
 
 # TabLine returns the formatted tab line string.

@@ -11,8 +11,10 @@ def File(f: string, addr: string)
 		endif
 	elseif bufexists(fp)
 		silent exe 'sbuffer' (empty(addr) ? '' : '+' .. addr) fnameescape(fp)
+		exe 'resize' view#Fit(line('$'))
 	else
 		silent exe 'split' (empty(addr) ? '' : '+' .. addr) fnameescape(fp)
+		exe 'resize' view#Fit(line('$'))
 	endif
 enddef
 
