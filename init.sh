@@ -1,11 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
-# Prepend $1 to PATH only if the directory exists and is not already present.
-_pathinsert() {
-	case ":${PATH}:" in
-	*":$1:"*) ;;
-	*) [ -d "$1" ] && PATH="$1:${PATH}" ;;
-	esac
+# Move $1 to the front of PATH, deduplicating any existing occurrence.
+pathfront() {
+	[ -d "$1" ] || return
+	local p='' t="${PATH}:" s
+	while [ -n "$t" ]; do
+		s="${t%%:*}"; t="${t#*:}"
+		[ "$s" = "$1" ] || p="${p:+${p}:}${s}"
+	done
+	PATH="$1${p:+:${p}}"
+	unset p t s
 }
 
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
@@ -32,11 +36,11 @@ bash)
 	;;
 esac
 
-_pathinsert '/usr/local/node/bin'
-_pathinsert '/usr/local/go/bin'
-_pathinsert "$HOME/go/bin"
-_pathinsert "$HOME/.local/bin"
-_pathinsert "$HOME/dotfiles/bin"
-_pathinsert "$HOME/bin"
+pathfront '/usr/local/node/bin'
+pathfront '/usr/local/go/bin'
+pathfront "$HOME/go/bin"
+pathfront "$HOME/.local/bin"
+pathfront "$HOME/dotfiles/bin"
+pathfront "$HOME/bin"
 export PATH
-unset _pathinsert
+unset pathfront
