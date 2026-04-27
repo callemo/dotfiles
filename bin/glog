@@ -14,6 +14,7 @@
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
 
 n=10
+v=0
 while [ $# -gt 0 ]
 do
 	case "$1" in
@@ -27,8 +28,8 @@ do
 		shift
 		;;
 	-v)
-		git log --graph --stat --date=human --abbrev-commit "$@"
-		exit 0
+		v=1
+		shift
 		;;
 	--)
 		shift
@@ -39,6 +40,8 @@ do
 		;;
 	esac
 done
+
+[ "$v" = 1 ] && exec git log -n "$n" --graph --stat --date=human --abbrev-commit "$@"
 
 git log -n "$n" --date=human \
 	--pretty=format:'%h	%cd	%<(11,trunc)%cn	%s' "$@" |
