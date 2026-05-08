@@ -39,8 +39,13 @@ DESCRIPTION      Vimrc configures Vim 9.1 as an interactive text editor.
 
                       CR       Open file or descend into directory
                       -        Go up one directory level
+                      R        Reload (manually re-read directory)
                       r        Rename item under cursor (leader)
                       d        Delete item under cursor (leader)
+
+                 Directory buffers are scratch buffers in the Acme
+                 sense: editable, no auto-refresh on entry. Reload
+                 with R when you want fresh contents.
 
               Commands
                  Commands have a simple and regular structure: a command

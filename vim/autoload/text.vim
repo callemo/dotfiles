@@ -66,8 +66,18 @@ export def SearchSel()
 enddef
 
 # Selection returns the text selected in visual mode.
+# Yanks via register z; works on Vim builds without getregion().
+# noautocmd suppresses TextYankPost (which fires OSC 52 to /dev/tty).
 export def Selection(): string
-	return join(getregion(getpos('v'), getpos('.'), {type: mode()}), "\n")
+	var save = getreginfo('z')
+	# When called via <Cmd> from xnoremap we are still in visual mode,
+	# so gv has nothing to restore — yank the live selection. Otherwise
+	# (e.g. called after <Esc>) reselect with gv first.
+	var cmd = mode() =~? "^[vs\<C-v>\<C-s>]" ? '"zy' : 'gv"zy'
+	silent execute 'noautocmd normal! ' .. cmd
+	var text = substitute(getreg('z'), "\n$", '', '')
+	setreg('z', save)
+	return text
 enddef
 
 # Trim removes trailing whitespace from all lines.

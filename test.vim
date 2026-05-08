@@ -111,8 +111,22 @@ call assert_match('Open(Entry())', s:cr_map.rhs)
 bwipeout!
 call delete(s:dir_tmpdir, 'rf')
 
-" Selection and SearchSel live in view autoload;
-" verified indirectly via the visual * mapping.
+" Selection(): returns visually-selected text; must work on a modified buffer
+" (regression: getregion() unavailable on older 9.1 patch builds caused E117).
+" Invoked via <Cmd>, mirroring how the real xnoremap calls it (visual preserved).
+enew
+call setline(1, ['ls -ls', 'second'])
+setlocal modified
+xnoremap <buffer> <F2> <Cmd>let g:sel = text#Selection()<CR>
+let @z = 'sentinel'
+let g:sel = ''
+call cursor(1, 1)
+call feedkeys("v\<End>\<F2>\<Esc>", 'x')
+call assert_equal('ls -ls', g:sel)
+call assert_equal('sentinel', @z)
+xunmap <buffer> <F2>
+unlet g:sel
+bwipeout!
 
 " Cmd(): no-range produces output
 call exec#Cmd('echo cmd-test-ok', 0, 0, 0)
