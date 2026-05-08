@@ -211,6 +211,8 @@ export def Dir(path: string, replace: bool = false)
 	nnoremap <silent> <buffer> <c-j> <ScriptCmd>Next()<CR>
 	nnoremap <silent> <buffer> <leader>r <ScriptCmd>RenameItem()<CR>
 	nnoremap <silent> <buffer> <leader>d <ScriptCmd>DeleteItem()<CR>
+	# Manual refresh — dir buffers are scratch, no auto-update on BufEnter.
+	nnoremap <silent> <buffer> R <ScriptCmd>Dir(b:dir, true)<CR>
 enddef
 
 # Browse: toggle the directory buffer.
