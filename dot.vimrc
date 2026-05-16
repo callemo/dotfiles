@@ -112,7 +112,7 @@ augroup dotfiles
 	# Only fire for non-dir buffers — once a dir buffer is loaded, leave its
 	# contents alone (Acme model: dir window is a scratch the user may edit).
 	autocmd BufReadCmd */ if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
-	autocmd BufEnter * if isdirectory(expand('<afile>:p')) && &filetype !=# 'dir' | call view.Dir(expand('<afile>:p'), true) | endif
+	autocmd BufEnter * if isdirectory(expand('%:p')) && &filetype !=# 'dir' | call view.Dir(expand('%:p'), true) | endif
 augroup END
 
 augroup filetypes
