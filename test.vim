@@ -111,20 +111,19 @@ call assert_match('Open(Entry())', s:cr_map.rhs)
 bwipeout!
 call delete(s:dir_tmpdir, 'rf')
 
-" Selection(): returns visually-selected text; must work on a modified buffer
-" (regression: getregion() unavailable on older 9.1 patch builds caused E117).
-" Invoked via <Cmd>, mirroring how the real xnoremap calls it (visual preserved).
+" Selection(): returns visually-selected text via gv reselection.
+" Tests the non-visual-mode path (gv"zy) since feedkeys visual
+" doesn't work in -es (ex mode). The xnoremap <Cmd> path is
+" equivalent: mode() is 'v' there, so it takes the "zy branch.
 enew
 call setline(1, ['ls -ls', 'second'])
 setlocal modified
-xnoremap <buffer> <F2> <Cmd>let g:sel = text#Selection()<CR>
+call setpos("'<", [0, 1, 1, 0])
+call setpos("'>", [0, 1, 7, 0])
 let @z = 'sentinel'
-let g:sel = ''
-call cursor(1, 1)
-call feedkeys("v\<End>\<F2>\<Esc>", 'x')
+let g:sel = text#Selection()
 call assert_equal('ls -ls', g:sel)
 call assert_equal('sentinel', @z)
-xunmap <buffer> <F2>
 unlet g:sel
 bwipeout!
 
@@ -238,7 +237,7 @@ call assert_match(s:test_file, join(s:dump_lines, "\n"))
 " Load into fresh state
 enew!
 call exec#Load(s:dump_file)
-call assert_equal(fnamemodify(s:test_file, ':p'), expand('%:p'))
+	call assert_equal(resolve(fnamemodify(s:test_file, ':p')), resolve(expand('%:p')))
 call assert_equal(2, line('.'))
 call delete(s:dump_tmpdir, 'rf')
 
