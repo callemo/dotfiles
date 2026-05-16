@@ -188,7 +188,12 @@ export def Dir(path: string, replace: bool = false)
 		return
 	endif
 	if replace
-		silent noautocmd execute 'file ' .. fnameescape(d)
+		var bnr = bufnr(d)
+		if bnr > 0 && bufexists(bnr)
+			silent noautocmd execute 'buffer ' .. bnr
+		else
+			silent noautocmd execute 'file ' .. fnameescape(d)
+		endif
 	else
 		silent noautocmd execute 'new ' .. fnameescape(d)
 	endif
