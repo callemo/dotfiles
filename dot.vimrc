@@ -96,6 +96,7 @@ augroup dotfiles
 	autocmd!
 	autocmd TextYankPost * if v:event.operator ==# 'y' | call exec.Yank(getreg('"')) | endif
 	autocmd BufReadPost * exe 'silent! normal! g`"'
+	autocmd BufReadPost * if expand('%:p') =~# '^' .. $HOME .. '/code/docs/' | $NROOT = $HOME .. '/code/docs' | endif
 	autocmd BufWinEnter * if &bt ==# 'quickfix' || &pvw | set nowfh | setl nowrap | endif
 	autocmd BufWritePre * call text.Trim()
 	autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * silent! checktime
