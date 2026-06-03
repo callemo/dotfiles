@@ -112,6 +112,16 @@ if [ "$(uname)" = OpenBSD ]; then
 	EOF
 	# OpenBSD packages install vim files here; add them to the runtimepath.
 	fileline '^set rtp\+=/usr/local/share/vim/vimfiles' 'set rtp+=/usr/local/share/vim/vimfiles' "$HOME/.vimrc.local"
+	# vim here has no +clipboard and xterm lacks OSC 52; yank through xsel.
+	grep -qF 'xsel -ib' "$HOME/.vimrc.local" 2>/dev/null || cat >>"$HOME/.vimrc.local" <<-'EOF'
+	" OpenBSD xterm lacks OSC 52; copy yanks through xsel.
+	if executable('xsel')
+	autocmd! dotfiles TextYankPost
+	autocmd dotfiles TextYankPost * if v:event.operator ==# 'y' | call system('xsel -ib', getreg('"')) | endif
+	nnoremap <silent> <leader>y <Cmd>call system('xsel -ib', fnamemodify(expand('%:p'), ':.'))<CR>
+	nnoremap <silent> <leader>Y <Cmd>call system('xsel -ib', expand('%:p'))<CR>
+	endif
+	EOF
 fi
 
 # Plugin data list
