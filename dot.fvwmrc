@@ -92,6 +92,7 @@ Key W      A       4         Close
 Key M      A       4         Iconify
 Key H      A       4         Lower
 Key F      A       4         Maximize
+Key F      A       M4        Maximize
 Key F11    A       S         Maximize
 
 # Focus: Win+arrows (directional), Alt+Tab (cycle)
@@ -137,6 +138,7 @@ Key minus  A       S4        Resize bringPointer w+0p w-50p
 
 # System
 Key L      A       C4        Exec exec xlock
+Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 Key Q      A       S4        Module FvwmForm LogOut
 Key R      A       C4        Restart fvwm
 

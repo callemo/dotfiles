@@ -74,6 +74,44 @@ if [ "$(uname)" = OpenBSD ]; then
 		}
 		doas wsconsctl "$line" >/dev/null
 	done
+	# xterm here lacks OSC 52; override tmux copy bindings to use xsel.
+	command -v xsel >/dev/null 2>&1 || log 'xsel missing; tmux clipboard copy disabled (pkg_add xsel)'
+	tcl="$HOME/.tmux.conf.local"
+	grep -qF "copy-pipe 'xsel -ib'" "$tcl" 2>/dev/null || {
+		cat >>"$tcl" <<-'EOF'
+		# OpenBSD xterm lacks OSC 52; copy through xsel.
+		bind -T copy-mode-vi y send-keys -X copy-pipe 'xsel -ib'
+		bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe 'xsel -ib'
+		bind -T copy-mode-vi DoubleClick1Pane select-pane \; send-keys -X select-word \; run-shell -d 0.3 \; send-keys -X copy-pipe 'xsel -ib'
+		bind -T copy-mode-vi TripleClick1Pane select-pane \; send-keys -X select-line \; run-shell -d 0.3 \; send-keys -X copy-pipe 'xsel -ib'
+		EOF
+		log "$tcl: added xsel copy bindings"
+	}
+	# fvwm has no desktop top bar; show battery and clock in the tmux status line.
+	grep -q 'apm -l' "$tcl" 2>/dev/null || {
+		cat >>"$tcl" <<-'EOF'
+		# No top bar here: battery % and clock at the right, refreshed each minute.
+		set -g status-interval 60
+		set -g status-right-length 100
+		set -g status-right "#[fg=blue]#{?pane_in_mode,COPY ,}#{?client_prefix,PREFIX ,}#{?window_zoomed_flag,ZOOM ,}#[fg=#{?#{&&:#(apm -l),#{e|<:#(apm -l),20}},red,brightblack}]#{?#{==:#(apm -a),1},+,}#(apm -l)%% #[fg=brightblack]%H:%M #h "
+		EOF
+		log "$tcl: added battery/clock status"
+	}
+	# Cursor: make the "default" theme resolve to Adwaita so every toolkit agrees,
+	# and give GTK/Chromium their own cursor-size setting (they ignore Xcursor.size).
+	mkdir -p "$HOME/.icons/default"
+	cat >"$HOME/.icons/default/index.theme" <<-'EOF'
+	[Icon Theme]
+	Inherits=Adwaita
+	EOF
+	mkdir -p "$HOME/.config/gtk-3.0"
+	grep -q gtk-cursor-theme-size "$HOME/.config/gtk-3.0/settings.ini" 2>/dev/null || cat >>"$HOME/.config/gtk-3.0/settings.ini" <<-'EOF'
+	[Settings]
+	gtk-cursor-theme-name=Adwaita
+	gtk-cursor-theme-size=32
+	EOF
+	# OpenBSD packages install vim files here; add them to the runtimepath.
+	fileline '^set rtp\+=/usr/local/share/vim/vimfiles' 'set rtp+=/usr/local/share/vim/vimfiles' "$HOME/.vimrc.local"
 fi
 
 # Plugin data list
