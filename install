@@ -64,6 +64,18 @@ tmpl="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
 
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
+# OpenBSD: trackpad tap-to-click and natural scrolling.
+if [ "$(uname)" = OpenBSD ]; then
+	conf=/etc/wsconsctl.conf
+	for line in mouse.tp.tapping=1 mouse.reverse_scrolling=1; do
+		doas grep -qxF "$line" "$conf" 2>/dev/null || {
+			echo "$line" | doas tee -a "$conf" >/dev/null
+			log "$conf: added $line"
+		}
+		doas wsconsctl "$line" >/dev/null
+	done
+fi
+
 # Plugin data list
 plugins=$(mktemp) || fatal "mktemp failed"
 cat >"$plugins" <<EOF

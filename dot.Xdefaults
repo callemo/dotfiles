@@ -2,9 +2,9 @@
 XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
-XTerm*faceName:           Go Mono
+XTerm*faceName:           JetBrains Mono:style=Light
 XTerm*faceSize:           10
-XTerm*foreground:         #ffffff
+XTerm*foreground:         #c0caf5
 XTerm*background:         #1a1b26
 XTerm*cursorColor:        #ffffff
 XTerm*faceSize1:          7
@@ -41,24 +41,24 @@ XConsole*saveLines:   8
 *scrollbar.foreground:    #7f8c9e
 
 ! Tokyo Night color scheme
-*color0:  #1a1b26
+*color0:  #15161e
 *color1:  #f7768e
 *color2:  #9ece6a
 *color3:  #e0af68
 *color4:  #7aa2f7
-*color5:  #9a7ecc
-*color6:  #4abaaf
-*color7:  #d5d6db
-*color8:  #4e5173
-*color9:  #e06c75
-*color10: #98c379
-*color11: #d19a66
-*color12: #61afef
-*color13: #c678dd
-*color14: #56b6c2
-*color15: #ffffff
+*color5:  #bb9af7
+*color6:  #7dcfff
+*color7:  #a9b1d6
+*color8:  #414868
+*color9:  #f7768e
+*color10: #9ece6a
+*color11: #e0af68
+*color12: #7aa2f7
+*color13: #bb9af7
+*color14: #7dcfff
+*color15: #c0caf5
 
-Xft.dpi: 110
+Xft.dpi: 144
 Xft.autohint: 0
 Xft.lcdfilter:  lcddefault
 Xft.hintstyle:  hintfull
