@@ -104,8 +104,8 @@ Key Tab    A       M         Next (CurrentPage !Iconic) Function SelectWindow
 Key Tab    A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
 
 # Desks: Win+1..5 goto, Shift+Win+1..5 move-to, Win+Tab next/prev
-Key Tab    A       4         Desk 1 0 0 4
-Key Tab    A       S4        Desk -1 0 0 4
+Key Tab    A       4         Function NextDesk
+Key Tab    A       S4        Function PrevDesk
 Key 1      A       4         Desk 0 0
 Key 2      A       4         Desk 0 1
 Key 3      A       4         Desk 0 2
@@ -202,7 +202,14 @@ AddToFunc RaiseAndResize
 AddToFunc SelectWindow
     + I FlipFocus
     + I Raise
-    + I WarpToWindow 5p 5p
+    + I WarpToWindow 50 50
+
+DestroyFunc WindowListFunc
+AddToFunc WindowListFunc
+    + I WindowId $0 Iconify -1
+    + I WindowId $0 FlipFocus
+    + I WindowId $0 Raise
+    + I WindowId $0 WarpToWindow 50 50
 
 AddToFunc IconifyOrMove
     + I Raise
@@ -213,6 +220,20 @@ AddToFunc OpenTerminal
     + I Exec exec xterm
     + I Wait xterm
     + I Next (xterm) SelectWindow
+
+AddToFunc NextDesk
+    + I Desk 1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
+
+AddToFunc PrevDesk
+    + I Desk -1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
 
 AddToFunc SnapLeft
     + I Maximize 50 100

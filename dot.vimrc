@@ -248,6 +248,6 @@ if root != ''
 endif
 
 # ── Local ────────────────────────────────────────────────
-if filereadable(expand('~/.vimrc.local'))
+if !get(g:, 'dotfiles_skip_local', 0) && filereadable(expand('~/.vimrc.local'))
 	source ~/.vimrc.local
 endif

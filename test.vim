@@ -3,6 +3,7 @@ set nomore
 
 let s:root = fnamemodify(expand('<sfile>:p'), ':h')
 let $PATH = s:root . '/testdata:' . $PATH
+let g:dotfiles_skip_local = 1
 execute 'source' fnameescape(s:root . '/dot.vimrc')
 set noconfirm noautowrite noautowriteall
 
