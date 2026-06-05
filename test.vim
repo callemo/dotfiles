@@ -105,6 +105,8 @@ call view#Dir(s:dir_tmpdir, v:true)
 call assert_equal('dir', &filetype)
 call assert_equal(s:dir_tmpdir . '/', b:dir)
 call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
+call assert_equal(-1, index(getline(1, '$'), './'))
+call assert_equal(-1, index(getline(1, '$'), '../'))
 " Verify buffer-local CR mapping reuses the current window
 let s:cr_map = maparg('<CR>', 'n', 0, 1)
 call assert_true(!empty(s:cr_map))
