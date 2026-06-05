@@ -1,137 +1,84 @@
 # Dotfiles
 
-This is a collection of configuration files and small utilities for Unix systems.
-The tools here follow the old Unix tradition: each program does one thing and does it well.
+These are my dotfiles and small Unix tools.
 
-## What's Here
+They are not a product. I do not try to make them portable, complete, or easy
+for strangers to install. Copy whatever helps. Ignore the rest.
 
-The repository contains two kinds of things: configuration files for editors and shells,
-and a set of small command-line utilities. The configuration files live in the root
-directory as `dot.*` files that get symlinked to your home directory by the install script.
-The utilities live in `bin/` and handle common text processing tasks.
+The point is radical simplicity: plain files, small programs, pipes, text, and
+systems you can understand without a framework.
 
-Most of the utilities are filters—they read from standard input and write to standard output,
-so you can combine them with pipes. This makes them composable in the Unix tradition.
-
-## Installation
-
-Run `./install` to symlink configuration files and install vim plugins.
-The script won't overwrite existing files.
-
-To use the utilities, add `bin/` to your PATH or source `init.sh`:
+## Install
 
 ```sh
-. ~/dotfiles/init.sh
+./install
 ```
 
-## Some Useful Tools
+The installer links `dot.*` files into `$HOME`, links files under `dot.config/`
+into `~/.config/`, wires `init.sh` into shell rc files, and installs Vim
+plugins with `vim/get`.
 
-**snip** expands code templates for shell scripts, Go programs, Python functions, and more.
+On OpenBSD it also sources `install_openbsd.sh` for local machine setup:
+`wsconsctl`, xsel clipboard hooks, cursor settings, and Vim runtime paths.
 
-**fts** provides full-text search for notes and documents using SQLite's FTS5 engine.
+## Shape
 
-**tabfmt** formats tabular data into aligned columns. **tabmd** outputs Markdown tables.
+- `dot.*` — config files linked into `$HOME`
+- `dot.config/` — config files linked into `~/.config/`
+- `bin/` — small commands, mostly filters
+- `acme/` — Acme helpers over 9p
+- `vim/` — Vim runtime files and plugin installer
+- `lib/` — plumbing rules and support files
+- `testdata/` — fixtures
 
-**csvtab** converts CSV to tab-separated format, handling quoted fields correctly.
+`init.sh` puts the usual local paths first and sets a few shell defaults.
 
-**noco** strips ANSI color codes from text.
+## Tools
 
-**pareto** adds percentage and cumulative percentage columns for Pareto analysis.
+The tools in `bin/` do ordinary jobs: format tables, convert CSV, search notes,
+expand snippets, strip ANSI escapes, encode URLs, rewrite text, and wrap common
+git commands.
 
-**urlencode** and **urldecode** handle percent-encoding, with line-by-line mode.
+Most read stdin and write stdout:
 
-**camel** and **snake** convert between camelCase and snake_case.
-
-**rgsub** performs recursive search and replace using regular expressions.
-
-**template** does text substitution with placeholders like `{{1}}` and `{{2}}`.
-
-**n** manages notes with wiki-style linking and tagging. `n tag` accepts multiple tags as an AND query. **xref** rebuilds `References:` frontmatter from reverse links (also available as `n xref`; uses `$NROOT` as default directory).
-
-**pp** is a minimal AWK-based preprocessor supporting `#pp:ifdef`, `#pp:ifndef`, `#pp:endif`, and `#pp:include` directives, with `-Dsymbol` flags.
-
-**md** processes Markdown files with Pikchr diagram support.
-
-**dt** displays current date/time in ISO 8601 format (with flags for UTC, basic, week formats).
-
-**pomodoro** is a Pomodoro timer (8 cycles of 25-minute work with 5-minute breaks).
-
-The git utilities (**gst**, **gd**, **glog**, **grlog**) are shortcuts for common git operations.
-
-## Text Processing Philosophy
-
-These tools embrace the Unix pipe model. Instead of building monolithic programs
-that try to do everything, each utility solves one problem well. You combine them
-to solve larger problems.
-
-For example, to convert a CSV file to a nicely formatted Markdown table:
-
-```
-csvtab < data.csv | tabmd
+```sh
+csvtab <data.csv | tabmd
+fts 'search term' | tabfmt
 ```
 
-Or to search for a pattern in your notes and format the results:
+The important tools are the ones I use every day:
 
-```
-fts "search term" | tabfmt
-```
+- `n` manages notes, tags, wiki links, and backlinks.
+- `snip` expands code templates.
+- `fts` searches text with SQLite FTS5.
+- `rgsub` rewrites trees with regular expressions.
+- `tabfmt`, `tabmd`, and `csvtab` shape tabular text.
+- `md` processes Markdown with Pikchr diagrams.
+- `pp` preprocesses plain text with small `#pp:` directives.
 
-## Configuration Files
+The rest are deliberately small enough to read before using.
 
-The repository includes dotfiles for various tools. Run `./install` to symlink them to your home directory.
+## Vim and Acme
 
-| File                   | Purpose                                                       |
-| ---------------------- | ------------------------------------------------------------- |
-| **dot.vimrc**          | Vim configuration - sensible defaults, no plugins required    |
-| **dot.tmux.conf**      | Tmux configuration - vi mode keys, mouse support, status line |
-| **dot.Xdefaults**      | X configuration                                               |
-| **dot.xsession**       | X session startup script                                      |
-| **dot.fvwmrc**         | FVWM window manager configuration                             |
-| **dot.nexrc**          | Nex/vi editor configuration                                   |
-| **dot.ripgreprc**      | ripgrep default settings                                      |
-| **dot.perltidyrc**     | Perl::Tidy code formatter configuration                       |
-| **dot.prettierrc**     | Prettier code formatter settings                              |
-| **dot.pylintrc**       | Pylint Python linter configuration                            |
+Vim is the main editor here. The config aims to stay readable: Vim declarations
+in `dot.vimrc`, behavior in autoload files, plugins loaded only when needed.
 
-The install script also sets up:
-
-- **lib/** → **~/lib** - Contains plumbing rules and auxiliary files
-- Global Git excludesfile pointing to `.gitignore`
-
-## Vim Plugins
-
-**vim/get** installs plugins from GitHub to `~/.vim/pack/default/start/`.
-Use the `-o` flag for optional plugins that load with `:packadd`.
-
-## The Acme Connection
-
-The `acme/` directory contains utilities for the Acme text editor. Acme is a different
-kind of editor—it treats text editing as part of a larger programming environment.
-The tools here extend Acme with automatic formatting, go-to-definition, and other
-programmer conveniences.
-
-**afmt** formats code using language-specific formatters (goimports, black, rustfmt, prettier, perltidy).
-
-**agopls** starts acme-lsp with gopls. **decl** jumps to definition. **uses** finds references.
-**rename** renames symbols.
-
-**ind** and **unind** indent/unindent text. **quote** prefixes lines with `> `.
-**untab** converts tabs to spaces. **areload** reloads a window from disk.
-
-These scripts communicate with Acme via the Plan 9 filesystem protocol (9p).
+Acme scripts live in `acme/`. They format code, jump to definitions, find uses,
+rename symbols, indent text, and reload windows by talking to Acme through 9p.
 
 ## Tests
 
-Run `./test` to exercise the utilities. The test script runs each tool against
-known inputs and compares the output to expected results. Reusable fixtures live in `testdata/`.
-It's not fancy, but it catches regressions.
+```sh
+./test
+```
 
-## Design Notes
+The tests are plain shell, Python `unittest`, and headless Vim. They catch the
+regressions I care about.
 
-The utilities here favor simplicity over features. They handle the common cases well
-and let you combine them for the uncommon ones. Error messages are brief and to the point.
-Options follow the traditional Unix style with single letters and minimal configuration.
+## Design
 
-Most tools are written in shell script or Python, chosen for clarity rather than performance.
-They're meant to be read and modified. If you need something slightly different,
-fork the code and change it.
+Prefer a file to a database, a script to a service, a pipe to an API, and a
+convention to configuration.
+
+Programs should be small enough to throw away and clear enough to copy. When a
+tool grows clever, split it. When a system needs a story, simplify it.

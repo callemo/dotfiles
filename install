@@ -11,8 +11,7 @@ cd "$root" || fatal "cd $root"
 
 # ensure line exists in file (ERE pattern matching)
 # exit: 0=unchanged, 1=updated, >1=error
-fileline() {
-	local pattern line file sedpat sedtext
+fileline() (
 	pattern=$1 line=$2 file=$3
 	grep -qxF "$line" "$file" 2>/dev/null && return 0
 	if grep -qE "$pattern" "$file" 2>/dev/null; then
@@ -24,7 +23,7 @@ fileline() {
 	fi
 	printf '%s\n' "$line" >>"$file"
 	log "$file: $pattern: added"
-}
+)
 
 for f in dot.*; do
 	[ -e "$f" ] || continue
@@ -64,65 +63,7 @@ tmpl="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
 
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
-# OpenBSD: trackpad tap-to-click and natural scrolling.
-if [ "$(uname)" = OpenBSD ]; then
-	conf=/etc/wsconsctl.conf
-	for line in mouse.tp.tapping=1 mouse.reverse_scrolling=1; do
-		doas grep -qxF "$line" "$conf" 2>/dev/null || {
-			echo "$line" | doas tee -a "$conf" >/dev/null
-			log "$conf: added $line"
-		}
-		doas wsconsctl "$line" >/dev/null
-	done
-	# xterm here lacks OSC 52; override tmux copy bindings to use xsel.
-	command -v xsel >/dev/null 2>&1 || log 'xsel missing; tmux clipboard copy disabled (pkg_add xsel)'
-	tcl="$HOME/.tmux.conf.local"
-	grep -qF "copy-pipe 'xsel -ib'" "$tcl" 2>/dev/null || {
-		cat >>"$tcl" <<-'EOF'
-		# OpenBSD xterm lacks OSC 52; copy through xsel.
-		bind -T copy-mode-vi y send-keys -X copy-pipe 'xsel -ib'
-		bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe 'xsel -ib'
-		bind -T copy-mode-vi DoubleClick1Pane select-pane \; send-keys -X select-word \; run-shell -d 0.3 \; send-keys -X copy-pipe 'xsel -ib'
-		bind -T copy-mode-vi TripleClick1Pane select-pane \; send-keys -X select-line \; run-shell -d 0.3 \; send-keys -X copy-pipe 'xsel -ib'
-		EOF
-		log "$tcl: added xsel copy bindings"
-	}
-	# fvwm has no desktop top bar; show battery and clock in the tmux status line.
-	grep -q 'apm -l' "$tcl" 2>/dev/null || {
-		cat >>"$tcl" <<-'EOF'
-		# No top bar here: battery % and clock at the right, refreshed each minute.
-		set -g status-interval 60
-		set -g status-right-length 100
-		set -g status-right "#[fg=blue]#{?pane_in_mode,COPY ,}#{?client_prefix,PREFIX ,}#{?window_zoomed_flag,ZOOM ,}#[fg=#{?#{&&:#(apm -l),#{e|<:#(apm -l),20}},red,brightblack}]#{?#{==:#(apm -a),1},+,}#(apm -l)%% #[fg=brightblack]%H:%M #h "
-		EOF
-		log "$tcl: added battery/clock status"
-	}
-	# Cursor: make the "default" theme resolve to Adwaita so every toolkit agrees,
-	# and give GTK/Chromium their own cursor-size setting (they ignore Xcursor.size).
-	mkdir -p "$HOME/.icons/default"
-	cat >"$HOME/.icons/default/index.theme" <<-'EOF'
-	[Icon Theme]
-	Inherits=Adwaita
-	EOF
-	mkdir -p "$HOME/.config/gtk-3.0"
-	grep -q gtk-cursor-theme-size "$HOME/.config/gtk-3.0/settings.ini" 2>/dev/null || cat >>"$HOME/.config/gtk-3.0/settings.ini" <<-'EOF'
-	[Settings]
-	gtk-cursor-theme-name=Adwaita
-	gtk-cursor-theme-size=32
-	EOF
-	# OpenBSD packages install vim files here; add them to the runtimepath.
-	fileline '^set rtp\+=/usr/local/share/vim/vimfiles' 'set rtp+=/usr/local/share/vim/vimfiles' "$HOME/.vimrc.local"
-	# vim here has no +clipboard and xterm lacks OSC 52; yank through xsel.
-	grep -qF 'xsel -ib' "$HOME/.vimrc.local" 2>/dev/null || cat >>"$HOME/.vimrc.local" <<-'EOF'
-	" OpenBSD xterm lacks OSC 52; copy yanks through xsel.
-	if executable('xsel')
-	autocmd! dotfiles TextYankPost
-	autocmd dotfiles TextYankPost * if v:event.operator ==# 'y' | call system('xsel -ib', getreg('"')) | endif
-	nnoremap <silent> <leader>y <Cmd>call system('xsel -ib', fnamemodify(expand('%:p'), ':.'))<CR>
-	nnoremap <silent> <leader>Y <Cmd>call system('xsel -ib', expand('%:p'))<CR>
-	endif
-	EOF
-fi
+[ "$(uname)" = OpenBSD ] && . "$root/install_openbsd.sh"
 
 # Plugin data list
 plugins=$(mktemp) || fatal "mktemp failed"
@@ -147,7 +88,10 @@ done <"$plugins"
 # Prune undeclared start/ plugins
 startdir="$HOME/.vim/pack/default/start"
 [ -d "$startdir" ] || { rm -f "$plugins"; exit 0; }
-ls "$startdir" | awk -v startdir="$startdir" '
+for dir in "$startdir"/*; do
+	[ -d "$dir" ] || continue
+	printf '%s\n' "${dir##*/}"
+done | awk -v startdir="$startdir" '
 	FNR==NR { if (!/^-o/) { n=split($1,a,"/"); declared[a[n]]=1 } next }
 	$0 in declared { next }
 	{ print "install: vim prune " $0 > "/dev/stderr"
