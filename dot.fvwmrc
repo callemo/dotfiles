@@ -10,9 +10,9 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-WindowFont "-*-helvetica-bold-r-*-*-20-*-*-*-*-*-*-*"
+WindowFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 TitleStyle Height 30
-DefaultFont "-*-helvetica-bold-r-*-*-20-*-*-*-*-*-*-*"
+DefaultFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 HilightColor white #b24d7a
 MenuStyle * Foreground black, Background #aeb2c3, Greyed #7f8c9e
 
@@ -74,17 +74,19 @@ Mouse 3      2       A         Maximize 0 100
 
 # Apps (Omarchy-style launchers)
 Key Return A       4         Function OpenTerminal
+Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 Key Return A       S4        Exec exec chrome
-Key N      A       4         Exec exec xterm -e vim
+Key N      A       S4        Exec exec xterm -e vim
 
 # Menus / launcher
 Key space  A       4         Module FvwmForm RunCmd
-Key space  A       M4        Menu WinOps Nop
+Key space  A       M4        Menu RootMenu Nop
 Key comma  A       4         Menu WinOps Nop
 Key slash  A       4         WindowList
 Key R      A       4         Module FvwmForm RunCmd
 Key R      A       S4        Module FvwmForm RunTermCmd
-Key K      A       4         Module FvwmForm ConnectToServer
+Key K      A       4         Exec exec xterm -e vim +/"# Bindings" ~/dotfiles/dot.fvwmrc
+Key K      A       C4        Module FvwmForm ConnectToServer
 Key Escape A       4         Module FvwmForm LogOut
 
 # Window management
@@ -152,7 +154,8 @@ Key F12    A       4         Module FvwmTalk
 AddToMenu RootMenu "Root Menu" Title
 + "Chrome	Shift-Win-Return" Exec exec chrome
 + "XTerm	Win-Return" Function OpenTerminal
-+ "Vim	Win-N"      Exec exec xterm -e vim
++ "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
++ "Vim	Shift-Win-N" Exec exec xterm -e vim
 + ""                                 Nop
 + "Restart fvwm	Ctrl-Win-R"              Restart fvwm
 + "Run...	Win-Space"               Module FvwmForm RunCmd
