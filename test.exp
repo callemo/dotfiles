@@ -224,6 +224,8 @@ hello
 hello
 0
 --- tdump/tload
+send-keys	-t	%11	Escape	:Dump	C-m
+send-keys	-t	%20	Escape	:Dump	C-m
 s
 TESTDIR/session|root
 sess\demo
@@ -256,10 +258,11 @@ TESTDIR/proj c
 vim
 new-session	-d	-P	-F	#{window_id}\t#{pane_id}	-s	sess\\demo	-c	TESTDIR/session\|root
 send-keys	-t	%10	cd -- 'TESTDIR/proj\ta'	C-m
+rename-window	-t	@1	main\tview
 split-window	-d	-P	-F	#{pane_id}	-t	%10	-c	TESTDIR/proj\|b
 send-keys	-t	%11	vim -S Session.vim	C-m
 new-window	-d	-P	-F	#{window_id}\t#{pane_id}	-t	sess\\demo:2	-c	TESTDIR/proj c
-send-keys	-t	%20	vim	C-m
+send-keys	-t	%20	vim -c 'Load TESTDIR/proj c/vim.dump'	C-m
 select-layout	-t	@1	layout-main
 select-layout	-t	@2	tiled
 select-window	-t	@2

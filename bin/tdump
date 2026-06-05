@@ -8,6 +8,21 @@ dir=${f%/*}
 t=$(mktemp "$dir/.${f##*/}.XXXXXX") || exit 1
 trap 'rm -f "$t"' 0
 
+tab='	'
+
+vimdump() {
+	tmux list-panes -s -F "#{pane_id}${tab}#{pane_current_command}" |
+	while IFS=$tab read -r pane prog; do
+		case $prog in
+		vim)
+			tmux send-keys -t "$pane" Escape ':Dump' C-m
+			;;
+		esac
+	done
+}
+
+vimdump
+
 {
 	tmux display -p 's
 #{session_path}
