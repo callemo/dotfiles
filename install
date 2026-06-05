@@ -11,8 +11,7 @@ cd "$root" || fatal "cd $root"
 
 # ensure line exists in file (ERE pattern matching)
 # exit: 0=unchanged, 1=updated, >1=error
-fileline() {
-	local pattern line file sedpat sedtext
+fileline() (
 	pattern=$1 line=$2 file=$3
 	grep -qxF "$line" "$file" 2>/dev/null && return 0
 	if grep -qE "$pattern" "$file" 2>/dev/null; then
@@ -24,7 +23,7 @@ fileline() {
 	fi
 	printf '%s\n' "$line" >>"$file"
 	log "$file: $pattern: added"
-}
+)
 
 for f in dot.*; do
 	[ -e "$f" ] || continue
@@ -64,6 +63,8 @@ tmpl="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
 
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
+[ "$(uname)" = OpenBSD ] && . "$root/install_openbsd.sh"
+
 # Plugin data list
 plugins=$(mktemp) || fatal "mktemp failed"
 cat >"$plugins" <<EOF
@@ -87,7 +88,10 @@ done <"$plugins"
 # Prune undeclared start/ plugins
 startdir="$HOME/.vim/pack/default/start"
 [ -d "$startdir" ] || { rm -f "$plugins"; exit 0; }
-ls "$startdir" | awk -v startdir="$startdir" '
+for dir in "$startdir"/*; do
+	[ -d "$dir" ] || continue
+	printf '%s\n' "${dir##*/}"
+done | awk -v startdir="$startdir" '
 	FNR==NR { if (!/^-o/) { n=split($1,a,"/"); declared[a[n]]=1 } next }
 	$0 in declared { next }
 	{ print "install: vim prune " $0 > "/dev/stderr"
