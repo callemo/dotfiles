@@ -310,7 +310,7 @@ tmuxlog="$td/tmux.log"
 dump="$td/tmux.dump"
 pane0path=$(printf '%s/proj\ta' "$td")
 mkdir -p "$tmuxbin" "$tmuxstate" "$td/home" "$td/session|root" "$pane0path" "$td/proj|b" "$td/proj c"
-touch "$td/proj|b/Session.vim"
+touch "$td/proj|b/Session.vim" "$td/proj c/vim.dump"
 
 cat >"$tmuxbin/tmux" <<'END'
 #!/bin/sh
@@ -357,9 +357,18 @@ list-windows)
   printf 'w\n2\n*\n1\nlogs\ntiled\n'
   ;;
 list-panes)
-  printf 'p\n0\n0\n%s\nzsh\n' "$TMUX_MOCK_PANE0_PATH"
-  printf 'p\n0\n1\n%s\nvim\n' "$TMUX_MOCK_PANE1_PATH"
-  printf 'p\n2\n0\n%s\nvim\n' "$TMUX_MOCK_PANE2_PATH"
+  case $* in
+  *pane_id*)
+    printf '%%10\tzsh\n'
+    printf '%%11\tvim\n'
+    printf '%%20\tvim\n'
+    ;;
+  *)
+    printf 'p\n0\n0\n%s\nzsh\n' "$TMUX_MOCK_PANE0_PATH"
+    printf 'p\n0\n1\n%s\nvim\n' "$TMUX_MOCK_PANE1_PATH"
+    printf 'p\n2\n0\n%s\nvim\n' "$TMUX_MOCK_PANE2_PATH"
+    ;;
+  esac
   ;;
 new-session)
   record "$@"
@@ -394,6 +403,7 @@ PATH="$tmuxbin:$PATH" \
 TMUX_TEST_LOG="$tmuxlog" \
 TMUX_TEST_STATE="$tmuxstate" \
   ./bin/tdump "$dump"
+sed "s|$td|TESTDIR|g" "$tmuxlog"
 sed "s|$td|TESTDIR|g" "$dump"
 
 : > "$tmuxlog"
