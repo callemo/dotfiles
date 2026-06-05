@@ -3,6 +3,7 @@ set nomore
 
 let s:root = fnamemodify(expand('<sfile>:p'), ':h')
 let $PATH = s:root . '/testdata:' . $PATH
+let g:dotfiles_skip_local = 1
 execute 'source' fnameescape(s:root . '/dot.vimrc')
 set noconfirm noautowrite noautowriteall
 
@@ -63,6 +64,8 @@ call assert_equal('', &clipboard)
 let s:yank_au = execute('autocmd dotfiles TextYankPost')
 call assert_match('exec\.Yank(getreg(''"''))', s:yank_au)
 call assert_false(s:yank_au =~# 'tmux loadb')
+let s:enter_au = execute('autocmd dotfiles VimEnter')
+call assert_match('dotfiles_loaded_dump', s:enter_au)
 let s:path_y = maparg('<leader>y', 'n', 0, 1)
 let s:path_Y = maparg('<leader>Y', 'n', 0, 1)
 call assert_match("exec\\.Yank(fnamemodify(expand('%:p'), ':\\.'))", s:path_y.rhs)
@@ -104,6 +107,8 @@ call view#Dir(s:dir_tmpdir, v:true)
 call assert_equal('dir', &filetype)
 call assert_equal(s:dir_tmpdir . '/', b:dir)
 call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
+call assert_equal(-1, index(getline(1, '$'), './'))
+call assert_equal(-1, index(getline(1, '$'), '../'))
 " Verify buffer-local CR mapping reuses the current window
 let s:cr_map = maparg('<CR>', 'n', 0, 1)
 call assert_true(!empty(s:cr_map))
@@ -237,6 +242,7 @@ call assert_match(s:test_file, join(s:dump_lines, "\n"))
 " Load into fresh state
 enew!
 call exec#Load(s:dump_file)
+call assert_true(get(g:, 'dotfiles_loaded_dump', v:false))
 	call assert_equal(resolve(fnamemodify(s:test_file, ':p')), resolve(expand('%:p')))
 call assert_equal(2, line('.'))
 call delete(s:dump_tmpdir, 'rf')
