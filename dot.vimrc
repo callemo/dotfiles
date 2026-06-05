@@ -108,7 +108,7 @@ augroup dotfiles
 		\ setl nonumber
 		\ | setl statusline=%{%view#TermStatus()%}
 		\ | nnoremap <buffer> q i
-	autocmd VimEnter * if argc() == 0 && empty(bufname()) | call view.Dir('', true) | endif
+	autocmd VimEnter * if argc() == 0 && empty(bufname()) && !get(g:, 'dotfiles_loaded_dump', false) | call view.Dir('', true) | endif
 	# BufReadCmd matches trailing / (dir buffer names); BufEnter catches :e .
 	# Only fire for non-dir buffers — once a dir buffer is loaded, leave its
 	# contents alone (Acme model: dir window is a scratch the user may edit).

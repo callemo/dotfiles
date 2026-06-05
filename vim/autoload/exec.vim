@@ -286,6 +286,7 @@ enddef
 
 # Load restores state from file (default: $PWD/vim.dump).
 export def Load(file: string = '')
+	g:dotfiles_loaded_dump = true
 	var path = empty(file) ? getcwd() .. '/vim.dump' : fnamemodify(file, ':p')
 	if !filereadable(path)
 		g:Err('Load: file not found: ' .. path)
