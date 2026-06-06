@@ -320,16 +320,13 @@ AddToFunc PrevDesk
 # Modules {{{
 # Pager {{{
 *FvwmPagerFont -*-helvetica-bold-r-*-*-17-*-*-*-*-*-*-*
-*FvwmPagerGeometry 360x60-0-0
-*FvwmPagerSmallFont -*-helvetica-bold-r-*-*-14-*-*-*-*-*-*-*
+*FvwmPagerGeometry 150x30+44+0
+*FvwmPagerRows 1
+*FvwmPagerColumns 5
+*FvwmPagerSmallFont none
 *FvwmPagerFore black
 *FvwmPagerBack #aeb2c3
 *FvwmPagerHilight #b24d7a
-*FvwmPager*DeskColor*0 #aeb2c3
-*FvwmPager*DeskColor*1 #c3b2ae
-*FvwmPager*DeskColor*2 #b2c3ae
-*FvwmPager*DeskColor*3 #aec3c3
-*FvwmPager*DeskColor*4 #c3aec3
 *FvwmPagerLabel 0 "1"
 *FvwmPagerLabel 1 "2"
 *FvwmPagerLabel 2 "3"
