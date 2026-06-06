@@ -4,9 +4,14 @@ XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
 XTerm*faceName:           JetBrains Mono:style=Light
 XTerm*faceSize:           10
-XTerm*foreground:         #c0caf5
+XTerm*foreground:         #a9b1d6
 XTerm*background:         #1a1b26
 XTerm*cursorColor:        #ffffff
+XTerm*cursorColor2:       #000000
+XTerm*pointerColor:       #ffffff
+XTerm*pointerColorBackground: #000000
+XTerm*highlightColor:     #7aa2f7
+XTerm*highlightTextColor: #1a1b26
 XTerm*faceSize1:          7
 XTerm*faceSize2:          8
 XTerm*faceSize3:          9
@@ -46,16 +51,16 @@ XConsole*saveLines:   8
 *color2:  #9ece6a
 *color3:  #e0af68
 *color4:  #7aa2f7
-*color5:  #bb9af7
-*color6:  #7dcfff
+*color5:  #ad8ee6
+*color6:  #449dab
 *color7:  #a9b1d6
-*color8:  #414868
-*color9:  #f7768e
-*color10: #9ece6a
-*color11: #e0af68
-*color12: #7aa2f7
+*color8:  #444b6a
+*color9:  #ff7a93
+*color10: #b9f27c
+*color11: #ff9e64
+*color12: #7da6ff
 *color13: #bb9af7
-*color14: #7dcfff
+*color14: #0db9d7
 *color15: #c0caf5
 
 Xft.dpi: 144

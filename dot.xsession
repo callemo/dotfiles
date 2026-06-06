@@ -11,11 +11,9 @@ export XCURSOR_SIZE=32
 	xset fp rehash
 }
 
-dpi="$(sed -En 's/^Xft\.dpi:[     ]*([0-9]+)/\1/p' "$HOME/.Xdefaults")"
-if [ -n "$dpi" ]
-then
-	export QT_FONT_DPI="$dpi"
-fi
+# Keep Qt fonts normal, then scale the UI explicitly.
+export QT_FONT_DPI=96
+export QT_SCALE_FACTOR=1.6
 
 # Load X resources so GTK/Chromium pick up Xft.dpi (HiDPI scale) and colors.
 xrdb -merge "$HOME/.Xdefaults"
