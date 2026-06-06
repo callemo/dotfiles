@@ -58,7 +58,8 @@ Mouse 3      R       A         WindowList
 Mouse 1      FS      A         RaiseAndResize
 Mouse 1      I       A         IconifyOrMove
 Mouse 1      T       A         RaiseAndMove
-Mouse 1      W       M         RaiseAndMove
+Mouse 1      W       4         RaiseAndMove
+Mouse 3      W       4         RaiseAndResize
 Mouse 2      TSF     A         Menu WinOps Nop
 Mouse 2      I       A         Iconify
 Mouse 3      TSFI    A         RaiseLower
@@ -72,7 +73,7 @@ Mouse 3      2       A         Maximize 0 100
 # Names come from /usr/X11R6/include/X11/keysymdef.h
 #   Name   Context Modifiers Function
 
-# Apps (Omarchy-style launchers)
+# Apps
 Key Return A       4         Function OpenTerminal
 Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 Key Return A       S4        Exec exec chrome
@@ -81,23 +82,21 @@ Key N      A       S4        Exec exec xterm -e vim
 # Menus / launcher
 Key space  A       4         Module FvwmForm RunCmd
 Key space  A       M4        Menu RootMenu Nop
-Key comma  A       4         Menu WinOps Nop
 Key slash  A       4         WindowList
-Key R      A       4         Module FvwmForm RunCmd
-Key R      A       S4        Module FvwmForm RunTermCmd
-Key K      A       4         Exec exec xterm -e vim +/"# Bindings" ~/dotfiles/dot.fvwmrc
-Key K      A       C4        Module FvwmForm ConnectToServer
+Key K      A       4         Menu KeyBindingsMenu Nop
 Key Escape A       4         Module FvwmForm LogOut
 
 # Window management
 Key W      A       4         Close
 Key M      A       4         Iconify
-Key H      A       4         Lower
 Key F      A       4         Maximize
 Key F      A       M4        Maximize
-Key F11    A       S         Maximize
+Key Left   A       S4        Function TileLeft
+Key Right  A       S4        Function TileRight
+Key Up     A       S4        Function TileTop
+Key Down   A       S4        Function TileBottom
 
-# Focus: Win+arrows (directional), Alt+Tab (cycle)
+# Focus
 Key Left   A       4         Direction West  (CurrentPage !Iconic) Function SelectWindow
 Key Right  A       4         Direction East  (CurrentPage !Iconic) Function SelectWindow
 Key Up     A       4         Direction North (CurrentPage !Iconic) Function SelectWindow
@@ -105,7 +104,7 @@ Key Down   A       4         Direction South (CurrentPage !Iconic) Function Sele
 Key Tab    A       M         Next (CurrentPage !Iconic) Function SelectWindow
 Key Tab    A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
 
-# Desks: Win+1..5 goto, Shift+Win+1..5 move-to, Win+Tab next/prev
+# Desks
 Key Tab    A       4         Function NextDesk
 Key Tab    A       S4        Function PrevDesk
 Key 1      A       4         Desk 0 0
@@ -113,56 +112,110 @@ Key 2      A       4         Desk 0 1
 Key 3      A       4         Desk 0 2
 Key 4      A       4         Desk 0 3
 Key 5      A       4         Desk 0 4
+Key 6      A       4         Desk 0 5
+Key 7      A       4         Desk 0 6
+Key 8      A       4         Desk 0 7
+Key 9      A       4         Desk 0 8
+Key 0      A       4         Desk 0 9
 Key 1      A       S4        MoveToDesk 0 0
 Key 2      A       S4        MoveToDesk 0 1
 Key 3      A       S4        MoveToDesk 0 2
 Key 4      A       S4        MoveToDesk 0 3
 Key 5      A       S4        MoveToDesk 0 4
-
-# Move window: Shift+Win+arrows nudge, Shift+Win+HJKL snap to edge
-Key Left   A       S4        Move w-25p w+0p
-Key Right  A       S4        Move w+25p w+0p
-Key Up     A       S4        Move w+0p w-25p
-Key Down   A       S4        Move w+0p w+25p
-Key H      A       S4        Move 0 w+0 Warp
-Key L      A       S4        Move -0 w+0 Warp
-Key J      A       S4        Move w+0 -0 Warp
-Key K      A       S4        Move w+0 0 Warp
-
-# Snap / resize
-Key Left   A       C4        SnapLeft
-Key Right  A       C4        SnapRight
-Key E      A       C4        Maximize 67 100
-Key equal  A       4         Resize bringPointer w+50p w+0p
-Key minus  A       4         Resize bringPointer w-50p w+0p
-Key equal  A       S4        Resize bringPointer w+0p w+50p
-Key minus  A       S4        Resize bringPointer w+0p w-50p
+Key 6      A       S4        MoveToDesk 0 5
+Key 7      A       S4        MoveToDesk 0 6
+Key 8      A       S4        MoveToDesk 0 7
+Key 9      A       S4        MoveToDesk 0 8
+Key 0      A       S4        MoveToDesk 0 9
 
 # System
 Key L      A       C4        Exec exec xlock
 Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
-Key Q      A       S4        Module FvwmForm LogOut
-Key R      A       C4        Restart fvwm
 
 # Hardware
 Key F7     A       4         Exec exec bin/dock
 Key F7     A       S4        Exec exec bin/undock
-Key F12    A       4         Module FvwmTalk
 # }}}
 # }}}
 # Menus {{{
-AddToMenu RootMenu "Root Menu" Title
-+ "Chrome	Shift-Win-Return" Exec exec chrome
-+ "XTerm	Win-Return" Function OpenTerminal
+AddToMenu RootMenu "Control Menu" Title
++ "Run...	Win-Space"              Module FvwmForm RunCmd
++ "Key bindings	Win-K"           Menu KeyBindingsMenu Nop
++ "Window list	Win-Slash"         WindowList
++ ""                               Nop
++ "Chrome	Shift-Win-Return"      Exec exec chrome
++ "XTerm	Win-Return"             Function OpenTerminal
++ "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
++ "Vim	Shift-Win-N"             Exec exec xterm -e vim
++ ""                               Nop
++ "Lock Display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
++ "Log out...	Win-Escape"        Module FvwmForm LogOut
++ "Restart fvwm"                   Restart fvwm
+
+AddToMenu KeyBindingsMenu "Key Bindings" Title
++ "Navigation" Title
++ "Launcher	Win-Space" Module FvwmForm RunCmd
++ "Control menu	Alt-Win-Space" Menu RootMenu Nop
++ "System menu	Win-Escape" Module FvwmForm LogOut
++ "Key bindings	Win-K" Nop
++ "Window list	Win-Slash" WindowList
++ "Lock computer	Ctrl-Win-L" Exec exec xlock
++ "" Nop
++ "Apps" Title
++ "Terminal	Win-Return" Function OpenTerminal
 + "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
-+ "Vim	Shift-Win-N" Exec exec xterm -e vim
-+ ""                                 Nop
-+ "Restart fvwm	Ctrl-Win-R"              Restart fvwm
-+ "Run...	Win-Space"               Module FvwmForm RunCmd
-+ "Run in a terminal...	Shift-Win-R" Module FvwmForm RunTermCmd
-+ "Connect to server...	Win-K"       Module FvwmForm ConnectToServer
-+ "Lock Display	Ctrl-Win-L"          Exec exec xlock -echokeys -echokey \*
-+ "Log out...	Win-Escape"          Module FvwmForm LogOut
++ "Browser	Shift-Win-Return" Exec exec chrome
++ "Neovim	Shift-Win-N" Exec exec xterm -e vim
++ "" Nop
++ "Windows" Title
++ "Close	Win-W" Close
++ "Minimize	Win-M" Iconify
++ "Fullscreen approximation	Win-F" Maximize
++ "Maximize	Alt-Win-F" Maximize
++ "Tile left half	Shift-Win-Left" Function TileLeft
++ "Tile right half	Shift-Win-Right" Function TileRight
++ "Tile top half	Shift-Win-Up" Function TileTop
++ "Tile bottom half	Shift-Win-Down" Function TileBottom
++ "Drag window	Win-Left Mouse" Nop
++ "Resize window	Win-Right Mouse" Nop
++ "" Nop
++ "Focus" Title
++ "Focus left	Win-Left" Direction West  (CurrentPage !Iconic) Function SelectWindow
++ "Focus right	Win-Right" Direction East  (CurrentPage !Iconic) Function SelectWindow
++ "Focus up	Win-Up" Direction North (CurrentPage !Iconic) Function SelectWindow
++ "Focus down	Win-Down" Direction South (CurrentPage !Iconic) Function SelectWindow
++ "Next window	Alt-Tab" Next (CurrentPage !Iconic) Function SelectWindow
++ "Previous window	Shift-Alt-Tab" Prev (CurrentPage !Iconic) Function SelectWindow
++ "" Nop
++ "Workspaces" Title
++ "Next workspace	Win-Tab" Function NextDesk
++ "Previous workspace	Shift-Win-Tab" Function PrevDesk
++ "Workspace 1	Win-1" Desk 0 0
++ "Workspace 2	Win-2" Desk 0 1
++ "Workspace 3	Win-3" Desk 0 2
++ "Workspace 4	Win-4" Desk 0 3
++ "Workspace 5	Win-5" Desk 0 4
++ "Workspace 6	Win-6" Desk 0 5
++ "Workspace 7	Win-7" Desk 0 6
++ "Workspace 8	Win-8" Desk 0 7
++ "Workspace 9	Win-9" Desk 0 8
++ "Workspace 10	Win-0" Desk 0 9
++ "Move to workspace 1	Shift-Win-1" MoveToDesk 0 0
++ "Move to workspace 2	Shift-Win-2" MoveToDesk 0 1
++ "Move to workspace 3	Shift-Win-3" MoveToDesk 0 2
++ "Move to workspace 4	Shift-Win-4" MoveToDesk 0 3
++ "Move to workspace 5	Shift-Win-5" MoveToDesk 0 4
++ "Move to workspace 6	Shift-Win-6" MoveToDesk 0 5
++ "Move to workspace 7	Shift-Win-7" MoveToDesk 0 6
++ "Move to workspace 8	Shift-Win-8" MoveToDesk 0 7
++ "Move to workspace 9	Shift-Win-9" MoveToDesk 0 8
++ "Move to workspace 10	Shift-Win-0" MoveToDesk 0 9
++ "" Nop
++ "System / hardware" Title
++ "Nightlight	Ctrl-Win-N" Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
++ "Restart fvwm	Alt-Win-Space menu" Restart fvwm
++ "Dock	Win-F7" Exec exec bin/dock
++ "Undock	Shift-Win-F7" Exec exec bin/undock
 
 AddToMenu RootWinOps "Window Menu" Title
 + "Move"     Move
@@ -183,8 +236,8 @@ AddToMenu WinOps
 + "Move"           Move
 + "Size"           Resize
 + "Minimize	Win-M" Iconify
-+ "Maximize	Shift-F11" Maximize
-+ "Lower	Win-H" Lower
++ "Maximize	Win-F/Alt-Win-F" Maximize
++ "Lower"          Lower
 + "Stick"          Stick
 + "Refresh"        RefreshWindow
 + "Info"           Module FvwmIdent
@@ -224,27 +277,45 @@ AddToFunc OpenTerminal
     + I Wait xterm
     + I Next (xterm) SelectWindow
 
+AddToFunc TileLeft
+    + I Resize 49 96
+    + I Move 0 0
+
+AddToFunc TileRight
+    + I Resize 49 96
+    + I Move -0 0
+
+AddToFunc TileTop
+    + I Resize 99 47
+    + I Move 0 0
+
+AddToFunc TileBottom
+    + I Resize 99 47
+    + I Move 0 -0
+
 AddToFunc NextDesk
-    + I Desk 1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 4
+    + I Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
 
 AddToFunc PrevDesk
-    + I Desk -1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 4
-
-AddToFunc SnapLeft
-    + I Maximize 50 100
-    + I Move 0 0 Warp
-
-AddToFunc SnapRight
-    + I Maximize 50 100
-    + I Move -0 0 Warp
+    + I Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
+    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
 # }}}
 # Modules {{{
 # Pager {{{
@@ -291,26 +362,6 @@ Style "FvwmPager"   StaysOnTop, NoHandles
 *LogOutCommand    Quit
 Style "LogOut" NoTitle, NoHandles
 # }}}
-# ConnectToServer {{{
-*ConnectToServerWarpPointer
-*ConnectToServerFore       black
-*ConnectToServerBack       #aeb2c3
-*ConnectToServerItemFore   black
-*ConnectToServerItemBack   #c3b2ae
-*ConnectToServerFont       -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
-*ConnectToServerButtonFont -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
-*ConnectToServerInputFont  -*-courier-bold-r-*-*-24-*-*-*-*-*-*-*
-*ConnectToServerLine       center
-*ConnectToServerText       "Connect To Server"
-*ConnectToServerLine       left
-*ConnectToServerInput      Server  50 ""
-*ConnectToServerLine       right
-*ConnectToServerButton     quit "Cancel" ^[
-*ConnectToServerCommand    Nop
-*ConnectToServerButton     quit "Connect" ^M
-*ConnectToServerCommand    exec xterm -T 'ssh: $(Server)' -e ssh $(Server)
-Style "ConnectToServer" NoTitle, NoHandles
-# }}}
 # RunCmd {{{
 *RunCmdWarpPointer
 *RunCmdFore       black
@@ -330,26 +381,6 @@ Style "ConnectToServer" NoTitle, NoHandles
 *RunCmdButton     quit "Run" ^M
 *RunCmdCommand    exec $(Cmd)
 Style "RunCmd" NoTitle, NoHandles
-# }}}
-# RunTermCmd {{{
-*RunTermCmdWarpPointer
-*RunTermCmdFore       black
-*RunTermCmdBack       #aeb2c3
-*RunTermCmdItemFore   black
-*RunTermCmdItemBack   #c3b2ae
-*RunTermCmdFont       -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
-*RunTermCmdButtonFont -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
-*RunTermCmdInputFont  -*-courier-bold-r-*-*-24-*-*-*-*-*-*-*
-*RunTermCmdLine       center
-*RunTermCmdText       "Run In A Terminal"
-*RunTermCmdLine       left
-*RunTermCmdInput      Cmd  50 ""
-*RunTermCmdLine       right
-*RunTermCmdButton     quit "Cancel" ^[
-*RunTermCmdCommand    Nop
-*RunTermCmdButton     quit "Run" ^M
-*RunTermCmdCommand    exec xterm -T '$(Cmd)' -e $(Cmd)
-Style "RunTermCmd" NoTitle, NoHandles
 # }}}
 # }}}
 # }}}
