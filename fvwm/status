@@ -1,0 +1,16 @@
+#!/bin/sh
+
+printf '\033[?25l'
+while :; do
+	pct=$(apm -l 2>/dev/null)
+	[ -n "$pct" ] || pct=0
+	[ "$(apm -a 2>/dev/null)" = 1 ] && pre=+ || pre=
+	set -- $(date '+%a %b %e %H:%M %S')
+	sec=${5#0}; [ -n "$sec" ] || sec=0
+	line="$pre$pct% $1 $2 $3 $4"
+	cols=$(stty size 2>/dev/null); cols=${cols##* }
+	case $cols in ''|*[!0-9]*) cols=${#line};; esac
+	pad=1; [ "$cols" -gt "$pad" ] || pad=0
+	printf '\r\033[K%*s%*s' "$((cols - pad))" "$line" "$pad" ''
+	sleep $((60 - sec))
+done

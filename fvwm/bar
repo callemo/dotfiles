@@ -1,0 +1,25 @@
+#!/bin/sh
+
+bar=${1:-28}
+root=${DOTFILES:-$HOME/dotfiles}
+status=155
+
+dims=$(xdpyinfo | awk '/dimensions:/{print $2; exit}')
+w=${dims%x*}; w=${w:-1920}
+cols=$((w / 2))
+
+cat <<EOF
+*ToolBarBack #aeb2c3
+*ToolBarFore black
+*ToolBarFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
+*ToolBarGeometry ${w}x${bar}+0+0
+*ToolBarRows 1
+*ToolBarColumns $cols
+*ToolBarBoxSize fixed
+*ToolBarFrame 0
+*ToolBarPadding 0 0
+*ToolBar(75x1+0+0, Frame 0, Padding 0 0, Swallow(NoHints) "FvwmPager" \
+         "FvwmPager 0 4")
+*ToolBar(${status}x1-0+0, Frame 0, Padding 0 0, Swallow(NoHints) "ToolStatus" \
+         \`Exec exec $root/fvwm/status-term\`)
+EOF
