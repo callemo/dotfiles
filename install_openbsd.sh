@@ -25,18 +25,6 @@ tmux_xsel() (
 	log "$tcl: added xsel copy bindings"
 )
 
-tmux_status() (
-	tcl="$HOME/.tmux.conf.local"
-	grep -q 'apm -l' "$tcl" 2>/dev/null && return
-	cat >>"$tcl" <<-'EOF'
-	# No top bar here: battery % and clock at the right, refreshed each minute.
-	set -g status-interval 60
-	set -g status-right-length 100
-	set -g status-right "#[fg=blue]#{?pane_in_mode,COPY ,}#{?client_prefix,PREFIX ,}#{?window_zoomed_flag,ZOOM ,}#[fg=#{?#{&&:#(apm -l),#{e|<:#(apm -l),20}},red,brightblack}]#{?#{==:#(apm -a),1},+,}#(apm -l)%% #[fg=brightblack]%H:%M #h "
-	EOF
-	log "$tcl: added battery/clock status"
-)
-
 cursor() (
 	mkdir -p "$HOME/.icons/default"
 	cat >"$HOME/.icons/default/index.theme" <<-'EOF'
@@ -68,6 +56,5 @@ vim_openbsd() (
 
 wscons
 tmux_xsel
-tmux_status
 cursor
 vim_openbsd

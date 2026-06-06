@@ -6,6 +6,11 @@ export FIXFONT=/mnt/font/GoMono/12a/font
 export XCURSOR_THEME=Adwaita
 export XCURSOR_SIZE=32
 
+[ -d /usr/local/share/fonts/JetBrainsMono ] && {
+	xset fp+ /usr/local/share/fonts/JetBrainsMono
+	xset fp rehash
+}
+
 dpi="$(sed -En 's/^Xft\.dpi:[     ]*([0-9]+)/\1/p' "$HOME/.Xdefaults")"
 if [ -n "$dpi" ]
 then

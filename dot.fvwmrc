@@ -5,6 +5,7 @@ ModulePath /usr/X11R6/lib/X11/fvwm
 
 ColormapFocus  FollowsMouse
 SnapAttraction 10 Windows
+OpaqueMoveSize 100
 
 DeskTopSize    1x1
 EdgeThickness 0
@@ -14,13 +15,16 @@ WindowFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 TitleStyle Height 30
 DefaultFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 HilightColor white #b24d7a
-MenuStyle * Foreground black, Background #aeb2c3, Greyed #7f8c9e
+MenuStyle * Foreground black, Background #aeb2c3, Greyed #7f8c9e, \
+            Font "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
 
 AddToFunc StartFunction
-    + "I" Module FvwmPager 0 4
+    + "I" Module FvwmButtons ToolBar
+    + "I" PipeRead '$HOME/dotfiles/fvwm/winzones 28'
 
 # Styles {{{
 Style "*" BorderWidth 8, HandleWidth 8, \
+          NoTitle, \
           DecorateTransient, \
           HintOverride, \
           NoIcon, \
@@ -44,8 +48,10 @@ ButtonStyle 4 - MwmDecorMin
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkip, \
                  CirculateSkipIcon
-Style "xclock"   NoTitle, NoHandles, Sticky, WindowListSkip, CirculateSkip, \
-                 ClickToFocus
+Style "ToolStatus" NoTitle, NoHandles, BorderWidth 0, Sticky, \
+                   WindowListSkip, CirculateSkip, CirculateSkipIcon
+Style "ToolBar" NoTitle, NoHandles, BorderWidth 0, Sticky, \
+                WindowListSkip, CirculateSkip, CirculateSkipIcon
 Style "xconsole" WindowListSkip, CirculateSkip, Sticky
 # }}}
 # Bindings {{{
@@ -89,8 +95,8 @@ Key Escape A       4         Module FvwmForm LogOut
 # Window management
 Key W      A       4         Close
 Key M      A       4         Iconify
-Key F      A       4         Maximize
-Key F      A       M4        Maximize
+Key F      A       4         Maximize 100 100
+Key F      A       M4        Function MaximizeBelowBar
 Key Left   A       S4        Function TileLeft
 Key Right  A       S4        Function TileRight
 Key Up     A       S4        Function TileTop
@@ -133,8 +139,8 @@ Key L      A       C4        Exec exec xlock
 Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 
 # Hardware
-Key F7     A       4         Exec exec bin/dock
-Key F7     A       S4        Exec exec bin/undock
+Key F7     A       4         Exec exec $HOME/dotfiles/bin/dock
+Key F7     A       S4        Exec exec $HOME/dotfiles/bin/undock
 # }}}
 # }}}
 # Menus {{{
@@ -170,8 +176,8 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Windows" Title
 + "Close	Win-W" Close
 + "Minimize	Win-M" Iconify
-+ "Fullscreen approximation	Win-F" Maximize
-+ "Maximize	Alt-Win-F" Maximize
++ "Fullscreen	Win-F" Maximize 100 100
++ "Maximize below bar	Alt-Win-F" Function MaximizeBelowBar
 + "Tile left half	Shift-Win-Left" Function TileLeft
 + "Tile right half	Shift-Win-Right" Function TileRight
 + "Tile top half	Shift-Win-Up" Function TileTop
@@ -214,14 +220,14 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "System / hardware" Title
 + "Nightlight	Ctrl-Win-N" Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 + "Restart fvwm	Alt-Win-Space menu" Restart fvwm
-+ "Dock	Win-F7" Exec exec bin/dock
-+ "Undock	Shift-Win-F7" Exec exec bin/undock
++ "Dock	Win-F7" Exec exec $HOME/dotfiles/bin/dock
++ "Undock	Shift-Win-F7" Exec exec $HOME/dotfiles/bin/undock
 
 AddToMenu RootWinOps "Window Menu" Title
 + "Move"     Move
 + "Size"     Resize
 + "Minimize" Iconify
-+ "Maximize" Maximize
++ "Maximize" Function MaximizeBelowBar
 + "Raise"    Raise
 + "Lower"    Lower
 + "Stick"    Stick
@@ -236,7 +242,8 @@ AddToMenu WinOps
 + "Move"           Move
 + "Size"           Resize
 + "Minimize	Win-M" Iconify
-+ "Maximize	Win-F/Alt-Win-F" Maximize
++ "Fullscreen	Win-F" Maximize 100 100
++ "Maximize below bar	Alt-Win-F" Function MaximizeBelowBar
 + "Lower"          Lower
 + "Stick"          Stick
 + "Refresh"        RefreshWindow
@@ -277,21 +284,26 @@ AddToFunc OpenTerminal
     + I Wait xterm
     + I Next (xterm) SelectWindow
 
+# Fallbacks for 1920x1080; winzones recomputes these at startup (StartFunction).
+AddToFunc MaximizeBelowBar
+    + I Resize 1904p 1036p
+    + I Move 0 28p
+
 AddToFunc TileLeft
-    + I Resize 49 96
-    + I Move 0 0
+    + I Resize 944p 1036p
+    + I Move 0 28p
 
 AddToFunc TileRight
-    + I Resize 49 96
-    + I Move -0 0
+    + I Resize 944p 1036p
+    + I Move 960p 28p
 
 AddToFunc TileTop
-    + I Resize 99 47
-    + I Move 0 0
+    + I Resize 1904p 510p
+    + I Move 0 28p
 
 AddToFunc TileBottom
-    + I Resize 99 47
-    + I Move 0 -0
+    + I Resize 1904p 510p
+    + I Move 0 554p
 
 AddToFunc NextDesk
     + I Desk 1 0 0 9
@@ -318,9 +330,12 @@ AddToFunc PrevDesk
     + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
 # }}}
 # Modules {{{
+# ToolBar {{{
+PipeRead '$HOME/dotfiles/fvwm/toolbar 28'
+# }}}
 # Pager {{{
-*FvwmPagerFont -*-helvetica-bold-r-*-*-17-*-*-*-*-*-*-*
-*FvwmPagerGeometry 150x30+44+0
+*FvwmPagerFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
+*FvwmPagerGeometry 150x28+0+0
 *FvwmPagerRows 1
 *FvwmPagerColumns 5
 *FvwmPagerSmallFont none
@@ -332,7 +347,7 @@ AddToFunc PrevDesk
 *FvwmPagerLabel 2 "3"
 *FvwmPagerLabel 3 "4"
 *FvwmPagerLabel 4 "5"
-Style "FvwmPager"   StaysOnTop, NoHandles
+Style "FvwmPager"   NoHandles, BorderWidth 0
 # }}}
 # Ident {{{
 *FvwmIdentFont -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
