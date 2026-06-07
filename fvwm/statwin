@@ -1,7 +1,4 @@
 #!/bin/sh
 
 root=${DOTFILES:-$HOME/dotfiles}
-exec xterm -name ToolStatus -title ToolStatus +sb -bw 0 -b 1 \
-	-bg rgb:ae/b2/c3 -fg black \
-	-fn '-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1' -geometry 26x1 \
-	-e "$root/fvwm/status"
+exec xterm -name ToolStatus -title ToolStatus -e "$root/fvwm/status"
