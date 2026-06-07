@@ -20,7 +20,7 @@ xrdb -merge "$HOME/.Xdefaults"
 # Themed, sized cursor on the root window (the desktop background).
 xsetroot -cursor_name left_ptr
 
-[ -f "$HOME/bg.png" ] && xwallpaper --tile "$HOME/bg.png"
+[ -f "$HOME/bg.png" ] && feh --bg-tile "$HOME/bg.png" || feh --bg-tile "$HOME/dotfiles/fvwm/bg.png"
 setxkbmap -model pc105 -layout us -variant altgr-intl \
 	-option compose:rctrl -option ctrl:nocaps
 xidle -timeout 600 &

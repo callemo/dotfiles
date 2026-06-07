@@ -14,13 +14,19 @@ EdgeResistance 300 10
 WindowFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 TitleStyle Height 30
 DefaultFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
-HilightColor white #b24d7a
-MenuStyle * Foreground black, Background #aeb2c3, Greyed #7f8c9e, \
-            Font "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
+HilightColor #000000 #82FB9C
+MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
+            Foreground #6a6e95, Background #0B0C16, Greyed #3E4058, \
+            HilightBack #82FB9C, ActiveFore #0B0C16, \
+            Font "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 
 AddToFunc StartFunction
+    + "I" Exec exec feh --bg-tile "$HOME/dotfiles/fvwm/bg.png"
     + "I" Module FvwmButtons ToolBar
     + "I" PipeRead '$HOME/dotfiles/fvwm/winzones 28'
+
+AddToFunc RestartFunction
+    + "I" Exec exec feh --bg-tile "$HOME/dotfiles/fvwm/bg.png"
 
 # Styles {{{
 Style "*" BorderWidth 8, HandleWidth 8, \
@@ -28,15 +34,12 @@ Style "*" BorderWidth 8, HandleWidth 8, \
           DecorateTransient, \
           HintOverride, \
           NoIcon, \
-          MWMButtons, \
-          MWMDecor, \
-          MWMFunctions, \
           NoPPosition, \
           SloppyFocus, \
           SmartPlacement, RandomPlacement
 
-BorderStyle Active Solid #b24d7a
-BorderStyle Inactive Solid #7f8c9e
+BorderStyle Active Solid #82FB9C -- HiddenHandles NoInset
+BorderStyle Inactive Solid #6a6e95 -- HiddenHandles NoInset
 
 ButtonStyle Reset
 ButtonStyle All -- UseTitleStyle
@@ -50,7 +53,7 @@ Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkip, \
                  CirculateSkipIcon
 Style "ToolStatus" NoTitle, NoHandles, BorderWidth 0, Sticky, \
                    WindowListSkip, CirculateSkip, CirculateSkipIcon
-Style "ToolBar" NoTitle, NoHandles, BorderWidth 0, Sticky, \
+Style "ToolBar" NoTitle, NoHandles, BorderWidth 2, Sticky, \
                 WindowListSkip, CirculateSkip, CirculateSkipIcon
 Style "xconsole" WindowListSkip, CirculateSkip, Sticky
 # }}}
@@ -334,14 +337,14 @@ AddToFunc PrevDesk
 PipeRead '$HOME/dotfiles/fvwm/toolbar 28'
 # }}}
 # Pager {{{
-*FvwmPagerFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
+*FvwmPagerFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 *FvwmPagerGeometry 150x28+0+0
 *FvwmPagerRows 1
 *FvwmPagerColumns 5
 *FvwmPagerSmallFont none
-*FvwmPagerFore black
-*FvwmPagerBack #aeb2c3
-*FvwmPagerHilight #b24d7a
+*FvwmPagerFore #6a6e95
+*FvwmPagerBack #0B0C16
+*FvwmPagerHilight #82FB9C
 *FvwmPagerLabel 0 "1"
 *FvwmPagerLabel 1 "2"
 *FvwmPagerLabel 2 "3"

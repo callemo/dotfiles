@@ -4,14 +4,14 @@ XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
 XTerm*faceName:           JetBrains Mono:style=Light
 XTerm*faceSize:           10
-XTerm*foreground:         #a9b1d6
-XTerm*background:         #1a1b26
-XTerm*cursorColor:        #ffffff
-XTerm*cursorColor2:       #000000
-XTerm*pointerColor:       #ffffff
-XTerm*pointerColorBackground: #000000
-XTerm*highlightColor:     #7aa2f7
-XTerm*highlightTextColor: #1a1b26
+XTerm*foreground:         #ddf7ff
+XTerm*background:         #0B0C16
+XTerm*cursorColor:        #ddf7ff
+XTerm*cursorColor2:       #0B0C16
+XTerm*pointerColor:       #ddf7ff
+XTerm*pointerColorBackground: #0B0C16
+XTerm*highlightColor:     #ddf7ff
+XTerm*highlightTextColor: #0B0C16
 XTerm*faceSize1:          7
 XTerm*faceSize2:          8
 XTerm*faceSize3:          9
@@ -42,26 +42,35 @@ XConsole*saveLines:   8
     <Btn1Down>:         StartScroll(Backward) \n\
     <Btn3Down>:         StartScroll(Forward) \n\
     <BtnUp>:            NotifyScroll(Proportional) EndScroll()
-*scrollbar.background:    #aeb2c3
-*scrollbar.foreground:    #7f8c9e
+*scrollbar.background:    #3E4058
+*scrollbar.foreground:    #6a6e95
 
-! Tokyo Night color scheme
-*color0:  #15161e
-*color1:  #f7768e
-*color2:  #9ece6a
-*color3:  #e0af68
-*color4:  #7aa2f7
-*color5:  #ad8ee6
-*color6:  #449dab
-*color7:  #a9b1d6
-*color8:  #444b6a
-*color9:  #ff7a93
-*color10: #b9f27c
-*color11: #ff9e64
-*color12: #7da6ff
-*color13: #bb9af7
-*color14: #0db9d7
-*color15: #c0caf5
+! Hackerman color scheme
+*color0:  #3E4058
+*color1:  #50f872
+*color2:  #4fe88f
+*color3:  #50f7d4
+*color4:  #829dd4
+*color5:  #86a7df
+*color6:  #7cf8f7
+*color7:  #85E1FB
+*color8:  #6a6e95
+*color9:  #85ff9d
+*color10: #9cf7c2
+*color11: #a4ffec
+*color12: #c4d2ed
+*color13: #cddbf4
+*color14: #d1fffe
+*color15: #ddf7ff
+
+! ToolStatus bar
+ToolStatus*background:     #0B0C16
+ToolStatus*foreground:     #82FB9C
+ToolStatus*faceName:       JetBrains Mono:style=Bold
+ToolStatus*scrollBar:      false
+ToolStatus*borderWidth:    0
+ToolStatus*internalBorder: 1
+ToolStatus*geometry:       26x1
 
 Xft.dpi: 144
 Xcursor.theme: Adwaita
