@@ -21,12 +21,12 @@ MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
             Font "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
 
 AddToFunc StartFunction
-    + "I" Exec exec feh --bg-tile "$HOME/dotfiles/fvwm/bg.png"
+    + "I" Exec exec xwallpaper --zoom /usr/local/share/openbsd-backgrounds/landscape/deraadt/limestone-0728-073918tdr.jpg
     + "I" Module FvwmButtons ToolBar
     + "I" PipeRead '$HOME/dotfiles/fvwm/winzones 28'
 
 AddToFunc RestartFunction
-    + "I" Exec exec feh --bg-tile "$HOME/dotfiles/fvwm/bg.png"
+    + "I" Exec exec xwallpaper --zoom /usr/local/share/openbsd-backgrounds/landscape/deraadt/limestone-0728-073918tdr.jpg
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, \
@@ -53,7 +53,7 @@ Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkip, \
                  CirculateSkipIcon
 Style "ToolStatus" NoTitle, NoHandles, BorderWidth 0, Sticky, \
                    WindowListSkip, CirculateSkip, CirculateSkipIcon
-Style "ToolBar" NoTitle, NoHandles, BorderWidth 2, Sticky, \
+Style "ToolBar" NoTitle, NoHandles, BorderWidth 0, Sticky, \
                 WindowListSkip, CirculateSkip, CirculateSkipIcon
 Style "xconsole" WindowListSkip, CirculateSkip, Sticky
 # }}}

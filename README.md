@@ -19,7 +19,8 @@ into `~/.config/`, wires `init.sh` into shell rc files, and installs Vim
 plugins with `vim/get`.
 
 On OpenBSD it also sources `install_openbsd.sh` for local machine setup:
-`wsconsctl`, xsel clipboard hooks, cursor settings, and Vim runtime paths.
+`wsconsctl`, xsel clipboard hooks, cursor settings, wallpaper package checks,
+and Vim runtime paths.
 
 ## Shape
 

@@ -40,6 +40,12 @@ cursor() (
 	EOF
 )
 
+wallpaper() (
+	pic=/usr/local/share/openbsd-backgrounds/landscape/deraadt/limestone-0728-073918tdr.jpg
+	command -v xwallpaper >/dev/null 2>&1 && [ -f "$pic" ] && return
+	log 'wallpaper packages missing (pkg_add xwallpaper openbsd-backgrounds)'
+)
+
 vim_openbsd() (
 	fileline '^set rtp\+=/usr/local/share/vim/vimfiles' 'set rtp+=/usr/local/share/vim/vimfiles' "$HOME/.vimrc.local"
 	grep -qF 'xsel -ib' "$HOME/.vimrc.local" 2>/dev/null && return
@@ -57,4 +63,5 @@ vim_openbsd() (
 wscons
 tmux_xsel
 cursor
+wallpaper
 vim_openbsd
