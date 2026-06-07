@@ -22,6 +22,7 @@ ksh)
 	: "${HISTFILE:=$HOME/.ksh_history}"
 	export HISTCONTROL=ignoredups:ignorespace
 	set -o emacs
+	case $- in *i*) PS1='\[\e[36m\]\W\[\e[0m\] \[\e[1;36m\]>\[\e[0m\] ' ;; esac
 	;;
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"

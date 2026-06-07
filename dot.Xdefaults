@@ -66,10 +66,11 @@ XConsole*saveLines:   8
 ! ToolStatus bar
 ToolStatus*background:     #0B0C16
 ToolStatus*foreground:     #82FB9C
-ToolStatus*faceName:       JetBrains Mono:style=Bold
+ToolStatus*faceName:       JetBrains Mono:style=Semibold
+ToolStatus*faceSize:       9
 ToolStatus*scrollBar:      false
 ToolStatus*borderWidth:    0
-ToolStatus*internalBorder: 1
+ToolStatus*internalBorder: 2
 ToolStatus*geometry:       26x1
 
 Xft.dpi: 144

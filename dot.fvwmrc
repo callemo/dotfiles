@@ -11,14 +11,14 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-WindowFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+WindowFont "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
 TitleStyle Height 30
-DefaultFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+DefaultFont "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
 HilightColor #000000 #82FB9C
 MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
-            Foreground #6a6e95, Background #0B0C16, Greyed #3E4058, \
-            HilightBack #82FB9C, ActiveFore #0B0C16, \
-            Font "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+            Foreground black, Background #aeb2c3, Greyed #6a6e95, \
+            HilightBack #c3b2ae, ActiveFore black, \
+            Font "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
 
 AddToFunc StartFunction
     + "I" Exec exec feh --bg-tile "$HOME/dotfiles/fvwm/bg.png"
@@ -29,7 +29,7 @@ AddToFunc RestartFunction
     + "I" Exec exec feh --bg-tile "$HOME/dotfiles/fvwm/bg.png"
 
 # Styles {{{
-Style "*" BorderWidth 8, HandleWidth 8, \
+Style "*" BorderWidth 7, HandleWidth 7, \
           NoTitle, \
           DecorateTransient, \
           HintOverride, \
@@ -157,7 +157,7 @@ AddToMenu RootMenu "Control Menu" Title
 + "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 + "Vim	Shift-Win-N"             Exec exec xterm -e vim
 + ""                               Nop
-+ "Lock Display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
++ "Lock display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
 + "Log out...	Win-Escape"        Module FvwmForm LogOut
 + "Restart fvwm"                   Restart fvwm
 
@@ -337,7 +337,7 @@ AddToFunc PrevDesk
 PipeRead '$HOME/dotfiles/fvwm/toolbar 28'
 # }}}
 # Pager {{{
-*FvwmPagerFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+*FvwmPagerFont "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
 *FvwmPagerGeometry 150x28+0+0
 *FvwmPagerRows 1
 *FvwmPagerColumns 5
@@ -353,7 +353,7 @@ PipeRead '$HOME/dotfiles/fvwm/toolbar 28'
 Style "FvwmPager"   NoHandles, BorderWidth 0
 # }}}
 # Ident {{{
-*FvwmIdentFont -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
+*FvwmIdentFont -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
 # }}}
 # Form {{{
 # LogOut {{{
@@ -363,8 +363,8 @@ Style "FvwmPager"   NoHandles, BorderWidth 0
 *LogOutBack       #aeb2c3
 *LogOutItemFore   black
 *LogOutItemBack   #c3b2ae
-*LogOutFont       -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
-*LogOutButtonFont -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
+*LogOutFont       -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
+*LogOutButtonFont -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
 *LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
@@ -383,9 +383,9 @@ Style "LogOut" NoTitle, NoHandles
 *RunCmdBack       #aeb2c3
 *RunCmdItemFore   black
 *RunCmdItemBack   #c3b2ae
-*RunCmdFont       -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
-*RunCmdButtonFont -*-helvetica-bold-r-*-*-20-200-*-*-*-*-*-*
-*RunCmdInputFont  -*-courier-bold-r-*-*-24-*-*-*-*-*-*-*
+*RunCmdFont       -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
+*RunCmdButtonFont -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
+*RunCmdInputFont  -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
 *RunCmdLine       center
 *RunCmdText       "Run"
 *RunCmdLine       left

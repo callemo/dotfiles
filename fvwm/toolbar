@@ -11,7 +11,7 @@ cols=$((w / 2))
 cat <<EOF
 *ToolBarBack #0B0C16
 *ToolBarFore #82FB9C
-*ToolBarFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+*ToolBarFont "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
 *ToolBarGeometry ${w}x${bar}+0+0
 *ToolBarRows 1
 *ToolBarColumns $cols
