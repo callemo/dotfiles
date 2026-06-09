@@ -2,7 +2,7 @@
 
 wscons() (
 	conf=/etc/wsconsctl.conf
-	for line in mouse.tp.tapping=1 mouse.reverse_scrolling=1; do
+	for line in mouse.tp.tapping=0 mouse.reverse_scrolling=1; do
 		doas grep -qxF "$line" "$conf" 2>/dev/null || {
 			echo "$line" | doas tee -a "$conf" >/dev/null
 			log "$conf: added $line"
