@@ -86,6 +86,7 @@ Key Return A       4         Function OpenTerminal
 Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 Key Return A       S4        Exec exec chrome
 Key N      A       S4        Exec exec xterm -e vim
+Key T      A       C4        Function Btop
 
 # Menus / launcher
 Key space  A       4         Module FvwmForm RunCmd
@@ -174,6 +175,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 + "Browser	Shift-Win-Return" Exec exec chrome
 + "Neovim	Shift-Win-N" Exec exec xterm -e vim
++ "System monitor	Ctrl-Win-T" Function Btop
 + "" Nop
 + "Windows" Title
 + "Close	Win-W" Close
@@ -285,6 +287,11 @@ AddToFunc OpenTerminal
     + I Exec exec xterm
     + I Wait xterm
     + I Next (xterm) SelectWindow
+
+AddToFunc Btop
+    + I Exec exec xterm -name btop -geometry 110x35 -e btop
+    + I Wait btop
+    + I Next (btop) Move 50-437p 50-300p
 
 # Fallbacks for 1920x1080; winzones recomputes these at startup (StartFunction).
 AddToFunc MaximizeBelowBar
