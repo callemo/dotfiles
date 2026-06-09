@@ -18,7 +18,7 @@ HilightColor #000000 #82FB9C
 MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
             Foreground black, Background #aeb2c3, Greyed #6a6e95, \
             HilightBack #c3b2ae, ActiveFore black, \
-            Font "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
+            Font "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 
 AddToFunc StartFunction
     + "I" Exec exec xwallpaper --zoom /usr/local/share/openbsd-backgrounds/landscape/deraadt/limestone-0728-073918tdr.jpg
@@ -68,7 +68,6 @@ Mouse 1      FS      A         RaiseAndResize
 Mouse 1      I       A         IconifyOrMove
 Mouse 1      T       A         RaiseAndMove
 Mouse 1      W       4         RaiseAndMove
-Mouse 3      W       4         RaiseAndResize
 Mouse 2      TSF     A         Menu WinOps Nop
 Mouse 2      I       A         Iconify
 Mouse 3      TSFI    A         RaiseLower
@@ -186,7 +185,6 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Tile top half	Shift-Win-Up" Function TileTop
 + "Tile bottom half	Shift-Win-Down" Function TileBottom
 + "Drag window	Win-Left Mouse" Nop
-+ "Resize window	Win-Right Mouse" Nop
 + "" Nop
 + "Focus" Title
 + "Focus left	Win-Left" Direction West  (CurrentPage !Iconic) Function SelectWindow
@@ -264,6 +262,7 @@ AddToFunc RaiseAndResize
     + I Raise
     + M Resize
     + D Lower
+
 
 AddToFunc SelectWindow
     + I FlipFocus
@@ -363,8 +362,8 @@ Style "FvwmPager"   NoHandles, BorderWidth 0
 *LogOutBack       #aeb2c3
 *LogOutItemFore   black
 *LogOutItemBack   #c3b2ae
-*LogOutFont       -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
-*LogOutButtonFont -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
+*LogOutFont       -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
+*LogOutButtonFont -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
 *LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
@@ -383,9 +382,9 @@ Style "LogOut" NoTitle, NoHandles
 *RunCmdBack       #aeb2c3
 *RunCmdItemFore   black
 *RunCmdItemBack   #c3b2ae
-*RunCmdFont       -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
-*RunCmdButtonFont -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
-*RunCmdInputFont  -adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1
+*RunCmdFont       -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
+*RunCmdButtonFont -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
+*RunCmdInputFont  -adobe-courier-bold-r-normal--20-140-100-100-m-110-iso10646-1
 *RunCmdLine       center
 *RunCmdText       "Run"
 *RunCmdLine       left
