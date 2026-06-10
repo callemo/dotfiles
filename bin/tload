@@ -115,10 +115,17 @@ while IFS= read -r kind; do
 
 			put "w.$w.id" "$win"
 			put "w.$w.anchor" "$pane"
-			if [ "$(get "w.$w.auto")" = 0 ]; then
-				name=$(get "w.$w.name")
+			auto=$(get "w.$w.auto")
+			name=$(get "w.$w.name")
+			case $auto in
+			0)
 				tmux rename-window -t "$win" "$name"
-			fi
+				tmux set-window-option -t "$win" automatic-rename off
+				;;
+			1)
+				tmux set-window-option -t "$win" automatic-rename on
+				;;
+			esac
 
 		else
 			win=$(get "w.$w.id")

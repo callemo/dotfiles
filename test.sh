@@ -382,7 +382,7 @@ split-window)
   record "$@"
   printf '%%11\n'
   ;;
-rename-window|send-keys|select-layout|select-window|attach-session|switch-client)
+rename-window|send-keys|set-window-option|select-layout|select-window|attach-session|switch-client)
   record "$@"
   ;;
 *)

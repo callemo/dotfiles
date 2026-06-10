@@ -259,9 +259,11 @@ vim
 new-session	-d	-P	-F	#{window_id}\t#{pane_id}	-s	sess\\demo	-c	TESTDIR/session\|root
 send-keys	-t	%10	cd -- 'TESTDIR/proj\ta'	C-m
 rename-window	-t	@1	main\tview
+set-window-option	-t	@1	automatic-rename	off
 split-window	-d	-P	-F	#{pane_id}	-t	%10	-c	TESTDIR/proj\|b
 send-keys	-t	%11	vim -S Session.vim	C-m
 new-window	-d	-P	-F	#{window_id}\t#{pane_id}	-t	sess\\demo:2	-c	TESTDIR/proj c
+set-window-option	-t	@2	automatic-rename	on
 send-keys	-t	%20	vim -c 'Load TESTDIR/proj c/vim.dump'	C-m
 select-layout	-t	@1	layout-main
 select-layout	-t	@2	tiled
