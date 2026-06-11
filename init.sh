@@ -17,6 +17,12 @@ RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"; export RIPGREP_CONFIG_PATH
 
 : "${HISTSIZE:=10000}"; export HISTSIZE
 
+# Set EDITOR before any shell selects its line-editor mode: ksh derives the
+# mode from EDITOR each time the value changes, so a later EDITOR=vi (e.g. in
+# ~/.profile) would flip ksh out of emacs mode unless the value already matches.
+: "${EDITOR:=vi}"; export EDITOR
+: "${VISUAL:=$EDITOR}"; export VISUAL
+
 case "${SHELL##*/}" in
 ksh)
 	: "${HISTFILE:=$HOME/.ksh_history}"
