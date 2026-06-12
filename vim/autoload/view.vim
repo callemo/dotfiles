@@ -89,17 +89,23 @@ export def MidClick()
 	exec.Cmd(expand('<cWORD>'), 0, 0, 0)
 enddef
 
-# Sort: sort visible windows by buffer name.
+# Sort: sort named visible windows by buffer name, in place.
+# Unnamed windows keep their slot; named buffers are reshuffled among the
+# remaining slots in alphabetical order.
 export def Sort()
-	var w = range(1, winnr('$'))
-	var b = filter(map(copy(w), (_, v) => winbufnr(v)),
-		(_, v) => bufexists(v) && !empty(bufname(v)))
-	if empty(b)
+	var pairs: list<list<number>> = []
+	for wn in range(1, winnr('$'))
+		var bn = winbufnr(wn)
+		if bufexists(bn) && !empty(bufname(bn))
+			add(pairs, [wn, bn])
+		endif
+	endfor
+	if empty(pairs)
 		return
 	endif
-	var s = sort(copy(b), (x, y) => bufname(x) > bufname(y) ? 1 : -1)
-	for i in range(len(s))
-		win_execute(win_getid(w[i]), 'silent! buffer ' .. s[i])
+	var sorted = sort(copy(pairs), (x, y) => bufname(x[1]) > bufname(y[1]) ? 1 : -1)
+	for i in range(len(pairs))
+		win_execute(win_getid(pairs[i][0]), 'silent! buffer ' .. sorted[i][1])
 	endfor
 enddef
 

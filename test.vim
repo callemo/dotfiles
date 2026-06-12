@@ -189,6 +189,32 @@ call assert_equal('## Two', s:ll[1].text)
 lclose
 bwipeout!
 
+" Sort(): sorts named windows in place, leaves unnamed windows untouched.
+" Regression: prior code zipped the full window list against a filtered buffer
+" list, so unnamed windows shifted slots and one named buffer was duplicated.
+silent! tabonly!
+silent! only!
+edit z_sort.txt
+split a_sort.txt
+split
+enew
+split m_sort.txt
+call view#Sort()
+let s:names = []
+for i in range(1, winnr('$'))
+	call add(s:names, bufname(winbufnr(i)))
+endfor
+call assert_equal('', s:names[2])
+let s:named_after = filter(copy(s:names), {_, v -> !empty(v)})
+call sort(s:named_after)
+call assert_equal(['a_sort.txt', 'm_sort.txt', 'z_sort.txt'], s:named_after)
+silent! tabonly!
+silent! only!
+for s:b in ['z_sort.txt', 'a_sort.txt', 'm_sort.txt']
+	let s:bn = bufnr(s:b)
+	if s:bn > 0 | exe 'bwipeout!' s:bn | endif
+endfor
+
 " Cmd(): runs in buffer's directory (Acme model)
 let s:cmd_tmpdir = tempname()
 call mkdir(s:cmd_tmpdir, 'p')
