@@ -1,0 +1,178 @@
+#!/bin/sh
+# display: switch or sync internal/external display profiles.
+
+prefix="${0##*/}:"
+cachedir=${XDG_CACHE_HOME:-$HOME/.cache}
+logfile=${FVWM_LOG:-$cachedir/fvwm.log}
+log() {
+	echo "$prefix" "$@" >&2
+	[ -d "$cachedir" ] || mkdir -p "$cachedir"
+	printf '%s %s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$prefix" "$*" >>"$logfile" 2>/dev/null
+}
+fatal() { log "$@"; exit 1; }
+
+try() {
+	"$@"
+	rc=$?
+	[ $rc -eq 0 ] || log "failed($rc): $*"
+	return $rc
+}
+
+must() {
+	"$@"
+	rc=$?
+	[ $rc -eq 0 ] || fatal "failed($rc): $*"
+}
+
+cmd=${1:-toggle}
+emit=${2:-}
+int='eDP-1'
+root=${DOTFILES:-$HOME/dotfiles}
+
+[ "$(uname)" = OpenBSD ] || fatal 'Not running in OpenBSD'
+
+xr=$(xrandr) || fatal 'xrandr failed'
+ext=$(printf '%s\n' "$xr" | awk -v panel="$int" \
+	'$2 == "connected" && $1 != panel { print $1; exit }')
+active=$(printf '%s\n' "$xr" | awk -v panel="$int" '
+	$2 == "connected" && $1 != panel {
+		for (j = 1; j <= NF; j++)
+			if ($j ~ /^[0-9]+x[0-9]+\+[0-9]+\+[0-9]+$/) {
+				print $1
+				exit
+			}
+	}
+')
+[ -n "$active" ] && ext=$active
+active_mode=$(printf '%s\n' "$xr" | awk -v out="$active" '
+	$1 == out {
+		for (j = 1; j <= NF; j++)
+			if ($j ~ /^[0-9]+x[0-9]+\+[0-9]+\+[0-9]+$/) {
+				sub(/\+.*/, "", $j)
+				print $j
+				exit
+			}
+	}
+')
+mode=$(printf '%s\n' "$xr" | awk -v out="$ext" '
+	$1 == out { found = 1; next }
+	found && $1 !~ /^[0-9]+x[0-9]+$/ { exit }
+	found && /\+/ { print $1; exit }
+')
+
+log "state ext=${ext:-none} active=${active:-none} active_mode=${active_mode:-none} mode=${mode:-auto} cmd=$cmd"
+printf '%s\n' "$xr" | while IFS= read -r line; do
+	case $line in *connected*) log "xrandr: $line" ;; esac
+done
+
+fvwm() {
+	[ "$emit" = fvwm ] || return
+	printf '%s\n' "$@"
+}
+
+scale() {
+	dpi=$1 cursor=$2 xterm=$3 status=$4
+	cat <<EOF | xrdb -merge
+Xft.dpi: $dpi
+Xcursor.size: $cursor
+XTerm*faceSize: $xterm
+ToolStatus*faceSize: $status
+EOF
+	try xrandr --dpi "$dpi"
+	XCURSOR_SIZE=$cursor xsetroot -cursor_name left_ptr 2>/dev/null || true
+	fvwm "SetEnv XCURSOR_SIZE $cursor"
+	fvwm 'SetEnv QT_FONT_DPI 96'
+	fvwm 'SetEnv QT_SCALE_FACTOR 1.6'
+	log "scale: dpi=$dpi cursor=$cursor xterm=$xterm status=$status"
+}
+
+wallpaper() {
+	pic=/usr/local/share/openbsd-backgrounds/landscape/deraadt/limestone-0728-073918tdr.jpg
+	[ -f "$pic" ] || return
+	command -v xwallpaper >/dev/null 2>&1 || return
+	xwallpaper --zoom "$pic" 2>/dev/null || true
+	log 'wallpaper zoomed'
+}
+
+mouse() {
+	xinput list --name-only | awk '/^\/dev\/wsmouse/ { print }' | while IFS= read -r dev; do
+		try xinput set-prop "$dev" 'Device Accel Constant Deceleration' 1
+		map=$(xinput get-button-map "$dev" 2>/dev/null) || continue
+		set -- $map
+		[ $# -ge 7 ] && try xinput set-button-map "$dev" 1 2 3 5 4 7 6
+	done
+}
+
+reload() {
+	[ "$emit" = fvwm ] && {
+		fvwm "PipeRead '$root/fvwm/winzones 32'"
+		return
+	}
+	command -v FvwmCommand >/dev/null 2>&1 || {
+		log 'reload skipped: no FvwmCommand'
+		return
+	}
+	FvwmCommand "PipeRead '$root/fvwm/winzones 32'" >/dev/null 2>&1
+	rc=$?
+	[ $rc -eq 0 ] && { log 'reload fvwm winzones'; return; }
+	log "reload failed($rc): FvwmCommand"
+}
+
+profileext() {
+	[ -n "$active" ] && try xrandr --output "$active" --primary
+	scale 216 56 9 7
+	wallpaper
+	mouse
+	reload
+}
+
+profileint() {
+	scale 144 32 10 9
+	wallpaper
+	mouse
+	reload
+}
+
+useext() {
+	[ -n "$ext" ] || fatal 'no external display connected'
+	log "$ext ${mode:-preferred} on, $int off"
+	if [ -n "$mode" ]; then
+		must xrandr --output "$ext" --primary --mode "$mode" --output "$int" --off
+	else
+		must xrandr --output "$ext" --primary --auto --output "$int" --off
+	fi
+	active=$ext
+	profileext
+}
+
+useint() {
+	log "$int on${ext:+, $ext off}"
+	if [ -n "$ext" ]; then
+		must xrandr --output "$int" --primary --auto --output "$ext" --off
+	else
+		must xrandr --output "$int" --primary --auto
+	fi
+	active=
+	profileint
+}
+
+sync() {
+	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; exit; }
+	[ -n "$active" ] && { profileext; exit; }
+	profileint
+}
+
+toggle() {
+	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; exit; }
+	[ -n "$active" ] && { useint; exit; }
+	[ -n "$ext" ] || { useint; exit; }
+	useext
+}
+
+case $cmd in
+toggle) toggle ;;
+sync|apply) sync ;;
+external|ext) useext ;;
+internal|int) useint ;;
+*) fatal 'usage: display [toggle|sync|external|internal] [fvwm]' ;;
+esac

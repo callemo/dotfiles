@@ -11,22 +11,21 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-WindowFont "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
-TitleStyle Height 30
-DefaultFont "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
+WindowFont "-adobe-helvetica-bold-r-normal--25-180-100-100-p-138-iso10646-1"
+TitleStyle Height 40
+DefaultFont "-adobe-helvetica-bold-r-normal--25-180-100-100-p-138-iso10646-1"
 HilightColor #000000 #82FB9C
 MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
             Foreground black, Background #aeb2c3, Greyed #6a6e95, \
             HilightBack #c3b2ae, ActiveFore black, \
-            Font "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+            Font "-adobe-helvetica-bold-r-normal--25-180-100-100-p-138-iso10646-1"
 
 AddToFunc StartFunction
-    + "I" Exec exec xwallpaper --zoom /usr/local/share/openbsd-backgrounds/landscape/deraadt/limestone-0728-073918tdr.jpg
+    + "I" PipeRead '$HOME/dotfiles/fvwm/display sync fvwm'
     + "I" Module FvwmButtons ToolBar
-    + "I" PipeRead '$HOME/dotfiles/fvwm/winzones 28'
 
 AddToFunc RestartFunction
-    + "I" Exec exec xwallpaper --zoom /usr/local/share/openbsd-backgrounds/landscape/deraadt/limestone-0728-073918tdr.jpg
+    + "I" PipeRead '$HOME/dotfiles/fvwm/display sync fvwm'
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, \
@@ -141,9 +140,8 @@ Key 0      A       S4        MoveToDesk 0 9
 Key L      A       C4        Exec exec xlock
 Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 
-# Hardware
-Key F7     A       4         Exec exec $HOME/dotfiles/bin/dock
-Key F7     A       S4        Exec exec $HOME/dotfiles/bin/undock
+# Display switching: same shortcut as Omarchy's laptop display toggle.
+Key Delete A       C4        PipeRead '$HOME/dotfiles/fvwm/display toggle fvwm'
 # }}}
 # }}}
 # Menus {{{
@@ -157,6 +155,7 @@ AddToMenu RootMenu "Control Menu" Title
 + "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 + "Vim	Shift-Win-N"             Exec exec xterm -e vim
 + ""                               Nop
++ "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/fvwm/display toggle fvwm'
 + "Lock display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
 + "Log out...	Win-Escape"        Module FvwmForm LogOut
 + "Restart fvwm"                   Restart fvwm
@@ -174,7 +173,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Terminal	Win-Return" Function OpenTerminal
 + "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 + "Browser	Shift-Win-Return" Exec exec chrome
-+ "Neovim	Shift-Win-N" Exec exec xterm -e vim
++ "Vim	Shift-Win-N" Exec exec xterm -e vim
 + "System monitor	Ctrl-Win-T" Function Btop
 + "" Nop
 + "Windows" Title
@@ -223,8 +222,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "System / hardware" Title
 + "Nightlight	Ctrl-Win-N" Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 + "Restart fvwm	Alt-Win-Space menu" Restart fvwm
-+ "Dock	Win-F7" Exec exec $HOME/dotfiles/bin/dock
-+ "Undock	Shift-Win-F7" Exec exec $HOME/dotfiles/bin/undock
++ "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/fvwm/display toggle fvwm'
 
 AddToMenu RootWinOps "Window Menu" Title
 + "Move"     Move
@@ -340,11 +338,11 @@ AddToFunc PrevDesk
 # }}}
 # Modules {{{
 # ToolBar {{{
-PipeRead '$HOME/dotfiles/fvwm/toolbar 28'
+PipeRead '$HOME/dotfiles/fvwm/toolbar 32'
 # }}}
 # Pager {{{
-*FvwmPagerFont "-adobe-helvetica-bold-r-normal--17-120-100-100-p-92-iso10646-1"
-*FvwmPagerGeometry 150x28+0+0
+*FvwmPagerFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+*FvwmPagerGeometry 180x32+0+0
 *FvwmPagerRows 1
 *FvwmPagerColumns 5
 *FvwmPagerSmallFont none
@@ -369,8 +367,8 @@ Style "FvwmPager"   NoHandles, BorderWidth 0
 *LogOutBack       #aeb2c3
 *LogOutItemFore   black
 *LogOutItemBack   #c3b2ae
-*LogOutFont       -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
-*LogOutButtonFont -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
+*LogOutFont       -adobe-helvetica-bold-r-normal--25-180-100-100-p-138-iso10646-1
+*LogOutButtonFont -adobe-helvetica-bold-r-normal--25-180-100-100-p-138-iso10646-1
 *LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
@@ -389,9 +387,9 @@ Style "LogOut" NoTitle, NoHandles
 *RunCmdBack       #aeb2c3
 *RunCmdItemFore   black
 *RunCmdItemBack   #c3b2ae
-*RunCmdFont       -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
-*RunCmdButtonFont -adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1
-*RunCmdInputFont  -adobe-courier-bold-r-normal--20-140-100-100-m-110-iso10646-1
+*RunCmdFont       -adobe-helvetica-bold-r-normal--25-180-100-100-p-138-iso10646-1
+*RunCmdButtonFont -adobe-helvetica-bold-r-normal--25-180-100-100-p-138-iso10646-1
+*RunCmdInputFont  -adobe-courier-bold-r-normal--25-180-100-100-m-150-iso10646-1
 *RunCmdLine       center
 *RunCmdText       "Run"
 *RunCmdLine       left

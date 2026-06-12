@@ -1,6 +1,6 @@
 #!/bin/sh
 
-bar=${1:-28}
+bar=${1:-32}
 border=8
 
 dims=$(xdpyinfo | awk '/dimensions:/{print $2; exit}')
