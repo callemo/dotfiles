@@ -2,9 +2,8 @@ export LC_CTYPE=en_US.UTF-8
 export VARFONT=/mnt/font/GoRegular/13a/font
 export FIXFONT=/mnt/font/GoMono/12a/font
 
-# Enlarge the mouse pointer for HiDPI (Adwaita ships scalable cursors).
+# Adwaita ships scalable cursors; Xcursor.size comes from the display profile.
 export XCURSOR_THEME=Adwaita
-export XCURSOR_SIZE=32
 
 [ -d /usr/local/share/fonts/JetBrainsMono ] && {
 	xset fp+ /usr/local/share/fonts/JetBrainsMono
@@ -21,7 +20,9 @@ xrdb -merge "$HOME/.Xdefaults"
 xsetroot -cursor_name left_ptr
 
 setxkbmap -model pc105 -layout us -variant altgr-intl \
-	-option compose:rctrl -option ctrl:nocaps
+	-option '' -option compose:rctrl -option ctrl:nocaps
+xinput set-prop /dev/wsmouse 'Device Accel Constant Deceleration' 1
+"$HOME/dotfiles/fvwm/display" sync
 xidle -timeout 600 &
 # Warm the screen at night (19:00-07:00), cool during the day.
 h=$(date +%H)
