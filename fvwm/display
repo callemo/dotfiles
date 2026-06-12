@@ -95,11 +95,15 @@ wallpaper() {
 }
 
 mouse() {
+	case $1 in
+	natural) buttons='1 2 3 5 4 7 6' ;;
+	*) buttons='1 2 3 4 5 6 7' ;;
+	esac
 	xinput list --name-only | awk '/^\/dev\/wsmouse/ { print }' | while IFS= read -r dev; do
 		try xinput set-prop "$dev" 'Device Accel Constant Deceleration' 1
 		map=$(xinput get-button-map "$dev" 2>/dev/null) || continue
 		set -- $map
-		[ $# -ge 7 ] && try xinput set-button-map "$dev" 1 2 3 5 4 7 6
+		[ $# -ge 7 ] && try xinput set-button-map "$dev" $buttons
 	done
 }
 
@@ -122,7 +126,7 @@ profileext() {
 	[ -n "$active" ] && try xrandr --output "$active" --primary
 	scale 216 56 9 7
 	wallpaper
-	mouse
+	mouse natural
 	reload
 }
 
