@@ -356,6 +356,17 @@ unlet t:label
 exe 'bwipeout!' bufnr(s:pct)
 call delete(s:pct)
 
+" Browse(): toggling closes a dir buffer even if the user edited it. Dir
+" buffers are scratch by design and don't merit a write prompt.
+let s:browse_tmpdir = tempname()
+call mkdir(s:browse_tmpdir, 'p')
+call writefile(['hi'], s:browse_tmpdir . '/file.txt')
+call view#Dir(s:browse_tmpdir, v:true)
+call append(0, 'EDITED-LINE')
+call view#Browse()
+call assert_notequal('dir', &filetype)
+call delete(s:browse_tmpdir, 'rf')
+
 " Dump/Load: functions exist and commands are defined
 call assert_true(exists('*exec#Dump'))
 call assert_true(exists('*exec#Load'))

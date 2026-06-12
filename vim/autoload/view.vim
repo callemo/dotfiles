@@ -228,9 +228,11 @@ export def Load(d: string)
 enddef
 
 # Browse: toggle the directory buffer.
+# Dir buffers are scratch (bufhidden=wipe, buftype=nofile) and may be edited
+# Acme-style — wipe with bang so user edits don't refuse the toggle.
 export def Browse()
 	if &filetype ==# 'dir'
-		execute('bwipeout')
+		execute 'bwipeout!'
 		return
 	endif
 	Dir('')
