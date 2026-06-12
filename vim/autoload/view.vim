@@ -114,7 +114,7 @@ export def Bufmatch(a: string)
 	var i = stridx(a, '/')
 	var j = strridx(a, '/')
 	if i == -1 || i == j
-		g:Err('Usage: :B /regular expression/[D]')
+		g:Err('Usage: :B /regular expression/[dD]')
 		return
 	endif
 	var re = a[i + 1 : j - 1]
