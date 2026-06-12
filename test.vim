@@ -260,6 +260,48 @@ let s:c2_map = maparg('<2-LeftMouse>', 'n', 0, 1)
 call assert_true(!empty(s:c2_map))
 call assert_match('view[#.]DblClick', s:c2_map.rhs)
 
+" Comment(): line-style commentstring (#%s) — preserves indent on both passes.
+enew
+setlocal commentstring=#%s
+call setline(1, ['def foo():', '    return 1', '    return 2'])
+call setpos("'[", [0, 2, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['def foo():', '    # return 1', '    # return 2'], getline(1, '$'))
+call setpos("'[", [0, 2, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['def foo():', '    return 1', '    return 2'], getline(1, '$'))
+bwipeout!
+
+" Comment(): paired commentstring (<!--%s-->) — must wrap, not concatenate.
+enew
+setlocal commentstring=<!--%s-->
+call setline(1, ['<div>', '  <p>hi</p>', '</div>'])
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['<!-- <div> -->', '  <!-- <p>hi</p> -->', '<!-- </div> -->'], getline(1, '$'))
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['<div>', '  <p>hi</p>', '</div>'], getline(1, '$'))
+bwipeout!
+
+" Comment(): mixed indent levels round-trip cleanly.
+enew
+setlocal commentstring=#%s
+call setline(1, ['top', '  mid', '    deep'])
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['# top', '  # mid', '    # deep'], getline(1, '$'))
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['top', '  mid', '    deep'], getline(1, '$'))
+bwipeout!
+
 " Dump/Load: functions exist and commands are defined
 call assert_true(exists('*exec#Dump'))
 call assert_true(exists('*exec#Load'))

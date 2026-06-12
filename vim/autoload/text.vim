@@ -1,20 +1,25 @@
 vim9script
 
 # Comment toggles line comments. Operator: <leader>c{motion}, <leader>cc, visual <leader>c.
+# Handles both line ('# %s') and paired ('<!--%s-->') commentstrings.
+# Preserves leading indent: '    foo' → '    # foo'.
 
 export def Comment(type = ''): string
 	if type == ''
 		&operatorfunc = 'text#Comment'
 		return 'g@'
 	endif
-	var l = trim(substitute(&commentstring, '%s', '', ''))
-	var lp = '\V' .. escape(l, '\')
+	var pair = split(&commentstring, '%s', 1)
+	var lhs = trim(pair[0])
+	var rhs = len(pair) > 1 ? trim(pair[1]) : ''
+	var lp = '\V' .. escape(lhs, '\')
+	var rp = empty(rhs) ? '' : '\V' .. escape(rhs, '\')
 	var lnum1 = line("'[")
 	var lnum2 = line("']")
 	var uncomment = true
 	for nr in range(lnum1, lnum2)
 		var line = getline(nr)
-		if line =~ '\S' && line !~ '^' .. lp
+		if line =~ '\S' && line !~ '^\s*' .. lp
 			uncomment = false
 			break
 		endif
@@ -23,9 +28,16 @@ export def Comment(type = ''): string
 	for nr in range(lnum1, lnum2)
 		var line = getline(nr)
 		if uncomment
-			line = substitute(line, '^' .. lp .. '\m \?', '', '')
+			line = substitute(line, '^\(\s*\)' .. lp .. '\m \?', '\1', '')
+			if !empty(rp)
+				line = substitute(line, '\m \?' .. rp .. '\m\s*$', '', '')
+			endif
 		elseif line =~ '\S'
-			line = l .. ' ' .. line
+			var indent = matchstr(line, '^\s*')
+			var rest = line[len(indent) :]
+			line = empty(rhs)
+				? indent .. lhs .. ' ' .. rest
+				: indent .. lhs .. ' ' .. rest .. ' ' .. rhs
 		endif
 		add(lines, line)
 	endfor
