@@ -106,6 +106,7 @@ enew
 call view#Dir(s:dir_tmpdir, v:true)
 call assert_equal('dir', &filetype)
 call assert_equal(s:dir_tmpdir . '/', b:dir)
+call assert_equal(s:dir_tmpdir . '/', expand('%:p'))
 call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
 call assert_equal(-1, index(getline(1, '$'), './'))
 call assert_equal(-1, index(getline(1, '$'), '../'))
@@ -114,6 +115,23 @@ let s:cr_map = maparg('<CR>', 'n', 0, 1)
 call assert_true(!empty(s:cr_map))
 call assert_match('Open(Entry())', s:cr_map.rhs)
 bwipeout!
+call delete(s:dir_tmpdir, 'rf')
+
+" Dir(''): from a file, swaps the buffer's identity to the file's parent dir.
+" Regression: prior code left bufname() at the file path, so :e clobbered the
+" listing and :e . listed the wrong dir.
+let s:dir_tmpdir = tempname()
+call mkdir(s:dir_tmpdir . '/sub', 'p')
+call writefile(['hello'], s:dir_tmpdir . '/sub/file.txt')
+exe 'edit' fnameescape(s:dir_tmpdir . '/sub/file.txt')
+call view#Dir('', v:true)
+call assert_equal('dir', &filetype)
+call assert_equal(s:dir_tmpdir . '/sub/', b:dir)
+call assert_equal(s:dir_tmpdir . '/sub/', expand('%:p'))
+call assert_match('file\.txt', join(getline(1, '$'), "\n"))
+exe 'bwipeout!' bufnr(s:dir_tmpdir . '/sub/')
+let s:file_bnr = bufnr(s:dir_tmpdir . '/sub/file.txt')
+if s:file_bnr > 0 | exe 'bwipeout!' s:file_bnr | endif
 call delete(s:dir_tmpdir, 'rf')
 
 " Selection(): returns visually-selected text via gv reselection.
