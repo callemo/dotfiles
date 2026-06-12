@@ -302,6 +302,12 @@ call text#Comment('line')
 call assert_equal(['top', '  mid', '    deep'], getline(1, '$'))
 bwipeout!
 
+" plugins#Go: filetype mappings live under <leader>g* and never shadow <leader>c.
+let s:plug_src = readfile($DOTFILES . '/vim/autoload/plugins.vim')
+call assert_false(match(s:plug_src, '<leader>c :GoCallers') >= 0)
+call assert_true(match(s:plug_src, '<leader>gc :GoCallers') >= 0)
+call assert_true(match(s:plug_src, '<leader>gt :GoTestFile') >= 0)
+
 " Dump/Load: functions exist and commands are defined
 call assert_true(exists('*exec#Dump'))
 call assert_true(exists('*exec#Load'))
