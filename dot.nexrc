@@ -1,4 +1,3 @@
-set autoindent
 set cedit=
 set extended
 set shiftwidth=4
