@@ -34,9 +34,14 @@ enddef
 
 # Cmd executes a command asynchronously via /bin/sh -c, output to +Errors.
 # Matches Acme's model: no address runs cmd with no stdin; address pipes addressed lines.
-export def Cmd(cmd: string, addr: number, line1: number, line2: number)
+# Done, if given, fires after the job exits — use it for post-write reload.
+export def Cmd(cmd: string, addr: number, line1: number, line2: number, Done: func = null_function)
 	var dir = expand('%:p:h')
-	var bufname = view#Scratch(dir .. '/+Errors')
+	# For an unnamed buffer, %:p:h is just cwd — append the bufnr so two
+	# unnamed buffers don't collide on the same +Errors scratch.
+	var bufname = view#Scratch(empty(bufname('%'))
+		? dir .. '/+Errors/' .. bufnr('%')
+		: dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
 	if empty(text)
 		return
@@ -52,7 +57,12 @@ export def Cmd(cmd: string, addr: number, line1: number, line2: number)
 	var opts = {
 		'out_cb': Append,
 		'err_cb': Append,
-		'close_cb': (ch) => CmdClose(ch, text, bnr, wrote),
+		'close_cb': (ch) => {
+			CmdClose(ch, text, bnr, wrote)
+			if Done != null_function
+				Done()
+			endif
+		},
 		'cwd': dir,
 		'stoponexit': 'term'
 		}
@@ -110,7 +120,6 @@ export def Lint(ft: string = &filetype)
 	endif
 	update
 	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
-	checktime
 enddef
 
 var formatters = {
@@ -142,8 +151,8 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
-	checktime
+	# Formatter rewrites the file on disk; reload via checktime once the async job exits.
+	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0, () => execute('checktime'))
 enddef
 
 # Fts runs fts and populates the location list.
@@ -204,8 +213,11 @@ export def Dump(file: string = '')
 			continue
 		endif
 
-		var tline_idx = len(lines)
-		add(lines, 't' .. ti)
+		# Stage all records for this tab into a separate list. Only commit the
+		# t-header and records once we know at least one window survives the
+		# skip filters — otherwise we'd write an orphan 't' line that Load
+		# misinterprets as an empty tab.
+		var trecs: list<string> = []
 		var heights: list<number> = []
 
 		for wi in range(1, len(wins))
@@ -227,7 +239,7 @@ export def Dump(file: string = '')
 			if ft ==# 'dir'
 				var dpath = getbufvar(bnr, 'dir', '')
 				if !empty(dpath)
-					add(lines, 'd' .. ti .. "\t" .. wi .. "\t" .. dpath)
+					add(trecs, 'd' .. ti .. "\t" .. wi .. "\t" .. dpath)
 					add(heights, info.height)
 					continue
 				endif
@@ -244,7 +256,7 @@ export def Dump(file: string = '')
 
 			# Zerox: buffer already dumped, this is a second window
 			if index(dumped, bnr) >= 0
-				add(lines, 'x' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum)
+				add(trecs, 'x' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum)
 				add(heights, info.height)
 				continue
 			endif
@@ -254,24 +266,26 @@ export def Dump(file: string = '')
 			# s: scratch buffer (nofile) — embed content
 			if bt ==# 'nofile'
 				var content = getbufline(bnr, 1, '$')
-				add(lines, 's' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
-				extend(lines, content)
+				add(trecs, 's' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
+				extend(trecs, content)
 			elseif !getbufvar(bnr, '&modified') && !empty(fpath) && filereadable(fpath)
 				# f: clean file on disk
-				add(lines, 'f' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. fpath)
+				add(trecs, 'f' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. fpath)
 			else
 				# F: dirty or new file — embed content
 				var content = getbufline(bnr, 1, '$')
-				add(lines, 'F' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
-				extend(lines, content)
+				add(trecs, 'F' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
+				extend(trecs, content)
 			endif
 			add(heights, info.height)
 		endfor
 
-		# Update t record with window heights
-		if !empty(heights)
-			lines[tline_idx] = 't' .. ti .. "\t" .. join(map(copy(heights), (_, v) => string(v)), "\t")
+		# Commit only if any window survived the skips.
+		if empty(trecs)
+			continue
 		endif
+		add(lines, 't' .. ti .. "\t" .. join(map(copy(heights), (_, v) => string(v)), "\t"))
+		extend(lines, trecs)
 	endfor
 
 	# Atomic write via tempfile + rename (Acme pattern)

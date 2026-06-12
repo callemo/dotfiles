@@ -109,10 +109,14 @@ augroup dotfiles
 		\ | setl statusline=%{%view#TermStatus()%}
 		\ | nnoremap <buffer> q i
 	autocmd VimEnter * if argc() == 0 && empty(bufname()) && !get(g:, 'dotfiles_loaded_dump', false) | call view.Dir('', true) | endif
-	# BufReadCmd matches trailing / (dir buffer names); BufEnter catches :e .
-	# Only fire for non-dir buffers — once a dir buffer is loaded, leave its
-	# contents alone (Acme model: dir window is a scratch the user may edit).
-	autocmd BufReadCmd */ if isdirectory(expand('<afile>:p')) | call view.Dir(expand('<afile>:p'), true) | endif
+	# BufReadCmd handles :edit on a path with explicit trailing slash (typed by
+	# the user, or written by Dir's :edit!). BufEnter catches :e . where Vim
+	# strips the slash before */ can match, and any other path where the
+	# autocmd misses. Dir itself calls Load directly, so this autocmd is
+	# strictly a backstop for the cmdline-typed case. The filetype guard stops
+	# recursion (Acme model: once loaded, the dir window is a scratch the user
+	# may edit).
+	autocmd BufReadCmd */ if isdirectory(expand('<afile>:p')) | call view.Load(expand('<afile>:p')) | endif
 	autocmd BufEnter * if isdirectory(expand('%:p')) && &filetype !=# 'dir' | call view.Dir(expand('%:p'), true) | endif
 augroup END
 

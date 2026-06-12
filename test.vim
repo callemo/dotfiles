@@ -106,6 +106,7 @@ enew
 call view#Dir(s:dir_tmpdir, v:true)
 call assert_equal('dir', &filetype)
 call assert_equal(s:dir_tmpdir . '/', b:dir)
+call assert_equal(s:dir_tmpdir . '/', expand('%:p'))
 call assert_match('afile\.txt', join(getline(1, '$'), "\n"))
 call assert_equal(-1, index(getline(1, '$'), './'))
 call assert_equal(-1, index(getline(1, '$'), '../'))
@@ -114,6 +115,23 @@ let s:cr_map = maparg('<CR>', 'n', 0, 1)
 call assert_true(!empty(s:cr_map))
 call assert_match('Open(Entry())', s:cr_map.rhs)
 bwipeout!
+call delete(s:dir_tmpdir, 'rf')
+
+" Dir(''): from a file, swaps the buffer's identity to the file's parent dir.
+" Regression: prior code left bufname() at the file path, so :e clobbered the
+" listing and :e . listed the wrong dir.
+let s:dir_tmpdir = tempname()
+call mkdir(s:dir_tmpdir . '/sub', 'p')
+call writefile(['hello'], s:dir_tmpdir . '/sub/file.txt')
+exe 'edit' fnameescape(s:dir_tmpdir . '/sub/file.txt')
+call view#Dir('', v:true)
+call assert_equal('dir', &filetype)
+call assert_equal(s:dir_tmpdir . '/sub/', b:dir)
+call assert_equal(s:dir_tmpdir . '/sub/', expand('%:p'))
+call assert_match('file\.txt', join(getline(1, '$'), "\n"))
+exe 'bwipeout!' bufnr(s:dir_tmpdir . '/sub/')
+let s:file_bnr = bufnr(s:dir_tmpdir . '/sub/file.txt')
+if s:file_bnr > 0 | exe 'bwipeout!' s:file_bnr | endif
 call delete(s:dir_tmpdir, 'rf')
 
 " Selection(): returns visually-selected text via gv reselection.
@@ -171,6 +189,32 @@ call assert_equal('## Two', s:ll[1].text)
 lclose
 bwipeout!
 
+" Sort(): sorts named windows in place, leaves unnamed windows untouched.
+" Regression: prior code zipped the full window list against a filtered buffer
+" list, so unnamed windows shifted slots and one named buffer was duplicated.
+silent! tabonly!
+silent! only!
+edit z_sort.txt
+split a_sort.txt
+split
+enew
+split m_sort.txt
+call view#Sort()
+let s:names = []
+for i in range(1, winnr('$'))
+	call add(s:names, bufname(winbufnr(i)))
+endfor
+call assert_equal('', s:names[2])
+let s:named_after = filter(copy(s:names), {_, v -> !empty(v)})
+call sort(s:named_after)
+call assert_equal(['a_sort.txt', 'm_sort.txt', 'z_sort.txt'], s:named_after)
+silent! tabonly!
+silent! only!
+for s:b in ['z_sort.txt', 'a_sort.txt', 'm_sort.txt']
+	let s:bn = bufnr(s:b)
+	if s:bn > 0 | exe 'bwipeout!' s:bn | endif
+endfor
+
 " Cmd(): runs in buffer's directory (Acme model)
 let s:cmd_tmpdir = tempname()
 call mkdir(s:cmd_tmpdir, 'p')
@@ -206,6 +250,40 @@ call assert_match('line1', s:errtxt)
 call assert_match('line3', s:errtxt)
 exe 'bwipeout!' s:errbnr
 
+" Cmd(): Done callback fires after the job exits — used by Fmt for post-write reload.
+let g:cmd_done_marker = 0
+call exec#Cmd('true', 0, 0, 0, {-> extend(g:, {'cmd_done_marker': 1})})
+call s:WaitFor({-> g:cmd_done_marker == 1})
+call assert_equal(1, g:cmd_done_marker)
+unlet g:cmd_done_marker
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+if s:errbnr > 0 | exe 'bwipeout!' s:errbnr | endif
+
+" Cmd(): from an unnamed buffer, +Errors is bufnr-tagged so two unnamed buffers
+" don't collide on the same scratch. Regression: prior code used cwd alone.
+silent! tabonly!
+silent! only!
+enew
+let s:bn1 = bufnr('%')
+call exec#Cmd('echo unnamed-aaa', 0, 0, 0)
+new
+enew
+let s:bn2 = bufnr('%')
+call exec#Cmd('echo unnamed-bbb', 0, 0, 0)
+let s:errnr1 = bufnr(getcwd() . '/+Errors/' . s:bn1)
+let s:errnr2 = bufnr(getcwd() . '/+Errors/' . s:bn2)
+call assert_true(s:errnr1 > 0)
+call assert_true(s:errnr2 > 0)
+call assert_notequal(s:errnr1, s:errnr2)
+call s:WaitFor({-> join(getbufline(s:errnr1, 1, '$'), "\n") =~ 'unnamed-aaa'})
+call s:WaitFor({-> join(getbufline(s:errnr2, 1, '$'), "\n") =~ 'unnamed-bbb'})
+call assert_match('unnamed-aaa', join(getbufline(s:errnr1, 1, '$'), "\n"))
+call assert_match('unnamed-bbb', join(getbufline(s:errnr2, 1, '$'), "\n"))
+call assert_notmatch('unnamed-bbb', join(getbufline(s:errnr1, 1, '$'), "\n"))
+exe 'bwipeout!' s:errnr1
+exe 'bwipeout!' s:errnr2
+silent! only!
+
 " DblClick/Expand: functions exist and mappings are wired up
 call assert_true(exists('*text#Expand'))
 call assert_true(exists('*view#DblClick'))
@@ -215,6 +293,79 @@ call assert_match('text[#.]Expand', s:expand_map.rhs)
 let s:c2_map = maparg('<2-LeftMouse>', 'n', 0, 1)
 call assert_true(!empty(s:c2_map))
 call assert_match('view[#.]DblClick', s:c2_map.rhs)
+
+" Comment(): line-style commentstring (#%s) — preserves indent on both passes.
+enew
+setlocal commentstring=#%s
+call setline(1, ['def foo():', '    return 1', '    return 2'])
+call setpos("'[", [0, 2, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['def foo():', '    # return 1', '    # return 2'], getline(1, '$'))
+call setpos("'[", [0, 2, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['def foo():', '    return 1', '    return 2'], getline(1, '$'))
+bwipeout!
+
+" Comment(): paired commentstring (<!--%s-->) — must wrap, not concatenate.
+enew
+setlocal commentstring=<!--%s-->
+call setline(1, ['<div>', '  <p>hi</p>', '</div>'])
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['<!-- <div> -->', '  <!-- <p>hi</p> -->', '<!-- </div> -->'], getline(1, '$'))
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['<div>', '  <p>hi</p>', '</div>'], getline(1, '$'))
+bwipeout!
+
+" Comment(): mixed indent levels round-trip cleanly.
+enew
+setlocal commentstring=#%s
+call setline(1, ['top', '  mid', '    deep'])
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['# top', '  # mid', '    # deep'], getline(1, '$'))
+call setpos("'[", [0, 1, 1, 0])
+call setpos("']", [0, 3, 1, 0])
+call text#Comment('line')
+call assert_equal(['top', '  mid', '    deep'], getline(1, '$'))
+bwipeout!
+
+" plugins#Go: filetype mappings live under <leader>g* and never shadow <leader>c.
+let s:plug_src = readfile($DOTFILES . '/vim/autoload/plugins.vim')
+call assert_false(match(s:plug_src, '<leader>c :GoCallers') >= 0)
+call assert_true(match(s:plug_src, '<leader>gc :GoCallers') >= 0)
+call assert_true(match(s:plug_src, '<leader>gt :GoTestFile') >= 0)
+
+" TabLabel(): escapes % so file names like '100%done' don't break the tabline.
+silent! tabonly!
+silent! only!
+let s:pct = tempname() . '_100%done.txt'
+call writefile(['x'], s:pct)
+exe 'edit' fnameescape(s:pct)
+call assert_match('100%%done', view#TabLabel(1))
+call assert_notmatch('[^%]%[^%]', view#TabLabel(1))
+let t:label = 'foo%bar'
+call assert_equal('foo%%bar', view#TabLabel(1))
+unlet t:label
+exe 'bwipeout!' bufnr(s:pct)
+call delete(s:pct)
+
+" Browse(): toggling closes a dir buffer even if the user edited it. Dir
+" buffers are scratch by design and don't merit a write prompt.
+let s:browse_tmpdir = tempname()
+call mkdir(s:browse_tmpdir, 'p')
+call writefile(['hi'], s:browse_tmpdir . '/file.txt')
+call view#Dir(s:browse_tmpdir, v:true)
+call append(0, 'EDITED-LINE')
+call view#Browse()
+call assert_notequal('dir', &filetype)
+call delete(s:browse_tmpdir, 'rf')
 
 " Dump/Load: functions exist and commands are defined
 call assert_true(exists('*exec#Dump'))
@@ -266,6 +417,36 @@ enew!
 call exec#Load(s:dump_file)
 call assert_equal(['dirty1', 'dirty2', 'dirty3'], getline(1, '$'))
 call assert_true(&modified)
+call delete(s:dump_tmpdir, 'rf')
+
+" Dump/Load: tabs with only skipped windows (help, terminal, quickfix) do not
+" emit orphan 't' records. Regression: prior code added 't<N>' before checking
+" whether any window survived the skip filter, leaving Load to mis-apply
+" tab boundaries.
+let s:dump_tmpdir = tempname()
+call mkdir(s:dump_tmpdir, 'p')
+let s:dump_file = s:dump_tmpdir . '/vim.dump'
+let s:real_a = s:dump_tmpdir . '/a.txt'
+let s:real_c = s:dump_tmpdir . '/c.txt'
+call writefile(['aaa'], s:real_a)
+call writefile(['ccc'], s:real_c)
+silent! tabonly!
+silent! only!
+exe 'edit' fnameescape(s:real_a)
+tabnew
+" Tab 2: help-only — must be skipped entirely
+silent help
+tabnew
+exe 'edit' fnameescape(s:real_c)
+call exec#Dump(s:dump_file)
+let s:dump_lines = readfile(s:dump_file)
+let s:t_lines = filter(copy(s:dump_lines), {_, v -> v =~ '^t\d'})
+call assert_equal(2, len(s:t_lines))
+call assert_false(index(s:dump_lines, 't2') >= 0)
+call assert_match('^t1\t', s:t_lines[0])
+call assert_match('^t3\t', s:t_lines[1])
+silent! tabonly!
+silent! only!
 call delete(s:dump_tmpdir, 'rf')
 
 if len(v:errors)

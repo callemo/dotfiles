@@ -89,17 +89,23 @@ export def MidClick()
 	exec.Cmd(expand('<cWORD>'), 0, 0, 0)
 enddef
 
-# Sort: sort visible windows by buffer name.
+# Sort: sort named visible windows by buffer name, in place.
+# Unnamed windows keep their slot; named buffers are reshuffled among the
+# remaining slots in alphabetical order.
 export def Sort()
-	var w = range(1, winnr('$'))
-	var b = filter(map(copy(w), (_, v) => winbufnr(v)),
-		(_, v) => bufexists(v) && !empty(bufname(v)))
-	if empty(b)
+	var pairs: list<list<number>> = []
+	for wn in range(1, winnr('$'))
+		var bn = winbufnr(wn)
+		if bufexists(bn) && !empty(bufname(bn))
+			add(pairs, [wn, bn])
+		endif
+	endfor
+	if empty(pairs)
 		return
 	endif
-	var s = sort(copy(b), (x, y) => bufname(x) > bufname(y) ? 1 : -1)
-	for i in range(len(s))
-		win_execute(win_getid(w[i]), 'silent! buffer ' .. s[i])
+	var sorted = sort(copy(pairs), (x, y) => bufname(x[1]) > bufname(y[1]) ? 1 : -1)
+	for i in range(len(pairs))
+		win_execute(win_getid(pairs[i][0]), 'silent! buffer ' .. sorted[i][1])
 	endfor
 enddef
 
@@ -108,7 +114,7 @@ export def Bufmatch(a: string)
 	var i = stridx(a, '/')
 	var j = strridx(a, '/')
 	if i == -1 || i == j
-		g:Err('Usage: :B /regular expression/[D]')
+		g:Err('Usage: :B /regular expression/[dD]')
 		return
 	endif
 	var re = a[i + 1 : j - 1]
@@ -162,7 +168,7 @@ def RenameItem()
 		g:Err('rename failed: ' .. old)
 		return
 	endif
-	Dir(b:dir, true)
+	silent execute 'edit! ' .. fnameescape(b:dir)
 enddef
 
 # deleteItem: delete entry under the current character in a Dir buffer.
@@ -175,31 +181,37 @@ def DeleteItem()
 		g:Err('delete failed: ' .. path)
 		return
 	endif
-	Dir(b:dir, true)
+	silent execute 'edit! ' .. fnameescape(b:dir)
 enddef
 
-# Dir: read a directory into a temporary buffer.
+# Dir: edit path as a directory listing in the current (replace=true) or a new window.
+# We call Load directly so the BufEnter→Dir path works for :edit . (where Vim
+# strips the trailing slash, blocking the BufReadCmd */ autocmd). Load is
+# idempotent; if the autocmd ALSO fires (explicit-slash path), the redundant
+# call is a cheap ls invocation.
 export def Dir(path: string, replace: bool = false)
 	var d = empty(path) ? (empty(expand('%:p')) ? getcwd() : expand('%:p:h')) : fnamemodify(path, ':p')
 	d = d =~# '/$' ? d : d .. '/'
-	if &filetype ==# 'dir' && get(b:, 'dir', '') ==# d
-		silent execute ':%!/bin/ls -1ap ' .. shellescape(d) .. ' | grep -v "^\\.\\.\\?/$"'
-		setlocal nomodified
-		return
-	endif
 	if replace
-		silent noautocmd execute 'file ' .. fnameescape(d)
+		silent execute 'edit! ' .. fnameescape(d)
 	else
-		silent noautocmd execute 'new ' .. fnameescape(d)
+		silent execute 'new ' .. fnameescape(d)
 	endif
-	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
-	silent execute ':%!/bin/ls -1ap ' .. shellescape(d) .. ' | grep -v "^\\.\\.\\?/$"'
-	setlocal nomodified
+	Load(d)
 	if !replace
 		exe 'resize' Fit(line('$'))
 	endif
-	b:dir = d
-	# Dir keybindings: CR/- reuse window; rightmouse plumb (split); middlemouse execute
+enddef
+
+# Load: populate the current buffer as a directory listing for d. Idempotent.
+# Called by Dir and by the BufReadCmd autocmd (relative-path case).
+export def Load(d: string)
+	var dir = d =~# '/$' ? d : d .. '/'
+	setlocal bufhidden=wipe buftype=nofile noswapfile filetype=dir
+	silent execute ':%!/bin/ls -1Ap ' .. shellescape(dir)
+	setlocal nomodified
+	b:dir = dir
+	# CR/- reuse window; rightmouse plumbs (split); middlemouse executes
 	nnoremap <silent> <buffer> <CR> <ScriptCmd>Open(Entry())<CR>
 	nnoremap <silent> <buffer> <leader><CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
 	nnoremap <silent> <buffer> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
@@ -212,13 +224,15 @@ export def Dir(path: string, replace: bool = false)
 	nnoremap <silent> <buffer> <leader>r <ScriptCmd>RenameItem()<CR>
 	nnoremap <silent> <buffer> <leader>d <ScriptCmd>DeleteItem()<CR>
 	# Manual refresh — dir buffers are scratch, no auto-update on BufEnter.
-	nnoremap <silent> <buffer> R <ScriptCmd>Dir(b:dir, true)<CR>
+	nnoremap <silent> <buffer> R <ScriptCmd>silent execute 'edit! ' .. fnameescape(b:dir)<CR>
 enddef
 
 # Browse: toggle the directory buffer.
+# Dir buffers are scratch (bufhidden=wipe, buftype=nofile) and may be edited
+# Acme-style — wipe with bang so user edits don't refuse the toggle.
 export def Browse()
 	if &filetype ==# 'dir'
-		execute('bwipeout')
+		execute 'bwipeout!'
 		return
 	endif
 	Dir('')
@@ -268,10 +282,11 @@ export def TabLine(): string
 enddef
 
 # TabLabel returns the display label for tab n, preferring t:label.
+# Doubles any % in the result so the tabline %{} interpolation treats them as literals.
 export def TabLabel(n: number): string
 	var tabl = gettabvar(n, 'label', '')
 	if !empty(tabl)
-		return tabl
+		return substitute(tabl, '%', '%%', 'g')
 	endif
 
 	var bnr = tabpagebuflist(n)[tabpagewinnr(n) - 1]
@@ -286,6 +301,7 @@ export def TabLabel(n: number): string
 	if empty(label)
 		label = fnamemodify(name, ':h:t') .. '/'
 	endif
+	label = substitute(label, '%', '%%', 'g')
 
 	if bt ==# 'help'
 		return '-help:' .. label
