@@ -308,6 +308,20 @@ call assert_false(match(s:plug_src, '<leader>c :GoCallers') >= 0)
 call assert_true(match(s:plug_src, '<leader>gc :GoCallers') >= 0)
 call assert_true(match(s:plug_src, '<leader>gt :GoTestFile') >= 0)
 
+" TabLabel(): escapes % so file names like '100%done' don't break the tabline.
+silent! tabonly!
+silent! only!
+let s:pct = tempname() . '_100%done.txt'
+call writefile(['x'], s:pct)
+exe 'edit' fnameescape(s:pct)
+call assert_match('100%%done', view#TabLabel(1))
+call assert_notmatch('[^%]%[^%]', view#TabLabel(1))
+let t:label = 'foo%bar'
+call assert_equal('foo%%bar', view#TabLabel(1))
+unlet t:label
+exe 'bwipeout!' bufnr(s:pct)
+call delete(s:pct)
+
 " Dump/Load: functions exist and commands are defined
 call assert_true(exists('*exec#Dump'))
 call assert_true(exists('*exec#Load'))

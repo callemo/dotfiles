@@ -280,10 +280,11 @@ export def TabLine(): string
 enddef
 
 # TabLabel returns the display label for tab n, preferring t:label.
+# Doubles any % in the result so the tabline %{} interpolation treats them as literals.
 export def TabLabel(n: number): string
 	var tabl = gettabvar(n, 'label', '')
 	if !empty(tabl)
-		return tabl
+		return substitute(tabl, '%', '%%', 'g')
 	endif
 
 	var bnr = tabpagebuflist(n)[tabpagewinnr(n) - 1]
@@ -298,6 +299,7 @@ export def TabLabel(n: number): string
 	if empty(label)
 		label = fnamemodify(name, ':h:t') .. '/'
 	endif
+	label = substitute(label, '%', '%%', 'g')
 
 	if bt ==# 'help'
 		return '-help:' .. label
