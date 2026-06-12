@@ -250,6 +250,15 @@ call assert_match('line1', s:errtxt)
 call assert_match('line3', s:errtxt)
 exe 'bwipeout!' s:errbnr
 
+" Cmd(): Done callback fires after the job exits — used by Fmt for post-write reload.
+let g:cmd_done_marker = 0
+call exec#Cmd('true', 0, 0, 0, {-> extend(g:, {'cmd_done_marker': 1})})
+call s:WaitFor({-> g:cmd_done_marker == 1})
+call assert_equal(1, g:cmd_done_marker)
+unlet g:cmd_done_marker
+let s:errbnr = bufnr(getcwd() . '/+Errors')
+if s:errbnr > 0 | exe 'bwipeout!' s:errbnr | endif
+
 " DblClick/Expand: functions exist and mappings are wired up
 call assert_true(exists('*text#Expand'))
 call assert_true(exists('*view#DblClick'))

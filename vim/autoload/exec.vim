@@ -34,7 +34,8 @@ enddef
 
 # Cmd executes a command asynchronously via /bin/sh -c, output to +Errors.
 # Matches Acme's model: no address runs cmd with no stdin; address pipes addressed lines.
-export def Cmd(cmd: string, addr: number, line1: number, line2: number)
+# Done, if given, fires after the job exits — use it for post-write reload.
+export def Cmd(cmd: string, addr: number, line1: number, line2: number, Done: func = null_function)
 	var dir = expand('%:p:h')
 	var bufname = view#Scratch(dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
@@ -52,7 +53,12 @@ export def Cmd(cmd: string, addr: number, line1: number, line2: number)
 	var opts = {
 		'out_cb': Append,
 		'err_cb': Append,
-		'close_cb': (ch) => CmdClose(ch, text, bnr, wrote),
+		'close_cb': (ch) => {
+			CmdClose(ch, text, bnr, wrote)
+			if Done != null_function
+				Done()
+			endif
+		},
 		'cwd': dir,
 		'stoponexit': 'term'
 		}
@@ -110,7 +116,6 @@ export def Lint(ft: string = &filetype)
 	endif
 	update
 	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
-	checktime
 enddef
 
 var formatters = {
@@ -142,8 +147,8 @@ export def Fmt(line1: number, line2: number, ft: string = &filetype)
 		return
 	endif
 	update
-	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0)
-	checktime
+	# Formatter rewrites the file on disk; reload via checktime once the async job exits.
+	Cmd(cmd .. ' ' .. shellescape(expand('%:t')), 0, 0, 0, () => execute('checktime'))
 enddef
 
 # Fts runs fts and populates the location list.
