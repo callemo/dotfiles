@@ -204,8 +204,11 @@ export def Dump(file: string = '')
 			continue
 		endif
 
-		var tline_idx = len(lines)
-		add(lines, 't' .. ti)
+		# Stage all records for this tab into a separate list. Only commit the
+		# t-header and records once we know at least one window survives the
+		# skip filters — otherwise we'd write an orphan 't' line that Load
+		# misinterprets as an empty tab.
+		var trecs: list<string> = []
 		var heights: list<number> = []
 
 		for wi in range(1, len(wins))
@@ -227,7 +230,7 @@ export def Dump(file: string = '')
 			if ft ==# 'dir'
 				var dpath = getbufvar(bnr, 'dir', '')
 				if !empty(dpath)
-					add(lines, 'd' .. ti .. "\t" .. wi .. "\t" .. dpath)
+					add(trecs, 'd' .. ti .. "\t" .. wi .. "\t" .. dpath)
 					add(heights, info.height)
 					continue
 				endif
@@ -244,7 +247,7 @@ export def Dump(file: string = '')
 
 			# Zerox: buffer already dumped, this is a second window
 			if index(dumped, bnr) >= 0
-				add(lines, 'x' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum)
+				add(trecs, 'x' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum)
 				add(heights, info.height)
 				continue
 			endif
@@ -254,24 +257,26 @@ export def Dump(file: string = '')
 			# s: scratch buffer (nofile) — embed content
 			if bt ==# 'nofile'
 				var content = getbufline(bnr, 1, '$')
-				add(lines, 's' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
-				extend(lines, content)
+				add(trecs, 's' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
+				extend(trecs, content)
 			elseif !getbufvar(bnr, '&modified') && !empty(fpath) && filereadable(fpath)
 				# f: clean file on disk
-				add(lines, 'f' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. fpath)
+				add(trecs, 'f' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. fpath)
 			else
 				# F: dirty or new file — embed content
 				var content = getbufline(bnr, 1, '$')
-				add(lines, 'F' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
-				extend(lines, content)
+				add(trecs, 'F' .. ti .. "\t" .. wi .. "\t" .. bnr .. "\t" .. lnum .. "\t" .. cnum .. "\t" .. len(content) .. "\t" .. fpath)
+				extend(trecs, content)
 			endif
 			add(heights, info.height)
 		endfor
 
-		# Update t record with window heights
-		if !empty(heights)
-			lines[tline_idx] = 't' .. ti .. "\t" .. join(map(copy(heights), (_, v) => string(v)), "\t")
+		# Commit only if any window survived the skips.
+		if empty(trecs)
+			continue
 		endif
+		add(lines, 't' .. ti .. "\t" .. join(map(copy(heights), (_, v) => string(v)), "\t"))
+		extend(lines, trecs)
 	endfor
 
 	# Atomic write via tempfile + rename (Acme pattern)

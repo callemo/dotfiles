@@ -374,6 +374,36 @@ call assert_equal(['dirty1', 'dirty2', 'dirty3'], getline(1, '$'))
 call assert_true(&modified)
 call delete(s:dump_tmpdir, 'rf')
 
+" Dump/Load: tabs with only skipped windows (help, terminal, quickfix) do not
+" emit orphan 't' records. Regression: prior code added 't<N>' before checking
+" whether any window survived the skip filter, leaving Load to mis-apply
+" tab boundaries.
+let s:dump_tmpdir = tempname()
+call mkdir(s:dump_tmpdir, 'p')
+let s:dump_file = s:dump_tmpdir . '/vim.dump'
+let s:real_a = s:dump_tmpdir . '/a.txt'
+let s:real_c = s:dump_tmpdir . '/c.txt'
+call writefile(['aaa'], s:real_a)
+call writefile(['ccc'], s:real_c)
+silent! tabonly!
+silent! only!
+exe 'edit' fnameescape(s:real_a)
+tabnew
+" Tab 2: help-only — must be skipped entirely
+silent help
+tabnew
+exe 'edit' fnameescape(s:real_c)
+call exec#Dump(s:dump_file)
+let s:dump_lines = readfile(s:dump_file)
+let s:t_lines = filter(copy(s:dump_lines), {_, v -> v =~ '^t\d'})
+call assert_equal(2, len(s:t_lines))
+call assert_false(index(s:dump_lines, 't2') >= 0)
+call assert_match('^t1\t', s:t_lines[0])
+call assert_match('^t3\t', s:t_lines[1])
+silent! tabonly!
+silent! only!
+call delete(s:dump_tmpdir, 'rf')
+
 if len(v:errors)
 	for e in v:errors
 		echo e
