@@ -37,7 +37,11 @@ enddef
 # Done, if given, fires after the job exits — use it for post-write reload.
 export def Cmd(cmd: string, addr: number, line1: number, line2: number, Done: func = null_function)
 	var dir = expand('%:p:h')
-	var bufname = view#Scratch(dir .. '/+Errors')
+	# For an unnamed buffer, %:p:h is just cwd — append the bufnr so two
+	# unnamed buffers don't collide on the same +Errors scratch.
+	var bufname = view#Scratch(empty(bufname('%'))
+		? dir .. '/+Errors/' .. bufnr('%')
+		: dir .. '/+Errors')
 	var text = empty(cmd) ? expand('<cWORD>') : cmd
 	if empty(text)
 		return

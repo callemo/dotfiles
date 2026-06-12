@@ -259,6 +259,31 @@ unlet g:cmd_done_marker
 let s:errbnr = bufnr(getcwd() . '/+Errors')
 if s:errbnr > 0 | exe 'bwipeout!' s:errbnr | endif
 
+" Cmd(): from an unnamed buffer, +Errors is bufnr-tagged so two unnamed buffers
+" don't collide on the same scratch. Regression: prior code used cwd alone.
+silent! tabonly!
+silent! only!
+enew
+let s:bn1 = bufnr('%')
+call exec#Cmd('echo unnamed-aaa', 0, 0, 0)
+new
+enew
+let s:bn2 = bufnr('%')
+call exec#Cmd('echo unnamed-bbb', 0, 0, 0)
+let s:errnr1 = bufnr(getcwd() . '/+Errors/' . s:bn1)
+let s:errnr2 = bufnr(getcwd() . '/+Errors/' . s:bn2)
+call assert_true(s:errnr1 > 0)
+call assert_true(s:errnr2 > 0)
+call assert_notequal(s:errnr1, s:errnr2)
+call s:WaitFor({-> join(getbufline(s:errnr1, 1, '$'), "\n") =~ 'unnamed-aaa'})
+call s:WaitFor({-> join(getbufline(s:errnr2, 1, '$'), "\n") =~ 'unnamed-bbb'})
+call assert_match('unnamed-aaa', join(getbufline(s:errnr1, 1, '$'), "\n"))
+call assert_match('unnamed-bbb', join(getbufline(s:errnr2, 1, '$'), "\n"))
+call assert_notmatch('unnamed-bbb', join(getbufline(s:errnr1, 1, '$'), "\n"))
+exe 'bwipeout!' s:errnr1
+exe 'bwipeout!' s:errnr2
+silent! only!
+
 " DblClick/Expand: functions exist and mappings are wired up
 call assert_true(exists('*text#Expand'))
 call assert_true(exists('*view#DblClick'))
