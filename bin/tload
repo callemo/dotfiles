@@ -14,12 +14,12 @@ q() {
 }
 
 put() {
-	printf '%s\n' "$2" > "$tmp/$1"
+	printf '%s\n' "$2" >"$tmp/$1"
 }
 
 get() {
 	[ -f "$tmp/$1" ] || return 1
-	IFS= read -r value < "$tmp/$1" || return 1
+	IFS= read -r value <"$tmp/$1" || return 1
 	printf '%s' "$value"
 }
 
@@ -59,6 +59,26 @@ vim_restore() {
 	esac
 }
 
+defer_vim() {
+	pane=$1
+	dir=$2
+	prog=$3
+	[ "$prog" = vim ] || return 0
+
+	{
+		printf '%s\n' "$pane"
+		printf '%s\n' "$dir"
+	} >>"$tmp/vim.order"
+}
+
+replay_vim() {
+	[ -f "$tmp/vim.order" ] || return 0
+	while IFS= read -r pane; do
+		IFS= read -r dir || return 1
+		vim_restore "$pane" "$dir" vim
+	done <"$tmp/vim.order"
+}
+
 sess=
 spath=
 first=
@@ -92,7 +112,7 @@ while IFS= read -r kind; do
 		put "w.$w.auto" "$auto"
 		put "w.$w.name" "$name"
 		put "w.$w.layout" "$layout"
-		printf '%s\n' "$w" >> "$tmp/window.order"
+		printf '%s\n' "$w" >>"$tmp/window.order"
 		;;
 	p)
 		IFS= read -r w || exit 1
@@ -114,7 +134,6 @@ while IFS= read -r kind; do
 			fi
 
 			put "w.$w.id" "$win"
-			put "w.$w.anchor" "$pane"
 			auto=$(get "w.$w.auto")
 			name=$(get "w.$w.name")
 			case $auto in
@@ -129,21 +148,22 @@ while IFS= read -r kind; do
 
 		else
 			win=$(get "w.$w.id")
-			anchor=$(get "w.$w.anchor")
-			pane=$(tmux split-window -d -P -F '#{pane_id}' -t "$anchor" -c "$d") || exit 1
+			last=$(get "w.$w.last")
+			pane=$(tmux split-window -d -P -F '#{pane_id}' -t "$last" -c "$d") || exit 1
 		fi
 
-		vim_restore "$pane" "$d" "$prog"
+		put "w.$w.last" "$pane"
+		defer_vim "$pane" "$d" "$prog"
 		;;
 	esac
-done < "$f"
+done <"$f"
 
 if [ -f "$tmp/window.order" ]; then
 	while IFS= read -r w; do
 		layout=$(get "w.$w.layout") || continue
 		win=$(get "w.$w.id") || continue
 		tmux select-layout -t "$win" "$layout"
-	done < "$tmp/window.order"
+	done <"$tmp/window.order"
 fi
 
 if [ -n "$active" ]; then
@@ -153,6 +173,8 @@ fi
 
 if [ -n "$TMUX" ]; then
 	tmux switch-client -t "$sess"
+	replay_vim
 else
+	replay_vim
 	tmux attach-session -t "$sess"
 fi

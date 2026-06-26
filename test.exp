@@ -225,7 +225,7 @@ hello
 0
 --- tdump/tload
 send-keys	-t	%11	Escape	:Dump	C-m
-send-keys	-t	%20	Escape	:Dump	C-m
+send-keys	-t	%12	Escape	:Dump	C-m
 s
 TESTDIR/session|root
 sess\demo
@@ -252,20 +252,40 @@ p
 TESTDIR/proj|b
 vim
 p
-2
 0
+2
 TESTDIR/proj c
 vim
+p
+2
+0
+TESTDIR/logs
+zsh
 new-session	-d	-P	-F	#{window_id}\t#{pane_id}	-s	sess\\demo	-c	TESTDIR/session\|root
 send-keys	-t	%10	cd -- 'TESTDIR/proj\ta'	C-m
 rename-window	-t	@1	main\tview
 set-window-option	-t	@1	automatic-rename	off
 split-window	-d	-P	-F	#{pane_id}	-t	%10	-c	TESTDIR/proj\|b
-send-keys	-t	%11	vim -S Session.vim	C-m
-new-window	-d	-P	-F	#{window_id}\t#{pane_id}	-t	sess\\demo:2	-c	TESTDIR/proj c
+split-window	-d	-P	-F	#{pane_id}	-t	%11	-c	TESTDIR/proj c
+new-window	-d	-P	-F	#{window_id}\t#{pane_id}	-t	sess\\demo:2	-c	TESTDIR/logs
 set-window-option	-t	@2	automatic-rename	on
-send-keys	-t	%20	vim -c 'Load TESTDIR/proj c/vim.dump'	C-m
 select-layout	-t	@1	layout-main
 select-layout	-t	@2	tiled
 select-window	-t	@2
 switch-client	-t	sess\\demo
+send-keys	-t	%11	vim -S Session.vim	C-m
+send-keys	-t	%12	vim -c 'Load TESTDIR/proj c/vim.dump'	C-m
+new-session	-d	-P	-F	#{window_id}\t#{pane_id}	-s	sess\\demo	-c	TESTDIR/session\|root
+send-keys	-t	%10	cd -- 'TESTDIR/proj\ta'	C-m
+rename-window	-t	@1	main\tview
+set-window-option	-t	@1	automatic-rename	off
+split-window	-d	-P	-F	#{pane_id}	-t	%10	-c	TESTDIR/proj\|b
+split-window	-d	-P	-F	#{pane_id}	-t	%11	-c	TESTDIR/proj c
+new-window	-d	-P	-F	#{window_id}\t#{pane_id}	-t	sess\\demo:2	-c	TESTDIR/logs
+set-window-option	-t	@2	automatic-rename	on
+select-layout	-t	@1	layout-main
+select-layout	-t	@2	tiled
+select-window	-t	@2
+send-keys	-t	%11	vim -S Session.vim	C-m
+send-keys	-t	%12	vim -c 'Load TESTDIR/proj c/vim.dump'	C-m
+attach-session	-t	sess\\demo
