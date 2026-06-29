@@ -11,6 +11,24 @@ wscons() (
 	done
 )
 
+hotplug() (
+	dir=/etc/hotplug
+	doas mkdir -p "$dir"
+	for name in attach detach; do
+		src=$root/openbsd/hotplug/$name
+		dst=$dir/$name
+		doas "$root/bin/overwrite" "$dst" cat "$src"
+		doas chmod 755 "$dst"
+		log "$dst: installed"
+	done
+	if ! doas rcctl ls on | grep -qx hotplugd; then
+		doas rcctl enable hotplugd >/dev/null && log 'hotplugd: enabled'
+	fi
+	if ! doas rcctl check hotplugd >/dev/null 2>&1; then
+		doas rcctl start hotplugd >/dev/null && log 'hotplugd: started'
+	fi
+)
+
 tmux_xsel() (
 	tcl="$HOME/.tmux.conf.local"
 	command -v xsel >/dev/null 2>&1 || log 'xsel missing; tmux clipboard copy disabled (pkg_add xsel)'
@@ -61,6 +79,7 @@ vim_openbsd() (
 )
 
 wscons
+hotplug
 tmux_xsel
 cursor
 wallpaper

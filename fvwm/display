@@ -26,6 +26,7 @@ must() {
 
 cmd=${1:-toggle}
 emit=${2:-}
+restart=${3:-auto}
 int='eDP-1'
 root=${DOTFILES:-$HOME/dotfiles}
 
@@ -70,6 +71,29 @@ fvwm() {
 	printf '%s\n' "$@"
 }
 
+shouldrestart() {
+	[ "$restart" = no ] && return 1
+	[ "$restart" = yes ] && return 0
+	case $cmd in
+	sync|apply) return 1 ;;
+	esac
+	return 0
+}
+
+restartfvwm() {
+	shouldrestart || return 0
+	[ "$emit" = fvwm ] && {
+		fvwm 'Restart fvwm'
+		log 'restart fvwm command emitted'
+		return
+	}
+	pids=$(pgrep -u "$(id -un)" -x fvwm 2>/dev/null) || {
+		log 'restart skipped: no fvwm pid'
+		return
+	}
+	try kill -USR1 $pids && log "restart fvwm pid=$(printf '%s' "$pids" | tr '\n' ' ')"
+}
+
 scale() {
 	dpi=$1 cursor=$2 xterm=$3 status=$4
 	cat <<EOF | xrdb -merge
@@ -95,15 +119,11 @@ wallpaper() {
 }
 
 mouse() {
-	case $1 in
-	natural) buttons='1 2 3 5 4 7 6' ;;
-	*) buttons='1 2 3 4 5 6 7' ;;
-	esac
 	xinput list --name-only | awk '/^\/dev\/wsmouse/ { print }' | while IFS= read -r dev; do
 		try xinput set-prop "$dev" 'Device Accel Constant Deceleration' 1
 		map=$(xinput get-button-map "$dev" 2>/dev/null) || continue
 		set -- $map
-		[ $# -ge 7 ] && try xinput set-button-map "$dev" $buttons
+		[ $# -ge 7 ] && try xinput set-button-map "$dev" 1 2 3 4 5 6 7
 	done
 }
 
@@ -126,7 +146,7 @@ profileext() {
 	[ -n "$active" ] && try xrandr --output "$active" --primary
 	scale 216 56 9 7
 	wallpaper
-	mouse natural
+	mouse
 	reload
 }
 
@@ -161,15 +181,15 @@ useint() {
 }
 
 sync() {
-	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; exit; }
-	[ -n "$active" ] && { profileext; exit; }
+	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; return; }
+	[ -n "$active" ] && { profileext; return; }
 	profileint
 }
 
 toggle() {
-	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; exit; }
-	[ -n "$active" ] && { useint; exit; }
-	[ -n "$ext" ] || { useint; exit; }
+	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; return; }
+	[ -n "$active" ] && { useint; return; }
+	[ -n "$ext" ] || { useint; return; }
 	useext
 }
 
@@ -178,5 +198,7 @@ toggle) toggle ;;
 sync|apply) sync ;;
 external|ext) useext ;;
 internal|int) useint ;;
-*) fatal 'usage: display [toggle|sync|external|internal] [fvwm]' ;;
+*) fatal 'usage: display [toggle|sync|external|internal] [fvwm] [auto|yes|no]' ;;
 esac
+
+restartfvwm
