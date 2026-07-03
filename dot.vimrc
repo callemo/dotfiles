@@ -85,6 +85,7 @@ enddef
 if isdirectory(expand('~/.fzf'))
 	set rtp+=~/.fzf
 endif
+g:fzf_action = {'enter': 'split'}
 
 augroup lazy_plugins
 	autocmd!

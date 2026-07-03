@@ -1,0 +1,171 @@
+NAME             vimrc -- Vim configuration
+
+SYNOPSIS         vim [file ...]
+
+DESCRIPTION      Vimrc configures Vim for files and directories.
+                 File buffers edit text.
+                 Directory buffers list entries; directories end in /.
+                 Plumbing resolves text in this order: quickfix or location
+                 jump, URL, wiki link, readable file:line, readable file,
+                 directory, search.
+                 Relative plumbs resolve against the supplied working
+                 directory.
+                 File buffers supply expand('%:h').
+                 Directory buffers supply b:dir.
+                 :Cmd runs in the current buffer directory.
+
+MOUSE            Vim sets mouse=nv.
+
+                 Mouse button     Action
+                 1                select text
+                 1 status col 1   grow window, on a status line
+                 double 1         expand bracket, quote object, or word
+                 double 1 status  close window, on a status line
+                 C-1 status       zoom window, on a status line only
+                 2                execute <cWORD>
+                 2 visual         execute selection
+                 2 status         resize or zoom window
+                 3                plumb word/WORD
+                 3 visual         plumb selection
+
+                 Button 2 appends stdout and stderr to +Errors.
+                 Button 3 uses the plumbing order in DESCRIPTION.
+
+DIRECTORIES      A directory buffer lists one entry per line.
+                 b:dir names its directory.
+                 Relative plumbs resolve against b:dir.
+                 Global - opens the current directory.
+                 <leader>B toggles the directory browser.
+
+                 Key              Action
+                 <CR>             open or reuse entry
+                 <leader><CR>     plumb entry
+                 <RightMouse>     plumb entry
+                 <MiddleMouse>    execute entry
+                 <C-LeftMouse>    execute entry
+                 -                go up
+                 R                reload
+                 <leader>r        rename entry
+                 <leader>d        delete entry
+                 <C-j>            next window or tmux pane
+
+COMMANDS         :Cmd [-range] [cmd]
+                      Run cmd asynchronously with /bin/sh -c.
+                      Send the addressed lines on stdin.
+                      Append stdout and stderr to +Errors.
+
+                 :Lint [filetype]
+                      Run the linter for filetype.
+                      Append output to +Errors.
+
+                 :Fmt [-range=%] [filetype]
+                      Run the formatter for filetype.
+                      Replace the addressed range or whole buffer.
+
+                 :Fts [args...]
+                      Run external fts.
+                      Fill the location list.
+
+                 :Toc [pattern]
+                      Fill the location list with an outline.
+                      Use pattern, or the filetype default.
+
+                 :Sort
+                      Sort named visible windows by buffer name.
+
+                 :B /regex/[dD]
+                      List matching buffers.
+                      Delete them with d or D.
+
+                 :Dump [file]
+                      Write session state.
+                      Default file is getcwd()/vim.dump.
+
+                 :Load [file]
+                      Read session state.
+                      Default file is getcwd()/vim.dump.
+
+                 :Send [-range] [tmux-target]
+                      Send lines to a tmux pane.
+                      Remember tmux-target per window.
+
+KEYS             Leader is space.
+                 Tmux crossing requires $TMUX and a Vim window edge.
+
+                 Key              Action
+                 <leader>!        prompt for shell command
+                 <leader>.        lcd to file directory
+                 <leader>;        send line to tmux
+                 <leader><CR>     plumb word
+                 <leader><leader> expand selection
+                 <leader>B        toggle directory browser
+                 <leader>D        dump session
+                 <leader>E        dump session and quit all
+                 <leader>N        edit new file in file directory
+                 <leader>c        comment operator
+                 <leader>cc       comment line
+                 <leader>f        format buffer
+                 <leader>l        lint buffer
+                 <leader>q        close buffer
+                 <leader>Q        force close buffer
+                 <leader>y        yank relative path by OSC 52
+                 <leader>Y        yank absolute path by OSC 52
+                 <leader>z        zoom window
+                 -                open current directory
+                 <C-j>            next Vim window; tmux at last
+                 <C-k>            previous Vim window; tmux at first
+                 <C-l>            clear search and redraw
+                 <C-p>            run :FZF
+                 +                grow window height
+
+                 Visual Key       Action
+                 <leader>!        execute selection
+                 <leader>;        send selection to tmux
+                 <leader><CR>     plumb selection
+                 *                search selection
+
+                 Go Key           Action
+                 <leader>gc       GoCallers
+                 <leader>gd       GoDeclsDir
+                 <leader>gi       GoInfo
+                 <leader>gt       GoTestFile -v
+
+                 Terminal Key     Action
+                 <C-j>            next Vim window; tmux at last
+                 <C-k>            previous Vim window; tmux at first
+                 <leader>z        zoom window
+
+                 Bracket          Action
+                 ]a [a            next/previous argument
+                 ]b [b            next/previous buffer
+                 ]l [l            next/previous location
+                 ]q [q            next/previous quickfix
+                 ]t [t            next/previous tab
+
+                 Toggle           Option
+                 yob              background
+                 yoh              hlsearch
+                 yoi              ignorecase
+                 yol              list
+                 yon              number
+                 yop              paste
+                 yor              relativenumber
+                 yos              spell
+                 yow              wrap
+
+FILES            getcwd()/vim.dump
+                      default session file for :Dump and :Load
+
+                 +Errors
+                      scratch buffer for command output
+
+ENVIRONMENT      Vim 9.1+ is required.
+                 $TMUX lets <C-j> and <C-k> cross Vim window edges.
+                 OSC 52 path yanks write to /dev/tty.
+                 OSC 52 path yanks need terminal support and one of base64,
+                 openssl, or python3.
+                 The Vim clipboard option is not used.
+
+SEE ALSO         vim(1), acme(1), plumber(4)
+
+OWNER            callemo
