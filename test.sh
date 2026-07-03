@@ -308,8 +308,9 @@ tmuxbin="$td/tmuxbin"
 tmuxstate="$td/tmux-state"
 tmuxlog="$td/tmux.log"
 dump="$td/tmux.dump"
+cdump="$td/tmux-current.dump"
 pane0path=$(printf '%s/proj\ta' "$td")
-mkdir -p "$tmuxbin" "$tmuxstate" "$td/home" "$td/session|root" "$pane0path" "$td/proj|b" "$td/proj c" "$td/logs"
+mkdir -p "$tmuxbin" "$tmuxstate" "$td/home" "$td/session|root" "$pane0path" "$td/proj|b" "$td/proj c" "$td/logs" "$td/other"
 touch "$td/proj|b/Session.vim" "$td/proj c/vim.dump"
 
 cat >"$tmuxbin/tmux" <<'END'
@@ -347,38 +348,89 @@ escape() {
 	}'
 }
 
+target() {
+	while [ "$#" -gt 0 ]; do
+		if [ "$1" = -t ]; then
+			printf '%s' "$2"
+			return
+		fi
+		shift
+	done
+}
+
 case $1 in
-display)
-	printf 's\n%s\n%s\n' "$TMUX_MOCK_SESSION_PATH" "$TMUX_MOCK_SESSION_NAME"
-	;;
 has-session)
 	exit 1
 	;;
 list-windows)
-	printf 'w\n0\n-\n0\nmain\tview\nlayout-main\n'
-	printf 'w\n2\n*\n1\nlogs\ntiled\n'
-	;;
-list-panes)
-	case $* in
-	*pane_id*)
-		printf '%%10\tzsh\n'
-		printf '%%11\tvim\n'
-		printf '%%12\tvim\n'
-		printf '%%20\tzsh\n'
+	t=$(target "$@")
+	case $t in
+	'$1')
+		printf 'w\n0\n*\n0\nother\nlayout-other\n'
 		;;
 	*)
-		printf 'p\n0\n0\n%s\nzsh\n' "$TMUX_MOCK_PANE0_PATH"
-		printf 'p\n0\n1\n%s\nvim\n' "$TMUX_MOCK_PANE1_PATH"
-		printf 'p\n0\n2\n%s\nvim\n' "$TMUX_MOCK_PANE2_PATH"
-		printf 'p\n2\n0\n%s\nzsh\n' "$TMUX_MOCK_PANE3_PATH"
+		printf 'w\n0\n-\n0\nmain\tview\nlayout-main\n'
+		printf 'w\n2\n*\n1\nlogs\ntiled\n'
 		;;
 	esac
+	;;
+list-panes)
+	t=$(target "$@")
+	case $* in
+	*pane_id*)
+		case $t in
+		'$1')
+			printf '%%30\tzsh\n'
+			;;
+		*)
+			printf '%%10\tzsh\n'
+			printf '%%11\tvim\n'
+			printf '%%12\tvim\n'
+			printf '%%20\tzsh\n'
+			;;
+		esac
+		;;
+	*)
+		case $t in
+		'$1')
+			printf 'p\n0\n0\n%s\nzsh\n' "$TMUX_MOCK_OTHER_PATH"
+			;;
+		*)
+			printf 'p\n0\n0\n%s\nzsh\n' "$TMUX_MOCK_PANE0_PATH"
+			printf 'p\n0\n1\n%s\nvim\n' "$TMUX_MOCK_PANE1_PATH"
+			printf 'p\n0\n2\n%s\nvim\n' "$TMUX_MOCK_PANE2_PATH"
+			printf 'p\n2\n0\n%s\nzsh\n' "$TMUX_MOCK_PANE3_PATH"
+			;;
+		esac
+		;;
+	esac
+	;;
+list-sessions)
+	printf '$0\n$1\n'
 	;;
 list-clients)
 	[ -f "$client" ] && printf 'client\n'
 	;;
 display-message)
-	printf '80x24\n'
+	t=$(target "$@")
+	case $* in
+	*'#{pane_width}x#{pane_height}'*)
+		printf '80x24\n'
+		;;
+	*'#{session_id}'*)
+		printf '$0\n'
+		;;
+	*)
+		case $t in
+		'$1')
+			printf 's\n%s\n%s\n' "$TMUX_MOCK_OTHER_PATH" "$TMUX_MOCK_OTHER_NAME"
+			;;
+		*)
+			printf 's\n%s\n%s\n' "$TMUX_MOCK_SESSION_PATH" "$TMUX_MOCK_SESSION_NAME"
+			;;
+		esac
+		;;
+	esac
 	;;
 new-session)
 	record "$@"
@@ -418,6 +470,8 @@ TMUX_MOCK_PANE0_PATH="$pane0path" \
 TMUX_MOCK_PANE1_PATH="$td/proj|b" \
 TMUX_MOCK_PANE2_PATH="$td/proj c" \
 TMUX_MOCK_PANE3_PATH="$td/logs" \
+TMUX_MOCK_OTHER_PATH="$td/other" \
+TMUX_MOCK_OTHER_NAME=other \
 PATH="$tmuxbin:$PATH" \
 TMUX_TEST_LOG="$tmuxlog" \
 TMUX_TEST_STATE="$tmuxstate" \
@@ -425,7 +479,23 @@ TMUX_TEST_STATE="$tmuxstate" \
 sed "s|$td|TESTDIR|g" "$tmuxlog"
 sed "s|$td|TESTDIR|g" "$dump"
 
-: > "$tmuxlog"
+: >"$tmuxlog"
+TMUX_MOCK_SESSION_PATH="$td/session|root" \
+TMUX_MOCK_SESSION_NAME='sess\demo' \
+TMUX_MOCK_PANE0_PATH="$pane0path" \
+TMUX_MOCK_PANE1_PATH="$td/proj|b" \
+TMUX_MOCK_PANE2_PATH="$td/proj c" \
+TMUX_MOCK_PANE3_PATH="$td/logs" \
+TMUX_MOCK_OTHER_PATH="$td/other" \
+TMUX_MOCK_OTHER_NAME=other \
+PATH="$tmuxbin:$PATH" \
+TMUX_TEST_LOG="$tmuxlog" \
+TMUX_TEST_STATE="$tmuxstate" \
+	./bin/tdump -c "$cdump"
+sed "s|$td|TESTDIR|g" "$tmuxlog"
+sed "s|$td|TESTDIR|g" "$cdump"
+
+: >"$tmuxlog"
 rm -rf "$tmuxstate"
 mkdir "$tmuxstate"
 TMUX_MOCK_SESSION_PATH="$td/session|root" \
@@ -434,14 +504,16 @@ TMUX_MOCK_PANE0_PATH="$pane0path" \
 TMUX_MOCK_PANE1_PATH="$td/proj|b" \
 TMUX_MOCK_PANE2_PATH="$td/proj c" \
 TMUX_MOCK_PANE3_PATH="$td/logs" \
+TMUX_MOCK_OTHER_PATH="$td/other" \
+TMUX_MOCK_OTHER_NAME=other \
 PATH="$tmuxbin:$PATH" \
 TMUX_TEST_LOG="$tmuxlog" \
 TMUX_TEST_STATE="$tmuxstate" \
 	TMUX='mock-client' \
-	./bin/tload "$dump"
+	./bin/tload "$cdump"
 sed "s|$td|TESTDIR|g" "$tmuxlog"
 
-: > "$tmuxlog"
+: >"$tmuxlog"
 rm -rf "$tmuxstate"
 mkdir "$tmuxstate"
 TMUX_MOCK_SESSION_PATH="$td/session|root" \
@@ -450,9 +522,29 @@ TMUX_MOCK_PANE0_PATH="$pane0path" \
 TMUX_MOCK_PANE1_PATH="$td/proj|b" \
 TMUX_MOCK_PANE2_PATH="$td/proj c" \
 TMUX_MOCK_PANE3_PATH="$td/logs" \
+TMUX_MOCK_OTHER_PATH="$td/other" \
+TMUX_MOCK_OTHER_NAME=other \
 PATH="$tmuxbin:$PATH" \
 TMUX_TEST_LOG="$tmuxlog" \
 TMUX_TEST_STATE="$tmuxstate" \
 	TMUX= \
+	./bin/tload "$cdump"
+sed "s|$td|TESTDIR|g" "$tmuxlog"
+
+: >"$tmuxlog"
+rm -rf "$tmuxstate"
+mkdir "$tmuxstate"
+TMUX_MOCK_SESSION_PATH="$td/session|root" \
+TMUX_MOCK_SESSION_NAME='sess\demo' \
+TMUX_MOCK_PANE0_PATH="$pane0path" \
+TMUX_MOCK_PANE1_PATH="$td/proj|b" \
+TMUX_MOCK_PANE2_PATH="$td/proj c" \
+TMUX_MOCK_PANE3_PATH="$td/logs" \
+TMUX_MOCK_OTHER_PATH="$td/other" \
+TMUX_MOCK_OTHER_NAME=other \
+PATH="$tmuxbin:$PATH" \
+TMUX_TEST_LOG="$tmuxlog" \
+TMUX_TEST_STATE="$tmuxstate" \
+	TMUX='mock-client' \
 	./bin/tload "$dump"
 sed "s|$td|TESTDIR|g" "$tmuxlog"

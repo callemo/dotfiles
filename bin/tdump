@@ -1,8 +1,46 @@
 #!/bin/sh
-# tdump: dump tmux session
-# Usage: tdump [file]
+# tdump: dump tmux sessions
+# Usage: tdump [-c] [file]
 
-f="${1:-$HOME/tmux.dump}"
+usage() {
+	echo "usage: tdump [-c] [file]" >&2
+	exit 1
+}
+
+curonly=0
+case $# in
+0)
+	f=$HOME/tmux.dump
+	;;
+1)
+	case $1 in
+	-c)
+		curonly=1
+		f=$HOME/tmux.dump
+		;;
+	-*)
+		usage
+		;;
+	*)
+		f=$1
+		;;
+	esac
+	;;
+2)
+	[ "$1" = -c ] || usage
+	case $2 in
+	-*)
+		usage
+		;;
+	esac
+	curonly=1
+	f=$2
+	;;
+*)
+	usage
+	;;
+esac
+
 dir=${f%/*}
 [ "$dir" = "$f" ] && dir=.
 t=$(mktemp "$dir/.${f##*/}.XXXXXX") || exit 1
@@ -11,7 +49,13 @@ trap 'rm -f "$t"' 0
 tab='	'
 
 vimdump() {
-	tmux list-panes -s -F "#{pane_id}${tab}#{pane_current_command}" |
+	tgt=$1
+
+	if [ -n "$tgt" ]; then
+		tmux list-panes -s -t "$tgt" -F "#{pane_id}${tab}#{pane_current_command}"
+	else
+		tmux list-panes -s -F "#{pane_id}${tab}#{pane_current_command}"
+	fi |
 	while IFS=$tab read -r pane prog; do
 		case $prog in
 		vim)
@@ -21,10 +65,31 @@ vimdump() {
 	done
 }
 
-vimdump
+dump_session() {
+	tgt=$1
 
-{
-	tmux display -p 's
+	vimdump "$tgt"
+	if [ -n "$tgt" ]; then
+		tmux display-message -p -t "$tgt" 's
+#{session_path}
+#{session_name}'
+
+		tmux list-windows -t "$tgt" -F 'w
+#{window_index}
+#{window_flags}
+#{automatic-rename}
+#{window_name}
+#{window_layout}'
+
+		tmux list-panes -s -t "$tgt" -F 'p
+#{window_index}
+#{pane_index}
+#{pane_current_path}
+#{pane_current_command}'
+		return
+	fi
+
+	tmux display-message -p 's
 #{session_path}
 #{session_name}'
 
@@ -40,6 +105,20 @@ vimdump
 #{pane_index}
 #{pane_current_path}
 #{pane_current_command}'
+}
+
+{
+	cur=$(tmux display-message -p '#{session_id}') || exit 1
+	if [ "$curonly" -eq 1 ]; then
+		dump_session "$cur"
+	else
+		dump_session "$cur"
+		tmux list-sessions -F '#{session_id}' |
+		while IFS= read -r sid; do
+			[ "$sid" = "$cur" ] && continue
+			dump_session "$sid"
+		done
+	fi
 } >"$t"
 
 mv "$t" "$f"

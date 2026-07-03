@@ -10,16 +10,20 @@ trap 'rm -rf "$tmp"' 0
 tab='	'
 
 q() {
-	printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+	s=$1
+	printf "'%s'" "$(printf '%s' "$s" | sed "s/'/'\\\\''/g")"
 }
 
 put() {
-	printf '%s\n' "$2" >"$tmp/$1"
+	k=$1
+	v=$2
+	printf '%s\n' "$v" >"$stmp/$k"
 }
 
 get() {
-	[ -f "$tmp/$1" ] || return 1
-	IFS= read -r value <"$tmp/$1" || return 1
+	k=$1
+	[ -f "$stmp/$k" ] || return 1
+	IFS= read -r value <"$stmp/$k" || return 1
 	printf '%s' "$value"
 }
 
@@ -90,7 +94,7 @@ wait_vim() {
 	[ -f "$tmp/vim.order" ] || return 0
 
 	i=0
-	while [ -z "$(tmux list-clients -t "$sess" 2>/dev/null)" ]; do
+	while [ -z "$(tmux list-clients -t "$firstsess" 2>/dev/null)" ]; do
 		i=$((i + 1))
 		[ "$i" -lt 100 ] || return 1
 		sleep 0.05
@@ -108,10 +112,30 @@ wait_vim() {
 	done
 }
 
+finish() {
+	[ -n "$sess" ] || return 0
+
+	if [ -f "$stmp/window.order" ]; then
+		while IFS= read -r w; do
+			layout=$(get "w.$w.layout") || continue
+			win=$(get "w.$w.id") || continue
+			tmux select-layout -t "$win" "$layout"
+		done <"$stmp/window.order"
+	fi
+
+	if [ -n "$active" ]; then
+		win=$(get "w.$active.id")
+		[ -n "$win" ] && tmux select-window -t "$win"
+	fi
+}
+
 sess=
 spath=
+stmp=
 first=
+firstsess=
 active=
+sn=0
 
 while IFS= read -r kind; do
 	case $kind in
@@ -119,9 +143,16 @@ while IFS= read -r kind; do
 		continue
 		;;
 	s)
+		finish || exit 1
 		IFS= read -r spath || exit 1
 		IFS= read -r sname || exit 1
+		sn=$((sn + 1))
+		stmp=$tmp/$sn
+		mkdir "$stmp" || exit 1
+		first=
+		active=
 		sess=$(uniq_sess "$sname") || exit 1
+		[ -n "$firstsess" ] || firstsess=$sess
 		ids=$(tmux new-session -d -P -F "#{window_id}${tab}#{pane_id}" -s "$sess" -c "$spath") || exit 1
 		put first.win "${ids%%"$tab"*}"
 		put first.pane "${ids#*"$tab"}"
@@ -141,7 +172,7 @@ while IFS= read -r kind; do
 		put "w.$w.auto" "$auto"
 		put "w.$w.name" "$name"
 		put "w.$w.layout" "$layout"
-		printf '%s\n' "$w" >>"$tmp/window.order"
+		printf '%s\n' "$w" >>"$stmp/window.order"
 		;;
 	p)
 		IFS= read -r w || exit 1
@@ -149,37 +180,37 @@ while IFS= read -r kind; do
 		IFS= read -r d || exit 1
 		IFS= read -r prog || exit 1
 
-		if ! get "w.$w.id" >/dev/null 2>&1; then
-			if [ "$w" = "$first" ]; then
-				win=$(get first.win)
-				pane=$(get first.pane)
-				if [ "$d" != "$spath" ]; then
-					tmux send-keys -t "$pane" "cd -- $(q "$d")" C-m
-				fi
-			else
-				ids=$(tmux new-window -d -P -F "#{window_id}${tab}#{pane_id}" -t "$sess:$w" -c "$d") || exit 1
-				win=${ids%%"$tab"*}
-				pane=${ids#*"$tab"}
-			fi
-
-			put "w.$w.id" "$win"
-			auto=$(get "w.$w.auto")
-			name=$(get "w.$w.name")
-			case $auto in
-			0)
-				tmux rename-window -t "$win" "$name"
-				tmux set-window-option -t "$win" automatic-rename off
-				;;
-			1)
-				tmux set-window-option -t "$win" automatic-rename on
-				;;
-			esac
-
-		else
+		if get "w.$w.id" >/dev/null 2>&1; then
 			win=$(get "w.$w.id")
 			last=$(get "w.$w.last")
 			pane=$(tmux split-window -d -P -F '#{pane_id}' -t "$last" -c "$d") || exit 1
+			put "w.$w.last" "$pane"
+			defer_vim "$pane" "$d" "$prog"
+			continue
 		fi
+
+		if [ "$w" = "$first" ]; then
+			win=$(get first.win)
+			pane=$(get first.pane)
+			[ "$d" != "$spath" ] && tmux send-keys -t "$pane" "cd -- $(q "$d")" C-m
+		else
+			ids=$(tmux new-window -d -P -F "#{window_id}${tab}#{pane_id}" -t "$sess:$w" -c "$d") || exit 1
+			win=${ids%%"$tab"*}
+			pane=${ids#*"$tab"}
+		fi
+
+		put "w.$w.id" "$win"
+		auto=$(get "w.$w.auto")
+		name=$(get "w.$w.name")
+		case $auto in
+		0)
+			tmux rename-window -t "$win" "$name"
+			tmux set-window-option -t "$win" automatic-rename off
+			;;
+		1)
+			tmux set-window-option -t "$win" automatic-rename on
+			;;
+		esac
 
 		put "w.$w.last" "$pane"
 		defer_vim "$pane" "$d" "$prog"
@@ -187,27 +218,16 @@ while IFS= read -r kind; do
 	esac
 done <"$f"
 
-if [ -f "$tmp/window.order" ]; then
-	while IFS= read -r w; do
-		layout=$(get "w.$w.layout") || continue
-		win=$(get "w.$w.id") || continue
-		tmux select-layout -t "$win" "$layout"
-	done <"$tmp/window.order"
-fi
-
-if [ -n "$active" ]; then
-	win=$(get "w.$active.id")
-	[ -n "$win" ] && tmux select-window -t "$win"
-fi
+finish || exit 1
 
 if [ -n "$TMUX" ]; then
-	tmux switch-client -t "$sess"
+	tmux switch-client -t "$firstsess"
 	wait_vim
 	replay_vim
 else
 	(wait_vim; replay_vim) &
 	pid=$!
-	tmux attach-session -t "$sess"
+	tmux attach-session -t "$firstsess"
 	rc=$?
 	[ "$rc" -eq 0 ] || kill "$pid" 2>/dev/null
 	wait "$pid" 2>/dev/null
