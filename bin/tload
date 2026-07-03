@@ -14,12 +14,15 @@ q() {
 }
 
 put() {
-	printf '%s\n' "$2" >"$tmp/$1"
+	key=$1
+	val=$2
+	printf '%s\n' "$val" >"$sessdir/$key"
 }
 
 get() {
-	[ -f "$tmp/$1" ] || return 1
-	IFS= read -r value <"$tmp/$1" || return 1
+	key=$1
+	[ -f "$sessdir/$key" ] || return 1
+	IFS= read -r value <"$sessdir/$key" || return 1
 	printf '%s' "$value"
 }
 
@@ -43,14 +46,14 @@ uniq_sess() {
 
 vim_restore() {
 	pane=$1
-	dir=$2
+	vimdir=$2
 	prog=$3
 
 	case $prog in
 	vim)
-		if [ -f "$dir/vim.dump" ]; then
-			tmux send-keys -t "$pane" "vim -c $(q "Load $dir/vim.dump")" C-m
-		elif [ -f "$dir/Session.vim" ]; then
+		if [ -f "$vimdir/vim.dump" ]; then
+			tmux send-keys -t "$pane" "vim -c $(q "Load $vimdir/vim.dump")" C-m
+		elif [ -f "$vimdir/Session.vim" ]; then
 			tmux send-keys -t "$pane" 'vim -S Session.vim' C-m
 		else
 			tmux send-keys -t "$pane" 'vim' C-m
@@ -61,13 +64,13 @@ vim_restore() {
 
 defer_vim() {
 	pane=$1
-	dir=$2
+	vimdir=$2
 	prog=$3
 	[ "$prog" = vim ] || return 0
 
 	{
 		printf '%s\n' "$pane"
-		printf '%s\n' "$dir"
+		printf '%s\n' "$vimdir"
 	} >>"$tmp/vim.order"
 }
 
@@ -79,10 +82,59 @@ replay_vim() {
 	done <"$tmp/vim.order"
 }
 
+vim_size() {
+	while IFS= read -r pane; do
+		IFS= read -r vimdir || return 1
+		tmux display-message -p -t "$pane" '#{pane_width}x#{pane_height}' || return 1
+	done <"$tmp/vim.order"
+}
+
+wait_vim() {
+	[ -f "$tmp/vim.order" ] || return 0
+
+	i=0
+	while [ -z "$(tmux list-clients -t "$firstsess" 2>/dev/null)" ]; do
+		i=$((i + 1))
+		[ "$i" -lt 100 ] || return 1
+		sleep 0.05
+	done
+
+	last=
+	i=0
+	while :; do
+		size=$(vim_size) || return 1
+		[ "$size" = "$last" ] && return 0
+		last=$size
+		i=$((i + 1))
+		[ "$i" -lt 100 ] || return 1
+		sleep 0.05
+	done
+}
+
+finish() {
+	[ -n "$sess" ] || return 0
+
+	if [ -f "$sessdir/window.order" ]; then
+		while IFS= read -r w; do
+			layout=$(get "w.$w.layout") || continue
+			win=$(get "w.$w.id") || continue
+			tmux select-layout -t "$win" "$layout"
+		done <"$sessdir/window.order"
+	fi
+
+	if [ -n "$activewin" ]; then
+		win=$(get "w.$activewin.id")
+		[ -n "$win" ] && tmux select-window -t "$win"
+	fi
+}
+
 sess=
-spath=
-first=
-active=
+sesspath=
+sessdir=
+firstwin=
+firstsess=
+activewin=
+sessn=0
 
 while IFS= read -r kind; do
 	case $kind in
@@ -90,10 +142,17 @@ while IFS= read -r kind; do
 		continue
 		;;
 	s)
-		IFS= read -r spath || exit 1
-		IFS= read -r sname || exit 1
-		sess=$(uniq_sess "$sname") || exit 1
-		ids=$(tmux new-session -d -P -F "#{window_id}${tab}#{pane_id}" -s "$sess" -c "$spath") || exit 1
+		finish || exit 1
+		IFS= read -r sesspath || exit 1
+		IFS= read -r sessname || exit 1
+		sessn=$((sessn + 1))
+		sessdir=$tmp/$sessn
+		mkdir "$sessdir" || exit 1
+		firstwin=
+		activewin=
+		sess=$(uniq_sess "$sessname") || exit 1
+		[ -n "$firstsess" ] || firstsess=$sess
+		ids=$(tmux new-session -d -P -F "#{window_id}${tab}#{pane_id}" -s "$sess" -c "$sesspath") || exit 1
 		put first.win "${ids%%"$tab"*}"
 		put first.pane "${ids#*"$tab"}"
 		;;
@@ -103,78 +162,73 @@ while IFS= read -r kind; do
 		IFS= read -r auto || exit 1
 		IFS= read -r name || exit 1
 		IFS= read -r layout || exit 1
-		[ -n "$first" ] || first=$w
+		[ -n "$firstwin" ] || firstwin=$w
 		case $flags in
 		*\**)
-			active=$w
+			activewin=$w
 			;;
 		esac
 		put "w.$w.auto" "$auto"
 		put "w.$w.name" "$name"
 		put "w.$w.layout" "$layout"
-		printf '%s\n' "$w" >>"$tmp/window.order"
+		printf '%s\n' "$w" >>"$sessdir/window.order"
 		;;
 	p)
 		IFS= read -r w || exit 1
-		IFS= read -r _ || exit 1
-		IFS= read -r d || exit 1
+		IFS= read -r paneidx || exit 1
+		IFS= read -r panedir || exit 1
 		IFS= read -r prog || exit 1
 
-		if ! get "w.$w.id" >/dev/null 2>&1; then
-			if [ "$w" = "$first" ]; then
-				win=$(get first.win)
-				pane=$(get first.pane)
-				if [ "$d" != "$spath" ]; then
-					tmux send-keys -t "$pane" "cd -- $(q "$d")" C-m
-				fi
-			else
-				ids=$(tmux new-window -d -P -F "#{window_id}${tab}#{pane_id}" -t "$sess:$w" -c "$d") || exit 1
-				win=${ids%%"$tab"*}
-				pane=${ids#*"$tab"}
-			fi
-
-			put "w.$w.id" "$win"
-			auto=$(get "w.$w.auto")
-			name=$(get "w.$w.name")
-			case $auto in
-			0)
-				tmux rename-window -t "$win" "$name"
-				tmux set-window-option -t "$win" automatic-rename off
-				;;
-			1)
-				tmux set-window-option -t "$win" automatic-rename on
-				;;
-			esac
-
-		else
+		if get "w.$w.id" >/dev/null 2>&1; then
 			win=$(get "w.$w.id")
 			last=$(get "w.$w.last")
-			pane=$(tmux split-window -d -P -F '#{pane_id}' -t "$last" -c "$d") || exit 1
+			pane=$(tmux split-window -d -P -F '#{pane_id}' -t "$last" -c "$panedir") || exit 1
+			put "w.$w.last" "$pane"
+			defer_vim "$pane" "$panedir" "$prog"
+			continue
 		fi
 
+		if [ "$w" = "$firstwin" ]; then
+			win=$(get first.win)
+			pane=$(get first.pane)
+			[ "$panedir" != "$sesspath" ] && tmux send-keys -t "$pane" "cd -- $(q "$panedir")" C-m
+		else
+			ids=$(tmux new-window -d -P -F "#{window_id}${tab}#{pane_id}" -t "$sess:$w" -c "$panedir") || exit 1
+			win=${ids%%"$tab"*}
+			pane=${ids#*"$tab"}
+		fi
+
+		put "w.$w.id" "$win"
+		auto=$(get "w.$w.auto")
+		name=$(get "w.$w.name")
+		case $auto in
+		0)
+			tmux rename-window -t "$win" "$name"
+			tmux set-window-option -t "$win" automatic-rename off
+			;;
+		1)
+			tmux set-window-option -t "$win" automatic-rename on
+			;;
+		esac
+
 		put "w.$w.last" "$pane"
-		defer_vim "$pane" "$d" "$prog"
+		defer_vim "$pane" "$panedir" "$prog"
 		;;
 	esac
 done <"$f"
 
-if [ -f "$tmp/window.order" ]; then
-	while IFS= read -r w; do
-		layout=$(get "w.$w.layout") || continue
-		win=$(get "w.$w.id") || continue
-		tmux select-layout -t "$win" "$layout"
-	done <"$tmp/window.order"
-fi
-
-if [ -n "$active" ]; then
-	win=$(get "w.$active.id")
-	[ -n "$win" ] && tmux select-window -t "$win"
-fi
+finish || exit 1
 
 if [ -n "$TMUX" ]; then
-	tmux switch-client -t "$sess"
+	tmux switch-client -t "$firstsess"
+	wait_vim
 	replay_vim
 else
-	replay_vim
-	tmux attach-session -t "$sess"
+	(wait_vim; replay_vim) &
+	pid=$!
+	tmux attach-session -t "$firstsess"
+	rc=$?
+	[ "$rc" -eq 0 ] || kill "$pid" 2>/dev/null
+	wait "$pid" 2>/dev/null
+	exit "$rc"
 fi
