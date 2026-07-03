@@ -312,6 +312,8 @@ p
 0
 TESTDIR/logs
 zsh
+usage: tdump [-s] [file]
+2
 new-session	-d	-P	-F	#{window_id}\t#{pane_id}	-s	sess\\demo	-c	TESTDIR/session\|root
 send-keys	-t	%10	cd -- 'TESTDIR/proj\ta'	C-m
 rename-window	-t	@1	main\tview

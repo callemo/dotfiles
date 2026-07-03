@@ -491,9 +491,10 @@ TMUX_MOCK_OTHER_NAME=other \
 PATH="$tmuxbin:$PATH" \
 TMUX_TEST_LOG="$tmuxlog" \
 TMUX_TEST_STATE="$tmuxstate" \
-	./bin/tdump -c "$cdump"
+	./bin/tdump -s "$cdump"
 sed "s|$td|TESTDIR|g" "$tmuxlog"
 sed "s|$td|TESTDIR|g" "$cdump"
+./bin/tdump -x "$cdump" 2>&1; echo $?
 
 : >"$tmuxlog"
 rm -rf "$tmuxstate"

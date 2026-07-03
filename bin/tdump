@@ -1,10 +1,10 @@
 #!/bin/sh
 # tdump: dump tmux sessions
-# Usage: tdump [-c] [file]
+# Usage: tdump [-s] [file]
 
 usage() {
-	echo "usage: tdump [-c] [file]" >&2
-	exit 1
+	echo "usage: tdump [-s] [file]" >&2
+	exit 2
 }
 
 curonly=0
@@ -14,7 +14,7 @@ case $# in
 	;;
 1)
 	case $1 in
-	-c)
+	-s)
 		curonly=1
 		f=$HOME/tmux.dump
 		;;
@@ -27,7 +27,7 @@ case $# in
 	esac
 	;;
 2)
-	[ "$1" = -c ] || usage
+	[ "$1" = -s ] || usage
 	case $2 in
 	-*)
 		usage
