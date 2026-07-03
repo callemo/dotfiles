@@ -318,6 +318,7 @@ cat >"$tmuxbin/tmux" <<'END'
 log=${TMUX_TEST_LOG:?}
 state=${TMUX_TEST_STATE:?}
 split=$state/split
+client=$state/client
 
 record() {
 	printf '%s' "$(escape "$1")" >>"$log"
@@ -373,6 +374,12 @@ list-panes)
 		;;
 	esac
 	;;
+list-clients)
+	[ -f "$client" ] && printf 'client\n'
+	;;
+display-message)
+	printf '80x24\n'
+	;;
 new-session)
 	record "$@"
 	printf '@1\t%%10\n'
@@ -389,8 +396,12 @@ split-window)
 	printf '%s\n' "$n" >"$split"
 	printf '%%%d\n' "$((10 + n))"
 	;;
-rename-window|send-keys|set-window-option|select-layout|select-window|attach-session|switch-client)
+rename-window|send-keys|set-window-option|select-layout|select-window)
 	record "$@"
+	;;
+attach-session|switch-client)
+	record "$@"
+	: >"$client"
 	;;
 *)
 	echo "unknown tmux command: $1" >&2

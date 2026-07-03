@@ -286,6 +286,6 @@ set-window-option	-t	@2	automatic-rename	on
 select-layout	-t	@1	layout-main
 select-layout	-t	@2	tiled
 select-window	-t	@2
+attach-session	-t	sess\\demo
 send-keys	-t	%11	vim -S Session.vim	C-m
 send-keys	-t	%12	vim -c 'Load TESTDIR/proj c/vim.dump'	C-m
-attach-session	-t	sess\\demo
