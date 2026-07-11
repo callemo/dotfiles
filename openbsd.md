@@ -5,7 +5,7 @@ local laptop setup, not a portable OpenBSD installer.
 
 ## What it changes
 
-- `/etc/wsconsctl.conf` — disables touchpad tapping and reverses scroll for
+- `/etc/wsconsctl.conf` — enables touchpad tapping and reverses scroll for
   `wsmouse0`.
 - `/etc/hotplug/attach` — reverses scroll for late-attached `wsmouseN` devices.
 - `/etc/hotplug/detach` — installed as a no-op to remove stale local detach actions.
@@ -23,7 +23,7 @@ local laptop setup, not a portable OpenBSD installer.
 OpenBSD's `wsconsctl.conf` runs only at boot. It sets:
 
 ```sh
-mouse.tp.tapping=0
+mouse.tp.tapping=1
 mouse.reverse_scrolling=1
 ```
 
