@@ -85,6 +85,7 @@ Key Return A       4         Function OpenTerminal
 Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 Key Return A       S4        Exec exec chrome
 Key N      A       S4        Exec exec xterm -e vim
+Key F      A       S4        Exec exec xterm -e ksh -lc noice
 Key T      A       C4        Function Btop
 
 # Menus / launcher
@@ -140,7 +141,6 @@ Key 0      A       S4        MoveToDesk 0 9
 Key L      A       C4        Exec exec xlock
 Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 
-# Display switching: same shortcut as Omarchy's laptop display toggle.
 Key Delete A       C4        PipeRead '$HOME/dotfiles/fvwm/display toggle fvwm'
 # }}}
 # }}}
@@ -154,6 +154,7 @@ AddToMenu RootMenu "Control Menu" Title
 + "XTerm	Win-Return"             Function OpenTerminal
 + "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 + "Vim	Shift-Win-N"             Exec exec xterm -e vim
++ "Files	Shift-Win-F"           Exec exec xterm -e ksh -lc noice
 + ""                               Nop
 + "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/fvwm/display toggle fvwm'
 + "Lock display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
@@ -174,6 +175,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 + "Browser	Shift-Win-Return" Exec exec chrome
 + "Vim	Shift-Win-N" Exec exec xterm -e vim
++ "Files	Shift-Win-F" Exec exec xterm -e ksh -lc noice
 + "System monitor	Ctrl-Win-T" Function Btop
 + "" Nop
 + "Windows" Title

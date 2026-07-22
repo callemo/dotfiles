@@ -56,10 +56,11 @@ for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
 	fileline '^\. .*dotfiles/init\.sh' '. ~/dotfiles/init.sh' "$rc"
 done
 
-# On systems with a base config layer (e.g. Omarchy), patch its tmux template to
-# source our user overrides so they survive any config refresh commands.
-tmpl="$HOME/.local/share/omarchy/config/tmux/tmux.conf"
-[ -f "$tmpl" ] && fileline '^source-file.*user\.conf' 'source-file -q ~/.config/tmux/user.conf' "$tmpl"
+# Keep user tmux overrides across base configuration refreshes.
+for tmpl in "$HOME/.local/share"/*/config/tmux/tmux.conf; do
+	[ -f "$tmpl" ] || continue
+	fileline '^source-file.*user\.conf' 'source-file -q ~/.config/tmux/user.conf' "$tmpl"
+done
 
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
