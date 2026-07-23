@@ -67,6 +67,7 @@ Mouse 1      FS      A         RaiseAndResize
 Mouse 1      I       A         IconifyOrMove
 Mouse 1      T       A         RaiseAndMove
 Mouse 1      W       4         RaiseAndMove
+Mouse 3      W       4         Lower
 Mouse 2      TSF     A         Menu WinOps Nop
 Mouse 2      I       A         Iconify
 Mouse 3      TSFI    A         RaiseLower
@@ -84,7 +85,7 @@ Mouse 3      2       A         Maximize 0 100
 Key Return A       4         Function OpenTerminal
 Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 Key Return A       S4        Exec exec chrome
-Key N      A       S4        Exec exec xterm -e vim
+Key V      A       S4        Exec exec xterm -e ksh -lc vim
 Key F      A       S4        Exec exec xterm -e ksh -lc noice
 Key T      A       C4        Function Btop
 
@@ -153,7 +154,7 @@ AddToMenu RootMenu "Control Menu" Title
 + "Chrome	Shift-Win-Return"      Exec exec chrome
 + "XTerm	Win-Return"             Function OpenTerminal
 + "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
-+ "Vim	Shift-Win-N"             Exec exec xterm -e vim
++ "Vim	Shift-Win-V"             Exec exec xterm -e ksh -lc vim
 + "Files	Shift-Win-F"           Exec exec xterm -e ksh -lc noice
 + ""                               Nop
 + "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/fvwm/display toggle fvwm'
@@ -163,9 +164,9 @@ AddToMenu RootMenu "Control Menu" Title
 
 AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Navigation" Title
-+ "Launcher	Win-Space" Module FvwmForm RunCmd
++ "Run command...	Win-Space" Module FvwmForm RunCmd
 + "Control menu	Alt-Win-Space" Menu RootMenu Nop
-+ "System menu	Win-Escape" Module FvwmForm LogOut
++ "Log out...	Win-Escape" Module FvwmForm LogOut
 + "Key bindings	Win-K" Nop
 + "Window list	Win-Slash" WindowList
 + "Lock computer	Ctrl-Win-L" Exec exec xlock
@@ -174,20 +175,22 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Terminal	Win-Return" Function OpenTerminal
 + "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
 + "Browser	Shift-Win-Return" Exec exec chrome
-+ "Vim	Shift-Win-N" Exec exec xterm -e vim
++ "Vim	Shift-Win-V" Exec exec xterm -e ksh -lc vim
 + "Files	Shift-Win-F" Exec exec xterm -e ksh -lc noice
 + "System monitor	Ctrl-Win-T" Function Btop
 + "" Nop
 + "Windows" Title
 + "Close	Win-W" Close
 + "Minimize	Win-M" Iconify
-+ "Fullscreen	Win-F" Maximize 100 100
-+ "Maximize below bar	Alt-Win-F" Function MaximizeBelowBar
++ "Maximize to screen	Win-F" Maximize 100 100
++ "Fill below bar	Alt-Win-F" Function MaximizeBelowBar
 + "Tile left half	Shift-Win-Left" Function TileLeft
 + "Tile right half	Shift-Win-Right" Function TileRight
 + "Tile top half	Shift-Win-Up" Function TileTop
 + "Tile bottom half	Shift-Win-Down" Function TileBottom
-+ "Drag window	Win-Left Mouse" Nop
++ "Raise window	Win-Left Click" Nop
++ "Move window	Win-Left Drag" Nop
++ "Lower window	Win-Right Click / Win-Double-Left Click" Nop
 + "" Nop
 + "Focus" Title
 + "Focus left	Win-Left" Direction West  (CurrentPage !Iconic) Function SelectWindow
