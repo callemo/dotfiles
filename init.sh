@@ -25,6 +25,7 @@ RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"; export RIPGREP_CONFIG_PATH
 
 case "${SHELL##*/}" in
 ksh)
+	ENV="$DOTFILES/init.sh"; export ENV
 	: "${HISTFILE:=$HOME/.ksh_history}"
 	export HISTCONTROL=ignoredups:ignorespace
 	set -o emacs

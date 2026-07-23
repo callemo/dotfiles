@@ -1,3 +1,5 @@
+. "$HOME/dotfiles/init.sh"
+
 export LC_CTYPE=en_US.UTF-8
 export VARFONT=/mnt/font/GoRegular/13a/font
 export FIXFONT=/mnt/font/GoMono/12a/font

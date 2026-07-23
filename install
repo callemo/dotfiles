@@ -51,7 +51,7 @@ done
 [ -e "$HOME/lib" ] || { log 'link lib'; ln -sf "$root/lib" "$HOME/lib"; }
 
 # Wire init.sh into shell rc files; normalize any existing variant form.
-for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+for rc in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshrc"; do
 	[ -f "$rc" ] || continue
 	fileline '^\. .*dotfiles/init\.sh' '. ~/dotfiles/init.sh' "$rc"
 done
