@@ -43,6 +43,7 @@ call assert_false(exists('*WinCyclePrev'))
 call assert_true(exists('*view#TabLine'))
 call assert_true(exists('*view#TabLabel'))
 call assert_true(exists('*view#TermStatus'))
+call assert_true(exists('*view#Win'))
 call assert_true(exists('*text#Selection'))
 call assert_true(exists('*text#SearchSel'))
 call assert_true(exists('*text#Trim'))
@@ -54,6 +55,26 @@ let s:tj = maparg('<c-j>', 't', 0, 1)
 let s:tk = maparg('<c-k>', 't', 0, 1)
 call assert_match('view[#.]Next', s:tj.rhs)
 call assert_match('view[#.]Prev', s:tk.rhs)
+call assert_equal('', maparg('<leader>z', 't'))
+
+" Win: open a shell in the current file's directory.
+let s:win_tmpdir = tempname() . ' space'
+call mkdir(s:win_tmpdir, 'p')
+let s:win_file = s:win_tmpdir . '/file.txt'
+call writefile(['hello'], s:win_file)
+execute 'edit' fnameescape(s:win_file)
+let s:win_source = bufnr('%')
+let s:old_shell = &shell
+let &shell = '/bin/pwd'
+Win
+let &shell = s:old_shell
+call assert_equal('terminal', &buftype)
+let s:win_bnr = bufnr('%')
+call assert_true(s:WaitFor({-> term_getstatus(s:win_bnr) =~# 'finished'}))
+call assert_true(index(map(getbufline(s:win_bnr, 1, '$'), {_, line -> trim(line)}), resolve(s:win_tmpdir)) >= 0)
+bwipeout!
+execute 'bwipeout!' s:win_source
+call delete(s:win_tmpdir, 'rf')
 
 " All public functions are def (compiled)
 call assert_match('def ', execute('function exec#Cmd'))

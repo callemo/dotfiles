@@ -337,6 +337,11 @@ export def Click()
 	feedkeys("\<LeftMouse>", 'n')
 enddef
 
+# Win opens a shell in the current buffer's directory.
+export def Win()
+	term_start(&shell, {'cwd': expand('%:p:h')})
+enddef
+
 # TermStatus returns a terminal status line matching the normal layout.
 export def TermStatus(): string
 	var cwd = fnamemodify(getcwd(), ':t')

@@ -89,6 +89,9 @@ COMMANDS         :Cmd [-range] [cmd]
                       Send lines to a tmux pane.
                       Remember tmux-target per window.
 
+                 :Win
+                      Open a shell in the current buffer directory.
+
 KEYS             Leader is space.
                  Tmux crossing requires $TMUX and a Vim window edge.
 
@@ -133,7 +136,6 @@ KEYS             Leader is space.
                  Terminal Key     Action
                  <C-j>            next Vim window; tmux at last
                  <C-k>            previous Vim window; tmux at first
-                 <leader>z        zoom window
 
                  Bracket          Action
                  ]a [a            next/previous argument

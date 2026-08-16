@@ -146,6 +146,7 @@ command! -nargs=? Lint call exec.Lint(<f-args>)
 command! -nargs=? -range=% Fmt call exec.Fmt(<line1>, <line2>, <f-args>)
 command! -nargs=* Fts call exec.Fts(<q-args>)
 command! -nargs=? Toc call view.Toc(<f-args>)
+command! Win call view.Win()
 
 command!          Sort call view.Sort()
 command! -nargs=1 B    call view.Bufmatch(<q-args>)
@@ -235,7 +236,6 @@ tnoremap <silent> <c-k> <ScriptCmd>view.Prev()<CR>
 tnoremap <c-w>[ <c-\><c-n>
 tnoremap <c-w>] <c-w>""
 
-tnoremap <leader>z <cmd>resize<CR>
 tnoremap <scrollwheelup> <c-\><c-n>
 
 # ── Mouse ────────────────────────────────────────────────
