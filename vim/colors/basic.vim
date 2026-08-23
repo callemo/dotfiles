@@ -7,7 +7,7 @@ let g:colors_name = 'basic'
 
 hi Normal ctermbg=NONE
 
-" Status bar
+" Status bar; color 16 avoids XTerm promoting bold ANSI black to bright black.
 hi StatusLine   cterm=bold ctermfg=16 ctermbg=4
 hi StatusLineNC cterm=NONE ctermfg=250 ctermbg=238
 hi TabLineSel   cterm=bold ctermfg=16 ctermbg=4
