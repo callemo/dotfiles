@@ -9,8 +9,8 @@ w=${dims%x*}; w=${w:-1920}
 cols=$((w / 2))
 
 cat <<EOF
-*ToolBarBack #0B0C16
-*ToolBarFore #82FB9C
+*ToolBarBack #282828
+*ToolBarFore #d4be98
 *ToolBarFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
 *ToolBarGeometry ${w}x${bar}+0+0
 *ToolBarRows 1

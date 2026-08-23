@@ -7,6 +7,11 @@ export FIXFONT=/mnt/font/GoMono/12a/font
 # Adwaita ships scalable cursors; Xcursor.size comes from the display profile.
 export XCURSOR_THEME=Adwaita
 
+# GVfs and other desktop services need one shared D-Bus session.
+if command -v dbus-launch >/dev/null 2>&1 && [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
+	eval "$(dbus-launch --sh-syntax --exit-with-x11)"
+fi
+
 [ -d /usr/local/share/fonts/JetBrainsMono ] && {
 	xset fp+ /usr/local/share/fonts/JetBrainsMono
 	xset fp rehash

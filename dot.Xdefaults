@@ -4,14 +4,16 @@ XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
 XTerm*faceName:           JetBrains Mono:style=Light
 XTerm*faceSize:           10
-XTerm*foreground:         #ddf7ff
-XTerm*background:         #0B0C16
-XTerm*cursorColor:        #ddf7ff
-XTerm*cursorColor2:       #0B0C16
-XTerm*pointerColor:       #ddf7ff
-XTerm*pointerColorBackground: #0B0C16
-XTerm*highlightColor:     #ddf7ff
-XTerm*highlightTextColor: #0B0C16
+XTerm*foreground:         #d4be98
+XTerm*background:         #282828
+XTerm*cursorColor:        #bdae93
+XTerm*cursorColor2:       #282828
+XTerm*pointerColor:       #bdae93
+XTerm*pointerColorBackground: #282828
+XTerm*highlightColor:     #504945
+XTerm*highlightTextColor: #fbf1c7
+XTerm*highlightColorMode: true
+XTerm*highlightReverse:   false
 XTerm*faceSize1:          7
 XTerm*faceSize2:          8
 XTerm*faceSize3:          9
@@ -24,17 +26,17 @@ XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
 
 XClock*geometry:   128x128+0+0
-XClock*background: white
-XClock*foreground: black
-XClock*hands:      black
-XClock*highlight:  #aeb2c3
-XClock*majorColor: black
-XClock*minorColor: #7f8c9e
+XClock*background: #282828
+XClock*foreground: #d4be98
+XClock*hands:      #d4be98
+XClock*highlight:  #7daea3
+XClock*majorColor: #bdae93
+XClock*minorColor: #928374
 
 XConsole*geometry:    700x40
-XConsole*foreground:  rgb:ff/b0/00
-XConsole*background:  rgb:40/40/40
-XConsole*cursorColor: rgb:ff/b0/00
+XConsole*foreground:  #d8a657
+XConsole*background:  #282828
+XConsole*cursorColor: #d8a657
 XConsole*saveLines:   8
 
 *font: -adobe-courier-bold-r-*-*-17-*-*-*-*-*-*-*
@@ -42,30 +44,30 @@ XConsole*saveLines:   8
     <Btn1Down>:         StartScroll(Backward) \n\
     <Btn3Down>:         StartScroll(Forward) \n\
     <BtnUp>:            NotifyScroll(Proportional) EndScroll()
-*scrollbar.background:    #3E4058
-*scrollbar.foreground:    #6a6e95
+*scrollbar.background:    #3c3836
+*scrollbar.foreground:    #928374
 
-! Hackerman color scheme
-*color0:  #3E4058
-*color1:  #50f872
-*color2:  #4fe88f
-*color3:  #50f7d4
-*color4:  #829dd4
-*color5:  #86a7df
-*color6:  #7cf8f7
-*color7:  #85E1FB
-*color8:  #6a6e95
-*color9:  #85ff9d
-*color10: #9cf7c2
-*color11: #a4ffec
-*color12: #c4d2ed
-*color13: #cddbf4
-*color14: #d1fffe
-*color15: #ddf7ff
+! Gruvbox Material color scheme
+*color0:  #3c3836
+*color1:  #ea6962
+*color2:  #a9b665
+*color3:  #d8a657
+*color4:  #7daea3
+*color5:  #d3869b
+*color6:  #89b482
+*color7:  #d4be98
+*color8:  #928374
+*color9:  #ea6962
+*color10: #a9b665
+*color11: #d8a657
+*color12: #7daea3
+*color13: #d3869b
+*color14: #89b482
+*color15: #d4be98
 
 ! ToolStatus bar
-ToolStatus*background:     #0B0C16
-ToolStatus*foreground:     #82FB9C
+ToolStatus*background:     #282828
+ToolStatus*foreground:     #d4be98
 ToolStatus*faceName:       JetBrains Mono:style=Semibold
 ToolStatus*faceSize:       9
 ToolStatus*scrollBar:      false
