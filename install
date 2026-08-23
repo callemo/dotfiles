@@ -64,7 +64,19 @@ done
 
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
-[ "$(uname)" = OpenBSD ] && . "$root/install_openbsd.sh"
+# Let btop inherit the terminal's ANSI palette.
+if command -v btop >/dev/null 2>&1; then
+	btopconf=$HOME/.config/btop/btop.conf
+	mkdir -p "${btopconf%/*}"
+	if [ ! -f "$btopconf" ]; then
+		btop --default-config >"$btopconf" || {
+			rm -f "$btopconf"
+			fatal "create $btopconf"
+		}
+	fi
+	fileline '^color_theme = ' 'color_theme = "TTY"' "$btopconf"
+	fileline '^theme_background = ' 'theme_background = false' "$btopconf"
+fi
 
 # Plugin data list
 plugins=$(mktemp) || fatal "mktemp failed"
