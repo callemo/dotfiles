@@ -18,9 +18,6 @@ The installer links `dot.*` files into `$HOME`, links files under `dot.config/`
 into `~/.config/`, wires `init.sh` into shell rc files, and installs Vim
 plugins with `vim/get`.
 
-On OpenBSD it also sources `install_openbsd.sh` for local machine setup:
-`wsconsctl`, xsel clipboard hooks, cursor settings, and Vim runtime paths.
-
 ## Shape
 
 - `dot.*` — config files linked into `$HOME`
@@ -32,6 +29,8 @@ On OpenBSD it also sources `install_openbsd.sh` for local machine setup:
 - `testdata/` — fixtures
 
 `init.sh` puts the usual local paths first and sets a few shell defaults.
+The XTerm and FVWM configuration uses a Gruvbox Material palette, and terminal
+programs inherit its ANSI colors where possible.
 
 ## Tools
 
