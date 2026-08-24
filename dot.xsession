@@ -34,6 +34,10 @@ xidle -timeout 600 &
 # Warm the screen at night (19:00-07:00), cool during the day.
 h=$(date +%H)
 [ "$h" -ge 19 ] || [ "$h" -lt 7 ] && sct 3200 || sct 5600
-xcompmgr &
+if command -v picom >/dev/null 2>&1; then
+	picom &
+else
+	xcompmgr &
+fi
 xterm &
 fvwm
