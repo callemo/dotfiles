@@ -22,7 +22,7 @@ def textfiles(paths, globs):
         if os.path.isfile(root):
             if not isbinary(root):
                 try:
-                    with open(root, encoding='utf-8', errors='surrogateescape') as f:
+                    with open(root, encoding='utf-8', errors='surrogateescape', newline='') as f:
                         yield root, f.read()
                 except OSError:
                     pass
@@ -36,7 +36,7 @@ def textfiles(paths, globs):
                 if isbinary(path):
                     continue
                 try:
-                    with open(path, encoding='utf-8', errors='surrogateescape') as f:
+                    with open(path, encoding='utf-8', errors='surrogateescape', newline='') as f:
                         yield path, f.read()
                 except OSError:
                     continue
@@ -68,8 +68,9 @@ def main():
 
     try:
         rx = re.compile(pat)
+        rx.sub(rep, '')   # force template parse; sub compiles it lazily
     except re.error as e:
-        sys.stderr.write(f'rgsub: invalid regexp: {e}\n')
+        sys.stderr.write(f'rgsub: invalid pattern or replacement: {e}\n')
         sys.exit(2)
 
     matched = False
@@ -86,7 +87,7 @@ def main():
                 sys.stdout.writelines(diff)
         else:
             if newtext != text:
-                with open(path, 'w', encoding='utf-8', errors='surrogateescape') as f:
+                with open(path, 'w', encoding='utf-8', errors='surrogateescape', newline='') as f:
                     f.write(newtext)
 
     sys.exit(0 if matched else 1)
