@@ -296,7 +296,7 @@ AddToFunc Btop
     + I Wait btop
     + I Next (btop) Move 50-437p 50-300p
 
-# Fallbacks for 1920x1080; winzones recomputes these at startup (StartFunction).
+# Fallbacks for 1920x1080; tile recomputes these at startup (StartFunction).
 AddToFunc MaximizeBelowBar
     + I Resize 1904p 1036p
     + I Move 0 28p
@@ -343,7 +343,7 @@ AddToFunc PrevDesk
 # }}}
 # Modules {{{
 # ToolBar {{{
-PipeRead '$HOME/dotfiles/fvwm/toolbar 32'
+PipeRead '$HOME/dotfiles/fvwm/bar 32'
 # }}}
 # Pager {{{
 *FvwmPagerFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"

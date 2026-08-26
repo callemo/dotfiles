@@ -1,5 +1,8 @@
 #!/bin/sh
 
+trap 'printf "\033[?25h"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 printf '\033[?25l'
 while :; do
 	pct=$(apm -l 2>/dev/null)

@@ -45,7 +45,7 @@ active=$(printf '%s\n' "$xr" | awk -v panel="$int" '
 	}
 ')
 [ -n "$active" ] && ext=$active
-active_mode=$(printf '%s\n' "$xr" | awk -v out="$active" '
+curmode=$(printf '%s\n' "$xr" | awk -v out="$active" '
 	$1 == out {
 		for (j = 1; j <= NF; j++)
 			if ($j ~ /^[0-9]+x[0-9]+\+[0-9]+\+[0-9]+$/) {
@@ -61,7 +61,7 @@ mode=$(printf '%s\n' "$xr" | awk -v out="$ext" '
 	found && /\+/ { print $1; exit }
 ')
 
-log "state ext=${ext:-none} active=${active:-none} active_mode=${active_mode:-none} mode=${mode:-auto} cmd=$cmd"
+log "state ext=${ext:-none} active=${active:-none} curmode=${curmode:-none} mode=${mode:-auto} cmd=$cmd"
 printf '%s\n' "$xr" | while IFS= read -r line; do
 	case $line in *connected*) log "xrandr: $line" ;; esac
 done
@@ -71,7 +71,7 @@ fvwm() {
 	printf '%s\n' "$@"
 }
 
-shouldrestart() {
+restart() {
 	[ "$restart" = no ] && return 1
 	[ "$restart" = yes ] && return 0
 	case $cmd in
@@ -80,8 +80,8 @@ shouldrestart() {
 	return 0
 }
 
-restartfvwm() {
-	shouldrestart || return 0
+kick() {
+	restart || return 0
 	[ "$emit" = fvwm ] && {
 		fvwm 'Restart fvwm'
 		log 'restart fvwm command emitted'
@@ -129,28 +129,28 @@ mouse() {
 
 reload() {
 	[ "$emit" = fvwm ] && {
-		fvwm "PipeRead '$root/fvwm/winzones 32'"
+		fvwm "PipeRead '$root/fvwm/tile 32'"
 		return
 	}
 	command -v FvwmCommand >/dev/null 2>&1 || {
 		log 'reload skipped: no FvwmCommand'
 		return
 	}
-	FvwmCommand "PipeRead '$root/fvwm/winzones 32'" >/dev/null 2>&1
+	FvwmCommand "PipeRead '$root/fvwm/tile 32'" >/dev/null 2>&1
 	rc=$?
-	[ $rc -eq 0 ] && { log 'reload fvwm winzones'; return; }
+	[ $rc -eq 0 ] && { log 'reload fvwm tile'; return; }
 	log "reload failed($rc): FvwmCommand"
 }
 
-profileext() {
+setext() {
 	[ -n "$active" ] && try xrandr --output "$active" --primary
-	scale 216 56 9 7
+	scale 138 30 11 11
 	wallpaper
 	mouse
 	reload
 }
 
-profileint() {
+setint() {
 	scale 144 32 10 9
 	wallpaper
 	mouse
@@ -166,7 +166,7 @@ useext() {
 		must xrandr --output "$ext" --primary --auto --output "$int" --off
 	fi
 	active=$ext
-	profileext
+	setext
 }
 
 useint() {
@@ -177,17 +177,17 @@ useint() {
 		must xrandr --output "$int" --primary --auto
 	fi
 	active=
-	profileint
+	setint
 }
 
 sync() {
-	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; return; }
-	[ -n "$active" ] && { profileext; return; }
-	profileint
+	[ -n "$active" ] && [ -n "$mode" ] && [ "$curmode" != "$mode" ] && { useext; return; }
+	[ -n "$active" ] && { setext; return; }
+	setint
 }
 
 toggle() {
-	[ -n "$active" ] && [ -n "$mode" ] && [ "$active_mode" != "$mode" ] && { useext; return; }
+	[ -n "$active" ] && [ -n "$mode" ] && [ "$curmode" != "$mode" ] && { useext; return; }
 	[ -n "$active" ] && { useint; return; }
 	[ -n "$ext" ] || { useint; return; }
 	useext
@@ -201,4 +201,4 @@ internal|int) useint ;;
 *) fatal 'usage: display [toggle|sync|external|internal] [fvwm] [auto|yes|no]' ;;
 esac
 
-restartfvwm
+kick
