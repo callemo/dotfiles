@@ -26,5 +26,4 @@ if [ -n "$cmd2" ]; then
 fi
 
 tmux send-keys -t "$side" "$cmd1" C-m
-tmux send-keys -t "$pane" "${EDITOR:-vim}" C-m
 tmux select-pane -t "$pane"
