@@ -1,13 +1,15 @@
 #!/bin/sh
-# display: switch or sync internal/external display profiles.
+# display: switch or sync internal/external profiles
 
 prefix="${0##*/}:"
 cachedir=${XDG_CACHE_HOME:-$HOME/.cache}
 logfile=${FVWM_LOG:-$cachedir/fvwm.log}
+
 log() {
 	echo "$prefix" "$@" >&2
+	ts=$(date '+%Y-%m-%d %H:%M:%S')
+	printf '%s %s %s\n' "$ts" "$prefix" "$*" >>"$logfile" 2>/dev/null
 	[ -d "$cachedir" ] || mkdir -p "$cachedir"
-	printf '%s %s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$prefix" "$*" >>"$logfile" 2>/dev/null
 }
 fatal() { log "$@"; exit 1; }
 
@@ -30,7 +32,7 @@ restart=${3:-auto}
 int='eDP-1'
 root=${DOTFILES:-$HOME/dotfiles}
 
-[ "$(uname)" = OpenBSD ] || fatal 'Not running in OpenBSD'
+[ "$(uname)" = OpenBSD ] || fatal 'not running openbsd'
 
 xr=$(xrandr) || fatal 'xrandr failed'
 ext=$(printf '%s\n' "$xr" | awk -v panel="$int" \
@@ -61,7 +63,8 @@ mode=$(printf '%s\n' "$xr" | awk -v out="$ext" '
 	found && /\+/ { print $1; exit }
 ')
 
-log "state ext=${ext:-none} active=${active:-none} curmode=${curmode:-none} mode=${mode:-auto} cmd=$cmd"
+log "state ext=${ext:-none} active=${active:-none}" \
+	"curmode=${curmode:-none} mode=${mode:-auto} cmd=$cmd"
 printf '%s\n' "$xr" | while IFS= read -r line; do
 	case $line in *connected*) log "xrandr: $line" ;; esac
 done
@@ -91,7 +94,8 @@ kick() {
 		log 'restart skipped: no fvwm pid'
 		return
 	}
-	try kill -USR1 $pids && log "restart fvwm pid=$(printf '%s' "$pids" | tr '\n' ' ')"
+	pids=$(printf '%s' "$pids" | tr '\n' ' ')
+	try kill -USR1 $pids && log "restart fvwm pid=$pids"
 }
 
 scale() {
@@ -119,12 +123,16 @@ wallpaper() {
 }
 
 mouse() {
-	xinput list --name-only | awk '/^\/dev\/wsmouse/ { print }' | while IFS= read -r dev; do
-		try xinput set-prop "$dev" 'Device Accel Constant Deceleration' 1
-		map=$(xinput get-button-map "$dev" 2>/dev/null) || continue
-		set -- $map
-		[ $# -ge 7 ] && try xinput set-button-map "$dev" 1 2 3 4 5 6 7
-	done
+	xinput list --name-only |
+		awk '/^\/dev\/wsmouse/ { print }' |
+		while IFS= read -r dev; do
+			try xinput set-prop "$dev" \
+				'Device Accel Constant Deceleration' 1
+			map=$(xinput get-button-map "$dev" 2>/dev/null) || continue
+			set -- $map
+			[ $# -ge 7 ] && try xinput set-button-map \
+				"$dev" 1 2 3 4 5 6 7
+		done
 }
 
 reload() {
@@ -140,6 +148,11 @@ reload() {
 	rc=$?
 	[ $rc -eq 0 ] && { log 'reload fvwm tile'; return; }
 	log "reload failed($rc): FvwmCommand"
+}
+
+# external output wants a mode its current display lacks
+stale() {
+	[ -n "$active" ] && [ -n "$mode" ] && [ "$curmode" != "$mode" ]
 }
 
 setext() {
@@ -161,9 +174,11 @@ useext() {
 	[ -n "$ext" ] || fatal 'no external display connected'
 	log "$ext ${mode:-preferred} on, $int off"
 	if [ -n "$mode" ]; then
-		must xrandr --output "$ext" --primary --mode "$mode" --output "$int" --off
+		must xrandr --output "$ext" --primary --mode "$mode" \
+			--output "$int" --off
 	else
-		must xrandr --output "$ext" --primary --auto --output "$int" --off
+		must xrandr --output "$ext" --primary --auto \
+			--output "$int" --off
 	fi
 	active=$ext
 	setext
@@ -172,7 +187,8 @@ useext() {
 useint() {
 	log "$int on${ext:+, $ext off}"
 	if [ -n "$ext" ]; then
-		must xrandr --output "$int" --primary --auto --output "$ext" --off
+		must xrandr --output "$int" --primary --auto \
+			--output "$ext" --off
 	else
 		must xrandr --output "$int" --primary --auto
 	fi
@@ -181,13 +197,13 @@ useint() {
 }
 
 sync() {
-	[ -n "$active" ] && [ -n "$mode" ] && [ "$curmode" != "$mode" ] && { useext; return; }
+	stale && { useext; return; }
 	[ -n "$active" ] && { setext; return; }
 	setint
 }
 
 toggle() {
-	[ -n "$active" ] && [ -n "$mode" ] && [ "$curmode" != "$mode" ] && { useext; return; }
+	stale && { useext; return; }
 	[ -n "$active" ] && { useint; return; }
 	[ -n "$ext" ] || { useint; return; }
 	useext
@@ -198,7 +214,8 @@ toggle) toggle ;;
 sync|apply) sync ;;
 external|ext) useext ;;
 internal|int) useint ;;
-*) fatal 'usage: display [toggle|sync|external|internal] [fvwm] [auto|yes|no]' ;;
+*) fatal 'usage: display [toggle|sync|external|internal]' \
+	'[fvwm] [auto|yes|no]' ;;
 esac
 
 kick

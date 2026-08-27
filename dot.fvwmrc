@@ -139,7 +139,7 @@ Key 9      A       S4        MoveToDesk 0 8
 Key 0      A       S4        MoveToDesk 0 9
 
 # System
-Key L      A       C4        Exec exec xlock
+Key L      A       C4        Exec exec xlock -echokeys -echokey \*
 Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 
 Key Delete A       C4        PipeRead '$HOME/dotfiles/fvwm/display toggle fvwm'
@@ -169,7 +169,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Log out...	Win-Escape" Module FvwmForm LogOut
 + "Key bindings	Win-K" Nop
 + "Window list	Win-Slash" WindowList
-+ "Lock computer	Ctrl-Win-L" Exec exec xlock
++ "Lock computer	Ctrl-Win-L" Exec exec xlock -echokeys -echokey \*
 + "" Nop
 + "Apps" Title
 + "Terminal	Win-Return" Function OpenTerminal

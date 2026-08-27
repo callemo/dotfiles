@@ -1,8 +1,10 @@
 #!/bin/sh
+# fvwm toolbar: pager left, status right
 
-bar=${1:-32}
 root=${DOTFILES:-$HOME/dotfiles}
+bar=${1:-32}
 status=180
+font='-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1'
 
 dims=$(xdpyinfo | awk '/dimensions:/{print $2; exit}')
 w=${dims%x*}; w=${w:-1920}
@@ -11,7 +13,7 @@ cols=$((w / 2))
 cat <<EOF
 *ToolBarBack #282828
 *ToolBarFore #d4be98
-*ToolBarFont "-adobe-helvetica-bold-r-normal--20-140-100-100-p-105-iso10646-1"
+*ToolBarFont "$font"
 *ToolBarGeometry ${w}x${bar}+0+0
 *ToolBarRows 1
 *ToolBarColumns $cols
@@ -19,7 +21,8 @@ cat <<EOF
 *ToolBarFrame 0
 *ToolBarPadding 0 0
 *ToolBar(90x1+0+0, Frame 0, Padding 0 0, Swallow(NoHints) "FvwmPager" \
-         "FvwmPager 0 4")
-*ToolBar(${status}x1-0+0, Frame 0, Padding 0 0, Swallow(NoHints) "ToolStatus" \
-         \`Exec exec $root/fvwm/status-term\`)
+	"FvwmPager 0 4")
+*ToolBar(${status}x1-0+0, Frame 0, Padding 0 0, \
+	Swallow(NoHints) "ToolStatus" \
+	"Exec exec $root/fvwm/statwin")
 EOF

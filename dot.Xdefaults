@@ -39,6 +39,13 @@ XConsole*background:  #282828
 XConsole*cursorColor: #d8a657
 XConsole*saveLines:   8
 
+! xlock: echo a star per keystroke at the password prompt
+xlock*echokeys:        on
+xlock*echokey:         *
+! enable DPMS on start, disable on exit so it does not persist
+xlock*startCmd:        xset +dpms
+xlock*endCmd:          xset -dpms
+
 *font: -adobe-courier-bold-r-*-*-17-*-*-*-*-*-*-*
 *Scrollbar.translations: #override \n\
     <Btn1Down>:         StartScroll(Backward) \n\

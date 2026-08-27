@@ -1,4 +1,5 @@
 #!/bin/sh
+# window tiling functions for fvwm
 
 bar=${1:-32}
 border=8
@@ -22,9 +23,9 @@ AddToFunc $1
 EOF
 }
 
-# Resize takes client size; Move places the decorated frame.
-emit MaximizeBelowBar $((w - frame))     $((usable - frame)) 0        $bar
-emit TileLeft         $((halfw - frame)) $((usable - frame)) 0        $bar
-emit TileRight        $((halfw - frame)) $((usable - frame)) $halfw   $bar
-emit TileTop          $((w - frame))     $((halfh - frame))  0        $bar
-emit TileBottom       $((w - frame))     $((halfh - frame))  0        $mid
+# Resize takes client size; Move places the decorated frame
+emit MaximizeBelowBar $((w - frame)) $((usable - frame)) 0 $bar
+emit TileLeft $((halfw - frame)) $((usable - frame)) 0 $bar
+emit TileRight $((halfw - frame)) $((usable - frame)) $halfw $bar
+emit TileTop $((w - frame)) $((halfh - frame)) 0 $bar
+emit TileBottom $((w - frame)) $((halfh - frame)) 0 $mid
