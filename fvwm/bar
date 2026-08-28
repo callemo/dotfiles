@@ -4,6 +4,8 @@
 root=${DOTFILES:-$HOME/dotfiles}
 bar=${1:-32}
 status=180
+# unquoted: FvwmButtons takes the rest of the line verbatim, so
+# quotes would become part of the font name
 font='-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1'
 
 dims=$(xdpyinfo | awk '/dimensions:/{print $2; exit}')
@@ -13,7 +15,7 @@ cols=$((w / 2))
 cat <<EOF
 *ToolBarBack #282828
 *ToolBarFore #d4be98
-*ToolBarFont "$font"
+*ToolBarFont $font
 *ToolBarGeometry ${w}x${bar}+0+0
 *ToolBarRows 1
 *ToolBarColumns $cols
