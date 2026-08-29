@@ -1,0 +1,14 @@
+accept_all_cookies=on
+bookmark_file=bookmarks.html
+character_set=UNICODE (UTF-8)
+cookie_file=
+emacs_keys=off
+file_editor=vim
+keypad_mode=LINKS_ARE_NUMBERED
+lineedit_mode=Bash-like Bindings
+show_color=never
+show_cursor=on
+user_mode=ADVANCED
+verbose_images=off
+vi_keys=on
+visited_links=LAST_REVERSED
