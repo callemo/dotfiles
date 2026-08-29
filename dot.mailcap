@@ -1,0 +1,2 @@
+text/html; lynx -dump -force_html %s; nametemplate=%s.html; copiousoutput
+image/*; open %s
