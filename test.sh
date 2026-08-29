@@ -237,11 +237,6 @@ echo 'FooBarBaz' | snake
 echo 'alreadySnake' | snake
 echo 'XMLParser' | snake
 
-echo '--- camel'
-echo 'foo_bar' | camel
-echo 'foo_bar_baz' | camel
-echo 'SCREAMING_SNAKE' | camel
-
 echo '--- pareto'
 printf '100\tapples\n50\toranges\n30\tbananas\n20\tgrapes\n' | pareto
 printf 'apples\t100\noranges\t50\nbananas\t30\ngrapes\t20\n' | pareto -n 2

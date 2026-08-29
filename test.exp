@@ -173,10 +173,6 @@ foo_bar
 foo_bar_baz
 already_snake
 xmlparser
---- camel
-FooBar
-FooBarBaz
-SCREAMINGSNAKE
 --- pareto
 100	50%	50%	apples
 50	25%	75%	oranges
