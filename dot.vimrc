@@ -130,6 +130,7 @@ augroup filetypes
 	autocmd FileType groff                setl commentstring=.\\\"\ %s
 	autocmd FileType javascript,json      setl sw=4 sts=4 et
 	autocmd FileType lilypond             setl et sw=2 ts=2 sts=2 ai fdm=indent fdl=0 fdc=2 cms=%\ %s
+	autocmd FileType mail                 setl spell tw=72
 	autocmd FileType markdown,python      setl sw=4 sts=4 et
 	autocmd FileType perl                 setl et keywordprg=:terminal\ perldoc\ -f
 	autocmd FileType python               setl keywordprg=:terminal\ pydoc3
