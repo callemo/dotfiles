@@ -30,7 +30,7 @@ xsetroot -cursor_name left_ptr
 setxkbmap -model pc105 -layout us -variant altgr-intl \
 	-option '' -option compose:rctrl -option ctrl:nocaps
 xinput set-prop /dev/wsmouse 'Device Accel Constant Deceleration' 1
-"$HOME/dotfiles/fvwm/display" sync
+"$HOME/dotfiles/x11/t490/fvwm/display" sync
 
 # screen saver: blank and lock at 10m, dpms off 10s later
 lock=/usr/X11R6/bin/xlock

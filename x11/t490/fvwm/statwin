@@ -2,4 +2,5 @@
 # launch status in a named xterm swallow
 
 root=${DOTFILES:-$HOME/dotfiles}
-exec xterm -name ToolStatus -title ToolStatus -e "$root/fvwm/status"
+exec xterm -name ToolStatus -title ToolStatus \
+	-e "$root/x11/t490/fvwm/status"

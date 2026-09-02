@@ -31,6 +31,7 @@ emit=${2:-}
 restart=${3:-auto}
 int='eDP-1'
 root=${DOTFILES:-$HOME/dotfiles}
+fvwmroot=$root/x11/t490/fvwm
 
 [ "$(uname)" = OpenBSD ] || fatal 'not running openbsd'
 
@@ -115,7 +116,7 @@ EOF
 }
 
 wallpaper() {
-	pic=$root/fvwm/bg.png
+	pic=$fvwmroot/bg.png
 	[ -f "$pic" ] || return
 	command -v xwallpaper >/dev/null 2>&1 || return
 	xwallpaper --zoom "$pic" 2>/dev/null || true
@@ -137,14 +138,14 @@ mouse() {
 
 reload() {
 	[ "$emit" = fvwm ] && {
-		fvwm "PipeRead '$root/fvwm/tile 32'"
+		fvwm "PipeRead '$fvwmroot/tile 32'"
 		return
 	}
 	command -v FvwmCommand >/dev/null 2>&1 || {
 		log 'reload skipped: no FvwmCommand'
 		return
 	}
-	FvwmCommand "PipeRead '$root/fvwm/tile 32'" >/dev/null 2>&1
+	FvwmCommand "PipeRead '$fvwmroot/tile 32'" >/dev/null 2>&1
 	rc=$?
 	[ $rc -eq 0 ] && { log 'reload fvwm tile'; return; }
 	log "reload failed($rc): FvwmCommand"

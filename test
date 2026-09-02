@@ -36,8 +36,17 @@ testsnip() {
 	fi
 }
 
+testx() {
+	if ! output=$("$DOTFILES/test_install.sh" 2>&1); then
+		echo "Install tests failed" >&2
+		echo "$output" >&2
+		exit 1
+	fi
+}
+
 testsnip
 testvimrc
+testx
 out=$(mktemp)
 trap 'rm -f "$out" fts.db' EXIT
 env - PATH="$DOTFILES/bin:$PATH" \

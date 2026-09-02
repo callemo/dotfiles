@@ -2,6 +2,7 @@
 # fvwm toolbar: pager left, status right
 
 root=${DOTFILES:-$HOME/dotfiles}
+fvwmroot=$root/x11/t490/fvwm
 bar=${1:-32}
 status=180
 # unquoted: FvwmButtons takes the rest of the line verbatim, so
@@ -26,5 +27,5 @@ cat <<EOF
 	"FvwmPager 0 4")
 *ToolBar(${status}x1-0+0, Frame 0, Padding 0 0, \
 	Swallow(NoHints) "ToolStatus" \
-	"Exec exec $root/fvwm/statwin")
+	"Exec exec $fvwmroot/statwin")
 EOF

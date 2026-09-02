@@ -25,22 +25,56 @@ fileline() (
 	log "$file: $pattern: added"
 )
 
-for f in dot.*; do
-	[ -e "$f" ] || continue
-	target="$HOME/${f#dot}"
+linkdot() {
+	local dir path f target sub
+	dir=$1
 
-	if [ "$f" != "dot.config" ]; then
-		log "link $target"
-		ln -sf "$root/$f" "$target"
-		continue
-	fi
-	find "$f" -type f | while read -r path; do
-		sub="${path#dot.config/}"
-		mkdir -p "$HOME/.config/$(dirname "$sub")"
-		log "link $HOME/.config/$sub"
-		ln -sf "$root/$path" "$HOME/.config/$sub"
+	for path in "$dir"/dot.*; do
+		[ -e "$path" ] || continue
+		f=${path##*/}
+		target="$HOME/${f#dot}"
+
+		if [ "$f" != dot.config ]; then
+			log "link $target"
+			ln -sf "$path" "$target"
+			continue
+		fi
+		find "$path" -type f | while read -r path; do
+			sub=${path#"$dir"/dot.config/}
+			mkdir -p "$HOME/.config/$(dirname "$sub")"
+			log "link $HOME/.config/$sub"
+			ln -sf "$path" "$HOME/.config/$sub"
+		done
 	done
-done
+}
+
+prunex() {
+	local path target old
+
+	for path in dot.Xdefaults dot.fvwmrc dot.xsession \
+		dot.config/picom/picom.conf; do
+		case "$path" in
+		dot.config/*) target=$HOME/.config/${path#dot.config/} ;;
+		*) target=$HOME/${path#dot} ;;
+		esac
+		[ -L "$target" ] || continue
+		old=$(readlink "$target") || continue
+		[ "$old" = "$root/$path" ] || continue
+		log "unlink $target"
+		rm -f "$target"
+	done
+}
+
+host=$(uname -n) || fatal 'uname -n failed'
+case "$host" in
+	t490|t490.*) xhost=t490 ;;
+	x270|x270.*) xhost=x270 ;;
+	*) xhost= ;;
+esac
+
+prunex
+linkdot "$root"
+[ -n "$xhost" ] && linkdot "$root/x11/$xhost"
 
 [ -e "$HOME/.gitignore" ] || {
 	log 'git exclude'

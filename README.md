@@ -16,7 +16,7 @@ systems you can understand without a framework.
 
 The installer links `dot.*` files into `$HOME`, links files under `dot.config/`
 into `~/.config/`, wires `init.sh` into shell rc files, and installs Vim
-plugins with `vim/get`.
+plugins with `vim/get`. X11 files under `x11/t490/` are linked only on t490.
 
 ## Shape
 
@@ -26,11 +26,12 @@ plugins with `vim/get`.
 - `acme/` — Acme helpers over 9p
 - `vim/` — Vim runtime files and plugin installer
 - `lib/` — plumbing rules and support files
+- `x11/t490/` — OpenBSD X11 configuration for t490
 - `testdata/` — fixtures
 
 `init.sh` puts the usual local paths first and sets a few shell defaults.
-The XTerm and FVWM configuration uses a Gruvbox Material palette, and terminal
-programs inherit its ANSI colors where possible.
+The t490 XTerm and FVWM configuration uses a Gruvbox Material palette, and
+terminal programs inherit its ANSI colors where possible.
 
 ## Tools
 
