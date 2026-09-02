@@ -1,5 +1,6 @@
 vim9script
 
+# Keep view calls in autoload form: view.vim imports this module.
 var running: list<job> = []
 var base64cmd = executable('base64') ? 'base64'
 	: executable('openssl') ? 'openssl base64'

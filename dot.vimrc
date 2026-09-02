@@ -93,6 +93,7 @@ augroup lazy_plugins
 augroup END
 
 # ── Autocommands ─────────────────────────────────────────
+# Autoload functions need call here; direct invocation raises E1091.
 augroup dotfiles
 	autocmd!
 	autocmd TextYankPost * if v:event.operator ==# 'y' | call exec.Yank(getreg('"')) | endif
