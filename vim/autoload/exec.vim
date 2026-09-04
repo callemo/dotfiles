@@ -79,8 +79,16 @@ export def Cmd(cmd: string, addr: number, line1: number, line2: number, Done: fu
 	redrawtabline
 enddef
 
-# Yank copies text to clipboard via OSC 52.
+# Yank copies through a host command when configured, otherwise through OSC 52.
 export def Yank(text: string)
+	var copycmd = get(g:, 'dotfiles_copy_command', '')
+	if !empty(copycmd)
+		system(copycmd, text)
+		if v:shell_error != 0
+			g:Err('copy failed: ' .. copycmd .. ' (exit ' .. v:shell_error .. ')')
+		endif
+		return
+	endif
 	if empty(base64cmd)
 		g:Err('no base64 encoder found')
 		return

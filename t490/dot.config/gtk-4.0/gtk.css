@@ -1,0 +1,12 @@
+@import url("../gtk-colors.css");
+
+listview > row,
+columnview listview > row,
+list > row {
+  padding: 4px 6px;
+}
+
+gridview > child,
+flowbox > flowboxchild {
+  margin: 6px;
+}

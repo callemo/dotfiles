@@ -1,0 +1,48 @@
+/* Match GTK text to the Gruvbox Material terminal palette. */
+@define-color gruvbox_fg #d4be98;
+@define-color gruvbox_fg_backdrop #bdae93;
+@define-color gruvbox_fg_muted #928374;
+@define-color gruvbox_blue #7daea3;
+@define-color gruvbox_purple #d3869b;
+@define-color gruvbox_red #ea6962;
+@define-color gruvbox_yellow #d8a657;
+@define-color gruvbox_green #a9b665;
+
+* {
+  color: @gruvbox_fg;
+}
+
+*:backdrop {
+  color: @gruvbox_fg_backdrop;
+}
+
+*:disabled {
+  color: @gruvbox_fg_muted;
+}
+
+*:link {
+  color: @gruvbox_blue;
+}
+
+*:visited {
+  color: @gruvbox_purple;
+}
+
+.error {
+  color: @gruvbox_red;
+}
+
+.warning {
+  color: @gruvbox_yellow;
+}
+
+.success {
+  color: @gruvbox_green;
+}
+
+/* Yaru's white keeps enough contrast against the brown selection. */
+*:selected,
+*:selected:focus,
+*:selected:backdrop {
+  color: #f7f7f7;
+}

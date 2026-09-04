@@ -1,0 +1,31 @@
+@import url("../gtk-colors.css");
+
+* {
+  -GtkTreeView-vertical-separator: 8;
+}
+
+list row {
+  padding: 4px 6px;
+}
+
+flowbox > flowboxchild {
+  margin: 6px;
+}
+
+.thunar * {
+  -ThunarAbstractIconView-column-spacing: 16;
+  -ThunarAbstractIconView-row-spacing: 16;
+}
+
+/* Mousepad (GtkSourceView): light gruvbox editor area on the dark desktop.
+   Mousepad applies no style scheme to plain-text files, so the SourceView
+   would otherwise fall back to the dark GTK base color (Yaru-wartybrown-dark)
+   plus the global light gruvbox text color above = a dark editor. This forces
+   the gruvbox-light cream background and dark text for the source view only.
+   Syntax-highlighted files still use the gruvbox-light style scheme (set via
+   org.xfce.mousepad.preferences.view color-scheme), whose text colors match. */
+textview.sourceview,
+textview.sourceview text {
+  background-color: #fbf1c7;
+  color: #282828;
+}

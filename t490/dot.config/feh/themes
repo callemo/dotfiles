@@ -1,0 +1,2 @@
+# Fit large images to the monitor and keep them fitted as the window resizes.
+feh --scale-down

@@ -1,0 +1,38 @@
+# shellcheck shell=sh
+# shellcheck disable=SC2016
+# Shared installer functions. The caller provides log(1) and overwrite(1).
+
+# fileline pattern line file: replace matching lines, else append.
+# PAT and LINE travel through the environment so awk preserves backslashes.
+fileline() (
+	pattern=$1
+	line=$2
+	file=$3
+
+	if grep -qE -e "$pattern" /dev/null; then
+		:
+	else
+		status=$?
+		[ "$status" -eq 1 ] || {
+			log "fileline: $pattern: bad pattern"
+			return 2
+		}
+	fi
+	grep -qxF "$line" "$file" 2>/dev/null && return 0
+	if [ -f "$file" ] && grep -qE -e "$pattern" "$file"; then
+		PAT=$pattern LINE=$line overwrite "$file" awk '
+			$0 ~ ENVIRON["PAT"] { print ENVIRON["LINE"]; next }
+			{ print }
+		' "$file" || {
+			log "$file: $pattern: rewrite failed"
+			return 1
+		}
+		log "$file: $pattern: replaced"
+		return 0
+	fi
+	printf '%s\n' "$line" >>"$file" || {
+		log "$file: adding $line failed"
+		return 1
+	}
+	log "$file: $pattern: added"
+)

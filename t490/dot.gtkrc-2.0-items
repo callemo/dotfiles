@@ -1,0 +1,12 @@
+style "spacious-tree-items"
+{
+	GtkTreeView::vertical-separator = 8
+}
+class "GtkTreeView" style "spacious-tree-items"
+
+style "spacious-thunar-icons"
+{
+	ThunarIconView::column-spacing = 16
+	ThunarIconView::row-spacing = 16
+}
+class "ThunarIconView" style "spacious-thunar-icons"

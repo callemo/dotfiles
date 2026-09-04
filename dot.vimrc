@@ -16,6 +16,7 @@ import autoload 'view.vim'
 # ── Options ──────────────────────────────────────────────
 set autoindent
 set autoread
+set background=dark
 set backspace=indent,eol,start
 set commentstring=#%s
 set confirm
@@ -254,7 +255,13 @@ if root != ''
 	colorscheme basic
 endif
 
-# ── Local ────────────────────────────────────────────────
-if !get(g:, 'dotfiles_skip_local', 0) && filereadable(expand('~/.vimrc.local'))
-	source ~/.vimrc.local
+# ── Host and local overrides ─────────────────────────────
+if !get(g:, 'dotfiles_skip_local', 0)
+	var hostvim = expand('~/.config/vim/host.vim')
+	if filereadable(hostvim)
+		execute 'source ' .. fnameescape(hostvim)
+	endif
+	if filereadable(expand('~/.vimrc.local'))
+		source ~/.vimrc.local
+	endif
 endif

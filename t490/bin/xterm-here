@@ -1,0 +1,9 @@
+#!/bin/ksh
+
+path=${1:-$HOME}
+if [ ! -d "$path" ]; then
+	path=${path%/*}
+	[ -n "$path" ] || path=/
+fi
+cd -- "$path" || exit 1
+exec /usr/X11R6/bin/xterm

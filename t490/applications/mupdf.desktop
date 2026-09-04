@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=MuPDF GL
+GenericName=Document Viewer
+Exec=mupdf-gl -C F1E7D0 -B 4F321C %f
+TryExec=mupdf-gl
+Icon=mupdf
+Terminal=false
+Type=Application
+MimeType=application/pdf;application/x-pdf;application/x-cbz;application/oxps;application/vnd.ms-xpsdocument;application/epub+zip;
+Categories=Viewer;Graphics;
+Actions=View
+NoDisplay=true
+
+[Desktop Action View]
+Name=View with MuPDF GL
+Exec=mupdf-gl -C F1E7D0 -B 4F321C %f

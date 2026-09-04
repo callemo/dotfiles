@@ -1,0 +1,14 @@
+# Apple Preview-style image controls.
+zoom_in plus equal C-equal
+zoom_out minus C-minus KP_Subtract
+zoom_default 0 C-0 KP_0
+zoom_fit 9 C-9 slash
+
+scroll_up Up
+scroll_down Down
+scroll_left Left
+scroll_right Right
+
+prev_img Prior
+next_img Next
+quit q Escape

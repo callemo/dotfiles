@@ -8,36 +8,21 @@ log()   { echo "${0##*/}: $*" >&2; }
 fatal() { log "$@"; exit 1; }
 
 cd "$root" || fatal "cd $root"
-
-# ensure line exists in file (ERE pattern matching)
-# exit: 0=unchanged, 1=updated, >1=error
-fileline() (
-	pattern=$1 line=$2 file=$3
-	grep -qxF "$line" "$file" 2>/dev/null && return 0
-	if grep -qE "$pattern" "$file" 2>/dev/null; then
-		sedpat=$(printf '%s\n' "$pattern" | sed 's/[@&]/\\&/g')
-		sedtext=$(printf '%s\n' "$line" | sed 's/[@&]/\\&/g')
-		overwrite "$file" sed -Ee 's@'"$sedpat"'.*@'"$sedtext"'@' "$file"
-		log "$file: $pattern: replaced"
-		return
-	fi
-	printf '%s\n' "$line" >>"$file"
-	log "$file: $pattern: added"
-)
+. "$root/lib/install"
 
 # run fn target source on dir's dot files;
 # target drops the $HOME prefix
 eachdot() {
-	local dir fn path f sub
+	local dir fn path p f sub
 	dir=$1 fn=$2
 
 	for path in "$dir"/dot.*; do
 		[ -e "$path" ] || continue
 		f=${path##*/}
 		if [ "$f" = dot.config ]; then
-			find "$path" -type f | while read -r path; do
-				sub=${path#"$dir"/dot.config/}
-				"$fn" "${f#dot}/$sub" "$path"
+			find "$path" -type f | while read -r p; do
+				sub=${p#"$dir"/dot.config/}
+				"$fn" "${f#dot}/$sub" "$p"
 			done
 		else
 			"$fn" "${f#dot}" "$path"
@@ -78,6 +63,8 @@ prunehosts() {
 	for path in dot.Xdefaults dot.fvwmrc dot.xsession; do
 		prunelink "${path#dot}" "$root/$path"
 	done
+	prunelink '.local/share/applications/mupdf.desktop' \
+		"$root/t490/applications/mupdf.desktop"
 }
 
 host=$(uname -n) || fatal 'uname -n failed'
@@ -90,7 +77,12 @@ done
 
 prunehosts
 eachdot "$root" linkone
-[ -n "$hostdir" ] && eachdot "$root/$hostdir" linkone
+if [ -n "$hostdir" ]; then
+	eachdot "$root/$hostdir" linkone
+	case $hostdir in
+	t490) "$root/t490/setup.sh" || log 't490 setup failed' ;;
+	esac
+fi
 
 [ -e "$HOME/.gitignore" ] || {
 	log 'git exclude'
@@ -105,8 +97,6 @@ for rc in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshrc"; do
 	[ -f "$rc" ] || continue
 	fileline '^\. .*dotfiles/init\.sh' '. ~/dotfiles/init.sh' "$rc"
 done
-
-fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
 
 # Let btop inherit the terminal's ANSI palette.
 if command -v btop >/dev/null 2>&1; then

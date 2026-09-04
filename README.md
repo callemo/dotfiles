@@ -16,7 +16,10 @@ systems you can understand without a framework.
 
 The installer links `dot.*` files into `$HOME`, links files under `dot.config/`
 into `~/.config/`, wires `init.sh` into shell rc files, and installs Vim
-plugins with `vim/get`. Host overrides under `t490/` link only on t490.
+plugins with `vim/get`. Host overrides under `t490/` link only on t490, then
+an unprivileged hook applies its named desktop settings. Managed host fragments
+load before the operator-owned `.tmux.conf.local` and `.vimrc.local` files;
+the installer never edits those files.
 
 ### X11 fonts
 
@@ -35,12 +38,13 @@ at login. Log in again after installing.
 - `acme/` — Acme helpers over 9p
 - `vim/` — Vim runtime files and plugin installer
 - `lib/` — plumbing rules and support files
-- `t490/` — host overrides (X11 configuration)
+- `t490/` — unprivileged T490 desktop files and host overrides
 - `testdata/` — fixtures
 
 `init.sh` puts the usual local paths first and sets a few shell defaults.
-The t490 XTerm and FVWM configuration uses a Gruvbox Material palette, and
-terminal programs inherit its ANSI colors where possible.
+The T490 XTerm, FVWM, and GTK configuration uses a Gruvbox Material palette,
+and terminal programs inherit its ANSI colors where possible. See
+`t490/README.md` for its desktop ownership boundary.
 
 ## Tools
 

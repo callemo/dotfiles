@@ -94,6 +94,19 @@ call assert_match("exec\\.Yank(expand('%:p'))", s:path_Y.rhs)
 " Old relative-path clipboard mapping was replaced by <leader>y / <leader>Y.
 call assert_equal('', maparg('<leader>F', 'n'))
 
+" Host clipboard command: skip_local suppresses host config during tests.
+call assert_false(exists('g:dotfiles_copy_command'))
+let s:copy_file = tempname()
+let g:dotfiles_copy_command = 'cat > ' . shellescape(s:copy_file)
+call exec#Yank("alpha\nbeta")
+call assert_equal(['alpha', 'beta'], readfile(s:copy_file, 'b'))
+unlet g:dotfiles_copy_command
+call delete(s:copy_file)
+" The unset-command branch retains the OSC 52 transport.
+let s:exec_source = readfile(s:root . '/vim/autoload/exec.vim')
+call assert_true(match(s:exec_source, 'var osc = "\\e]52;c;"') >= 0)
+call assert_true(index(s:exec_source, "\twritefile([osc], '/dev/tty', 'b')") >= 0)
+
 " Plumb: url dispatches through Url() which logs via echom
 let s:url = 'https://example.com/path?x=1'
 messages clear
