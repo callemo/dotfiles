@@ -7,16 +7,16 @@ let g:colors_name = 'basic'
 
 hi Normal ctermbg=NONE
 
-" Status bar; color 16 avoids XTerm promoting bold ANSI black to bright black.
+" Color 16 stays black when bold text promotes ANSI black to bright black.
 hi StatusLine   cterm=bold ctermfg=16 ctermbg=4
-hi StatusLineNC cterm=NONE ctermfg=250 ctermbg=238
+hi StatusLineNC cterm=NONE ctermfg=244 ctermbg=235
 hi TabLineSel   cterm=bold ctermfg=16 ctermbg=4
-hi TabLine      cterm=NONE ctermfg=250 ctermbg=238
+hi TabLine      cterm=NONE ctermfg=244 ctermbg=235
 hi TabLineFill  cterm=NONE
-hi VertSplit    cterm=NONE ctermfg=238 ctermbg=238
+hi VertSplit    cterm=NONE ctermfg=235 ctermbg=235
 
 " Syntax — NONE overrides vim's built-in defaults after syntax reset
-hi Comment    ctermfg=8
+hi Comment    ctermfg=244
 hi Constant   ctermfg=5
 hi String     ctermfg=NONE
 hi Statement  cterm=bold
@@ -31,30 +31,30 @@ if &background ==# 'dark'
 else
 	hi CursorLine cterm=NONE ctermbg=254
 endif
-hi Visual         ctermfg=0 ctermbg=4
-hi Search         cterm=NONE ctermfg=0 ctermbg=3
-hi CurSearch      cterm=bold ctermfg=0 ctermbg=11
-hi LineNr         ctermfg=8
-hi CursorLineNr   cterm=reverse ctermfg=0 ctermbg=3
-hi NonText        ctermfg=8
+hi Visual         cterm=NONE ctermfg=15 ctermbg=8
+hi Search         cterm=NONE ctermfg=16 ctermbg=3
+hi CurSearch      cterm=bold ctermfg=16 ctermbg=11
+hi LineNr         ctermfg=244
+hi CursorLineNr   cterm=reverse ctermfg=16 ctermbg=3
+hi NonText        ctermfg=244
 hi Folded         ctermfg=5
-hi MatchParen     ctermbg=8 ctermfg=15
+hi MatchParen     ctermbg=8 ctermfg=16
 
 " Errors & diffs
-hi ErrorMsg   ctermfg=0 ctermbg=1
-hi WarningMsg ctermfg=0 ctermbg=3
+hi ErrorMsg   ctermfg=16 ctermbg=1
+hi WarningMsg ctermfg=16 ctermbg=3
 hi DiffAdd    ctermfg=2 ctermbg=NONE
 hi DiffDelete ctermfg=1 ctermbg=NONE
 hi DiffChange ctermfg=3 ctermbg=NONE
-hi DiffText   ctermfg=0 ctermbg=3
+hi DiffText   cterm=NONE ctermfg=16 ctermbg=3
 
 " Spell
-hi SpellBad   ctermfg=0
-hi SpellCap   ctermfg=0
-hi SpellLocal ctermfg=0
-hi SpellRare  ctermfg=0
+hi SpellBad   cterm=underline ctermfg=1 ctermbg=NONE
+hi SpellCap   cterm=underline ctermfg=4 ctermbg=NONE
+hi SpellLocal cterm=underline ctermfg=6 ctermbg=NONE
+hi SpellRare  cterm=underline ctermfg=5 ctermbg=NONE
 
 hi link diffAdded DiffAdd
 hi link diffRemoved DiffDelete
 hi link Pmenu StatusLineNC
-hi link PmenuSel StatusLine
+hi! link PmenuSel Visual

@@ -16,8 +16,8 @@ TitleStyle Height 40
 DefaultFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
 HilightColor #282828 #7daea3
 MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
-            Foreground #d4be98, Background #282828, Greyed #928374, \
-            HilightBack #3c3836, ActiveFore #d4be98, \
+            Foreground #f9f5d7, Background #000000, Greyed #928374, \
+            HilightBack #282828, ActiveFore #f9f5d7, \
             Font "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
 
 AddToFunc StartFunction
@@ -38,7 +38,7 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           SmartPlacement, RandomPlacement
 
 BorderStyle Active Solid #7daea3 -- HiddenHandles NoInset
-BorderStyle Inactive Solid #3c3836 -- HiddenHandles NoInset
+BorderStyle Inactive Solid #282828 -- HiddenHandles NoInset
 
 ButtonStyle Reset
 ButtonStyle All -- UseTitleStyle
@@ -351,9 +351,9 @@ PipeRead '$HOME/dotfiles/t490/fvwm/bar 32'
 *FvwmPagerRows 1
 *FvwmPagerColumns 5
 *FvwmPagerSmallFont none
-*FvwmPagerFore #d4be98
-*FvwmPagerBack #282828
-*FvwmPagerHilight #3c3836
+*FvwmPagerFore #f9f5d7
+*FvwmPagerBack #000000
+*FvwmPagerHilight #282828
 *FvwmPagerLabel 0 "1"
 *FvwmPagerLabel 1 "2"
 *FvwmPagerLabel 2 "3"
@@ -368,10 +368,10 @@ Style "FvwmPager"   NoHandles, BorderWidth 0
 # LogOut {{{
 *LogOutGrabServer
 *LogOutWarpPointer
-*LogOutFore       #d4be98
-*LogOutBack       #282828
-*LogOutItemFore   #d4be98
-*LogOutItemBack   #3c3836
+*LogOutFore       #f9f5d7
+*LogOutBack       #000000
+*LogOutItemFore   #f9f5d7
+*LogOutItemBack   #282828
 *LogOutFont       -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
 *LogOutButtonFont -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
 *LogOutCommand    Beep
@@ -388,10 +388,10 @@ Style "LogOut" NoTitle, NoHandles
 # }}}
 # RunCmd {{{
 *RunCmdWarpPointer
-*RunCmdFore       #d4be98
-*RunCmdBack       #282828
-*RunCmdItemFore   #d4be98
-*RunCmdItemBack   #3c3836
+*RunCmdFore       #f9f5d7
+*RunCmdBack       #000000
+*RunCmdItemFore   #f9f5d7
+*RunCmdItemBack   #282828
 *RunCmdFont       -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
 *RunCmdButtonFont -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
 *RunCmdInputFont  -adobe-courier-bold-r-normal--25-180-100-100-m-150-iso10646-1

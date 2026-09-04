@@ -1,0 +1,14 @@
+normal:      normal: default: default
+default:     normal: default: default
+a:           bold:   blue:    default
+alink:       normal: white:   gray
+status:      normal: black:   blue
+alert:       normal: black:   red
+whereis:     normal: black:   yellow
+
+menu.bg:     normal: default: default
+menu.frame:  normal: blue:    default
+menu.entry:  normal: default: default
+menu.n:      normal: red:     default
+menu.active: normal: white:   gray
+menu.sb:     normal: red:     default

@@ -12,14 +12,14 @@ XTerm*font3:              spleen-8x16
 XTerm*font4:              spleen-12x24
 XTerm*font5:              spleen-16x32
 XTerm*font6:              spleen-32x64
-XTerm*foreground:         #d4be98
-XTerm*background:         #282828
-XTerm*cursorColor:        #bdae93
-XTerm*cursorColor2:       #282828
-XTerm*pointerColor:       #bdae93
-XTerm*pointerColorBackground: #282828
-XTerm*highlightColor:     #504945
-XTerm*highlightTextColor: #fbf1c7
+XTerm*foreground:         #f9f5d7
+XTerm*background:         #000000
+XTerm*cursorColor:        #f9f5d7
+XTerm*cursorColor2:       #000000
+XTerm*pointerColor:       #f9f5d7
+XTerm*pointerColorBackground: #000000
+XTerm*highlightColor:     #665c54
+XTerm*highlightTextColor: #f9f5d7
 XTerm*highlightColorMode: true
 XTerm*highlightReverse:   false
 XTerm*vt100.translations: #override \n\
@@ -27,16 +27,16 @@ XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
 
 XClock*geometry:   128x128+0+0
-XClock*background: #282828
-XClock*foreground: #d4be98
-XClock*hands:      #d4be98
+XClock*background: #000000
+XClock*foreground: #f9f5d7
+XClock*hands:      #f9f5d7
 XClock*highlight:  #7daea3
 XClock*majorColor: #bdae93
 XClock*minorColor: #928374
 
 XConsole*geometry:    700x40
 XConsole*foreground:  #d8a657
-XConsole*background:  #282828
+XConsole*background:  #000000
 XConsole*cursorColor: #d8a657
 XConsole*saveLines:   8
 
@@ -52,30 +52,31 @@ xlock*endCmd:          xset -dpms
     <Btn1Down>:         StartScroll(Backward) \n\
     <Btn3Down>:         StartScroll(Forward) \n\
     <BtnUp>:            NotifyScroll(Proportional) EndScroll()
-*scrollbar.background:    #3c3836
+*scrollbar.background:    #282828
 *scrollbar.foreground:    #928374
 
 ! Gruvbox Material color scheme
-*color0:  #3c3836
+*color0:  #000000
 *color1:  #ea6962
 *color2:  #a9b665
 *color3:  #d8a657
 *color4:  #7daea3
 *color5:  #d3869b
 *color6:  #89b482
-*color7:  #d4be98
-*color8:  #928374
+*color7:  #f9f5d7
+*color8:  #665c54
 *color9:  #ea6962
 *color10: #a9b665
 *color11: #d8a657
 *color12: #7daea3
 *color13: #d3869b
 *color14: #89b482
-*color15: #d4be98
+*color15: #f9f5d7
+*color244: #928374
 
 ! ToolStatus bar
-ToolStatus*background:     #282828
-ToolStatus*foreground:     #d4be98
+ToolStatus*background:     #000000
+ToolStatus*foreground:     #f9f5d7
 ToolStatus*font:           -misc-spleen-medium-r-normal--24-240-72-72-c-120-iso10646-1
 ToolStatus*renderFont:     false
 ToolStatus*scrollBar:      false

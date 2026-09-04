@@ -14,6 +14,7 @@ pathfront() {
 
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 LYNX_CFG="$HOME/.lynx.cfg"; export LYNX_CFG
+LYNX_LSS="$HOME/.lynx.lss"; export LYNX_LSS
 RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"; export RIPGREP_CONFIG_PATH
 
 : "${HISTSIZE:=10000}"; export HISTSIZE
