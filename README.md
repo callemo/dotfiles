@@ -16,7 +16,7 @@ systems you can understand without a framework.
 
 The installer links `dot.*` files into `$HOME`, links files under `dot.config/`
 into `~/.config/`, wires `init.sh` into shell rc files, and installs Vim
-plugins with `vim/get`. X11 files under `x11/t490/` are linked only on t490.
+plugins with `vim/get`. Host overrides under `t490/` link only on t490.
 
 ### X11 fonts
 
@@ -35,7 +35,7 @@ at login. Log in again after installing.
 - `acme/` — Acme helpers over 9p
 - `vim/` — Vim runtime files and plugin installer
 - `lib/` — plumbing rules and support files
-- `x11/t490/` — OpenBSD X11 configuration for t490
+- `t490/` — host overrides (X11 configuration)
 - `testdata/` — fixtures
 
 `init.sh` puts the usual local paths first and sets a few shell defaults.

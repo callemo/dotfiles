@@ -21,11 +21,11 @@ MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
             Font "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
 
 AddToFunc StartFunction
-    + "I" PipeRead '$HOME/dotfiles/x11/t490/fvwm/display sync fvwm'
+    + "I" PipeRead '$HOME/dotfiles/t490/fvwm/display sync fvwm'
     + "I" Module FvwmButtons ToolBar
 
 AddToFunc RestartFunction
-    + "I" PipeRead '$HOME/dotfiles/x11/t490/fvwm/display sync fvwm'
+    + "I" PipeRead '$HOME/dotfiles/t490/fvwm/display sync fvwm'
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, \
@@ -142,7 +142,7 @@ Key 0      A       S4        MoveToDesk 0 9
 Key L      A       C4        Exec exec xlock -echokeys -echokey \*
 Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 
-Key Delete A       C4        PipeRead '$HOME/dotfiles/x11/t490/fvwm/display toggle fvwm'
+Key Delete A       C4        PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
 # }}}
 # }}}
 # Menus {{{
@@ -157,7 +157,7 @@ AddToMenu RootMenu "Control Menu" Title
 + "Vim	Shift-Win-V"             Exec exec xterm -e ksh -lc vim
 + "Files	Shift-Win-F"           Exec exec thunar
 + ""                               Nop
-+ "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/x11/t490/fvwm/display toggle fvwm'
++ "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
 + "Lock display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
 + "Log out...	Win-Escape"        Module FvwmForm LogOut
 + "Restart fvwm"                   Restart fvwm
@@ -227,7 +227,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "System / hardware" Title
 + "Nightlight	Ctrl-Win-N" Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 + "Restart fvwm	Alt-Win-Space menu" Restart fvwm
-+ "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/x11/t490/fvwm/display toggle fvwm'
++ "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
 
 AddToMenu RootWinOps "Window Menu" Title
 + "Move"     Move
@@ -343,7 +343,7 @@ AddToFunc PrevDesk
 # }}}
 # Modules {{{
 # ToolBar {{{
-PipeRead '$HOME/dotfiles/x11/t490/fvwm/bar 32'
+PipeRead '$HOME/dotfiles/t490/fvwm/bar 32'
 # }}}
 # Pager {{{
 *FvwmPagerFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"

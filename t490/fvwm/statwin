@@ -3,4 +3,4 @@
 
 root=${DOTFILES:-$HOME/dotfiles}
 exec xterm -name ToolStatus -title ToolStatus \
-	-e "$root/x11/t490/fvwm/status"
+	-e "$root/t490/fvwm/status"

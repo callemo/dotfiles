@@ -2,7 +2,7 @@
 # fvwm toolbar: pager left, status right
 
 root=${DOTFILES:-$HOME/dotfiles}
-fvwmroot=$root/x11/t490/fvwm
+fvwmroot=$root/t490/fvwm
 bar=${1:-32}
 status=180
 # unquoted: FvwmButtons takes the rest of the line verbatim, so

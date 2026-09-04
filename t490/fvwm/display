@@ -31,7 +31,7 @@ emit=${2:-}
 restart=${3:-auto}
 int='eDP-1'
 root=${DOTFILES:-$HOME/dotfiles}
-fvwmroot=$root/x11/t490/fvwm
+fvwmroot=$root/t490/fvwm
 
 [ "$(uname)" = OpenBSD ] || fatal 'not running openbsd'
 

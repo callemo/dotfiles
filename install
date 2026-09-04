@@ -25,56 +25,72 @@ fileline() (
 	log "$file: $pattern: added"
 )
 
-linkdot() {
-	local dir path f target sub
-	dir=$1
+# run fn target source on dir's dot files;
+# target drops the $HOME prefix
+eachdot() {
+	local dir fn path f sub
+	dir=$1 fn=$2
 
 	for path in "$dir"/dot.*; do
 		[ -e "$path" ] || continue
 		f=${path##*/}
-		target="$HOME/${f#dot}"
-
-		if [ "$f" != dot.config ]; then
-			log "link $target"
-			ln -sf "$path" "$target"
-			continue
+		if [ "$f" = dot.config ]; then
+			find "$path" -type f | while read -r path; do
+				sub=${path#"$dir"/dot.config/}
+				"$fn" "${f#dot}/$sub" "$path"
+			done
+		else
+			"$fn" "${f#dot}" "$path"
 		fi
-		find "$path" -type f | while read -r path; do
-			sub=${path#"$dir"/dot.config/}
-			mkdir -p "$HOME/.config/$(dirname "$sub")"
-			log "link $HOME/.config/$sub"
-			ln -sf "$path" "$HOME/.config/$sub"
-		done
 	done
 }
 
-prunex() {
-	local path target old
+linkone() (
+	target=$1 src=$2
+	case $target in
+	*/*) mkdir -p "$HOME/${target%/*}" ;;
+	esac
+	log "link $HOME/$target"
+	ln -sf "$src" "$HOME/$target"
+)
 
-	for path in dot.Xdefaults dot.fvwmrc dot.xsession \
-		dot.config/picom/picom.conf; do
-		case "$path" in
-		dot.config/*) target=$HOME/.config/${path#dot.config/} ;;
-		*) target=$HOME/${path#dot} ;;
-		esac
-		[ -L "$target" ] || continue
-		old=$(readlink "$target") || continue
-		[ "$old" = "$root/$path" ] || continue
-		log "unlink $target"
-		rm -f "$target"
+# remove symlink at target if it points to src
+prunelink() (
+	target=$1 src=$2
+	[ -L "$HOME/$target" ] || exit 0
+	old=$(readlink "$HOME/$target") || exit 0
+	[ "$old" = "$src" ] || exit 0
+	log "unlink $HOME/$target"
+	rm -f "$HOME/$target"
+)
+
+# hosts with an override directory
+hosts='t490 x270'
+
+# remove host-scoped links; eachdot restores the current host's
+prunehosts() {
+	local h
+
+	for h in $hosts; do
+		eachdot "$root/$h" prunelink
+	done
+	# the pre-scoping layout put dot files at the repo root
+	for path in dot.Xdefaults dot.fvwmrc dot.xsession; do
+		prunelink "${path#dot}" "$root/$path"
 	done
 }
 
 host=$(uname -n) || fatal 'uname -n failed'
-case "$host" in
-	t490|t490.*) xhost=t490 ;;
-	x270|x270.*) xhost=x270 ;;
-	*) xhost= ;;
-esac
+hostdir=
+for h in $hosts; do
+	case $host in
+	$h|$h.*) hostdir=$h ;;
+	esac
+done
 
-prunex
-linkdot "$root"
-[ -n "$xhost" ] && linkdot "$root/x11/$xhost"
+prunehosts
+eachdot "$root" linkone
+[ -n "$hostdir" ] && eachdot "$root/$hostdir" linkone
 
 [ -e "$HOME/.gitignore" ] || {
 	log 'git exclude'
@@ -88,12 +104,6 @@ linkdot "$root"
 for rc in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshrc"; do
 	[ -f "$rc" ] || continue
 	fileline '^\. .*dotfiles/init\.sh' '. ~/dotfiles/init.sh' "$rc"
-done
-
-# Keep user tmux overrides across base configuration refreshes.
-for tmpl in "$HOME/.local/share"/*/config/tmux/tmux.conf; do
-	[ -f "$tmpl" ] || continue
-	fileline '^source-file.*user\.conf' 'source-file -q ~/.config/tmux/user.conf' "$tmpl"
 done
 
 fileline '^set background=' 'set background=dark' "$HOME/.vimrc.local"
