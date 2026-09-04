@@ -2,8 +2,16 @@
 XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
-XTerm*faceName:           JetBrains Mono:style=Light
-XTerm*faceSize:           10
+XTerm*renderFont:         true
+XTerm*faceName:           Spleen:pixelsize=24:antialias=false,DejaVu Sans Mono:pixelsize=18:antialias=false
+XTerm*limitFontsets:      1
+XTerm*font:               spleen-12x24
+XTerm*font1:              spleen-5x8
+XTerm*font2:              spleen-6x12
+XTerm*font3:              spleen-8x16
+XTerm*font4:              spleen-12x24
+XTerm*font5:              spleen-16x32
+XTerm*font6:              spleen-32x64
 XTerm*foreground:         #d4be98
 XTerm*background:         #282828
 XTerm*cursorColor:        #bdae93
@@ -14,13 +22,6 @@ XTerm*highlightColor:     #504945
 XTerm*highlightTextColor: #fbf1c7
 XTerm*highlightColorMode: true
 XTerm*highlightReverse:   false
-XTerm*faceSize1:          7
-XTerm*faceSize2:          8
-XTerm*faceSize3:          9
-XTerm*faceSize4:          10
-XTerm*faceSize5:          11
-XTerm*faceSize6:          12
-XTerm*faceSize7:          13
 XTerm*vt100.translations: #override \n\
     Shift Ctrl <Key> C: copy-selection(CLIPBOARD) \n\
     Shift Ctrl <Key> V: insert-selection(CLIPBOARD)
@@ -75,7 +76,7 @@ xlock*endCmd:          xset -dpms
 ! ToolStatus bar
 ToolStatus*background:     #282828
 ToolStatus*foreground:     #d4be98
-ToolStatus*utf8Fonts.font: -misc-spleen-medium-r-normal--24-240-72-72-c-120-iso10646-1
+ToolStatus*font:           -misc-spleen-medium-r-normal--24-240-72-72-c-120-iso10646-1
 ToolStatus*renderFont:     false
 ToolStatus*scrollBar:      false
 ToolStatus*borderWidth:    0

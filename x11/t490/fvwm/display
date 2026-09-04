@@ -100,19 +100,17 @@ kick() {
 }
 
 scale() {
-	dpi=$1 cursor=$2 xterm=$3 status=$4
+	dpi=$1 cursor=$2
 	cat <<EOF | xrdb -merge
 Xft.dpi: $dpi
 Xcursor.size: $cursor
-XTerm*faceSize: $xterm
-ToolStatus*faceSize: $status
 EOF
 	try xrandr --dpi "$dpi"
 	XCURSOR_SIZE=$cursor xsetroot -cursor_name left_ptr 2>/dev/null || true
 	fvwm "SetEnv XCURSOR_SIZE $cursor"
 	fvwm 'SetEnv QT_FONT_DPI 96'
 	fvwm 'SetEnv QT_SCALE_FACTOR 1.6'
-	log "scale: dpi=$dpi cursor=$cursor xterm=$xterm status=$status"
+	log "scale: dpi=$dpi cursor=$cursor"
 }
 
 wallpaper() {
@@ -158,14 +156,14 @@ stale() {
 
 setext() {
 	[ -n "$active" ] && try xrandr --output "$active" --primary
-	scale 138 30 11 11
+	scale 138 30
 	wallpaper
 	mouse
 	reload
 }
 
 setint() {
-	scale 144 32 10 9
+	scale 144 32
 	wallpaper
 	mouse
 	reload

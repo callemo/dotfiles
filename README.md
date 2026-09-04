@@ -18,6 +18,15 @@ The installer links `dot.*` files into `$HOME`, links files under `dot.config/`
 into `~/.config/`, wires `init.sh` into shell rc files, and installs Vim
 plugins with `vim/get`. X11 files under `x11/t490/` are linked only on t490.
 
+### X11 fonts
+
+    doas pkg_add spleen
+
+xterm loads Spleen's 12x24 bitmap through Xft. DejaVu Sans Mono, from
+base X11, is the only fallback; characters in neither font appear as
+boxes. ToolStatus uses the core X font path, which `dot.xsession` adds
+at login. Log in again after installing.
+
 ## Shape
 
 - `dot.*` — config files linked into `$HOME`
