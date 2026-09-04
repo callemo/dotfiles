@@ -18,6 +18,10 @@ fi
 	xset fp+ /usr/local/share/fonts/JetBrainsMono
 	xset fp rehash
 }
+[ -d /usr/local/share/fonts/spleen ] && {
+	xset fp+ /usr/local/share/fonts/spleen
+	xset fp rehash
+}
 
 # keep qt fonts native; scale the ui explicitly
 export QT_FONT_DPI=96

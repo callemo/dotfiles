@@ -75,12 +75,12 @@ xlock*endCmd:          xset -dpms
 ! ToolStatus bar
 ToolStatus*background:     #282828
 ToolStatus*foreground:     #d4be98
-ToolStatus*faceName:       JetBrains Mono:style=Semibold
-ToolStatus*faceSize:       9
+ToolStatus*utf8Fonts.font: -misc-spleen-medium-r-normal--24-240-72-72-c-120-iso10646-1
+ToolStatus*renderFont:     false
 ToolStatus*scrollBar:      false
 ToolStatus*borderWidth:    0
-ToolStatus*internalBorder: 2
-ToolStatus*geometry:       26x1
+ToolStatus*internalBorder: 4
+ToolStatus*geometry:       29x1
 
 Xft.dpi: 144
 Xcursor.theme: Adwaita
