@@ -1,8 +1,8 @@
 #!/bin/sh
 # window tiling functions for fvwm
 
-bar=${1:-32}
-border=8
+bar=${1:-30}
+border=7
 
 dims=$(xdpyinfo | awk '/dimensions:/{print $2; exit}')
 w=${dims%x*}; h=${dims#*x}
@@ -10,6 +10,7 @@ w=${w:-1920}; h=${h:-1080}
 
 frame=$((2 * border))
 usable=$((h - bar))
+fullheight=$((usable - frame))
 halfw=$((w / 2))
 halfh=$((usable / 2))
 mid=$((bar + halfh))
@@ -24,8 +25,8 @@ EOF
 }
 
 # Resize takes client size; Move places the decorated frame
-emit MaximizeBelowBar $((w - frame)) $((usable - frame)) 0 $bar
-emit TileLeft $((halfw - frame)) $((usable - frame)) 0 $bar
-emit TileRight $((halfw - frame)) $((usable - frame)) $halfw $bar
+emit MaximizeBelowBar $((w - frame)) $fullheight 0 $bar
+emit TileLeft $((halfw - frame)) $fullheight 0 $bar
+emit TileRight $((halfw - frame)) $fullheight $halfw $bar
 emit TileTop $((w - frame)) $((halfh - frame)) 0 $bar
 emit TileBottom $((w - frame)) $((halfh - frame)) 0 $mid

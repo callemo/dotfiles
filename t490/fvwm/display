@@ -136,14 +136,14 @@ mouse() {
 
 reload() {
 	[ "$emit" = fvwm ] && {
-		fvwm "PipeRead '$fvwmroot/tile 32'"
+		fvwm "PipeRead '$fvwmroot/tile 30'"
 		return
 	}
 	command -v FvwmCommand >/dev/null 2>&1 || {
 		log 'reload skipped: no FvwmCommand'
 		return
 	}
-	FvwmCommand "PipeRead '$fvwmroot/tile 32'" >/dev/null 2>&1
+	FvwmCommand "PipeRead '$fvwmroot/tile 30'" >/dev/null 2>&1
 	rc=$?
 	[ $rc -eq 0 ] && { log 'reload fvwm tile'; return; }
 	log "reload failed($rc): FvwmCommand"

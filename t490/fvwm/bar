@@ -3,7 +3,7 @@
 
 root=${DOTFILES:-$HOME/dotfiles}
 fvwmroot=$root/t490/fvwm
-bar=${1:-32}
+bar=${1:-30}
 status=180
 # unquoted: FvwmButtons takes the rest of the line verbatim, so
 # quotes would become part of the font name
@@ -14,7 +14,7 @@ w=${dims%x*}; w=${w:-1920}
 cols=$((w / 2))
 
 cat <<EOF
-*ToolBarBack #000000
+*ToolBarBack #282828
 *ToolBarFore #f9f5d7
 *ToolBarFont $font
 *ToolBarGeometry ${w}x${bar}+0+0

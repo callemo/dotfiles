@@ -17,9 +17,9 @@ TitleStyle Height 40
 DefaultFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
 HilightColor #282828 #7daea3
 MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
-            Foreground #f9f5d7, Background #000000, Greyed #928374, \
-            HilightBack #282828, ActiveFore #f9f5d7, \
-            Font "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
+            Foreground #f9f5d7, Background #282828, Greyed #928374, \
+            HilightBack #665c54, ActiveFore #f9f5d7, \
+            Font "-misc-spleen-medium-r-normal--24-240-72-72-c-120-iso10646-1"
 
 AddToFunc StartFunction
     + "I" PipeRead '$HOME/dotfiles/t490/fvwm/display sync fvwm'
@@ -296,24 +296,24 @@ AddToFunc Btop
 
 # Fallbacks for 1920x1080; tile recomputes these at startup (StartFunction).
 AddToFunc MaximizeBelowBar
-    + I Resize 1904p 1036p
-    + I Move 0 28p
+    + I Resize 1906p 1036p
+    + I Move 0 30p
 
 AddToFunc TileLeft
-    + I Resize 944p 1036p
-    + I Move 0 28p
+    + I Resize 946p 1036p
+    + I Move 0 30p
 
 AddToFunc TileRight
-    + I Resize 944p 1036p
-    + I Move 960p 28p
+    + I Resize 946p 1036p
+    + I Move 960p 30p
 
 AddToFunc TileTop
-    + I Resize 1904p 510p
-    + I Move 0 28p
+    + I Resize 1906p 511p
+    + I Move 0 30p
 
 AddToFunc TileBottom
-    + I Resize 1904p 510p
-    + I Move 0 554p
+    + I Resize 1906p 511p
+    + I Move 0 555p
 
 AddToFunc NextDesk
     + I Desk 1 0 0 9
@@ -341,17 +341,17 @@ AddToFunc PrevDesk
 # }}}
 # Modules {{{
 # ToolBar {{{
-PipeRead '$HOME/dotfiles/t490/fvwm/bar 32'
+PipeRead '$HOME/dotfiles/t490/fvwm/bar 30'
 # }}}
 # Pager {{{
 *FvwmPagerFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
-*FvwmPagerGeometry 180x32+0+0
+*FvwmPagerGeometry 180x30+0+0
 *FvwmPagerRows 1
 *FvwmPagerColumns 5
 *FvwmPagerSmallFont none
 *FvwmPagerFore #f9f5d7
-*FvwmPagerBack #000000
-*FvwmPagerHilight #282828
+*FvwmPagerBack #282828
+*FvwmPagerHilight #665c54
 *FvwmPagerLabel 0 "1"
 *FvwmPagerLabel 1 "2"
 *FvwmPagerLabel 2 "3"
