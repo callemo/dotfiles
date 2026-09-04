@@ -9,9 +9,9 @@ hi Normal ctermbg=NONE
 
 " Color 16 stays black when bold text promotes ANSI black to bright black.
 hi StatusLine   cterm=bold ctermfg=16 ctermbg=4
-hi StatusLineNC cterm=NONE ctermfg=244 ctermbg=235
+hi StatusLineNC cterm=NONE ctermfg=236 ctermbg=242
 hi TabLineSel   cterm=bold ctermfg=16 ctermbg=4
-hi TabLine      cterm=NONE ctermfg=244 ctermbg=235
+hi TabLine      cterm=NONE ctermfg=236 ctermbg=242
 hi TabLineFill  cterm=NONE
 hi VertSplit    cterm=NONE ctermfg=235 ctermbg=235
 
