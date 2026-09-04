@@ -32,6 +32,13 @@ printf '%s\n' "${TEST_HOST:?}"
 EOF
 cat >"$mock/git" <<'EOF'
 #!/bin/sh
+if [ -n "${TEST_GIT_LOG:-}" ]; then
+	{
+		printf git
+		printf ' %s' "$@"
+		printf '\n'
+	} >>"$TEST_GIT_LOG"
+fi
 exit 0
 EOF
 cat >"$mock/btop" <<'EOF'
@@ -199,6 +206,25 @@ checkstate() {
 		die 'T490 setup called doas'
 	fi
 }
+
+home=$td/plugins
+seedhome "$home"
+for plugin in vim-eunuch vim-fugitive vim-repeat vim-surround; do
+	mkdir -p "$home/.vim/pack/default/start/$plugin"
+done
+mkdir -p "$home/.vim/pack/default/opt/vim-go"
+gitlog=$home/git.log
+: >"$gitlog"
+runenv "$repo" laptop "$home" env TEST_GIT_LOG="$gitlog" \
+	"$repo/install" >/dev/null 2>&1
+if grep -q ' pull$' "$gitlog"; then
+	die 'install updated an existing Vim plugin without -u'
+fi
+: >"$gitlog"
+runenv "$repo" laptop "$home" env TEST_GIT_LOG="$gitlog" \
+	"$repo/install" -u >/dev/null 2>&1
+pulls=$(awk '$NF == "pull" { n++ } END { print n + 0 }' "$gitlog")
+[ "$pulls" -eq 5 ] || die "install -u updated $pulls Vim plugins, want 5"
 
 for host in t490 t490.home.arpa; do
 	testhost "$repo" "$host" 5

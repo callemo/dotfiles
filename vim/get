@@ -1,16 +1,19 @@
 #!/bin/sh
-# usage: vimget [flags] url
-# Install vim plugins.
+# usage: vimget [-ou] url
+# Install a Vim plugin.
 # Flags:
 #  -o Optional.
+#  -u Update an existing plugin.
 
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
 
 dest="$HOME/.vim/pack/default/start"
-while getopts :o f
+update=0
+while getopts :ou f
 do
 	case $f in
 	o)  dest="$HOME/.vim/pack/default/opt";;
+	u)  update=1;;
 	\?) usage; exit 2;;
 	esac
 done
@@ -24,10 +27,11 @@ name=${url##*/}
 dir="$dest/$name"
 if [ -e "$dir" ]
 then
+	[ "$update" -eq 1 ] || exit 0
 	git -C "$dir" pull
 else
 	mkdir -p "$dest"
-	git -C "${dest}" clone --depth 1 "${url}"
+	git -C "$dest" clone --depth 1 "$url"
 fi
 
 if [ -d "$dir/doc" ]

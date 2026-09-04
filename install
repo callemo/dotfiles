@@ -6,6 +6,17 @@ PATH="$root/bin:$PATH"
 
 log()   { echo "${0##*/}: $*" >&2; }
 fatal() { log "$@"; exit 1; }
+usage() { echo "usage: ${0##*/} [-u]" >&2; }
+
+update_plugins=0
+while getopts :u f; do
+	case $f in
+	u)  update_plugins=1 ;;
+	\?) usage; exit 2 ;;
+	esac
+done
+shift $((OPTIND - 1))
+[ $# -eq 0 ] || { usage; exit 2; }
 
 cd "$root" || fatal "cd $root"
 . "$root/lib/install"
@@ -112,6 +123,14 @@ if command -v btop >/dev/null 2>&1; then
 	fileline '^theme_background = ' 'theme_background = false' "$btopconf"
 fi
 
+getplugin() {
+	if [ "$update_plugins" -eq 1 ]; then
+		./vim/get -u "$@"
+	else
+		./vim/get "$@"
+	fi
+}
+
 # Plugin data list
 plugins=$(mktemp) || fatal "mktemp failed"
 cat >"$plugins" <<EOF
@@ -125,10 +144,10 @@ EOF
 while read -r flag url; do
 	if [ -n "$url" ]; then
 		log "vim plugin $flag $url"
-		./vim/get "$flag" "$url" </dev/null || fatal "vim plugin failed: $url"
+		getplugin "$flag" "$url" </dev/null || fatal "vim plugin failed: $url"
 	else
 		log "vim plugin $flag"
-		./vim/get "$flag" </dev/null || fatal "vim plugin failed: $flag"
+		getplugin "$flag" </dev/null || fatal "vim plugin failed: $flag"
 	fi
 done <"$plugins"
 

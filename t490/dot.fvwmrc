@@ -6,6 +6,7 @@ ModulePath /usr/X11R6/lib/X11/fvwm
 ColormapFocus  FollowsMouse
 SnapAttraction 10 Windows
 OpaqueMoveSize 100
+GlobalOpts MouseFocusClickRaises
 
 DeskTopSize    1x1
 EdgeThickness 0
@@ -34,7 +35,7 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           HintOverride, \
           NoIcon, \
           NoPPosition, \
-          SloppyFocus, \
+          MouseFocus, \
           SmartPlacement, RandomPlacement
 
 BorderStyle Active Solid #7daea3 -- HiddenHandles NoInset
@@ -67,8 +68,8 @@ Mouse 1      FS      A         RaiseAndResize
 Mouse 1      I       A         IconifyOrMove
 Mouse 1      T       A         RaiseAndMove
 Mouse 1      W       4         RaiseAndMove
+Mouse 2      WTSF    4         Menu WinOps Nop
 Mouse 3      W       4         Lower
-Mouse 2      TSF     A         Menu WinOps Nop
 Mouse 2      I       A         Iconify
 Mouse 3      TSFI    A         RaiseLower
 
@@ -107,14 +108,12 @@ Key Up     A       S4        Function TileTop
 Key Down   A       S4        Function TileBottom
 
 # Focus
-Key Left   A       4         Direction West  (CurrentPage !Iconic) Function SelectWindow
-Key Right  A       4         Direction East  (CurrentPage !Iconic) Function SelectWindow
-Key Up     A       4         Direction North (CurrentPage !Iconic) Function SelectWindow
-Key Down   A       4         Direction South (CurrentPage !Iconic) Function SelectWindow
 Key Tab    A       M         Next (CurrentPage !Iconic) Function SelectWindow
 Key Tab    A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
 
 # Desks
+Key Left   A       4         Desk -1 0 0 9
+Key Right  A       4         Desk 1 0 0 9
 Key Tab    A       4         Function NextDesk
 Key Tab    A       S4        Function PrevDesk
 Key 1      A       4         Desk 0 0
@@ -188,21 +187,20 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Tile right half	Shift-Win-Right" Function TileRight
 + "Tile top half	Shift-Win-Up" Function TileTop
 + "Tile bottom half	Shift-Win-Down" Function TileBottom
-+ "Raise window	Win-Left Click" Nop
++ "Raise window	Left Click" Nop
 + "Move window	Win-Left Drag" Nop
++ "Window menu	Win-Middle Click" Nop
 + "Lower window	Win-Right Click / Win-Double-Left Click" Nop
 + "" Nop
 + "Focus" Title
-+ "Focus left	Win-Left" Direction West  (CurrentPage !Iconic) Function SelectWindow
-+ "Focus right	Win-Right" Direction East  (CurrentPage !Iconic) Function SelectWindow
-+ "Focus up	Win-Up" Direction North (CurrentPage !Iconic) Function SelectWindow
-+ "Focus down	Win-Down" Direction South (CurrentPage !Iconic) Function SelectWindow
 + "Next window	Alt-Tab" Next (CurrentPage !Iconic) Function SelectWindow
 + "Previous window	Shift-Alt-Tab" Prev (CurrentPage !Iconic) Function SelectWindow
 + "" Nop
 + "Workspaces" Title
-+ "Next workspace	Win-Tab" Function NextDesk
-+ "Previous workspace	Shift-Win-Tab" Function PrevDesk
++ "Previous workspace	Win-Left" Desk -1 0 0 9
++ "Next workspace	Win-Right" Desk 1 0 0 9
++ "Next occupied workspace	Win-Tab" Function NextDesk
++ "Previous occupied workspace	Shift-Win-Tab" Function PrevDesk
 + "Workspace 1	Win-1" Desk 0 0
 + "Workspace 2	Win-2" Desk 0 1
 + "Workspace 3	Win-3" Desk 0 2
