@@ -15,6 +15,4 @@ remote=origin
 	git branch -D "$name"
 	log "deleting: $remote/$name"
 	git push "$remote" -d "$name"
-	log 'running git reflog'
-	git reflog
 } >&2

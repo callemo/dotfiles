@@ -1,27 +1,7 @@
 #!/bin/sh
-# Updates Git branch.
+# gup: update the current branch from its upstream.
 
 set -eu
 
-merge=
-while getopts m: opt
-do
-  case $opt in
-    m)  merge="$OPTARG" ;;
-    \?) echo "usage: $(basename "$0") [-m branch]" >&2; exit 2 ;;
-  esac
-done
-shift $((OPTIND - 1))
-
-git fetch --all --prune
-
-git pull --rebase --autostash || { echo "git pull --rebase failed" >&2; exit 1; }
-
-if [ -n "$merge" ]
-then
-  branch="$(git branch | awk '/^\*/ { print $2 }')"
-  git checkout "$merge"
-  git pull
-  git checkout "$branch"
-  git merge --no-ff -m "Merge $merge" "$merge"
-fi
+git fetch --prune --no-write-fetch-head origin
+GIT_SEQUENCE_EDITOR=: git pull --no-edit --rebase --autostash
