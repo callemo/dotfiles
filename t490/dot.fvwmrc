@@ -15,7 +15,7 @@ EdgeResistance 300 10
 WindowFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
 TitleStyle Height 40
 DefaultFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
-HilightColor #282828 #7daea3
+HilightColor #282828 #b22222
 MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
             Foreground #f9f5d7, Background #282828, Greyed #928374, \
             HilightBack #665c54, ActiveFore #f9f5d7, \
@@ -29,7 +29,7 @@ AddToFunc RestartFunction
     + "I" PipeRead '$HOME/dotfiles/t490/fvwm/display sync fvwm'
 
 # Styles {{{
-Style "*" BorderWidth 7, HandleWidth 7, \
+Style "*" BorderWidth 7, HandleWidth 7, BackColor #4682b4, \
           NoTitle, \
           DecorateTransient, \
           HintOverride, \
@@ -38,8 +38,7 @@ Style "*" BorderWidth 7, HandleWidth 7, \
           MouseFocus, \
           SmartPlacement, RandomPlacement
 
-BorderStyle Active Solid #7daea3 -- HiddenHandles NoInset
-BorderStyle Inactive Solid #282828 -- HiddenHandles NoInset
+BorderStyle Simple -- HiddenHandles !NoInset
 
 ButtonStyle Reset
 ButtonStyle All -- UseTitleStyle
