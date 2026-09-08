@@ -1,5 +1,5 @@
 #!/bin/sh
-# gmerge: fast-forward BRANCH from its remote, then merge it into HEAD.
+# gbm: fast-forward BRANCH from its remote, then merge it into HEAD.
 set -eu
 
 prefix="${0##*/}:"
