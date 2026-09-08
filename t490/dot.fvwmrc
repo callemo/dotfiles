@@ -84,7 +84,7 @@ Mouse 3      2       A         Maximize 0 100
 
 # Apps
 Key Return A       4         Function OpenTerminal
-Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
+Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s OpenBSD'
 Key Return A       S4        Exec exec chrome
 Key V      A       S4        Exec exec xterm -e ksh -lc vim
 Key F      A       S4        Exec exec thunar
@@ -150,9 +150,9 @@ AddToMenu RootMenu "Control Menu" Title
 + "Key bindings	Win-K"           Menu KeyBindingsMenu Nop
 + "Window list	Win-Slash"         WindowList
 + ""                               Nop
-+ "Chrome	Shift-Win-Return"      Exec exec chrome
-+ "XTerm	Win-Return"             Function OpenTerminal
-+ "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
++ "Web Browser	Shift-Win-Return"      Exec exec chrome
++ "Terminal	Win-Return"             Function OpenTerminal
++ "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s OpenBSD'
 + "Vim	Shift-Win-V"             Exec exec xterm -e ksh -lc vim
 + "Files	Shift-Win-F"           Exec exec thunar
 + ""                               Nop
@@ -172,7 +172,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "" Nop
 + "Apps" Title
 + "Terminal	Win-Return" Function OpenTerminal
-+ "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s Work'
++ "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s OpenBSD'
 + "Browser	Shift-Win-Return" Exec exec chrome
 + "Vim	Shift-Win-V" Exec exec xterm -e ksh -lc vim
 + "Files	Shift-Win-F" Exec exec thunar
@@ -246,8 +246,8 @@ AddToMenu WinOps
 + "Move"           Move
 + "Size"           Resize
 + "Minimize	Win-M" Iconify
-+ "Fullscreen	Win-F" Maximize 100 100
-+ "Maximize below bar	Alt-Win-F" Function MaximizeBelowBar
++ "Maximize	Win-F" Maximize 100 100
++ "Zoom	Alt-Win-F" Function MaximizeBelowBar
 + "Lower"          Lower
 + "Stick"          Stick
 + "Refresh"        RefreshWindow
