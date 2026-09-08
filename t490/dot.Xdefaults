@@ -3,7 +3,7 @@ XTerm*loginShell:         true
 XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
 XTerm*renderFont:         true
-XTerm*faceName:           Spleen:pixelsize=24:antialias=false,DejaVu Sans Mono:pixelsize=18:antialias=false
+XTerm*faceName:           Spleen:pixelsize=24:antialias=false,DejaVu Sans Mono:pixelsize=24:antialias=false
 XTerm*limitFontsets:      1
 XTerm*font:               spleen-12x24
 XTerm*font1:              spleen-5x8
