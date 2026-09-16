@@ -138,7 +138,6 @@ https://github.com/tpope/vim-eunuch
 https://github.com/tpope/vim-fugitive
 https://github.com/tpope/vim-repeat
 https://github.com/tpope/vim-surround
--o https://github.com/fatih/vim-go
 EOF
 
 while read -r flag url; do

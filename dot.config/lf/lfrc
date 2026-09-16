@@ -20,7 +20,7 @@ cmd preview ${{
 		}
 		lowdown -t term "$f" | LESSSECURE=1 LESSHISTFILE=- less -R
 		;;
-	*.pdf|*.epub|*.PDF|*.EPUB) mupdf-gl "$f" ;;
+	*.pdf|*.epub|*.PDF|*.EPUB) mupdf-gl -C F1E7D0 -B 4F321C "$f" ;;
 	*.bmp|*.gif|*.jpeg|*.jpg|*.png|*.tif|*.tiff|*.webp|*.BMP|*.GIF|*.JPEG|*.JPG|*.PNG|*.TIF|*.TIFF|*.WEBP)
 		feh "$f" ;;
 	*)
