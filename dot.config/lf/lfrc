@@ -1,3 +1,37 @@
 set hidden!
-map D :delete
-map E $ed "$f"
+set drawbox true
+set shell /bin/sh
+set ifs "\n"
+map cf push %touch<space>
+map cd push %mkdir<space>-p<space>
+map d :delete
+map e !$EDITOR "$f"
+map v !$VISUAL "$f"
+cmd preview ${{
+	if [ ! -f "$f" ] || [ ! -r "$f" ]; then
+		printf 'Cannot preview: %s is not a readable regular file.\n' "$f" >&2
+		exit 1
+	fi
+	case "$f" in
+	*.md|*.markdown|*.mdown|*.mkd|*.MD|*.MARKDOWN)
+		command -v lowdown >/dev/null 2>&1 || {
+			printf '%s\n' 'Markdown preview needs lowdown.' >&2
+			exit 1
+		}
+		lowdown -t term "$f" | LESSSECURE=1 LESSHISTFILE=- less -R
+		;;
+	*.pdf|*.epub|*.PDF|*.EPUB) mupdf-gl "$f" ;;
+	*.bmp|*.gif|*.jpeg|*.jpg|*.png|*.tif|*.tiff|*.webp|*.BMP|*.GIF|*.JPEG|*.JPG|*.PNG|*.TIF|*.TIFF|*.WEBP)
+		feh "$f" ;;
+	*)
+		if head -n "$lf_height" "$f" | od -A n -t u1 |
+			awk '{ for (i = 1; i <= NF; i++) if ($i == 0) nul = 1 }
+			     END { exit !nul }'
+		then
+			od -A x -t x1 -t c -v "$f" | less
+		else
+			less "$f"
+		fi ;;
+	esac
+}}
+map <space> preview
