@@ -12,6 +12,22 @@ pathfront() {
 	unset p t s
 }
 
+_dotfiles_gb() {
+	local d=$PWD head
+	while [ -n "$d" ]; do
+		if [ -f "$d/.git/HEAD" ]; then
+			read -r head <"$d/.git/HEAD" || return
+			case $head in
+			'ref: refs/heads/'*) head=${head#ref: refs/heads/} ;;
+			*) head=$(printf '%.7s' "$head") ;;
+			esac
+			printf ' (%s)' "$head"
+			return
+		fi
+		d=${d%/*}
+	done
+}
+
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 LYNX_CFG="$HOME/.lynx.cfg"; export LYNX_CFG
 LYNX_LSS="$HOME/.lynx.lss"; export LYNX_LSS
@@ -37,9 +53,12 @@ zsh)
 	bindkey '^U' backward-kill-line
 	bindkey '^[[1;5D' backward-word
 	bindkey '^[[1;5C' forward-word
+	setopt prompt_subst
+	PROMPT='%1~%B%F{magenta}$(_dotfiles_gb)%f%b %B%F{blue}>%f%b '
 	;;
 bash)
 	: "${HISTFILESIZE:=$HISTSIZE}"; export HISTFILESIZE
+	PS1='\W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[\e[1;34m\]>\[\e[0m\] '
 	;;
 esac
 
