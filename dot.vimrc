@@ -111,7 +111,6 @@ augroup dotfiles
 		\ setl nonumber
 		\ | setl statusline=%{%view#TermStatus()%}
 		\ | nnoremap <buffer> q i
-	autocmd VimEnter * if argc() == 0 && empty(bufname()) && !get(g:, 'dotfiles_loaded_dump', false) | call view.Dir('', true) | endif
 	# BufReadCmd handles :edit on a path with explicit trailing slash (typed by
 	# the user, or written by Dir's :edit!). BufEnter catches :e . where Vim
 	# strips the slash before */ can match, and any other path where the
