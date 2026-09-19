@@ -145,15 +145,13 @@ Key Delete A       C4        PipeRead '$HOME/dotfiles/t490/fvwm/display toggle f
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Control Menu" Title
-+ "Run...	Win-Space"              Module FvwmForm RunCmd
-+ "Key bindings	Win-K"           Menu KeyBindingsMenu Nop
-+ "Window list	Win-Slash"         WindowList
-+ ""                               Nop
-+ "Web Browser	Shift-Win-Return"      Exec exec chrome
-+ "Terminal	Win-Return"             Function OpenTerminal
-+ "Tmux	Alt-Win-Return"         Exec exec xterm -e sh -lc 'tmux attach || tmux new -s OpenBSD'
-+ "Vim	Shift-Win-V"             Exec exec xterm -e ksh -lc vim
++ "Terminal	Win-Return"            Function OpenTerminal
++ "Web Browser	Shift-Win-Return"  Exec exec chrome
 + "Files	Shift-Win-F"           Exec exec thunar
++ ""                               Nop
++ "Run...	Win-Space"             Module FvwmForm RunCmd
++ "Key bindings	Win-K"             Menu KeyBindingsMenu Nop
++ "Window list	Win-Slash"         WindowList
 + ""                               Nop
 + "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
 + "Lock display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
