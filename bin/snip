@@ -4,15 +4,18 @@
 import argparse
 import glob
 import importlib.util
+import inspect
 import os
 import sys
 
-# Dictionary of snippets
-SNIPPETS = {}
 
-
-def main():
-    parser = argparse.ArgumentParser(description="Expand text snippets.")
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Expand text snippets.", add_help=False,
+        epilog="Use %(prog)s SNIPPET -h for arguments and examples. "
+               "Use -- before literal arguments starting with '-'.",
+    )
+    parser.add_argument("-h", "--help", action="store_true", help="show command or snippet help")
     parser.add_argument("-t", "--tab", default="\t", help="indent string")
     parser.add_argument(
         "-l", "--list", action="store_true", help="list available snippets"
@@ -20,76 +23,92 @@ def main():
     parser.add_argument("snippet", nargs="?", help="name of the snippet to expand")
     parser.add_argument("args", nargs="*", help="arguments to pass to the snippet")
 
-    args = parser.parse_args()
-
-    # List snippets or show help if no snippet provided
-    if args.list or not args.snippet:
-        print_snippet_list()
+    args = parser.parse_args(argv)
+    if args.help and not args.snippet:
+        parser.print_help()
         return 0
 
-    # Get and call the snippet function
-    snippet_func = SNIPPETS.get(args.snippet)
-    if not snippet_func:
+    root = os.path.join(os.path.dirname(os.path.realpath(__file__)), "snip.d")
+    snippets = load(root)
+
+    if not args.snippet or (args.list and not args.help):
+        listing(snippets)
+        return 0
+
+    func = snippets.get(args.snippet)
+    if func is None:
         print(f"Unknown snippet: {args.snippet}", file=sys.stderr)
-        print_snippet_list()
+        listing(snippets)
         return 1
 
-    # Expand the snippet and print it
-    code = expand_snippet(snippet_func, args.args, args.tab)
-    print(code)
+    if args.help:
+        usage(args.snippet, func)
+        return 0
+
+    try:
+        text = expand(func, args.args, args.tab)
+    except ValueError as err:
+        print(f"snip: {args.snippet}: {err}", file=sys.stderr)
+        return 2
+    print(text)
     return 0
 
 
-def print_snippet_list():
-    """Print all available snippets with their descriptions."""
-    if not SNIPPETS:
+def listing(snippets):
+    if not snippets:
         return
 
     print("\nAvailable snippets:")
-
-    # Find the longest snippet name for formatting
-    max_name_len = max(len(name) for name in SNIPPETS)
-    fmt = f"  %-{max_name_len}s - %s"
-
-    # Print snippets in a table-like format
-    for name, func in sorted(SNIPPETS.items()):
-        doc = func.__doc__ or ""
-        print(fmt % (name, doc))
+    width = max(map(len, snippets))
+    for name, func in sorted(snippets.items()):
+        summary = (inspect.getdoc(func) or "").partition("\n")[0]
+        print(f"  {name:<{width}} - {summary}")
 
 
-def expand_snippet(func, args=None, tab="\t"):
-    """Expand a snippet using the given function and arguments."""
+def usage(name, func):
+    doc = inspect.getdoc(func) or ""
+    summary, _, detail = doc.partition("\n\n")
+    synopsis, _, body = detail.partition("\n\n")
+    print(synopsis or f"usage: snip {name}")
+    if summary:
+        print(f"\n{summary}")
+    if body:
+        print(f"\n{body}")
+
+
+def expand(func, args=None, tab="\t"):
     if args is None:
         args = []
-
-    builder = IndentBuilder(tab)
-    result = func(builder, args)
-    return result if result is not None else builder.text()
+    out = IndentBuilder(tab)
+    result = func(out, args)
+    return result if result is not None else out.text()
 
 
 class IndentBuilder:
-    """Generates indented code."""
-
     def __init__(self, tab="\t"):
         self.tab = tab
         self.level = 0
         self.lines = []
 
     def write(self, line):
-        """Add a line with proper indentation."""
         if line:
             self.lines.append(self.tab * self.level + line)
         else:
             self.lines.append("")
         return self
 
+    def block(self, text):
+        """Write a template whose indentation uses tabs."""
+        for line in text.strip("\n").splitlines():
+            n = len(line) - len(line.lstrip("\t"))
+            self.write(self.tab * n + line[n:])
+        return self
+
     def indent(self):
-        """Increase indentation level."""
         self.level += 1
         return self
 
     def dedent(self):
-        """Decrease indentation level."""
         if self.level < 1:
             raise IndentationError(
                 f"Cannot dedent past level 0 at line {len(self.lines)}"
@@ -98,24 +117,27 @@ class IndentBuilder:
         return self
 
     def text(self):
-        """Return the complete text."""
         return "\n".join(self.lines)
 
 
-# Load snippet modules from snip.d/ directory
-def _load_modules():
-    snip_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "snip.d")
-    for path in sorted(glob.glob(os.path.join(snip_dir, "*.py"))):
+def load(root):
+    for name in list(sys.modules):
+        if name == "snip_d" or name.startswith("snip_d."):
+            del sys.modules[name]
+    spec = importlib.util.spec_from_loader("snip_d", loader=None, is_package=True)
+    package = importlib.util.module_from_spec(spec)
+    package.__path__ = [root]
+    sys.modules["snip_d"] = package
+
+    snippets = {}
+    for path in sorted(glob.glob(os.path.join(root, "*.py"))):
         name = os.path.basename(path)[:-3]
         spec = importlib.util.spec_from_file_location(f"snip_d.{name}", path)
-        if spec is None:
-            continue
         mod = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = mod
         spec.loader.exec_module(mod)
-        if hasattr(mod, "SNIPPETS"):
-            SNIPPETS.update(mod.SNIPPETS)
-
-_load_modules()
+        snippets.update(getattr(mod, "SNIPPETS", {}))
+    return snippets
 
 
 if __name__ == "__main__":
