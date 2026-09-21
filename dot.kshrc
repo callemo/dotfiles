@@ -33,13 +33,27 @@ _dotfiles_gb() {
 	done
 }
 
+_dotfiles_host=
+if [ -n "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}" ]; then
+	_dotfiles_host=$(uname -n)
+	_dotfiles_host=${_dotfiles_host%%.*}
+fi
+
 case $(uname) in
 OpenBSD)
 	_dotfiles_gb_color='\[\e[1;35m\]'
-	PS1='\W$(_dotfiles_gb) \[\e[1;34m\]>\[\e[0m\] '
+	if [ -n "$_dotfiles_host" ]; then
+		PS1='\[\e[1;2;32m\]${_dotfiles_host}\[\e[0m\] in \W$(_dotfiles_gb) \[\e[1;34m\]>\[\e[0m\] '
+	else
+		PS1='\W$(_dotfiles_gb) \[\e[1;34m\]>\[\e[0m\] '
+	fi
 	;;
 *)
 	_dotfiles_gb_color=
-	PS1='${PWD##*/}$(_dotfiles_gb) > '
+	if [ -n "$_dotfiles_host" ]; then
+		PS1='${_dotfiles_host} in ${PWD##*/}$(_dotfiles_gb) > '
+	else
+		PS1='${PWD##*/}$(_dotfiles_gb) > '
+	fi
 	;;
 esac

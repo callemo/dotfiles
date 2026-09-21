@@ -28,6 +28,12 @@ _dotfiles_gb() {
 	done
 }
 
+_dotfiles_host=
+if [ -n "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}" ]; then
+	_dotfiles_host=$(uname -n)
+	_dotfiles_host=${_dotfiles_host%%.*}
+fi
+
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 LYNX_CFG="$HOME/.lynx.cfg"; export LYNX_CFG
 LYNX_LSS="$HOME/.lynx.lss"; export LYNX_LSS
@@ -54,11 +60,19 @@ zsh)
 	bindkey '^[[1;5D' backward-word
 	bindkey '^[[1;5C' forward-word
 	setopt prompt_subst
-	PROMPT='%1~%B%F{magenta}$(_dotfiles_gb)%f%b %B%F{blue}>%f%b '
+	if [ -n "$_dotfiles_host" ]; then
+		PROMPT='%B%F{green}${_dotfiles_host}%f%b in %1~%B%F{magenta}$(_dotfiles_gb)%f%b %B%F{blue}>%f%b '
+	else
+		PROMPT='%1~%B%F{magenta}$(_dotfiles_gb)%f%b %B%F{blue}>%f%b '
+	fi
 	;;
 bash)
 	: "${HISTFILESIZE:=$HISTSIZE}"; export HISTFILESIZE
-	PS1='\W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[\e[1;34m\]>\[\e[0m\] '
+	if [ -n "$_dotfiles_host" ]; then
+		PS1='\[\e[1;2;32m\]${_dotfiles_host}\[\e[0m\] in \W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[\e[1;34m\]>\[\e[0m\] '
+	else
+		PS1='\W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[\e[1;34m\]>\[\e[0m\] '
+	fi
 	;;
 esac
 
