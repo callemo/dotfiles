@@ -5,7 +5,7 @@ root="$(cd "${0%/*}" && pwd -P)"
 PATH="$root/bin:$PATH"
 
 log()   { echo "${0##*/}: $*" >&2; }
-fatal() { log "$@"; exit 1; }
+die() { log "$@"; exit 1; }
 usage() { echo "usage: ${0##*/} [-u]" >&2; }
 
 update_plugins=0
@@ -18,7 +18,7 @@ done
 shift $((OPTIND - 1))
 [ $# -eq 0 ] || { usage; exit 2; }
 
-cd "$root" || fatal "cd $root"
+cd "$root" || die "cd $root"
 . "$root/lib/install"
 
 # run fn target source on dir's dot files;
@@ -78,7 +78,7 @@ prunehosts() {
 		"$root/t490/applications/mupdf.desktop"
 }
 
-host=$(uname -n) || fatal 'uname -n failed'
+host=$(uname -n) || die 'uname -n failed'
 hostdir=
 for h in $hosts; do
 	case $host in
@@ -116,7 +116,7 @@ if command -v btop >/dev/null 2>&1; then
 	if [ ! -f "$btopconf" ]; then
 		btop --default-config >"$btopconf" || {
 			rm -f "$btopconf"
-			fatal "create $btopconf"
+			die "create $btopconf"
 		}
 	fi
 	fileline '^color_theme = ' 'color_theme = "TTY"' "$btopconf"
@@ -132,7 +132,7 @@ getplugin() {
 }
 
 # Plugin data list
-plugins=$(mktemp) || fatal "mktemp failed"
+plugins=$(mktemp) || die "mktemp failed"
 cat >"$plugins" <<EOF
 https://github.com/tpope/vim-eunuch
 https://github.com/tpope/vim-fugitive
@@ -143,10 +143,10 @@ EOF
 while read -r flag url; do
 	if [ -n "$url" ]; then
 		log "vim plugin $flag $url"
-		getplugin "$flag" "$url" </dev/null || fatal "vim plugin failed: $url"
+		getplugin "$flag" "$url" </dev/null || die "vim plugin failed: $url"
 	else
 		log "vim plugin $flag"
-		getplugin "$flag" </dev/null || fatal "vim plugin failed: $flag"
+		getplugin "$flag" </dev/null || die "vim plugin failed: $flag"
 	fi
 done <"$plugins"
 

@@ -11,7 +11,7 @@ log() {
 	printf '%s %s %s\n' "$ts" "$prefix" "$*" >>"$logfile" 2>/dev/null
 	[ -d "$cachedir" ] || mkdir -p "$cachedir"
 }
-fatal() { log "$@"; exit 1; }
+die() { log "$@"; exit 1; }
 
 try() {
 	"$@"
@@ -23,7 +23,7 @@ try() {
 must() {
 	"$@"
 	rc=$?
-	[ $rc -eq 0 ] || fatal "failed($rc): $*"
+	[ $rc -eq 0 ] || die "failed($rc): $*"
 }
 
 cmd=${1:-toggle}
@@ -33,9 +33,9 @@ int='eDP-1'
 root=${DOTFILES:-$HOME/dotfiles}
 fvwmroot=$root/t490/fvwm
 
-[ "$(uname)" = OpenBSD ] || fatal 'not running openbsd'
+[ "$(uname)" = OpenBSD ] || die 'not running openbsd'
 
-xr=$(xrandr) || fatal 'xrandr failed'
+xr=$(xrandr) || die 'xrandr failed'
 ext=$(printf '%s\n' "$xr" | awk -v panel="$int" \
 	'$2 == "connected" && $1 != panel { print $1; exit }')
 active=$(printf '%s\n' "$xr" | awk -v panel="$int" '
@@ -170,7 +170,7 @@ setint() {
 }
 
 useext() {
-	[ -n "$ext" ] || fatal 'no external display connected'
+	[ -n "$ext" ] || die 'no external display connected'
 	log "$ext ${mode:-preferred} on, $int off"
 	if [ -n "$mode" ]; then
 		must xrandr --output "$ext" --primary --mode "$mode" \
@@ -213,7 +213,7 @@ toggle) toggle ;;
 sync|apply) sync ;;
 external|ext) useext ;;
 internal|int) useint ;;
-*) fatal 'usage: display [toggle|sync|external|internal]' \
+*) die 'usage: display [toggle|sync|external|internal]' \
 	'[fvwm] [auto|yes|no]' ;;
 esac
 

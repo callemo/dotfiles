@@ -5,7 +5,7 @@ def _expand_shlog(builder, _args):
     """Shell logging."""
     builder.write('prog=${0##*/}')
     builder.write('log() { printf "%s: %s\\n" "$prog" "$*" >&2; }')
-    builder.write('fatal() { log "$@"; exit 1; }')
+    builder.write('die() { log "$@"; exit 1; }')
 
 
 def _expand_shopts(builder, args):

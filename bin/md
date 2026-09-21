@@ -3,7 +3,7 @@
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
-fatal() { log "$@"; exit 1; }
+die() { log "$@"; exit 1; }
 
 if command -v multimarkdown >/dev/null
 then
@@ -12,7 +12,7 @@ elif command -v pandoc >/dev/null
 then
 	md=pandoc
 else
-	fatal 'no markdown command'
+	die 'no markdown command'
 fi
 cat "$@" |
 awk '

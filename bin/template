@@ -8,7 +8,7 @@
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
-fatal() { log "$@"; exit 1; }
+die() { log "$@"; exit 1; }
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
 
 fs='\t'
@@ -27,7 +27,7 @@ case $# in
 esac
 
 file="$1"; shift
-[ -r "$file" ] || fatal "unreadable template: $file"
+[ -r "$file" ] || die "unreadable template: $file"
 
 exec awk 'BEGIN {
 	FS = "'"$fs"'"

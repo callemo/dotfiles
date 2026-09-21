@@ -122,7 +122,7 @@ class TestMain(unittest.TestCase):
         output = mock_stdout.getvalue()
         self.assertIn("prog=", output)
         self.assertIn("log()", output)
-        self.assertIn("fatal()", output)
+        self.assertIn("die()", output)
 
 
 class TestSnippets(unittest.TestCase):
@@ -132,7 +132,7 @@ class TestSnippets(unittest.TestCase):
         result = builder.text()
         self.assertIn("prog=", result)
         self.assertIn("log()", result)
-        self.assertIn("fatal()", result)
+        self.assertIn("die()", result)
 
     def test_shopts(self):
         builder = IndentBuilder()
@@ -218,7 +218,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(stderr, '')
         self.assertIn('prog=', stdout)
         self.assertIn('log()', stdout)
-        self.assertIn('fatal()', stdout)
+        self.assertIn('die()', stdout)
 
     def test_shopts_snippet(self):
         """Test expanding the shopts snippet with custom options."""

@@ -4,13 +4,13 @@ set -eu
 
 prefix="${0##*/}:"
 log() { echo "$prefix" "$@" >&2; }
-fatal() { log "$@"; exit 1; }
+die() { log "$@"; exit 1; }
 
-[ $# -ne 1 ] && fatal "usage: $prefix <branch>"
+[ $# -ne 1 ] && die "usage: $prefix <branch>"
 name="$1"
 remote=origin
 {
-	git branch -a | grep -F "$name" || fatal 'no branch matches:' "$name"
+	git branch -a | grep -F "$name" || die 'no branch matches:' "$name"
 	log "deleting: $name"
 	git branch -D "$name"
 	log "deleting: $remote/$name"

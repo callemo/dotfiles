@@ -3,9 +3,9 @@
 set -eu
 
 prefix="${0##*/}:"
-fatal() { echo "$prefix" "$@" >&2; exit 1; }
+die() { echo "$prefix" "$@" >&2; exit 1; }
 
-[ $# -eq 1 ] || fatal "usage: $prefix <branch>"
+[ $# -eq 1 ] || die "usage: $prefix <branch>"
 merge="$1"
 here="$(git symbolic-ref --short HEAD)"
 

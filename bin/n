@@ -19,7 +19,7 @@ case $0 in
 *) self=$(command -v "$0" 2>/dev/null || printf '%s' "$0") ;;
 esac
 log() { echo "${0##*/}:" "$@" >&2; }
-fatal() { log "$@"; exit 1; }
+die() { log "$@"; exit 1; }
 usage() { sed -En '2,/^[^#]/ s/^#[ 	]//p' "$self" >&2; }
 edots() { printf '%s' "$1" | sed 's/\./\\./g'; }
 
@@ -46,13 +46,13 @@ main() {
 	new) snip nfile "$@" ;;
 	tag) ntag "$@" ;;
 	xref) exec "${self%/*}/xref" "$PWD" ;;
-	*) fatal "unknown command: $cmd" ;;
+	*) die "unknown command: $cmd" ;;
 	esac
 }
 
 nlook() {
 	if [ $# -lt 1 ]; then
-		fatal 'look: too few arguments'
+		die 'look: too few arguments'
 	fi
 
 	p=$(edots "$1")
