@@ -223,8 +223,11 @@ fi
 : >"$gitlog"
 runenv "$repo" laptop "$home" env TEST_GIT_LOG="$gitlog" \
 	"$repo/install" -u >/dev/null 2>&1
+# Prune is start/-only.
+[ -d "$home/.vim/pack/default/opt/vim-go" ] \
+	|| die 'install -u pruned an undeclared opt/ Vim plugin'
 pulls=$(awk '$NF == "pull" { n++ } END { print n + 0 }' "$gitlog")
-[ "$pulls" -eq 5 ] || die "install -u updated $pulls Vim plugins, want 5"
+[ "$pulls" -eq 4 ] || die "install -u updated $pulls Vim plugins, want 4"
 
 for host in t490 t490.home.arpa; do
 	testhost "$repo" "$host" 5
