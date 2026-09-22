@@ -1,9 +1,60 @@
 #!/bin/sh
+# usage: gd [-s] [-v] [git-diff-args...]
+# Show unstaged changes, or one commit given its full or abbreviated hex SHA.
+#
+# Options (before Git arguments):
+#   -s        Show staged changes; always use git diff
+#   -v        Use Delta side-by-side (requires delta on PATH)
+#   -h        Show this help
+# Combine -s and -v as -sv, -vs, or separate flags.
+#
+# Examples:
+#   gd                    Show unstaged changes
+#   gd -s                 Show staged changes
+#   gd -sv                Show staged changes with Delta
+#   gd -v abc123          Show one commit with Delta
+#   gd abc123 def456      Compare two commits
+#   gd -- file            Diff a file, even if its name looks like a SHA
+#
+# Only a lone valid hex commit ID selects git show; other arguments use diff.
+# Both modes use histogram diff. Delta runs only when Git uses a pager.
 
-if [ "$1" = -v ]; then
+view=false
+staged=false
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	-v) view=true ;;
+	-s) staged=true ;;
+	-vs|-sv) view=true; staged=true ;;
+	-h)
+		sed -En '2,/^[^#]/ s/^# //p' "$0" >&2
+		exit 0
+		;;
+	*) break ;;
+	esac
 	shift
-	exec git -c core.pager=delta \
-		-c delta.side-by-side=true diff --histogram "$@"
+done
+
+if "$staged"; then
+	set -- --cached "$@"
 fi
 
-exec git diff --histogram "$@"
+cmd='diff'
+if [ "$#" -eq 1 ]; then
+	case "$1" in
+	''|*[!0-9a-fA-F]*) ;;
+	*)
+		if sha=$(git rev-parse --verify --quiet "$1^{commit}"); then
+			cmd=show
+			set -- "$sha" --
+		fi
+		;;
+	esac
+fi
+
+if "$view"; then
+	exec git -c core.pager=delta \
+		-c delta.side-by-side=true "$cmd" --histogram "$@"
+fi
+
+exec git "$cmd" --histogram "$@"
