@@ -1,0 +1,95 @@
+# ~/.config/telescope/config
+# Gemini browser. Colours follow the Gruvbox Material palette in
+# t490/dot.Xdefaults (color0..color15 and color244).
+
+# Always use colours, even when NO_COLORS is set.
+set enable-colors = 1
+
+# Wrap long lines at 80 columns.
+set fill-column = 80
+
+# Search engine used by the `search' command (key: s).
+set default-search-engine = gemini://kennedy.gemi.dev/search
+
+# --- Keys ----------------------------------------------------------------
+
+# Search the current page with /, as in vim.
+bind global-map / swiper
+
+# Jump to a heading, as in vim's help.
+bind global-map "g o" toc
+
+# Scroll by a page with C-u/C-d. Telescope has no half-page scroll.
+bind global-map C-u scroll-up
+bind global-map C-d scroll-down
+
+# Vim-style completion navigation. C-n/C-p already do this, and so does
+# vim. Uncomment to use j/k instead, at the cost of typing j and k in
+# every prompt, including load-url and search.
+#bind minibuffer-map j next-completion
+#bind minibuffer-map k previous-completion
+
+# --- Styling -------------------------------------------------------------
+
+style line.fringe	fg color244
+
+style line.link		fg color4
+
+style line.quote {
+	fg color244
+	attr dim
+}
+
+style line.title1	attr bold
+style line.title1	fg color3
+style line.title2	attr bold
+style line.title2	fg color2
+style line.title3	fg color4
+
+style line.pre.start {
+	bg color235
+	fg color3
+}
+style line.pre {
+	bg color235
+	fg color6
+}
+style line.pre.end {
+	bg color235
+	fg color3
+}
+
+style line.compl.current {
+	bg color4
+	fg color0
+	attr normal
+}
+
+style tabline {
+	bg color233
+	fg color7
+}
+style tabline.tab {
+	bg color233
+	fg color244
+}
+style tabline.current {
+	bg color237
+	fg color3
+	attr bold
+}
+
+style modeline {
+	bg color237
+	fg color7
+}
+
+style minibuffer {
+	fg color7
+	bg color0
+}
+
+style line.download.ongoing	bg color235
+style line.download.done	bg color235
+style line.download.info	bg color235
+style download			bg color235
