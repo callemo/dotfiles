@@ -1,2 +1,9 @@
 #!/bin/sh
+
+if [ "$1" = -v ]; then
+	shift
+	exec git -c core.pager=delta \
+		-c delta.side-by-side=true diff --histogram "$@"
+fi
+
 exec git diff --histogram "$@"
