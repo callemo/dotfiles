@@ -1,17 +1,22 @@
 #!/bin/sh
-# usage: gd [-s] [-v] [git-diff-args...]
+# usage: gd [-s] [-v] [-2] [git-diff-args...]
 # Show unstaged changes, or one commit given its full or abbreviated hex SHA.
+# Output is single-column by default.
 #
 # Options (before Git arguments):
 #   -s        Show staged changes; always use git diff
-#   -v        Use Delta side-by-side (requires delta on PATH)
+#   -v        Use Delta (requires delta on PATH)
+#   -2        Use Delta side-by-side (requires delta on PATH)
 #   -h        Show this help
-# Combine -s and -v as -sv, -vs, or separate flags.
+# Combine flags, e.g. -sv, -v2, or -sv2, or use separate flags.
 #
 # Examples:
 #   gd                    Show unstaged changes
 #   gd -s                 Show staged changes
 #   gd -sv                Show staged changes with Delta
+#   gd -2                 Show unstaged changes side-by-side with Delta
+#   gd -v2                Same as gd -v -2
+#   gd -s -2              Show staged changes side-by-side with Delta
 #   gd -v abc123          Show one commit with Delta
 #   gd abc123 def456      Compare two commits
 #   gd -- file            Diff a file, even if its name looks like a SHA
@@ -21,17 +26,29 @@
 
 view=false
 staged=false
+side=false
 while [ "$#" -gt 0 ]; do
 	case "$1" in
-	-v) view=true ;;
-	-s) staged=true ;;
-	-vs|-sv) view=true; staged=true ;;
-	-h)
-		sed -En '2,/^[^#]/ s/^# //p' "$0" >&2
-		exit 0
-		;;
+	-?*) ;;
 	*) break ;;
 	esac
+	# Leave Git options and its -- path separator intact.
+	case "${1#-}" in
+	*[!sv2h]*) break ;;
+	esac
+	OPTIND=1
+	while getopts sv2h opt "$1"; do
+		case "$opt" in
+		v) view=true ;;
+		2) view=true; side=true ;;
+		s) staged=true ;;
+		h)
+			sed -En '2,/^[^#]/ s/^# //p' "$0" >&2
+			exit 0
+			;;
+		*) exit 2 ;;
+		esac
+	done
 	shift
 done
 
@@ -54,7 +71,7 @@ fi
 
 if "$view"; then
 	exec git -c core.pager=delta \
-		-c delta.side-by-side=true "$cmd" --histogram "$@"
+		-c delta.side-by-side="$side" "$cmd" --histogram "$@"
 fi
 
-exec git "$cmd" --histogram "$@"
+exec git -c delta.side-by-side="$side" "$cmd" --histogram "$@"

@@ -38,7 +38,6 @@ set noequalalways
 set winminheight=0
 set noexpandtab
 set nofoldenable
-set nojoinspaces
 set noswapfile
 set nowritebackup
 set complete-=i
@@ -214,7 +213,7 @@ nnoremap <up> <c-y>
 
 # ── Visual ───────────────────────────────────────────────
 xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(text.Selection(), 0, 0, 0)<CR><Esc>
-xnoremap <silent> <leader>; <cmd>Send<CR><Esc>
+xnoremap <silent> <leader>; :Send<CR>
 xnoremap <silent> <leader><CR> <ScriptCmd>plumb.Do(expand('%:h'), {'visual': 1}, text.Selection())<CR><Esc>
 xnoremap * <ScriptCmd>text.SearchSel()<CR>/<CR>
 

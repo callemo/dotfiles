@@ -29,7 +29,7 @@ testvimrc() {
 }
 
 testsnip() {
-	if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest test_snip.py 2>&1); then
+	if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest test_snip.py test_gd.py 2>&1); then
 		echo "Unit tests failed" >&2
 		echo "$output" >&2
 		exit 1

@@ -57,6 +57,19 @@ call assert_match('view[#.]Next', s:tj.rhs)
 call assert_match('view[#.]Prev', s:tk.rhs)
 call assert_equal('', maparg('<leader>z', 't'))
 
+" Send: shadow the command in a scratch buffer so mappings never invoke tmux.
+enew
+call setline(1, ['first', 'second', 'third'])
+let s:send_ranges = []
+let s:send_mode = mode()
+command! -buffer -range -nargs=? Send call add(s:send_ranges, [<line1>, <line2>])
+call feedkeys("ggVj ;\<Cmd>call assert_equal(s:send_mode, mode())\<CR>", 'xt')
+call feedkeys("ggjVk ;\<Cmd>call assert_equal(s:send_mode, mode())\<CR>", 'xt')
+call feedkeys("G ;\<Cmd>call assert_equal(s:send_mode, mode())\<CR>", 'xt')
+call assert_equal([[1, 2], [1, 2], [3, 3]], s:send_ranges)
+bwipeout!
+unlet s:send_ranges s:send_mode
+
 " Win: open a shell in the current file's directory.
 let s:win_tmpdir = tempname() . ' space'
 call mkdir(s:win_tmpdir, 'p')
