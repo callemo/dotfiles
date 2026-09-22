@@ -4,7 +4,9 @@ XTerm*allowMouseOps:      true
 XTerm*termName:           xterm-256color
 XTerm*renderFont:         true
 XTerm*faceName:           Spleen:pixelsize=24:antialias=false,DejaVu Sans Mono:pixelsize=24:antialias=false
-XTerm*limitFontsets:      1
+! Keep the fallback scan at the default (50). A low value makes xterm
+! draw boxes for glyphs that only a fallback font covers.
+XTerm*limitFontsets:      50
 XTerm*font:               spleen-12x24
 XTerm*font1:              spleen-5x8
 XTerm*font2:              spleen-6x12
