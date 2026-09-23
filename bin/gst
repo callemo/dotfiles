@@ -1,16 +1,41 @@
 #!/bin/sh
-# gst: git status against remote refs fetched in the last five minutes.
+# gst: git status against remote refs fetched in the last twenty-five minutes.
 
 mtime() {
 	stat -c %Y "$1" 2>/dev/null || stat -f %m "$1"
 }
 
+spin() {
+	exec perl -e '
+		$| = 1;
+		$s = "\\|/-";
+		for ($i = 0;; $i++) {
+			print "\b" if $i;
+			print substr($s, $i % 4, 1);
+			select undef, undef, undef, .1;
+		}
+	' >&2
+}
+
 if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
 	fh=$(git rev-parse --git-path FETCH_HEAD)
 	if [ ! -f "$fh" ] ||
-		[ "$(date +%s)" -ge "$(( $(mtime "$fh") + 300 ))" ]
+		[ "$(date +%s)" -ge "$(( $(mtime "$fh") + 1500 ))" ]
 	then
+		spid=
+		if [ -t 2 ]
+		then
+			printf 'checking ... ' >&2
+			spin &
+			spid=$!
+		fi
 		git fetch --quiet --prune 2>/dev/null
+		if [ -n "$spid" ]
+		then
+			kill "$spid"
+			wait "$spid" 2>/dev/null
+			printf '\r              \r' >&2
+		fi
 	fi
 fi
 
