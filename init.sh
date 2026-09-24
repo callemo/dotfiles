@@ -34,6 +34,12 @@ if [ -n "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}" ]; then
 	_dotfiles_host=${_dotfiles_host%%.*}
 fi
 
+# Starship switches its prompt character to # for uid 0; do the same
+_dotfiles_root=
+if [ "$(id -u)" -eq 0 ]; then
+	_dotfiles_root=1
+fi
+
 DOTFILES="${DOTFILES:-"$HOME/dotfiles"}"; export DOTFILES
 LYNX_CFG="$HOME/.lynx.cfg"; export LYNX_CFG
 LYNX_LSS="$HOME/.lynx.lss"; export LYNX_LSS
@@ -61,17 +67,22 @@ zsh)
 	bindkey '^[[1;5C' forward-word
 	setopt prompt_subst
 	if [ -n "$_dotfiles_host" ]; then
-		PROMPT='%B%F{green}${_dotfiles_host}%f%b in %1~%B%F{magenta}$(_dotfiles_gb)%f%b %B%F{blue}>%f%b '
+		PROMPT='%B%F{green}${_dotfiles_host}%f%b in %1~%B%F{magenta}$(_dotfiles_gb)%f%b %(!.%B%F{red}#%f%b.%B%F{blue}>%f%b) '
 	else
-		PROMPT='%1~%B%F{magenta}$(_dotfiles_gb)%f%b %B%F{blue}>%f%b '
+		PROMPT='%1~%B%F{magenta}$(_dotfiles_gb)%f%b %(!.%B%F{red}#%f%b.%B%F{blue}>%f%b) '
 	fi
 	;;
 bash)
 	: "${HISTFILESIZE:=$HISTSIZE}"; export HISTFILESIZE
-	if [ -n "$_dotfiles_host" ]; then
-		PS1='\[\e[1;2;32m\]${_dotfiles_host}\[\e[0m\] in \W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[\e[1;34m\]>\[\e[0m\] '
+	if [ -n "$_dotfiles_root" ]; then
+		_dotfiles_char=$(printf '\033[1;31m#\033[0m')
 	else
-		PS1='\W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[\e[1;34m\]>\[\e[0m\] '
+		_dotfiles_char=$(printf '\033[1;34m>\033[0m')
+	fi
+	if [ -n "$_dotfiles_host" ]; then
+		PS1='\[\e[1;2;32m\]${_dotfiles_host}\[\e[0m\] in \W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[${_dotfiles_char}\] '
+	else
+		PS1='\W\[\e[1;35m\]$(_dotfiles_gb)\[\e[0m\] \[${_dotfiles_char}\] '
 	fi
 	;;
 esac
