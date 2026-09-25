@@ -45,12 +45,5 @@ xidle -timeout 600 -program "$lock $opts" &
 h=$(date +%H)
 [ "$h" -ge 19 ] || [ "$h" -lt 7 ] && sct 3200 || sct 5600
 
-# compositor: prefer picom, fall back to xcompmgr
-if command -v picom >/dev/null 2>&1; then
-	picom &
-else
-	xcompmgr &
-fi
-
 xterm &
 fvwm

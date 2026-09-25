@@ -1,0 +1,3 @@
+#!/bin/sh
+# mdview - renders a Markdown document through a pager
+exec lowdown -t term $* | less -R

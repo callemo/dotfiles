@@ -1,0 +1,19 @@
+#!/bin/sh
+# FVWM needs an absolute size for Resize.
+LC_ALL=C xwininfo -id "$1" -stats -size 2>/dev/null |
+	awk -v id="$1" -v dx="$2" -v dy="$3" '
+	BEGIN { xstep = ystep = 1 }
+	$1 == "Width:" { w = $2 }
+	$1 == "Height:" { h = $2 }
+	/x resize increment:/ { xstep = $NF }
+	/y resize increment:/ { ystep = $NF }
+	END {
+		if (w < 1 || h < 1) exit 1
+		if (dx > 0 && dx < xstep) dx = xstep
+		if (dx < 0 && -dx < xstep) dx = -xstep
+		if (dy > 0 && dy < ystep) dy = ystep
+		if (dy < 0 && -dy < ystep) dy = -ystep
+		if (w + dx < 1 || h + dy < 1) exit 1
+		printf "WindowId %s Resize %dp %dp\n", id, w + dx, h + dy
+		printf "WindowId %s WarpToWindow 50 50\n", id
+	}'

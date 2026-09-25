@@ -1,0 +1,6 @@
+#!/bin/sh
+case $1 in 0x[0-9a-fA-F]*) ;; *) exit 0 ;; esac
+case $2 in -1|1) ;; *) exit 1 ;; esac
+printf 'WindowId %s MoveToDesk %s 0 0 4\n' "$1" "$2"
+printf 'Desk %s 0 0 4\n' "$2"
+printf 'WindowId %s Raise\nWindowId %s WarpToWindow 50 50\n' "$1" "$1"

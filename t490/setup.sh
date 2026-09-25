@@ -202,8 +202,6 @@ thunar() (
 dependencies() (
 	command -v xsel >/dev/null 2>&1 \
 		|| log 'xsel missing; tmux and Vim copy disabled (pkg_add xsel)'
-	command -v picom >/dev/null 2>&1 \
-		|| log 'Picom missing; xcompmgr fallback active (pkg_add picom)'
 	command -v xwallpaper >/dev/null 2>&1 \
 		|| log 'wallpaper support missing (pkg_add xwallpaper)'
 	[ -f "$root/fvwm/bg.png" ] \

@@ -60,8 +60,8 @@ Style "xconsole" WindowListSkip, CirculateSkip, Sticky
 # Mouse {{{
 #     Button Context Modifiers Function
 Mouse 1      R       A         Menu RootMenu Nop
-Mouse 2      R       A         Menu RootWinOps Nop
-Mouse 3      R       A         WindowList
+Mouse 2      R       A         WindowList
+Mouse 3      R       A         Menu RootMenu Nop
 
 Mouse 1      FS      A         RaiseAndResize
 Mouse 1      I       A         IconifyOrMove
@@ -70,7 +70,8 @@ Mouse 1      W       4         RaiseAndMove
 Mouse 2      WTSF    4         Menu WinOps Nop
 Mouse 3      W       4         Lower
 Mouse 2      I       A         Iconify
-Mouse 3      TSFI    A         RaiseLower
+Mouse 3      TSF     N         Menu WinOps Nop
+Mouse 3      I       A         RaiseLower
 
 Mouse 1      1       A         Menu WinOps Close
 Mouse 1      4       A         Iconify
@@ -82,9 +83,8 @@ Mouse 3      2       A         Maximize 0 100
 #   Name   Context Modifiers Function
 
 # Apps
-Key Return A       4         Function OpenTerminal
-Key Return A       M4        Exec exec xterm -e sh -lc 'tmux attach || tmux new -s OpenBSD'
-Key Return A       S4        Exec exec chrome
+Key Return A       S4        Function OpenTerminal
+Key B      A       S4        Exec exec chrome
 Key V      A       S4        Exec exec xterm -e ksh -lc vim
 Key F      A       S4        Exec exec thunar
 Key T      A       C4        Function Btop
@@ -92,49 +92,45 @@ Key T      A       C4        Function Btop
 # Menus / launcher
 Key space  A       4         Module FvwmForm RunCmd
 Key space  A       M4        Menu RootMenu Nop
+Key space  W       M         Menu WinOps Nop
 Key slash  A       4         WindowList
-Key K      A       4         Menu KeyBindingsMenu Nop
 Key Escape A       4         Module FvwmForm LogOut
 
 # Window management
 Key W      A       4         Close
 Key M      A       4         Iconify
-Key F      A       4         Maximize 100 100
-Key F      A       M4        Function MaximizeBelowBar
-Key Left   A       S4        Function TileLeft
-Key Right  A       S4        Function TileRight
-Key Up     A       S4        Function TileTop
-Key Down   A       S4        Function TileBottom
+Key F      A       4         Function MaximizeBelowBar
+Key F      A       C4        Function ZoomVBelowBar
+Key F      A       M4        Function ZoomFull
+Key H      A       4         Move w-10p w+0p Warp
+Key J      A       4         Move w+0p w+10p Warp
+Key K      A       4         Move w+0p w-10p Warp
+Key L      A       4         Move w+10p w+0p Warp
+Key H      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w -10 0'
+Key J      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 0 10'
+Key K      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 0 -10'
+Key L      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 10 0'
+Key Left   A       C4        Move 0 w+0 Warp
+Key Right  A       C4        Move -0 w+0 Warp
+Key Up     A       C4        Move w+0 30p Warp
+Key Down   A       C4        Move w+0 -0 Warp
 
 # Focus
 Key Tab    A       M         Next (CurrentPage !Iconic) Function SelectWindow
 Key Tab    A       SM        Prev (CurrentPage !Iconic) Function SelectWindow
 
 # Desks
-Key Left   A       4         Desk -1 0 0 9
-Key Right  A       4         Desk 1 0 0 9
-Key Tab    A       4         Function NextDesk
-Key Tab    A       S4        Function PrevDesk
+Key Left   A       4         Desk -1 0 0 4
+Key Right  A       4         Desk 1 0 0 4
+Key Left   W       S4        PipeRead '$HOME/dotfiles/t490/fvwm/shift-desk $w -1'
+Key Right  W       S4        PipeRead '$HOME/dotfiles/t490/fvwm/shift-desk $w 1'
+Key Tab    A       4         Next (CurrentPage !Iconic) Function SelectWindow
+Key Tab    A       S4        Prev (CurrentPage !Iconic) Function SelectWindow
 Key 1      A       4         Desk 0 0
 Key 2      A       4         Desk 0 1
 Key 3      A       4         Desk 0 2
 Key 4      A       4         Desk 0 3
 Key 5      A       4         Desk 0 4
-Key 6      A       4         Desk 0 5
-Key 7      A       4         Desk 0 6
-Key 8      A       4         Desk 0 7
-Key 9      A       4         Desk 0 8
-Key 0      A       4         Desk 0 9
-Key 1      A       S4        MoveToDesk 0 0
-Key 2      A       S4        MoveToDesk 0 1
-Key 3      A       S4        MoveToDesk 0 2
-Key 4      A       S4        MoveToDesk 0 3
-Key 5      A       S4        MoveToDesk 0 4
-Key 6      A       S4        MoveToDesk 0 5
-Key 7      A       S4        MoveToDesk 0 6
-Key 8      A       S4        MoveToDesk 0 7
-Key 9      A       S4        MoveToDesk 0 8
-Key 0      A       S4        MoveToDesk 0 9
 
 # System
 Key L      A       C4        Exec exec xlock -echokeys -echokey \*
@@ -145,12 +141,12 @@ Key Delete A       C4        PipeRead '$HOME/dotfiles/t490/fvwm/display toggle f
 # }}}
 # Menus {{{
 AddToMenu RootMenu "Control Menu" Title
-+ "Terminal	Win-Return"            Function OpenTerminal
-+ "Web Browser	Shift-Win-Return"  Exec exec chrome
++ "Terminal	Shift-Win-Return"      Function OpenTerminal
++ "Web Browser	Shift-Win-B"       Exec exec chrome
 + "Files	Shift-Win-F"           Exec exec thunar
 + ""                               Nop
 + "Run...	Win-Space"             Module FvwmForm RunCmd
-+ "Key bindings	Win-K"             Menu KeyBindingsMenu Nop
++ "Key bindings"                   Menu KeyBindingsMenu Nop
 + "Window list	Win-Slash"         WindowList
 + ""                               Nop
 + "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
@@ -163,14 +159,12 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Run command...	Win-Space" Module FvwmForm RunCmd
 + "Control menu	Alt-Win-Space" Menu RootMenu Nop
 + "Log out...	Win-Escape" Module FvwmForm LogOut
-+ "Key bindings	Win-K" Nop
 + "Window list	Win-Slash" WindowList
 + "Lock computer	Ctrl-Win-L" Exec exec xlock -echokeys -echokey \*
 + "" Nop
 + "Apps" Title
-+ "Terminal	Win-Return" Function OpenTerminal
-+ "Tmux	Alt-Win-Return" Exec exec xterm -e sh -lc 'tmux attach || tmux new -s OpenBSD'
-+ "Browser	Shift-Win-Return" Exec exec chrome
++ "Terminal	Shift-Win-Return" Function OpenTerminal
++ "Browser	Shift-Win-B" Exec exec chrome
 + "Vim	Shift-Win-V" Exec exec xterm -e ksh -lc vim
 + "Files	Shift-Win-F" Exec exec thunar
 + "System monitor	Ctrl-Win-T" Function Btop
@@ -178,79 +172,52 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Windows" Title
 + "Close	Win-W" Close
 + "Minimize	Win-M" Iconify
-+ "Maximize to screen	Win-F" Maximize 100 100
-+ "Fill below bar	Alt-Win-F" Function MaximizeBelowBar
-+ "Tile left half	Shift-Win-Left" Function TileLeft
-+ "Tile right half	Shift-Win-Right" Function TileRight
-+ "Tile top half	Shift-Win-Up" Function TileTop
-+ "Tile bottom half	Shift-Win-Down" Function TileBottom
++ "Zoom below bar	Win-F" Function MaximizeBelowBar
++ "Zoom vertical below bar	Ctrl-Win-F" Function ZoomVBelowBar
++ "Zoom to screen	Alt-Win-F" Function ZoomFull
++ "Move window 10 pixels	Win-H/J/K/L" Nop
++ "Resize window 10 pixels	Shift-Win-H/J/K/L" Nop
++ "Move to edge	Ctrl-Win-Arrows" Nop
 + "Raise window	Left Click" Nop
 + "Move window	Win-Left Drag" Nop
-+ "Window menu	Win-Middle Click" Nop
++ "Window menu	Alt-Space / Right Click border" Menu WinOps Nop
 + "Lower window	Win-Right Click / Win-Double-Left Click" Nop
 + "" Nop
 + "Focus" Title
-+ "Next window	Alt-Tab" Next (CurrentPage !Iconic) Function SelectWindow
-+ "Previous window	Shift-Alt-Tab" Prev (CurrentPage !Iconic) Function SelectWindow
++ "Next window	Alt-Tab / Win-Tab" Next (CurrentPage !Iconic) Function SelectWindow
++ "Previous window	Shift-Alt-Tab / Shift-Win-Tab" Prev (CurrentPage !Iconic) Function SelectWindow
 + "" Nop
 + "Workspaces" Title
-+ "Previous workspace	Win-Left" Desk -1 0 0 9
-+ "Next workspace	Win-Right" Desk 1 0 0 9
-+ "Next occupied workspace	Win-Tab" Function NextDesk
-+ "Previous occupied workspace	Shift-Win-Tab" Function PrevDesk
++ "Previous workspace	Win-Left" Desk -1 0 0 4
++ "Next workspace	Win-Right" Desk 1 0 0 4
++ "Move window and follow	Shift-Win-Left/Right" Nop
 + "Workspace 1	Win-1" Desk 0 0
 + "Workspace 2	Win-2" Desk 0 1
 + "Workspace 3	Win-3" Desk 0 2
 + "Workspace 4	Win-4" Desk 0 3
 + "Workspace 5	Win-5" Desk 0 4
-+ "Workspace 6	Win-6" Desk 0 5
-+ "Workspace 7	Win-7" Desk 0 6
-+ "Workspace 8	Win-8" Desk 0 7
-+ "Workspace 9	Win-9" Desk 0 8
-+ "Workspace 10	Win-0" Desk 0 9
-+ "Move to workspace 1	Shift-Win-1" MoveToDesk 0 0
-+ "Move to workspace 2	Shift-Win-2" MoveToDesk 0 1
-+ "Move to workspace 3	Shift-Win-3" MoveToDesk 0 2
-+ "Move to workspace 4	Shift-Win-4" MoveToDesk 0 3
-+ "Move to workspace 5	Shift-Win-5" MoveToDesk 0 4
-+ "Move to workspace 6	Shift-Win-6" MoveToDesk 0 5
-+ "Move to workspace 7	Shift-Win-7" MoveToDesk 0 6
-+ "Move to workspace 8	Shift-Win-8" MoveToDesk 0 7
-+ "Move to workspace 9	Shift-Win-9" MoveToDesk 0 8
-+ "Move to workspace 10	Shift-Win-0" MoveToDesk 0 9
 + "" Nop
 + "System / hardware" Title
 + "Nightlight	Ctrl-Win-N" Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 + "Restart fvwm	Alt-Win-Space menu" Restart fvwm
 + "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
 
-AddToMenu RootWinOps "Window Menu" Title
-+ "Move"     Move
-+ "Size"     Resize
-+ "Minimize" Iconify
-+ "Maximize" Function MaximizeBelowBar
-+ "Raise"    Raise
-+ "Lower"    Lower
-+ "Stick"    Stick
-+ ""         Nop
-+ "Close"    Close
-+ "Delete"   Delete
-+ "Destroy"  Destroy
-+ ""         Nop
-+ "Refresh"  RefreshWindow
-
-AddToMenu WinOps
-+ "Move"           Move
-+ "Size"           Resize
-+ "Minimize	Win-M" Iconify
-+ "Maximize	Win-F" Maximize 100 100
-+ "Zoom	Alt-Win-F" Function MaximizeBelowBar
-+ "Lower"          Lower
-+ "Stick"          Stick
-+ "Refresh"        RefreshWindow
-+ "Info"           Module FvwmIdent
-+ ""               Nop
-+ "Close	Win-W" Close
+AddToMenu WinOps "Window" Title
++ "Iconify"    Iconify
++ "Resize"     Resize
++ "Move"       Move
++ ""           Nop
++ "Occupy All" Stick
++ ""           Nop
++ "Raise"      Raise
++ "Lower"      Lower
++ ""           Nop
++ "Zoom"       Function ZoomFull
++ "Zoom-V"     Function ZoomVBelowBar
++ "Zoom-H"     Function ZoomH
++ ""           Nop
++ "Kill"       Destroy
++ "Close"      Delete
 # }}}
 # Functions {{{
 AddToFunc RaiseAndMove
@@ -291,10 +258,24 @@ AddToFunc Btop
     + I Wait btop
     + I Next (btop) Move 50-437p 50-300p
 
+AddToFunc ZoomFull
+    + I Maximize 100 100
+    + I WarpToWindow 50 50
+
+AddToFunc ZoomH
+    + I Maximize 100 0
+    + I WarpToWindow 50 50
+
 # Fallbacks for 1920x1080; tile recomputes these at startup (StartFunction).
 AddToFunc MaximizeBelowBar
-    + I Resize 1906p 1036p
-    + I Move 0 30p
+    + I Maximize 100 1050p
+    + I Current (Maximized) Move 0 30p
+    + I WarpToWindow 50 50
+
+AddToFunc ZoomVBelowBar
+    + I Maximize 0 1050p
+    + I Current (Maximized) Move w+0 30p
+    + I WarpToWindow 50 50
 
 AddToFunc TileLeft
     + I Resize 946p 1036p
@@ -312,29 +293,6 @@ AddToFunc TileBottom
     + I Resize 1906p 511p
     + I Move 0 555p
 
-AddToFunc NextDesk
-    + I Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk 1 0 0 9
-
-AddToFunc PrevDesk
-    + I Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
-    + I None (CurrentDesk !Iconic !Sticky) Desk -1 0 0 9
 # }}}
 # Modules {{{
 # ToolBar {{{

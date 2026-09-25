@@ -24,8 +24,21 @@ AddToFunc $1
 EOF
 }
 
+# Maximize saves the old size so the next call restores it.
+zoom() {
+	cat <<EOF
+DestroyFunc $1
+AddToFunc $1
++ I Maximize $2 ${usable}p
++ I Current (Maximized) Move $3 ${bar}p
++ I WarpToWindow 50 50
+EOF
+}
+
+zoom MaximizeBelowBar 100 0
+zoom ZoomVBelowBar 0 w+0
+
 # Resize takes client size; Move places the decorated frame
-emit MaximizeBelowBar $((w - frame)) $fullheight 0 $bar
 emit TileLeft $((halfw - frame)) $fullheight 0 $bar
 emit TileRight $((halfw - frame)) $fullheight $halfw $bar
 emit TileTop $((w - frame)) $((halfh - frame)) 0 $bar
