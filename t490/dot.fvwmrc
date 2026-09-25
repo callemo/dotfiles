@@ -12,8 +12,6 @@ DeskTopSize    1x1
 EdgeThickness 0
 EdgeResistance 300 10
 
-WindowFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
-TitleStyle Height 40
 DefaultFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
 HilightColor #282828 #b22222
 MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
@@ -24,9 +22,6 @@ MenuStyle * mwm, Hilight3DThin, SeparatorsLong, TrianglesSolid, \
 AddToFunc StartFunction
     + "I" PipeRead '$HOME/dotfiles/t490/fvwm/display sync fvwm'
     + "I" Module FvwmButtons ToolBar
-
-AddToFunc RestartFunction
-    + "I" PipeRead '$HOME/dotfiles/t490/fvwm/display sync fvwm'
 
 # Styles {{{
 Style "*" BorderWidth 7, HandleWidth 7, BackColor #4682b4, \
@@ -39,14 +34,6 @@ Style "*" BorderWidth 7, HandleWidth 7, BackColor #4682b4, \
           SmartPlacement, RandomPlacement
 
 BorderStyle Simple -- HiddenHandles !NoInset
-
-ButtonStyle Reset
-ButtonStyle All -- UseTitleStyle
-ButtonStyle 4   5  45x45@1 55x45@1 55x55@0 45x55@0 45x45@1
-ButtonStyle 2   5  25x25@1 25x75@1 75x75@0 75x25@0 25x25@1
-ButtonStyle 1 - MwmDecorMenu
-ButtonStyle 2 - MwmDecorMax
-ButtonStyle 4 - MwmDecorMin
 
 Style "Fvwm*"    NoTitle, Sticky, WindowListSkip, CirculateSkip, \
                  CirculateSkipIcon
@@ -65,18 +52,14 @@ Mouse 3      R       A         Menu RootMenu Nop
 
 Mouse 1      FS      A         RaiseAndResize
 Mouse 1      I       A         IconifyOrMove
-Mouse 1      T       A         RaiseAndMove
 Mouse 1      W       4         RaiseAndMove
 Mouse 2      WTSF    4         Menu WinOps Nop
 Mouse 3      W       4         Lower
+Mouse 3      W       M         Lower
 Mouse 2      I       A         Iconify
 Mouse 3      TSF     N         Menu WinOps Nop
 Mouse 3      I       A         RaiseLower
 
-Mouse 1      1       A         Menu WinOps Close
-Mouse 1      4       A         Iconify
-Mouse 1      2       A         Maximize
-Mouse 3      2       A         Maximize 0 100
 # }}}
 # Keyboard {{{
 # Names come from /usr/X11R6/include/X11/keysymdef.h
@@ -97,11 +80,11 @@ Key slash  A       4         WindowList
 Key Escape A       4         Module FvwmForm LogOut
 
 # Window management
-Key W      A       4         Close
+Key W      A       4         Delete
 Key M      A       4         Iconify
-Key F      A       4         Function MaximizeBelowBar
-Key F      A       C4        Function ZoomVBelowBar
-Key F      A       M4        Function ZoomFull
+Key F      A       4         PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w below'
+Key F      A       C4        PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w vertical'
+Key F      A       M4        PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w full'
 Key H      A       4         Move w-10p w+0p Warp
 Key J      A       4         Move w+0p w+10p Warp
 Key K      A       4         Move w+0p w-10p Warp
@@ -170,11 +153,11 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "System monitor	Ctrl-Win-T" Function Btop
 + "" Nop
 + "Windows" Title
-+ "Close	Win-W" Close
++ "Close	Win-W" Delete
 + "Minimize	Win-M" Iconify
-+ "Zoom below bar	Win-F" Function MaximizeBelowBar
-+ "Zoom vertical below bar	Ctrl-Win-F" Function ZoomVBelowBar
-+ "Zoom to screen	Alt-Win-F" Function ZoomFull
++ "Zoom below bar	Win-F" PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w below'
++ "Zoom vertical below bar	Ctrl-Win-F" PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w vertical'
++ "Zoom to screen	Alt-Win-F" PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w full'
 + "Move window 10 pixels	Win-H/J/K/L" Nop
 + "Resize window 10 pixels	Shift-Win-H/J/K/L" Nop
 + "Move to edge	Ctrl-Win-Arrows" Nop
@@ -212,12 +195,12 @@ AddToMenu WinOps "Window" Title
 + "Raise"      Raise
 + "Lower"      Lower
 + ""           Nop
-+ "Zoom"       Function ZoomFull
-+ "Zoom-V"     Function ZoomVBelowBar
-+ "Zoom-H"     Function ZoomH
++ "Zoom"       PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w full'
++ "Zoom-V"     PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w vertical'
++ "Zoom-H"     PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w horizontal'
 + ""           Nop
 + "Kill"       Destroy
-+ "Close"      Delete
++ "Close"      Close
 # }}}
 # Functions {{{
 AddToFunc RaiseAndMove
@@ -258,41 +241,6 @@ AddToFunc Btop
     + I Wait btop
     + I Next (btop) Move 50-437p 50-300p
 
-AddToFunc ZoomFull
-    + I Maximize 100 100
-    + I WarpToWindow 50 50
-
-AddToFunc ZoomH
-    + I Maximize 100 0
-    + I WarpToWindow 50 50
-
-# Fallbacks for 1920x1080; tile recomputes these at startup (StartFunction).
-AddToFunc MaximizeBelowBar
-    + I Maximize 100 1050p
-    + I Current (Maximized) Move 0 30p
-    + I WarpToWindow 50 50
-
-AddToFunc ZoomVBelowBar
-    + I Maximize 0 1050p
-    + I Current (Maximized) Move w+0 30p
-    + I WarpToWindow 50 50
-
-AddToFunc TileLeft
-    + I Resize 946p 1036p
-    + I Move 0 30p
-
-AddToFunc TileRight
-    + I Resize 946p 1036p
-    + I Move 960p 30p
-
-AddToFunc TileTop
-    + I Resize 1906p 511p
-    + I Move 0 30p
-
-AddToFunc TileBottom
-    + I Resize 1906p 511p
-    + I Move 0 555p
-
 # }}}
 # Modules {{{
 # ToolBar {{{
@@ -313,9 +261,6 @@ PipeRead '$HOME/dotfiles/t490/fvwm/bar 30'
 *FvwmPagerLabel 3 "4"
 *FvwmPagerLabel 4 "5"
 Style "FvwmPager"   NoHandles, BorderWidth 0
-# }}}
-# Ident {{{
-*FvwmIdentFont -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
 # }}}
 # Form {{{
 # LogOut {{{

@@ -1,0 +1,63 @@
+#!/bin/sh
+id=$1
+mode=$2
+atom=_DOTFILES_FVWM_ZOOM
+case $id in 0x[0-9a-fA-F]*) ;; *) exit 0 ;; esac
+case $mode in full|below|vertical|horizontal) ;; *) exit 1 ;; esac
+
+old=$(xprop -id "$id" -notype "$atom" 2>/dev/null) || old=
+old=${old#*\"}
+old=${old%%\"*}
+set -- $old
+if [ "$#" -eq 5 ]; then
+	old=$1 w=$2 h=$3 x=$4 y=$5
+else
+	old=
+fi
+
+if [ -z "$old" ]; then
+	set -- $(LC_ALL=C xwininfo -id "$id" -stats 2>/dev/null | awk '
+		$1 == "Width:" { w = $2 }
+		$1 == "Height:" { h = $2 }
+		$1 == "Absolute" && $3 == "X:" { x = $4 }
+		$1 == "Absolute" && $3 == "Y:" { y = $4 }
+		END { if (w > 0 && h > 0 && x != "" && y != "") print w, h, x, y }
+	')
+	[ "$#" -eq 4 ] || exit 1
+	w=$1 h=$2
+	# Move takes frame coordinates; FVWM gives ordinary windows a 7-pixel border.
+	x=$(($3 - 7)) y=$(($4 - 7))
+fi
+
+if [ "$old" = "$mode" ]; then
+	xprop -id "$id" -remove "$atom" >/dev/null 2>&1 || exit 1
+else
+	case $mode in
+	full) size='100 100' ;;
+	horizontal) size='100 0' ;;
+	below|vertical)
+		dims=$(xdpyinfo | awk '/dimensions:/{print $2; exit}')
+		ht=${dims#*x}
+		bar=$(LC_ALL=C xwininfo -name ToolBar -stats 2>/dev/null |
+			awk '$1 == "Height:" { print $2; exit }')
+		case $ht:$bar in *[!0-9:]*) exit 1 ;; esac
+		[ -n "$ht" ] && [ -n "$bar" ] && [ "$ht" -gt "$bar" ] || exit 1
+		ht=$((ht - bar))
+		[ "$mode" = below ] && size="100 ${ht}p" || size="0 ${ht}p"
+		;;
+	esac
+	xprop -id "$id" -f "$atom" 8s -set "$atom" "$mode $w $h $x $y" >/dev/null 2>&1 || exit 1
+fi
+
+if [ -n "$old" ]; then
+	printf 'WindowId %s Resize %sp %sp\nWindowId %s Move %sp %sp\n' \
+		"$id" "$w" "$h" "$id" "$x" "$y"
+fi
+if [ "$old" != "$mode" ]; then
+	printf 'WindowId %s Maximize %s\n' "$id" "$size"
+	case $mode in
+	below) printf 'WindowId %s Move 0 %sp\n' "$id" "$bar" ;;
+	vertical) printf 'WindowId %s Move w+0 %sp\n' "$id" "$bar" ;;
+	esac
+fi
+printf 'WindowId %s WarpToWindow 50 50\n' "$id"

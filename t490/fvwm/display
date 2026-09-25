@@ -134,21 +134,6 @@ mouse() {
 		done
 }
 
-reload() {
-	[ "$emit" = fvwm ] && {
-		fvwm "PipeRead '$fvwmroot/tile 30'"
-		return
-	}
-	command -v FvwmCommand >/dev/null 2>&1 || {
-		log 'reload skipped: no FvwmCommand'
-		return
-	}
-	FvwmCommand "PipeRead '$fvwmroot/tile 30'" >/dev/null 2>&1
-	rc=$?
-	[ $rc -eq 0 ] && { log 'reload fvwm tile'; return; }
-	log "reload failed($rc): FvwmCommand"
-}
-
 # external output wants a mode its current display lacks
 stale() {
 	[ -n "$active" ] && [ -n "$mode" ] && [ "$curmode" != "$mode" ]
@@ -159,14 +144,12 @@ setext() {
 	scale 138 30
 	wallpaper
 	mouse
-	reload
 }
 
 setint() {
 	scale 144 32
 	wallpaper
 	mouse
-	reload
 }
 
 useext() {

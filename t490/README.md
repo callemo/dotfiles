@@ -63,5 +63,5 @@ through xsel. Other hosts keep OSC 52.
 The script reports missing optional programs instead of changing packages.
 
 Expected commands include `feh`, `gsettings`, `lowdown`, `mousepad`,
-`mupdf-gl`, `picom`, `thunar`, `update-desktop-database`, `xdg-mime`,
+`mupdf-gl`, `thunar`, `update-desktop-database`, `xdg-mime`,
 `xfconf-query`, `xsel`, and `xwallpaper`.
