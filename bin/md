@@ -8,6 +8,9 @@ die() { log "$@"; exit 1; }
 if command -v multimarkdown >/dev/null
 then
 	md=multimarkdown
+elif command -v lowdown >/dev/null
+then
+	md=lowdown
 elif command -v pandoc >/dev/null
 then
 	md=pandoc
