@@ -72,6 +72,10 @@ I use these tools every day:
 
 I keep the other tools small enough to read before use.
 
+## Tmux
+
+See [tmux.md](tmux.md) for a short guide to panes, windows, and keys.
+
 ## Vim and Acme
 
 Vim is the main editor here. I aim to keep its configuration readable.
