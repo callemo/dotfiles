@@ -52,7 +52,7 @@ DIRECTORIES      A directory buffer lists one entry per line.
                  R                Reloads the directory
                  <leader>r        Renames the entry
                  <leader>d        Deletes the entry
-                 <C-j>            Moves to the next window or tmux pane
+                 <C-j>            Moves down to the next window
 
 COMMANDS         :Cmd [-range] [cmd]
                       Run cmd asynchronously with /bin/sh -c.
@@ -94,8 +94,10 @@ COMMANDS         :Cmd [-range] [cmd]
                       Send lines to a tmux pane.
                       Remember tmux-target for each window.
 
-                 :Win
+                 :Win [cmd]
                       Open a shell in the current buffer's directory.
+                      With cmd, run it in the shell.
+                      Pathless buffers use the current directory.
 
 KEYS             The leader key is space.
                  Moving to tmux needs $TMUX and a Vim window edge.
@@ -120,8 +122,8 @@ KEYS             The leader key is space.
                  <leader>Y        Yanks the absolute path through OSC 52
                  <leader>z        Zooms the window
                  -                Opens the current directory
-                 <C-j>            Moves to the next Vim window; enters tmux at the last
-                 <C-k>            Moves to the previous Vim window; enters tmux at the first
+                 <C-j>            Moves down to the next window; enters tmux at the bottom
+                 <C-k>            Moves up to the previous window; enters tmux at the top
                  <C-l>            Clears the search and redraws
                  <C-p>            Runs :FZF
                  +                Increases the window height
@@ -139,8 +141,8 @@ KEYS             The leader key is space.
                  <leader>gt       GoTestFile -v
 
                  Terminal Key     Action
-                 <C-j>            Moves to the next Vim window; enters tmux at the last
-                 <C-k>            Moves to the previous Vim window; enters tmux at the first
+                 <C-j>            Moves down to the next window; enters tmux at the bottom
+                 <C-k>            Moves up to the previous window; enters tmux at the top
 
                  Bracket          Action
                  ]a [a            Next/previous argument
@@ -167,7 +169,7 @@ FILES            getcwd()/vim.dump
                       The scratch buffer for command output
 
 ENVIRONMENT      Vimrc needs Vim 9.1+.
-                 $TMUX lets <C-j> and <C-k> move past Vim window edges.
+                 $TMUX lets <C-j> and <C-k> move past the bottom and top Vim edges.
                  OSC 52 writes yanked paths to /dev/tty.
                  Yanking paths through OSC 52 needs terminal support.
                  It also needs one of base64, openssl, or python3.

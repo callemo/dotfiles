@@ -86,8 +86,55 @@ let s:win_bnr = bufnr('%')
 call assert_true(s:WaitFor({-> term_getstatus(s:win_bnr) =~# 'finished'}))
 call assert_true(index(map(getbufline(s:win_bnr, 1, '$'), {_, line -> trim(line)}), resolve(s:win_tmpdir)) >= 0)
 bwipeout!
+
+" Win: a pathless buffer uses the current directory.
+enew
+execute 'lcd' fnameescape(s:win_tmpdir)
+let &shell = '/bin/pwd'
+Win
+let &shell = s:old_shell
+call assert_equal('terminal', &buftype)
+let s:win_bnr = bufnr('%')
+call assert_true(s:WaitFor({-> term_getstatus(s:win_bnr) =~# 'finished'}))
+call assert_true(index(map(getbufline(s:win_bnr, 1, '$'), {_, line -> trim(line)}), resolve(s:win_tmpdir)) >= 0)
+bwipeout!
+
+" Win: arguments run in the shell.
+let s:win_out = s:win_tmpdir . '/args.txt'
+let &shell = '/bin/sh'
+call view#Win('echo hi > ' . shellescape(s:win_out))
+let &shell = s:old_shell
+let s:win_bnr = bufnr('%')
+call assert_true(s:WaitFor({-> term_getstatus(s:win_bnr) =~# 'finished'}))
+call assert_equal(['hi'], readfile(s:win_out))
+bwipeout!
+execute 'lcd' fnameescape(s:root)
 execute 'bwipeout!' s:win_source
 call delete(s:win_tmpdir, 'rf')
+
+" Next/Prev: move down and up. Tmux takes over at the bottom and top edge.
+let s:tmux_save = $TMUX
+let $TMUX = 'test'
+enew
+new
+execute '1wincmd w'
+call view#Next()
+call assert_equal(2, winnr())
+call view#Next()
+call assert_equal(2, winnr())
+call view#Prev()
+call assert_equal(1, winnr())
+call view#Prev()
+call assert_equal(1, winnr())
+only
+call assert_equal(1, winnr('$'))
+call view#Next()
+call assert_equal(1, winnr())
+if empty(s:tmux_save)
+	unlet $TMUX
+else
+	let $TMUX = s:tmux_save
+endif
 
 " All public functions are def (compiled)
 call assert_match('def ', execute('function exec#Cmd'))

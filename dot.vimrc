@@ -147,7 +147,7 @@ command! -nargs=? Lint call exec.Lint(<f-args>)
 command! -nargs=? -range=% Fmt call exec.Fmt(<line1>, <line2>, <f-args>)
 command! -nargs=* Fts call exec.Fts(<q-args>)
 command! -nargs=? Toc call view.Toc(<f-args>)
-command! Win call view.Win()
+command! -nargs=* -complete=shellcmd Win call view.Win(<q-args>)
 
 command!          Sort call view.Sort()
 command! -nargs=1 B    call view.Bufmatch(<q-args>)

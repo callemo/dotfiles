@@ -32,20 +32,21 @@ export def Close(bang: string)
 	endif
 enddef
 
-# Next/Prev: cycle focus across vim windows and tmux panes.
+# Next/Prev: move down/up to the next vim window. At the bottom or top
+# edge, hand the move to the next or previous tmux pane.
 export def Next()
-	if !empty($TMUX) && winnr() == winnr('$')
+	var from = winnr()
+	wincmd j
+	if winnr() == from && !empty($TMUX)
 		system("tmux selectp -t :.+")
-	else
-		wincmd w
 	endif
 enddef
 
 export def Prev()
-	if !empty($TMUX) && winnr() == 1
+	var from = winnr()
+	wincmd k
+	if winnr() == from && !empty($TMUX)
 		system("tmux selectp -t :.-")
-	else
-		wincmd W
 	endif
 enddef
 
@@ -337,9 +338,14 @@ export def Click()
 	feedkeys("\<LeftMouse>", 'n')
 enddef
 
-# Win opens a shell in the current buffer's directory.
-export def Win()
-	term_start(&shell, {'cwd': expand('%:p:h')})
+# Win opens a shell in the current buffer's directory, or runs cmd in it.
+# Pathless buffers use the current directory.
+export def Win(cmd: string = '')
+	var dir = expand('%:p:h')
+	if !isdirectory(dir)
+		dir = getcwd()
+	endif
+	term_start(empty(cmd) ? &shell : [&shell, &shellcmdflag, cmd], {'cwd': dir})
 enddef
 
 # TermStatus returns a terminal status line matching the normal layout.

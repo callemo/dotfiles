@@ -1,6 +1,11 @@
 #!/bin/sh
 set -eu
 
+# Pane navigation from view.Next() and view.Prev().
+if [ "$#" -gt 0 ] && [ "$1" = "selectp" ]; then
+	exit 0
+fi
+
 if [ "$#" -lt 6 ]; then
 	echo "bad args" >&2
 	exit 64
