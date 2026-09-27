@@ -93,10 +93,10 @@ Key H      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w -10 0'
 Key J      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 0 10'
 Key K      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 0 -10'
 Key L      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 10 0'
-Key Left   A       C4        Move 0 w+0 Warp
-Key Right  A       C4        Move -0 w+0 Warp
-Key Up     A       C4        Move w+0 30p Warp
-Key Down   A       C4        Move w+0 -0 Warp
+Key H      A       C4        Move 0 w+0 Warp
+Key J      A       C4        Move w+0 -0 Warp
+Key K      A       C4        Move w+0 30p Warp
+Key L      A       C4        Move -0 w+0 Warp
 
 # Focus
 Key Tab    A       M         Next (CurrentPage !Iconic) Function SelectWindow
@@ -116,7 +116,7 @@ Key 4      A       4         Desk 0 3
 Key 5      A       4         Desk 0 4
 
 # System
-Key L      A       C4        Exec exec xlock -echokeys -echokey \*
+Key Q      A       C4        Exec exec xlock -echokeys -echokey \*
 Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
 
 Key Delete A       C4        PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
@@ -133,7 +133,7 @@ AddToMenu RootMenu "Control Menu" Title
 + "Window list	Win-Slash"         WindowList
 + ""                               Nop
 + "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
-+ "Lock display	Ctrl-Win-L"      Exec exec xlock -echokeys -echokey \*
++ "Lock display	Ctrl-Win-Q"      Exec exec xlock -echokeys -echokey \*
 + "Log out...	Win-Escape"        Module FvwmForm LogOut
 + "Restart fvwm"                   Restart fvwm
 
@@ -143,7 +143,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Control menu	Alt-Win-Space" Menu RootMenu Nop
 + "Log out...	Win-Escape" Module FvwmForm LogOut
 + "Window list	Win-Slash" WindowList
-+ "Lock computer	Ctrl-Win-L" Exec exec xlock -echokeys -echokey \*
++ "Lock computer	Ctrl-Win-Q" Exec exec xlock -echokeys -echokey \*
 + "" Nop
 + "Apps" Title
 + "Terminal	Shift-Win-Return" Function OpenTerminal
@@ -160,7 +160,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Zoom to screen	Alt-Win-F" PipeRead '$HOME/dotfiles/t490/fvwm/zoom $w full'
 + "Move window 10 pixels	Win-H/J/K/L" Nop
 + "Resize window 10 pixels	Shift-Win-H/J/K/L" Nop
-+ "Move to edge	Ctrl-Win-Arrows" Nop
++ "Move to edge	Ctrl-Win-H/J/K/L" Nop
 + "Raise window	Left Click" Nop
 + "Move window	Win-Left Drag" Nop
 + "Window menu	Alt-Space / Right Click border" Menu WinOps Nop
