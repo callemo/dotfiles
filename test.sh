@@ -224,12 +224,16 @@ NROOT="$nd" ./bin/n tag writing safari
 NROOT="$nd" ./bin/n tag nonexistent
 
 echo '--- n look'
-ld="$td/look"
-cp -R "$DOTFILES/testdata/n/xref" "$ld"
-NROOT="$ld" ./bin/n look alpha | sed "s|$ld/||"
-NROOT="$ld" ./bin/n look 202603111200 | sed "s|$ld/||"
-NROOT="$ld" ./bin/n look nonexistent | sed "s|$ld/||"
-NROOT="$ld" ./bin/n look v1.2-release | sed "s|$ld/||"
+a="$DOTFILES/testdata/n/xref"
+b="$DOTFILES/testdata/n/look"
+NROOT="$a" ./bin/n look alpha | sed "s|$a/||"
+NROOT="$a" ./bin/n look 202603111200 | sed "s|$a/||"
+NROOT="$a" ./bin/n look nonexistent | sed "s|$a/||"
+NROOT="$a" ./bin/n look v1.2-release | sed "s|$a/||"
+NROOT="$a:$b" ./bin/n look alpha | sed "s|$DOTFILES/||"
+NROOT="$td/missing:$b" ./bin/n look kilo | sed "s|$DOTFILES/||"
+NROOT=":$b" ./bin/n look kilo | sed "s|$DOTFILES/||"
+NROOT="$a:$b" ./bin/n xref 2>&1; echo $?
 
 echo '--- snake'
 echo 'fooBar' | snake

@@ -12,6 +12,10 @@
 #	tag [tag ...]	list tags or notes matching all tags
 #	xref	update cross references
 #
+# Environment:
+#	NROOT	colon-separated note roots; the first match wins
+#		(default $HOME/notes:$HOME/code/docs)
+#
 
 case $0 in
 /*) self=$0 ;;
@@ -38,16 +42,23 @@ main() {
 
 	cmd=$1; shift
 
-	cd "${NROOT:=$HOME/notes}"
+	: "${NROOT:=$HOME/notes:$HOME/code/docs}"
 
 	case $cmd in
 	look) nlook "$@" ;;
 	meta) snip nmeta "$@" ;;
 	new) snip nfile "$@" ;;
 	tag) ntag "$@" ;;
-	xref) exec "${self%/*}/xref" "$PWD" ;;
+	xref) nxref ;;
 	*) die "unknown command: $cmd" ;;
 	esac
+}
+
+nxref() {
+	case $NROOT in
+	*:*) die 'xref: one root only; use NROOT=dir n xref' ;;
+	esac
+	exec "${self%/*}/xref" "$NROOT"
 }
 
 nlook() {
@@ -113,8 +124,12 @@ ntag() {
 	}' "$@"
 }
 
-nfiles() {
-	find -L "$PWD" -type f | grep -E '\.(txt|md)$' | sort
-}
+nfiles() (
+	IFS=:; set -f
+	for r in $NROOT; do
+		[ -d "$r" ] || continue
+		find -L "$r" -type f | grep -E '\.(txt|md)$' | sort
+	done
+)
 
 main "$@"

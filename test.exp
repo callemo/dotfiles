@@ -142,6 +142,9 @@ meta	generates a note meta template
 new	generates a new note filename
 tag [tag ...]	list tags or notes matching all tags
 xref	update cross references
+Environment:
+NROOT	colon-separated note roots; the first match wins
+	(default $HOME/notes:$HOME/code/docs)
 n: unknown command: garbage
 1
 n: a tool for managing notes
@@ -154,6 +157,9 @@ meta	generates a note meta template
 new	generates a new note filename
 tag [tag ...]	list tags or notes matching all tags
 xref	update cross references
+Environment:
+NROOT	colon-separated note roots; the first match wins
+	(default $HOME/notes:$HOME/code/docs)
 3	business
 3	safari
 2	travel
@@ -168,6 +174,11 @@ TESTDIR/notes/bravo.txt
 alpha.md
 202603111200-target-note.md
 v1.2-release.md
+testdata/n/xref/alpha.md
+testdata/n/look/kilo.md
+testdata/n/look/kilo.md
+n: xref: one root only; use NROOT=dir n xref
+1
 --- snake
 foo_bar
 foo_bar_baz

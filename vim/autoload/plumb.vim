@@ -34,7 +34,6 @@ def Wiki(name: string)
 		g:Err('wikilink: not found:' .. name)
 		return
 	endif
-	echom 'wikilink:' f
 	File(f, '')
 enddef
 
