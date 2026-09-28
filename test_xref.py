@@ -1,4 +1,4 @@
-"""Tests for bin/xref.py"""
+"""Tests for bin/xref"""
 
 import os
 import shutil
@@ -58,14 +58,41 @@ class TestRevlinks(unittest.TestCase):
         self.assertIn("bravo.md", bases)
         self.assertIn("delta.md", bases)
 
-    def test_prefix_merge(self):
+    def testkeysindependent(self):
         got = xref.revlinks(TESTDATA)
-        # 202603111200 is a prefix of 202603111200-target-note; should merge
-        self.assertNotIn("202603111200", got)
-        full = got.get("202603111200-target-note", [])
-        bases = [os.path.basename(f) for f in full]
-        self.assertIn("202603111158-short-source.txt", bases)
-        self.assertIn("202603111201-source-note.md", bases)
+        self.assertEqual(
+            [os.path.basename(f) for f in got["202603111200"]],
+            ["202603111158-short-source.txt"],
+        )
+        self.assertEqual(
+            [os.path.basename(f) for f in got["202603111200-target-note"]],
+            ["202603111201-source-note.md"],
+        )
+
+
+class TestRewrite(unittest.TestCase):
+    def testoutsidefrontmatter(self):
+        cases = (
+            '',
+            'References: literal body text\n',
+            'Ordinary body.\n\n---\nReferences: literal body text\n',
+            'Ordinary body.\n\n---\nReferences: literal body text\n---\n',
+            '---\nTitle: Note\n---\nReferences: literal body text\n',
+            '---\nTitle: Note\n---\n\n---\nReferences: literal body text\n',
+            '---\nReferences: old\n',
+            '---\nReferences: old',
+        )
+        for text in cases:
+            for refs in ('', '[[source]]'):
+                with self.subTest(text=text, refs=refs):
+                    self.assertEqual(xref.rewrite(text, refs), text)
+
+    def testonlyfrontmatter(self):
+        text = ('---\nReferences: old\n---\n'
+                '\n---\nReferences: literal body text\n---\n')
+        want = ('---\nReferences: [[source]]\n---\n'
+                '\n---\nReferences: literal body text\n---\n')
+        self.assertEqual(xref.rewrite(text, '[[source]]'), want)
 
 
 class TestXref(unittest.TestCase):
@@ -163,6 +190,122 @@ class TestXref(unittest.TestCase):
                 # first 4 lines
                 got = "\n".join(f.read().splitlines()[:4])
             self.assertEqual(got, want, f"mismatch in {name}")
+
+
+class TestRegressions(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = tmp.name
+
+    def note(self, name, body):
+        path = os.path.join(self.root, name)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(f'---\nReferences:\n---\n{body}')
+        return path
+
+    def testshortkey(self):
+        apricot = self.note('123-apricot.md', 'Apricot.\n')
+        apple = self.note('123-apple.md', 'Apple.\n')
+        self.note('a.md', '[[123]]\n')
+        self.note('b.md', '[[123-apricot]]\n')
+
+        self.assertEqual(xref.run(self.root), [])
+        with open(apple, encoding='utf-8') as f:
+            self.assertEqual(f.read(), '---\nReferences: [[a]]\n---\nApple.\n')
+        with open(apricot, encoding='utf-8') as f:
+            self.assertEqual(f.read(), '---\nReferences: [[b]]\n---\nApricot.\n')
+
+    def testcasealiases(self):
+        target = self.note('target.md', 'Target.\n')
+        self.note('a.md', '[[target]] [[Z/R/n/target]]\n')
+        self.note('b.md', '[[TARGET]] [[Z/R/TARGET]]\n')
+
+        self.assertEqual(xref.run(self.root), [])
+        want = '---\nReferences: [[a]] [[b]]\n---\nTarget.\n'
+        with open(target, encoding='utf-8') as f:
+            self.assertEqual(f.read(), want)
+        self.assertEqual(xref.run(self.root), [])
+        with open(target, encoding='utf-8') as f:
+            self.assertEqual(f.read(), want)
+
+    def testlastlink(self):
+        for ext in ('md', 'txt'):
+            with self.subTest(ext=ext):
+                key = f'target-{ext}'
+                target = self.note(f'{key}.{ext}', 'Target.\n')
+                source = self.note('source.md', f'[[{key}]]\n')
+                self.assertEqual(xref.run(self.root), [])
+                with open(target, encoding='utf-8') as f:
+                    self.assertEqual(f.read(),
+                                     '---\nReferences: [[source]]\n---\nTarget.\n')
+
+                with open(source, 'w', encoding='utf-8') as f:
+                    f.write('No links remain.\n')
+                self.assertEqual(xref.run(self.root), [])
+                with open(target, encoding='utf-8') as f:
+                    self.assertEqual(f.read(), '---\nReferences:\n---\nTarget.\n')
+                with open(source, encoding='utf-8') as f:
+                    self.assertEqual(f.read(), 'No links remain.\n')
+                os.unlink(target)
+
+    def testunrelatedfiles(self):
+        cases = {
+            'crlf.md': b'---\r\nReferences:\r\n---\r\nBody.\r\n',
+            'invalid.txt': b'---\nReferences:\n---\nBody: \xff\xfe\n',
+            'body.md': b'Ordinary body.\n\n---\nReferences: literal body text\n',
+        }
+        stamp = 1600000000000000000
+        for name, text in cases.items():
+            path = os.path.join(self.root, name)
+            with open(path, 'wb') as f:
+                f.write(text)
+            os.utime(path, ns=(stamp, stamp))
+
+        self.assertEqual(xref.run(self.root), [])
+        for name, text in cases.items():
+            with self.subTest(name=name):
+                path = os.path.join(self.root, name)
+                with open(path, 'rb') as f:
+                    self.assertEqual(f.read(), text)
+                self.assertEqual(os.stat(path).st_mtime_ns, stamp)
+
+    def testpreservebytes(self):
+        target = os.path.join(self.root, 'target.md')
+        head = b'---\r\nTitle: \xff\r\n'
+        body = b'---\nBody: \xfe\r\n\n---\r\nReferences: literal body text\nEnd.'
+        for eol in (b'\n', b'\r\n', b'\r'):
+            with self.subTest(eol=eol):
+                source = self.note('source.md', '[[target]]\n')
+                with open(target, 'wb') as f:
+                    f.write(head + b'References: old' + eol + body)
+                self.assertEqual(xref.run(self.root), [])
+                want = head + b'References: [[source]]' + eol + body
+                with open(target, 'rb') as f:
+                    self.assertEqual(f.read(), want)
+
+                with open(source, 'w', encoding='utf-8') as f:
+                    f.write('No links remain.\n')
+                self.assertEqual(xref.run(self.root), [])
+                want = head + b'References:' + eol + body
+                with open(target, 'rb') as f:
+                    self.assertEqual(f.read(), want)
+
+    def testsecondrun(self):
+        target = self.note('target.md', 'Target.\n')
+        source = self.note('source.md', '[[target]]\n')
+        self.assertEqual(xref.run(self.root), [])
+        with open(target, 'rb') as f:
+            want = f.read()
+        stamp = 1600000000000000000
+        for path in (source, target):
+            os.utime(path, ns=(stamp, stamp))
+
+        self.assertEqual(xref.run(self.root), [])
+        with open(target, 'rb') as f:
+            self.assertEqual(f.read(), want)
+        for path in (source, target):
+            self.assertEqual(os.stat(path).st_mtime_ns, stamp)
 
 
 if __name__ == "__main__":
