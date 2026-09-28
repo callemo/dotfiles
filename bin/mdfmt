@@ -1,3 +1,4 @@
 #!/bin/sh
 
-exec prettier --parser=markdown --print-width 72 --prose-wrap always "$@"
+exec prettier --parser=markdown --print-width 72 --prose-wrap always \
+	--embedded-language-formatting=off "$@"
