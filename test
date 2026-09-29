@@ -21,7 +21,7 @@ testvimrc() {
 		echo "Skipping Vim tests: vim not found"
 		return 0
 	fi
-	if ! output=$(vim -Nu NONE -n -es -S "$DOTFILES/test.vim" 2>&1); then
+	if ! output=$(vim -Nu NONE -n -es -S "$DOTFILES/tests/vim.vim" 2>&1); then
 		echo "Vim tests failed" >&2
 		echo "$output" >&2
 		exit 1
@@ -29,7 +29,7 @@ testvimrc() {
 }
 
 testsnip() {
-	if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest test_snip.py test_gd.py test_xref.py 2>&1); then
+	if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest 2>&1); then
 		echo "Unit tests failed" >&2
 		echo "$output" >&2
 		exit 1
@@ -37,7 +37,7 @@ testsnip() {
 }
 
 testx() {
-	if ! output=$("$DOTFILES/test_install.sh" 2>&1); then
+	if ! output=$("$DOTFILES/tests/install.sh" 2>&1); then
 		echo "Install tests failed" >&2
 		echo "$output" >&2
 		exit 1
@@ -51,5 +51,5 @@ out=$(mktemp)
 trap 'rm -f "$out" fts.db' EXIT
 env - PATH="$DOTFILES/bin:$PATH" \
 	HOME="$HOME" DOTFILES="$DOTFILES" \
-	sh test.sh 2>&1 | normalize >"$out"
-diff -u test.exp "$out"
+	sh "$DOTFILES/tests/shell.sh" 2>&1 | normalize >"$out"
+diff -u "$DOTFILES/tests/shell.exp" "$out"

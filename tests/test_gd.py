@@ -12,7 +12,7 @@ import tempfile
 import unittest
 
 
-script = str(Path(__file__).resolve().parent / "bin" / "gd")
+script = str(Path(__file__).resolve().parents[1] / "bin" / "gd")
 
 
 class TestGd(unittest.TestCase):

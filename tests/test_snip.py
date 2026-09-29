@@ -25,10 +25,10 @@ def loadscript(path):
     return module
 
 
-root = os.path.dirname(os.path.abspath(__file__))
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 script = os.path.join(root, "bin", "snip")
 snip = loadscript(script)
-snippets = snip.load(os.path.join(root, "bin", "snip.d"))
+snippets = snip.load(os.path.join(root, "snip"))
 goenv = dict(os.environ, GOTOOLCHAIN="local", GOWORK="off", GOPROXY="off")
 
 
@@ -177,9 +177,9 @@ class TestLoading(Files):
             snip.load(self.root)
 
     def test_import_does_not_load_snippets(self):
-        path = shutil.copyfile(script, os.path.join(self.root, "snip"))
-        os.mkdir(os.path.join(self.root, "snip.d"))
-        self.put("snip.d/broken.py", "def broken(\n")
+        os.mkdir(os.path.join(self.root, "bin"))
+        path = shutil.copyfile(script, os.path.join(self.root, "bin", "snip"))
+        self.put("snip/broken.py", "def broken(\n")
         module = loadscript(path)
         self.assertTrue(callable(module.main))
 

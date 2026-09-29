@@ -1,8 +1,8 @@
 set nocompatible
 set nomore
 
-let s:root = fnamemodify(expand('<sfile>:p'), ':h')
-let $PATH = s:root . '/testdata:' . $PATH
+let s:root = fnamemodify(expand('<sfile>:p'), ':h:h')
+let $PATH = s:root . '/tests/data:' . $PATH
 let g:dotfiles_skip_local = 1
 execute 'source' fnameescape(s:root . '/dot.vimrc')
 set noconfirm noautowrite noautowriteall

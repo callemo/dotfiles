@@ -41,7 +41,7 @@ Log in again after you install the fonts.
 - `vim/`: Vim runtime files and plugin installer
 - `lib/`: plumbing rules and support files
 - `t490/`: unprivileged T490 desktop files and host overrides
-- `testdata/`: fixtures
+- `tests/`: tests and fixtures
 
 `init.sh` puts the usual local paths first and sets a few shell defaults.
 The T490 XTerm, FVWM, and GTK configuration uses a Gruvbox Material palette.

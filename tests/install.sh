@@ -3,7 +3,7 @@ set -eu
 
 : "${DOTFILES:=$(pwd)}"
 
-td=$(mktemp -d "${TMPDIR:-/tmp}/test_install.XXXXXX")
+td=$(mktemp -d "${TMPDIR:-/tmp}/install_test.XXXXXX")
 trap 'rm -rf "$td"' EXIT HUP INT TERM
 repo=$td/current
 future=$td/future
@@ -89,7 +89,7 @@ EOF
 chmod +x "$mock"/*
 
 die() {
-	printf '%s\n' "test_install: $*" >&2
+	printf '%s\n' "install: $*" >&2
 	exit 1
 }
 

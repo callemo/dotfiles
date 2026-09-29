@@ -23,12 +23,14 @@ def main(argv=None):
     parser.add_argument("snippet", nargs="?", help="name of the snippet to expand")
     parser.add_argument("args", nargs="*", help="arguments to pass to the snippet")
 
-    args = parser.parse_args(argv)
+    args = parser.parse_intermixed_args(argv)
     if args.help and not args.snippet:
         parser.print_help()
         return 0
 
-    root = os.path.join(os.path.dirname(os.path.realpath(__file__)), "snip.d")
+    root = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "snip"
+    )
     snippets = load(root)
 
     if not args.snippet or (args.list and not args.help):

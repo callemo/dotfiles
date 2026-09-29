@@ -7,14 +7,15 @@ import unittest
 
 import importlib.util
 import importlib.machinery
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _loader = importlib.machinery.SourceFileLoader(
-    "xref", os.path.join(os.path.dirname(__file__) or ".", "bin", "xref")
+    "xref", os.path.join(root, "bin", "xref")
 )
 _spec = importlib.util.spec_from_loader("xref", _loader)
 xref = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(xref)
 
-TESTDATA = os.path.join(os.path.dirname(__file__), "testdata", "n", "xref")
+TESTDATA = os.path.join(root, "tests", "data", "n", "xref")
 
 
 class TestFiles(unittest.TestCase):

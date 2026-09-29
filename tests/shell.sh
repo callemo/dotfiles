@@ -1,6 +1,4 @@
 #!/bin/sh
-# test.sh: test cases for dotfiles programs
-
 : "${DOTFILES:=$HOME/dotfiles}"
 
 case $PATH in
@@ -211,7 +209,7 @@ printf 'data\0binary' | cmp -s - "$td/binary.bin" && echo "binary unchanged"
 
 echo '--- n'
 nd="$td/notes"
-cp -R "$DOTFILES/testdata/n/tag" "$nd"
+cp -R "$DOTFILES/tests/data/n/tag" "$nd"
 
 NROOT="$nd" ./bin/n -h
 NROOT="$nd" ./bin/n garbage 2>&1; echo $?
@@ -224,8 +222,8 @@ NROOT="$nd" ./bin/n tag writing safari
 NROOT="$nd" ./bin/n tag nonexistent
 
 echo '--- n look'
-a="$DOTFILES/testdata/n/xref"
-b="$DOTFILES/testdata/n/look"
+a="$DOTFILES/tests/data/n/xref"
+b="$DOTFILES/tests/data/n/look"
 NROOT="$a" ./bin/n look alpha | sed "s|$a/||"
 NROOT="$a" ./bin/n look 202603111200 | sed "s|$a/||"
 NROOT="$a" ./bin/n look nonexistent | sed "s|$a/||"
@@ -284,18 +282,18 @@ printf '#pp:ifndef FOO\nno\n#pp:endif\n' | ./bin/pp -DFOO
 # nested ifdef/ifndef
 printf '#pp:ifdef A\n#pp:ifndef B\nonly A\n#pp:endif\n#pp:endif\n' | ./bin/pp -DA
 # include file
-./bin/pp testdata/pp/include_hello.pp
+./bin/pp tests/data/pp/include_hello.pp
 # recursive include (deep.pp → include_hello.pp → hello.pp)
-./bin/pp testdata/pp/deep.pp
+./bin/pp tests/data/pp/deep.pp
 # include inside false ifdef: file not opened (no error)
-printf '#pp:ifdef NOPE\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp
+printf '#pp:ifdef NOPE\n#pp:include tests/data/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp
 echo $?
 # missing file in unconditional include: should fail loudly
-printf '#pp:include testdata/pp/nonexistent.pp\n' | ./bin/pp; echo $?
+printf '#pp:include tests/data/pp/nonexistent.pp\n' | ./bin/pp; echo $?
 # missing file in true ifdef: should fail loudly
-printf '#pp:ifdef YEP\n#pp:include testdata/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp -DYEP; echo $?
+printf '#pp:ifdef YEP\n#pp:include tests/data/pp/nonexistent.pp\n#pp:endif\n' | ./bin/pp -DYEP; echo $?
 # circular include: detects cycle, exits nonzero
-./bin/pp testdata/pp/cycle_a.pp 2>/dev/null; echo $?
+./bin/pp tests/data/pp/cycle_a.pp 2>/dev/null; echo $?
 # unclosed ifdef: should fail
 printf '#pp:ifdef A\nhello\n' | ./bin/pp -DA 2>/dev/null; echo $?
 # stray endif: warns but succeeds
