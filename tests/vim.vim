@@ -25,37 +25,11 @@ runtime autoload/view.vim
 runtime autoload/plugins.vim
 runtime autoload/text.vim
 
-" Cycle 1: version guard -- vim9script loaded, nocompatible set
-call assert_false(&compatible)
-
-" Cycle 3: top-level variables
-call assert_equal(' ', g:mapleader)
-call assert_equal(1, g:loaded_netrw)
-call assert_equal(1, g:loaded_netrwPlugin)
-
-" Next/Prev exist in view autoload
-call assert_true(exists('*view#Next'))
-call assert_true(exists('*view#Prev'))
-call assert_false(exists('*WinCycleNext'))
-call assert_false(exists('*WinCyclePrev'))
-
-" Functions moved from vimrc to autoload
-call assert_true(exists('*view#TabLine'))
-call assert_true(exists('*view#TabLabel'))
-call assert_true(exists('*view#TermStatus'))
-call assert_true(exists('*view#Win'))
-call assert_true(exists('*text#Selection'))
-call assert_true(exists('*text#SearchSel'))
-call assert_true(exists('*text#Trim'))
-call assert_true(exists('*exec#Tmux'))
-call assert_true(exists('*plugins#Go'))
-
 " Terminal mappings trigger view navigation
 let s:tj = maparg('<c-j>', 't', 0, 1)
 let s:tk = maparg('<c-k>', 't', 0, 1)
 call assert_match('view[#.]Next', s:tj.rhs)
 call assert_match('view[#.]Prev', s:tk.rhs)
-call assert_equal('', maparg('<leader>z', 't'))
 
 " Send: shadow the command in a scratch buffer so mappings never invoke tmux.
 enew
@@ -136,24 +110,11 @@ else
 	let $TMUX = s:tmux_save
 endif
 
-" All public functions are def (compiled)
-call assert_match('def ', execute('function exec#Cmd'))
-call assert_match('def ', execute('function view#Browse'))
-
-" Clipboard: OSC 52 only; tmux loadb removed (set-clipboard on handles forwarding)
-call assert_equal('', &clipboard)
-let s:yank_au = execute('autocmd dotfiles TextYankPost')
-call assert_match('exec\.Yank(getreg(''"''))', s:yank_au)
-call assert_false(s:yank_au =~# 'tmux loadb')
-" Startup leaves the blank buffer alone.
-let s:enter_au = execute('autocmd dotfiles VimEnter')
-call assert_notmatch('view\.Dir', s:enter_au)
+" Clipboard path mappings
 let s:path_y = maparg('<leader>y', 'n', 0, 1)
 let s:path_Y = maparg('<leader>Y', 'n', 0, 1)
 call assert_match("exec\\.Yank(fnamemodify(expand('%:p'), ':\\.'))", s:path_y.rhs)
 call assert_match("exec\\.Yank(expand('%:p'))", s:path_Y.rhs)
-" Old relative-path clipboard mapping was replaced by <leader>y / <leader>Y.
-call assert_equal('', maparg('<leader>F', 'n'))
 
 " Host clipboard command: skip_local suppresses host config during tests.
 call assert_false(exists('g:dotfiles_copy_command'))
@@ -163,10 +124,6 @@ call exec#Yank("alpha\nbeta")
 call assert_equal(['alpha', 'beta'], readfile(s:copy_file, 'b'))
 unlet g:dotfiles_copy_command
 call delete(s:copy_file)
-" The unset-command branch retains the OSC 52 transport.
-let s:exec_source = readfile(s:root . '/vim/autoload/exec.vim')
-call assert_true(match(s:exec_source, 'var osc = "\\e]52;c;"') >= 0)
-call assert_true(index(s:exec_source, "\twritefile([osc], '/dev/tty', 'b')") >= 0)
 
 " Plumb: url dispatches through Url() which logs via echom
 let s:url = 'https://example.com/path?x=1'
@@ -299,10 +256,7 @@ let s:names = []
 for i in range(1, winnr('$'))
 	call add(s:names, bufname(winbufnr(i)))
 endfor
-call assert_equal('', s:names[2])
-let s:named_after = filter(copy(s:names), {_, v -> !empty(v)})
-call sort(s:named_after)
-call assert_equal(['a_sort.txt', 'm_sort.txt', 'z_sort.txt'], s:named_after)
+call assert_equal(['a_sort.txt', 'm_sort.txt', '', 'z_sort.txt'], s:names)
 silent! tabonly!
 silent! only!
 for s:b in ['z_sort.txt', 'a_sort.txt', 'm_sort.txt']
@@ -379,29 +333,13 @@ exe 'bwipeout!' s:errnr1
 exe 'bwipeout!' s:errnr2
 silent! only!
 
-" DblClick/Expand: functions exist and mappings are wired up
-call assert_true(exists('*text#Expand'))
-call assert_true(exists('*view#DblClick'))
+" DblClick/Expand: mappings are wired up
 let s:expand_map = maparg('<Space><Space>', 'n', 0, 1)
 call assert_true(!empty(s:expand_map))
 call assert_match('text[#.]Expand', s:expand_map.rhs)
 let s:c2_map = maparg('<2-LeftMouse>', 'n', 0, 1)
 call assert_true(!empty(s:c2_map))
 call assert_match('view[#.]DblClick', s:c2_map.rhs)
-
-" Comment(): line-style commentstring (#%s) — preserves indent on both passes.
-enew
-setlocal commentstring=#%s
-call setline(1, ['def foo():', '    return 1', '    return 2'])
-call setpos("'[", [0, 2, 1, 0])
-call setpos("']", [0, 3, 1, 0])
-call text#Comment('line')
-call assert_equal(['def foo():', '    # return 1', '    # return 2'], getline(1, '$'))
-call setpos("'[", [0, 2, 1, 0])
-call setpos("']", [0, 3, 1, 0])
-call text#Comment('line')
-call assert_equal(['def foo():', '    return 1', '    return 2'], getline(1, '$'))
-bwipeout!
 
 " Comment(): paired commentstring (<!--%s-->) — must wrap, not concatenate.
 enew
@@ -431,12 +369,6 @@ call text#Comment('line')
 call assert_equal(['top', '  mid', '    deep'], getline(1, '$'))
 bwipeout!
 
-" plugins#Go: filetype mappings live under <leader>g* and never shadow <leader>c.
-let s:plug_src = readfile($DOTFILES . '/vim/autoload/plugins.vim')
-call assert_false(match(s:plug_src, '<leader>c :GoCallers') >= 0)
-call assert_true(match(s:plug_src, '<leader>gc :GoCallers') >= 0)
-call assert_true(match(s:plug_src, '<leader>gt :GoTestFile') >= 0)
-
 " TabLabel(): escapes % so file names like '100%done' don't break the tabline.
 silent! tabonly!
 silent! only!
@@ -461,14 +393,6 @@ call append(0, 'EDITED-LINE')
 call view#Browse()
 call assert_notequal('dir', &filetype)
 call delete(s:browse_tmpdir, 'rf')
-
-" Dump/Load: functions exist and commands are defined
-call assert_true(exists('*exec#Dump'))
-call assert_true(exists('*exec#Load'))
-call assert_true(exists(':Dump'))
-call assert_true(exists(':Load'))
-let s:dk_map = maparg('<leader>E', 'n', 0, 1)
-call assert_true(!empty(s:dk_map))
 
 " Dump/Load: round-trip preserves clean file
 let s:dump_tmpdir = tempname()

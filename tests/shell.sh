@@ -460,7 +460,6 @@ esac
 END
 chmod +x "$tmuxbin/tmux"
 
-TMUX_MOCK_SESSION_PATH="$td/session root" \
 TMUX_MOCK_SESSION_PATH="$td/session|root" \
 TMUX_MOCK_SESSION_NAME='sess\demo' \
 TMUX_MOCK_PANE0_PATH="$pane0path" \

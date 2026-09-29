@@ -28,9 +28,9 @@ testvimrc() {
 	fi
 }
 
-testsnip() {
+testpython() {
 	if ! output=$(PYTHONPATH=$DOTFILES python3 -m unittest 2>&1); then
-		echo "Unit tests failed" >&2
+		echo "Python tests failed" >&2
 		echo "$output" >&2
 		exit 1
 	fi
@@ -44,7 +44,7 @@ testx() {
 	fi
 }
 
-testsnip
+testpython
 testvimrc
 testx
 out=$(mktemp)

@@ -92,7 +92,8 @@ code, jump to definitions, find uses, rename symbols, indent text, and reload wi
 ```
 
 The tests use plain shell, Python `unittest`, and headless Vim. They detect
-the regressions I care about.
+the regressions I care about. The Python suite also runs generated programs
+and compiles Go fixtures; it is not limited to in-process unit tests.
 
 ## Design
 
