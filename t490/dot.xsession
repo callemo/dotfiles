@@ -41,9 +41,8 @@ lock=/usr/X11R6/bin/xlock
 opts='-mode blank -dpmsoff 10'
 xidle -timeout 600 -program "$lock $opts" &
 
-# warm the screen at night, cool by day
-h=$(date +%H)
-[ "$h" -ge 19 ] || [ "$h" -lt 7 ] && sct 3200 || sct 5600
+# tone and keyboard backlight follow the time of day
+/usr/local/ws/bin/nightlight
 
 xterm &
 fvwm

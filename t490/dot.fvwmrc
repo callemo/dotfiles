@@ -117,7 +117,7 @@ Key 5      A       4         Desk 0 4
 
 # System
 Key Q      A       C4        Exec exec xlock -echokeys -echokey \*
-Key N      A       C4        Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
+Key N      A       C4        Exec exec /usr/local/ws/bin/nightlight
 
 Key Delete A       C4        PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
 # }}}
@@ -181,7 +181,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Workspace 5	Win-5" Desk 0 4
 + "" Nop
 + "System / hardware" Title
-+ "Nightlight	Ctrl-Win-N" Exec sh -c '[ $(date +%H) -ge 19 ] || [ $(date +%H) -lt 7 ] && sct 3200 || sct 5600'
++ "Nightlight	Ctrl-Win-N" Exec exec /usr/local/ws/bin/nightlight
 + "Restart fvwm	Alt-Win-Space menu" Restart fvwm
 + "Toggle display	Ctrl-Win-Delete" PipeRead '$HOME/dotfiles/t490/fvwm/display toggle fvwm'
 

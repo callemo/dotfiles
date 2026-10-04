@@ -32,6 +32,13 @@ Space previews Markdown through `t490/bin/md-preview`.
 **Open Terminal Here** runs `t490/bin/xterm-here`.
 Edit the files in this directory, not their links under `~/.config`.
 
+## Display tone and keyboard backlight
+
+`Ctrl-Win-N` and the Nightlight menu entry run `/usr/local/ws/bin/nightlight`.
+`dot.xsession` runs it at login. The program is a system program from the
+workstation installer, which also runs it after resume from `/etc/apm/resume`.
+That installer documents the hourly schedule.
+
 ## Clipboard overrides
 
 The shared Tmux and Vim configurations load managed host fragments from:
