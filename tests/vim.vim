@@ -131,6 +131,151 @@ messages clear
 call plumb#Do('', {}, s:url)
 call assert_match('url: https://example\.com/path?x=1', execute('messages'))
 
+" URLs retain reserved characters and balanced parentheses, not prose wrappers.
+for s:case in [
+	\ ['https://example.com/docs:v2?q=$value!#part', 'https://example.com/docs:v2?q=$value!#part'],
+	\ ['See (https://example.com/Foo_(bar)).', 'https://example.com/Foo_(bar)'],
+	\ ['file:///tmp/file.txt', 'file:///tmp/file.txt']]
+	messages clear
+	call plumb#Do('', {}, s:case[0])
+	call assert_equal('url: ' . s:case[1], trim(execute('messages')))
+endfor
+
+" File acquisition uses complete names and Vim addresses.
+let s:plumb_tmpdir = tempname() . ' space'
+call mkdir(s:plumb_tmpdir, 'p')
+let s:plumb_source = s:plumb_tmpdir . '/source.txt'
+let s:plumb_file = s:plumb_tmpdir . '/main.txt'
+let s:plumb_lines = ['one first line', 'two target line', 'needle third line', 'path/name fourth line', 'five final line']
+call writefile(s:plumb_lines, s:plumb_source)
+call writefile(s:plumb_lines, s:plumb_file)
+for s:case in [
+	\ ['main.txt:2:7', [2, 7]],
+	\ ['"main.txt":3:4', [3, 4]],
+	\ ['(main.txt:2:4)', [2, 4]],
+	\ ['main.txt:2:5: diagnostic text', [2, 5]],
+	\ ['main.txt:2,4', [4, 1]],
+	\ ['main.txt:/needle/', [3, 1]],
+	\ ['main.txt:/path\/name/', [4, 1]],
+	\ [':2:5', [2, 5]]]
+	execute 'edit' fnameescape(s:plumb_source)
+	call cursor(1, 1)
+	call plumb#Do(s:plumb_tmpdir, {}, s:case[0])
+	call assert_equal(s:case[0][0] == ':' ? s:plumb_source : s:plumb_file, expand('%:p'), s:case[0])
+	call assert_equal(s:case[1], getcurpos()[1:2], s:case[0])
+endfor
+execute 'edit' fnameescape(s:plumb_source)
+call plumb#Do(s:plumb_tmpdir, {}, '"main.txt"')
+call assert_equal(s:plumb_file, expand('%:p'))
+
+" Unsupported suffixes must not become Ex commands or partial file references.
+for s:ref in [
+	\ 'main.txt:2|let g:plumb_executed=1',
+	\ "main.txt:/one\nlet g:plumb_executed=1\n/",
+	\ "main.txt:/one\rlet g:plumb_executed=1\r/"]
+	execute 'edit' fnameescape(s:plumb_source)
+	let g:plumb_executed = 0
+	call plumb#Do(s:plumb_tmpdir, {}, s:ref)
+	call assert_equal(0, g:plumb_executed)
+	call assert_equal(s:plumb_source, expand('%:p'))
+endfor
+unlet g:plumb_executed
+
+" Literal filenames win over prefixes, patterns, and address-like suffixes.
+call writefile(s:plumb_lines, s:plumb_tmpdir . '/a')
+call writefile(s:plumb_lines, s:plumb_tmpdir . '/release')
+for s:name in ['a+b@é[1].txt', 'release:2', ' spaced name ']
+	call writefile(s:plumb_lines, s:plumb_tmpdir . '/' . s:name)
+	execute 'edit' fnameescape(s:plumb_source)
+	call plumb#Do(s:plumb_tmpdir, {}, s:name)
+	call assert_equal(s:plumb_tmpdir . '/' . s:name, expand('%:p'), s:name)
+endfor
+
+" Named buffers remain navigable without a file on disk.
+execute 'edit' fnameescape(s:plumb_tmpdir . '/new.txt')
+call setline(1, s:plumb_lines)
+let s:plumb_new = bufnr('%')
+execute 'edit' fnameescape(s:plumb_source)
+call plumb#Do(s:plumb_tmpdir, {}, 'new.txt:2:3')
+call assert_equal(s:plumb_new, bufnr('%'))
+call assert_equal([2, 3], getcurpos()[1:2])
+call assert_equal(s:plumb_lines, getline(1, '$'))
+call assert_false(filereadable(s:plumb_tmpdir . '/new.txt'))
+execute 'bwipeout!' s:plumb_new
+let s:plumb_deleted = s:plumb_tmpdir . '/deleted.txt'
+call writefile(s:plumb_lines, s:plumb_deleted)
+execute 'edit' fnameescape(s:plumb_deleted)
+let s:plumb_bnr = bufnr('%')
+call delete(s:plumb_deleted)
+execute 'edit' fnameescape(s:plumb_source)
+call plumb#Do(s:plumb_tmpdir, {}, 'deleted.txt')
+call assert_equal(s:plumb_bnr, bufnr('%'))
+call assert_equal(s:plumb_lines, getline(1, '$'))
+
+" File plumbing and directory Enter reuse a window in another tab.
+silent! tabonly!
+silent! only!
+execute 'edit' fnameescape(s:plumb_source)
+execute 'tabnew' fnameescape(s:plumb_file)
+let s:plumb_win = win_getid()
+let s:plumb_bnr = bufnr('%')
+tabprevious
+call plumb#Do(s:plumb_tmpdir, {}, 'main.txt:2:6')
+call assert_equal(s:plumb_win, win_getid())
+call assert_equal([2, 6], getcurpos()[1:2])
+call assert_equal([s:plumb_win], win_findbuf(s:plumb_bnr))
+tabnext 1
+call view#Dir(s:plumb_tmpdir, v:true)
+call search('^main\.txt$')
+call feedkeys("\<CR>", 'xt')
+call assert_equal(s:plumb_win, win_getid())
+call assert_equal([s:plumb_win], win_findbuf(s:plumb_bnr))
+
+" When a file is visible in both tabs, prefer the current tab's window.
+execute 'tabnew' fnameescape(s:plumb_file)
+let s:plumb_current = win_getid()
+call plumb#Do(s:plumb_tmpdir, {}, 'main.txt:3:2')
+call assert_equal(s:plumb_current, win_getid())
+tabclose
+
+" Directory acquisition reuses the window without reloading edited text.
+tabnext 1
+call view#Dir(s:plumb_tmpdir, v:true)
+let s:plumb_dirwin = win_getid()
+let s:plumb_dirbnr = bufnr('%')
+call append(0, 'directory annotation')
+let s:plumb_dirlines = getline(1, '$')
+tabnext 2
+call plumb#Do('', {}, s:plumb_tmpdir)
+call assert_equal(s:plumb_dirwin, win_getid())
+call assert_equal([s:plumb_dirwin], win_findbuf(s:plumb_dirbnr))
+call assert_equal(s:plumb_dirlines, getline(1, '$'))
+
+" A retained directory buffer also keeps its text when no window shows it.
+setlocal bufhidden=hide
+enew
+call plumb#Do('', {}, s:plumb_tmpdir)
+call assert_equal(s:plumb_dirbnr, bufnr('%'))
+call assert_equal(s:plumb_dirlines, getline(1, '$'))
+
+" An unmatched directory entry searches for the whole literal line.
+call setline(1, ['annotation [x]', 'other text', 'annotation [x]'])
+if line('$') > 3 | 4,$delete _ | endif
+call cursor(1, 1)
+call feedkeys(" \<CR>", 'xt')
+call assert_equal([3, 1], getcurpos()[1:2])
+call assert_equal('annotation [x]', getline('.'))
+
+silent! tabonly!
+silent! only!
+enew!
+for s:buf in getbufinfo()
+	if s:buf.name ==# s:plumb_tmpdir || stridx(s:buf.name, s:plumb_tmpdir . '/') == 0
+		execute 'bwipeout!' s:buf.bufnr
+	endif
+endfor
+call delete(s:plumb_tmpdir, 'rf')
+
 let s:fts_tmpdir = tempname()
 call mkdir(s:fts_tmpdir, 'p')
 let s:fts_log = s:fts_tmpdir . '/args.log'
@@ -165,7 +310,7 @@ call assert_equal(-1, index(getline(1, '$'), '../'))
 " Verify buffer-local CR mapping reuses the current window
 let s:cr_map = maparg('<CR>', 'n', 0, 1)
 call assert_true(!empty(s:cr_map))
-call assert_match('Open(Entry())', s:cr_map.rhs)
+call assert_match('OpenEntry()', s:cr_map.rhs)
 bwipeout!
 call delete(s:dir_tmpdir, 'rf')
 

@@ -140,21 +140,52 @@ def Entry(): string
 	return getline('.')
 enddef
 
-# open: navigate to entry in-place (reuse current window).
-def Open(e: string)
-	var path = simplify(b:dir .. e)
-	if isdirectory(path)
-		Dir(path, true)
-		return
+# Open reuses a known buffer, file, or directory across tabs; false means no target.
+export def Open(path: string, split: bool = true): bool
+	var f = simplify(fnamemodify(path, ':p'))
+	var name = substitute(f, '/$', '', '')
+	var bnr = -1
+	# Compare names literally, ignoring a directory's trailing slash.
+	for b in getbufinfo()
+		if !empty(b.name) && substitute(b.name, '/$', '', '') ==# name
+			bnr = b.bufnr
+			break
+		endif
+	endfor
+	var dir = isdirectory(f)
+	if bnr == -1 && !dir && !filereadable(f)
+		return false
 	endif
-	var fp = fnamemodify(path, ':.')
-	var w = bufwinnr(fp)
-	if w != -1
-		exe ':' .. w .. 'wincmd w'
-	elseif bufexists(fp)
-		exe 'buffer' fnameescape(fp)
+	if bnr != -1
+		var w = bufwinid(bnr)
+		if w == -1
+			var wins = win_findbuf(bnr)
+			w = empty(wins) ? -1 : wins[0]
+		endif
+		if w != -1
+			win_gotoid(w)
+			return true
+		endif
+	endif
+	if dir && bnr == -1
+		Dir(f, !split)
 	else
-		exe 'edit' fnameescape(fp)
+		if bnr != -1
+			exe (split ? 'sbuffer' : 'buffer') bnr
+		else
+			exe (split ? 'split' : 'edit') fnameescape(f)
+		endif
+		if split
+			exe 'resize' Fit(line('$'))
+		endif
+	endif
+	return true
+enddef
+
+def OpenEntry()
+	var f = simplify(b:dir .. Entry())
+	if !Open(f, false)
+		exe 'edit' fnameescape(f)
 	endif
 enddef
 
@@ -212,10 +243,10 @@ export def Load(d: string)
 	silent execute ':%!/bin/ls -1Ap ' .. shellescape(dir)
 	setlocal nomodified
 	b:dir = dir
-	# CR/- reuse window; rightmouse plumbs (split); middlemouse executes
-	nnoremap <silent> <buffer> <CR> <ScriptCmd>Open(Entry())<CR>
-	nnoremap <silent> <buffer> <leader><CR> <ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
-	nnoremap <silent> <buffer> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(b:dir, {}, Entry())<CR>
+	# CR/- reuse window; rightmouse plumbs the whole entry; middlemouse executes.
+	nnoremap <silent> <buffer> <CR> <ScriptCmd>OpenEntry()<CR>
+	nnoremap <silent> <buffer> <leader><CR> <ScriptCmd>plumb.Do(b:dir, {'visual': 1}, Entry())<CR>
+	nnoremap <silent> <buffer> <rightmouse> <leftmouse><ScriptCmd>plumb.Do(b:dir, {'visual': 1}, Entry())<CR>
 	nnoremap <silent> <buffer> <middlemouse> <leftmouse><ScriptCmd>exec.Cmd(Entry(), 0, 0, 0)<CR>
 	nnoremap <silent> <buffer> <c-leftmouse> <leftmouse><ScriptCmd>exec.Cmd(Entry(), 0, 0, 0)<CR>
 	# :h strips trailing /, second :h goes up one level

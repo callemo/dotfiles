@@ -10,13 +10,22 @@ DESCRIPTION      Vimrc configures Vim for files and directories.
                  1. Quickfix or location jump
                  2. URL
                  3. Wiki link
-                 4. Readable file:line
-                 5. Readable file
-                 6. Directory
-                 7. Search
+                 4. File, named buffer, or directory
+                 5. Address in the current buffer
+                 6. Search
                  Relative plumbing uses the supplied working directory.
                  File buffers supply expand('%:h').
                  Directory buffers supply b:dir.
+                 Complete names take precedence over address syntax.
+                 Quotes or brackets may surround a reference.
+                 Use file:line[:column], file:/pattern/, or file:2,5.
+                 Columns use Vim's byte positions.
+                 :address uses the current buffer.
+                 Addresses support line numbers, . and $, pattern searches,
+                 +/- offsets, and comma or semicolon ranges.
+                 Ranges finish at their last line.
+                 Sam #character addresses are not supported.
+                 Acquisition reuses existing windows across tabs.
                  :Cmd runs in the current buffer's directory.
 
 MOUSE            Vim sets mouse=nv.
@@ -39,6 +48,8 @@ MOUSE            Vim sets mouse=nv.
 DIRECTORIES      A directory buffer lists one entry per line.
                  b:dir names its directory.
                  Relative plumbing uses b:dir.
+                 Acquisition reuses existing directory windows without reload.
+                 Unmatched entries search for the whole entry as literal text.
                  Global - opens the current directory.
                  <leader>B toggles the directory browser.
 
