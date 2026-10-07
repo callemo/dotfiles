@@ -58,6 +58,8 @@ COMMANDS         :Cmd [-range] [cmd]
                       Run cmd asynchronously with /bin/sh -c.
                       Send the addressed lines on stdin.
                       Append stdout and stderr to +Errors.
+                      Output buffers survive ordinary window closure,
+                      including after the command finishes.
 
                  :Lint [filetype]
                       Run the linter for filetype.
@@ -89,6 +91,8 @@ COMMANDS         :Cmd [-range] [cmd]
                  :Load [file]
                       Read the session state.
                       The default file is getcwd()/vim.dump.
+                      If the saved active tab was omitted, select the
+                      first restored tab.
 
                  :Send [-range] [tmux-target]
                       Send lines to a tmux pane.

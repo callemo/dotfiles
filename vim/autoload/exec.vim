@@ -48,6 +48,7 @@ export def Cmd(cmd: string, addr: number, line1: number, line2: number, Done: fu
 		return
 	endif
 	var bnr = bufnr(bufname)
+	setbufvar(bnr, '&bufhidden', 'hide')
 	bufload(bnr)
 	var wrote = [false]  # list to allow mutation from lambda (vim9 captures by value)
 	var Append = (ch: channel, data: string) => {
@@ -341,7 +342,8 @@ export def Load(file: string = '')
 	silent! noautocmd only!
 	noautocmd enew!
 
-	var curtab = 1
+	var firsttab = true
+	var restoredtab = 1
 	var firstwin = true
 	var tabwins: list<number> = []
 	var tabheights: list<string> = []
@@ -364,9 +366,12 @@ export def Load(file: string = '')
 			tabwins = []
 			tabheights = len(parts) > 1 ? parts[1 :] : []
 			var tn = str2nr(parts[0])
-			if tn > curtab
+			if !firsttab
 				noautocmd tabnew
-				curtab = tn
+			endif
+			firsttab = false
+			if tn == activetab
+				restoredtab = tabpagenr()
 			endif
 			firstwin = true
 			continue
@@ -443,6 +448,7 @@ export def Load(file: string = '')
 
 		elseif rectype ==# 's'
 			# s<tab> <win> <bufnr> <line> <col> <nlines> <path>
+			var oldbnr = str2nr(parts[2])
 			var lnum = str2nr(parts[3])
 			var cnum = str2nr(parts[4])
 			var nlines = str2nr(parts[5])
@@ -457,6 +463,7 @@ export def Load(file: string = '')
 			endfor
 
 			exe 'buffer' view#Scratch(fpath)
+			bufmap[string(oldbnr)] = bufnr()
 			silent! :%delete _
 			setline(1, content)
 			setlocal nomodified
@@ -475,7 +482,5 @@ export def Load(file: string = '')
 	endfor
 
 	# Restore active tab
-	if activetab > 0 && activetab <= tabpagenr('$')
-		silent execute 'tabnext' activetab
-	endif
+	silent execute 'tabnext' restoredtab
 enddef

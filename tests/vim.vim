@@ -308,6 +308,36 @@ unlet g:cmd_done_marker
 let s:errbnr = bufnr(getcwd() . '/+Errors')
 if s:errbnr > 0 | exe 'bwipeout!' s:errbnr | endif
 
+" Cmd(): closing the output window preserves output during and after the job.
+silent! only!
+let s:cmd_tmpdir = tempname()
+call mkdir(s:cmd_tmpdir, 'p')
+exe 'edit' fnameescape(s:cmd_tmpdir . '/source.txt')
+let s:source_bnr = bufnr('%')
+let s:cmd_err = v:errmsg
+let v:errmsg = ''
+let g:cmd_done_marker = 0
+call exec#Cmd('while [ ! -f release ]; do sleep 0.01; done; echo retained-output',
+	\ 0, 0, 0, {-> extend(g:, {'cmd_done_marker': 1})})
+let s:errbnr = bufnr(s:cmd_tmpdir . '/+Errors')
+exe 'sbuffer' s:errbnr
+close
+call assert_true(bufexists(s:errbnr))
+call assert_true(bufloaded(s:errbnr))
+call writefile([], s:cmd_tmpdir . '/release')
+call assert_true(s:WaitFor({-> g:cmd_done_marker == 1}))
+call assert_equal(['retained-output'], getbufline(s:errbnr, 1, '$'))
+call assert_equal(s:errbnr, bufnr('%'))
+close
+call assert_true(bufloaded(s:errbnr))
+call assert_equal(['retained-output'], getbufline(s:errbnr, 1, '$'))
+call assert_equal('', v:errmsg)
+let v:errmsg = s:cmd_err
+unlet g:cmd_done_marker
+exe 'bwipeout!' s:errbnr
+exe 'bwipeout!' s:source_bnr
+call delete(s:cmd_tmpdir, 'rf')
+
 " Cmd(): from an unnamed buffer, +Errors is bufnr-tagged so two unnamed buffers
 " don't collide on the same scratch. Regression: prior code used cwd alone.
 silent! tabonly!
@@ -438,6 +468,37 @@ call assert_equal(['dirty1', 'dirty2', 'dirty3'], getline(1, '$'))
 call assert_true(&modified)
 call delete(s:dump_tmpdir, 'rf')
 
+" Dump/Load: repeated scratch windows share a buffer and retain their cursors.
+let s:dump_tmpdir = tempname()
+call mkdir(s:dump_tmpdir, 'p')
+let s:dump_file = s:dump_tmpdir . '/vim.dump'
+let s:test_file = s:dump_tmpdir . '/file.txt'
+call writefile(['file content'], s:test_file)
+silent! tabonly!
+silent! only!
+let s:scratch = view#Scratch(s:dump_tmpdir . '/scratch')
+exe 'buffer' fnameescape(s:scratch)
+call setline(1, ['alpha', 'beta', 'gamma'])
+call cursor(1, 2)
+exe 'split' fnameescape(s:test_file)
+split
+exe 'buffer' fnameescape(s:scratch)
+call cursor(3, 4)
+call exec#Dump(s:dump_file)
+call exec#Load(s:dump_file)
+let s:wins = getwininfo()
+call assert_equal(3, len(s:wins))
+call assert_equal(s:wins[0].bufnr, s:wins[2].bufnr)
+call assert_notequal(s:wins[0].bufnr, s:wins[1].bufnr)
+call assert_equal(['alpha', 'beta', 'gamma'], getbufline(s:wins[0].bufnr, 1, '$'))
+call assert_equal(s:test_file, fnamemodify(bufname(s:wins[1].bufnr), ':p'))
+call assert_equal([1, 2], getcurpos(s:wins[0].winid)[1:2])
+call assert_equal([3, 4], getcurpos(s:wins[2].winid)[1:2])
+silent! only!
+exe 'bwipeout!' s:wins[0].bufnr
+exe 'bwipeout!' s:wins[1].bufnr
+call delete(s:dump_tmpdir, 'rf')
+
 " Dump/Load: tabs with only skipped windows (help, terminal, quickfix) do not
 " emit orphan 't' records. Regression: prior code added 't<N>' before checking
 " whether any window survived the skip filter, leaving Load to mis-apply
@@ -464,6 +525,34 @@ call assert_equal(2, len(s:t_lines))
 call assert_false(index(s:dump_lines, 't2') >= 0)
 call assert_match('^t1\t', s:t_lines[0])
 call assert_match('^t3\t', s:t_lines[1])
+
+" Load translates the active tab number after omitting a middle tab.
+let s:real_d = s:dump_tmpdir . '/d.txt'
+call writefile(['ddd'], s:real_d)
+tabnew
+exe 'edit' fnameescape(s:real_d)
+tabnext 3
+call exec#Dump(s:dump_file)
+call exec#Load(s:dump_file)
+call assert_equal(3, tabpagenr('$'))
+call assert_equal(2, tabpagenr())
+call assert_equal(s:real_c, expand('%:p'))
+call assert_equal([s:real_a, s:real_c, s:real_d],
+	\ map(range(1, tabpagenr('$')), {_, n -> fnamemodify(bufname(tabpagebuflist(n)[0]), ':p')}))
+
+" An omitted first active tab falls back to the first retained tab.
+silent! tabonly!
+silent! only!
+enew
+silent help
+tabnew
+exe 'edit' fnameescape(s:real_a)
+tabnext 1
+call exec#Dump(s:dump_file)
+call exec#Load(s:dump_file)
+call assert_equal(1, tabpagenr('$'))
+call assert_equal(1, tabpagenr())
+call assert_equal(s:real_a, expand('%:p'))
 silent! tabonly!
 silent! only!
 call delete(s:dump_tmpdir, 'rf')
