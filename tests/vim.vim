@@ -26,9 +26,27 @@ runtime autoload/plugins.vim
 runtime autoload/text.vim
 
 function! s:Style(id) abort
-	let id = synIDtrans(a:id)
-	return map(['fg', 'bg', 'bold', 'italic', 'underline', 'reverse'],
+	let id = a:id ? synIDtrans(a:id) : hlID('Normal')
+	let style = map(['fg', 'bg', 'bold', 'italic', 'underline', 'reverse'],
 		\ {_, attr -> synIDattr(id, attr, 'cterm')})
+	if style[0] ==# ''
+		let style[0] = synIDattr(hlID('Normal'), 'fg', 'cterm')
+	endif
+	return style
+endfunction
+
+" Reference xterm colors; the terminal still controls the actual background.
+function! s:Luminance(color) abort
+	let color = str2nr(a:color)
+	if color >= 232
+		let rgb = repeat([8 + 10 * (color - 232)], 3)
+	else
+		let cube = [0, 95, 135, 175, 215, 255]
+		let color -= 16
+		let rgb = [cube[color / 36], cube[color / 6 % 6], cube[color % 6]]
+	endif
+	let linear = map(rgb, {_, c -> c <= 10 ? c / 3294.6 : pow((c / 255.0 + 0.055) / 1.055, 2.4)})
+	return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
 endfunction
 
 " Basic keeps ordinary syntax plain after loading syntax and reloading colors.
@@ -41,6 +59,28 @@ for s:bg in ['dark', 'light', 'dark']
 	let s:comment = s:Style(hlID('Comment'))
 	let s:constant = s:Style(hlID('Constant'))
 	let s:string = s:Style(hlID('LiteralString'))
+	let s:contrasts = []
+	for s:role in [s:plain, s:keyword, s:string, s:number]
+		call assert_match('^\d\+$', s:role[0], s:bg . ' foreground')
+		let s:color = str2nr(s:role[0])
+		call assert_inrange(16, 255, s:color)
+		if s:color >= 16 && s:color <= 255
+			let s:luminance = s:Luminance(s:role[0])
+			let s:contrast = s:bg ==# 'dark' ? (s:luminance + 0.05) / 0.05 : 1.05 / (s:luminance + 0.05)
+			call assert_true(s:contrast >= 4.5, s:bg . ' text contrast')
+			call add(s:contrasts, s:contrast)
+		endif
+	endfor
+	call assert_equal(4, len(s:contrasts))
+	if len(s:contrasts) == 4
+		let s:least = s:contrasts[0]
+		let s:most = s:least
+		for s:contrast in s:contrasts
+			let s:least = s:contrast < s:least ? s:contrast : s:least
+			let s:most = s:contrast > s:most ? s:contrast : s:most
+		endfor
+		call assert_true(s:most / s:least <= 1.2, s:bg . ' balanced role contrast')
+	endif
 	call assert_notequal(s:plain[0], s:number[0])
 	call assert_notequal(s:plain[0], s:comment[0])
 	call assert_notequal(s:plain[0], s:constant[0])
@@ -119,7 +159,7 @@ for s:bg in ['dark', 'light', 'dark']
 			\ "  awk '",
 			\ '    function f(x) { if (x > 2) return x }',
 			\ '    # TODO: "comment"',
-			\ '    $1 ~ /hello[0-9]+/ { print $1 }',
+			\ '    $1 ~ /^hello[0-9]+[[:space:]]\t\/\x41\101.*$/ { print $1 }',
 			\ '    END { print "done" }',
 			\ "  '",
 			\ '  printf "%s\n" "$result"',
@@ -143,8 +183,13 @@ for s:bg in ['dark', 'light', 'dark']
 			\ [5, 'f(x)', 'plain'], [5, 'if', 'keyword'],
 			\ [5, '2', 'number'], [5, 'return', 'keyword'],
 			\ [6, 'TODO', 'comment'], [6, '"', 'comment'],
-			\ [7, '$1', 'plain'], [7, 'hello', 'string'],
-			\ [7, '0-9', 'string'], [8, 'END', 'keyword'],
+			\ [7, '$1', 'plain'], [7, '/', 'plain'],
+			\ [7, '^', 'plain'], [7, 'hello', 'plain'],
+			\ [7, '0-9', 'plain'], [7, '+', 'plain'],
+			\ [7, '[:space:]', 'plain'], [7, '\t', 'plain'],
+			\ [7, '\/', 'plain'], [7, '\x41', 'plain'],
+			\ [7, '\101', 'plain'], [7, '.*', 'plain'],
+			\ [7, '$/', 'plain'], [8, 'END', 'keyword'],
 			\ [8, 'done', 'string'], [10, 'printf', 'plain'],
 			\ [10, '\n', 'plain'], [11, 'fi', 'keyword'],
 			\ [12, 'BEGIN', 'keyword'], [13, 'BEGIN', 'keyword'],
@@ -157,7 +202,147 @@ for s:bg in ['dark', 'light', 'dark']
 			\ [21, 'if', 'plain'], [22, '2', 'number'],
 			\ [23, '2.5', 'number'], [23, '.5', 'number'],
 			\ [23, '2e-3', 'number'], [23, 'e-3', 'number'],
-			\ [23, '3 }', 'number']]],
+			\ [23, '3 }', 'number', 1]]],
+		\ ['sh', [
+			\ '#!/bin/sh',
+			\ 'if true; then',
+			\ "  result=$(perl -e '",
+			\ '    my $message = "hello\n";',
+			\ '    print $message if 12;',
+			\ "  ' | awk '{ print \"done\", 3 }')",
+			\ 'fi',
+			\ "perl -ne 'print \"line\" if 4'",
+			\ "perl -0777 -pe 'print \"whole\"'",
+			\ "perl -E 'say \"new\"'",
+			\ "echo 'perl -e print 42'",
+			\ "# perl -e 'print 42'",
+			\ "notperl -e 'print 42'",
+			\ "perl -e '# tail' ; echo 'plain 99'",
+			\ "perl -e 'print \"unfinished' ; echo 'plain 98'",
+			\ 'echo word-if',
+			\ 'word-if',
+			\ "perl -e 'my $p = qr{(?:hello|\\x{41})[[:space:]]+}i; print \"regex\\n\";'",
+			\ "perl -ne 's{hello\\d+}{replacement\\n}; print;'",
+			\ "perl -pe 's/hello(\\d+)/replacement\\n/g'",
+			\ "perl -e 'qr{hello[0-9]+\\d}i; print \"done\"'",
+			\ "perl -e 'qq{quoted (text) \\n}'",
+			\ "perl -ne '/hello[0-9]+\\d/ && print'",
+			\ "perl -e 'print $x-2.5, .1'",
+			\ 'echo "perl -e ''print 42''"',
+			\ "perl -e 'qr{a{2}}; print \"done\";'",
+			\ 'if true; then :; fi',
+			\ "perl -e 'qq{a{nested}}; print \"quoted\";'",
+			\ 'if true; then :; fi',
+			\ "perl -e 'my $a=1; $a--if $a; print $a-0xff, $a-1_000, -sin 2;'",
+			\ "perl -e 'tr/print/sleep/;'",
+			\ "perl -e 'y{print}{sleep};'",
+			\ "perl -e 'my %hash = (if => \"value\", sin => \"value\");'",
+			\ "perl -e 'use utf8; sub caféif {}; caféif();'",
+			\ "perl -e 'my $p = qr-print-; print q-text-;'",
+			\ "perl -e 'print 1.2.3, v1.2.3;'",
+			\ "perl -e 'print \"\\' ; echo outside",
+			\ 'if true; then :; fi',
+			\ "perl -e 'print \"${x' ; echo outside",
+			\ 'if true; then :; fi',
+			\ "perl -e 'my $a=1; $a--if /12/;'",
+			\ "perl -e 'my $p = qr{a # comment",
+			\ "b}x;'",
+			\ "perl -e 'my $p = qr<a # comment",
+			\ "b>x;'",
+			\ "perl -e 'my $p = qr[a # comment",
+			\ "b]x;'",
+			\ "perl -I. -e 'print \"ok\";'",
+			\ "perl -MData::Dumper -e 'print \"ok\";'",
+			\ "perl -e 'my $a=12; print $a / 2;'",
+			\ "perl -e 'print \"${$a{key}}\"; print \"after\";'",
+			\ "perl -e 'qq{a{unfinished' ; echo outside",
+			\ 'if true; then :; fi',
+			\ "perl -pe 's/a/replacement' ; echo outside",
+			\ 'if true; then :; fi',
+			\ "perl -e 'my $p = m/[abc' ; echo outside ]",
+			\ 'if true; then :; fi',
+			\ "perl -I . -e 'print \"no\";'",
+			\ "perl \"-I.\" -e 'print \"no\";'",
+			\ "perl -- -e 'print \"no\";'",
+			\ "perl -e 'q' ; echo outside",
+			\ 'if true; then :; fi',
+			\ "perl -e '",
+			\ '=pod',
+			\ 'words',
+			\ "' ; echo outside",
+			\ 'if true; then :; fi',
+			\ "perl -e '",
+			\ '=begin comment',
+			\ 'unfinished',
+			\ "' ; echo outside",
+			\ 'if true; then :; fi',
+			\ "perl -e 'Foo::print(\"ok\"); Foo::sin(2); print \"after\";'",
+			\ "perl -e 'print: print \"ok\";'"], [
+			\ [2, 'if', 'keyword'], [3, 'perl', 'plain'],
+			\ [3, '-e', 'plain'], [4, 'my', 'keyword'],
+			\ [4, '$message', 'plain'], [4, 'hello', 'string'],
+			\ [4, '\n', 'string'], [5, 'print', 'keyword'],
+			\ [5, 'if', 'keyword'], [5, '12', 'number'],
+			\ [6, 'awk', 'plain'], [6, 'print', 'keyword'],
+			\ [6, 'done', 'string'], [6, '3', 'number'],
+			\ [7, 'fi', 'keyword'], [8, 'print', 'keyword'],
+			\ [8, 'line', 'string'], [8, '4', 'number'],
+			\ [9, 'whole', 'string'], [10, 'say', 'keyword'],
+			\ [10, 'new', 'string'], [11, 'print', 'plain'],
+			\ [11, '42', 'plain'], [12, 'print', 'comment'],
+			\ [13, 'print', 'plain'], [13, '42', 'plain'],
+			\ [14, 'tail', 'comment'], [14, 'echo', 'plain'],
+			\ [14, '99', 'plain'], [15, 'unfinished', 'string'],
+			\ [15, 'echo', 'plain'], [15, '98', 'plain'],
+			\ [16, 'if', 'plain'], [17, 'if', 'plain'],
+			\ [18, 'qr{', 'plain'], [18, 'hello', 'plain'],
+			\ [18, '\x{41}', 'plain'], [18, '[:space:]', 'plain'],
+			\ [18, '+', 'plain'], [18, '}i', 'plain'],
+			\ [18, 'regex', 'string'], [18, '\n', 'string'],
+			\ [19, 'hello', 'plain'], [19, '\d', 'plain'],
+			\ [19, 'replacement', 'string'], [19, '\n', 'string'],
+			\ [20, 'hello', 'plain'], [20, '\d', 'plain'],
+			\ [20, 'replacement', 'string'], [20, '\n', 'string'],
+			\ [21, 'qr{', 'plain'], [21, '0-9', 'plain'],
+			\ [21, '\d', 'plain'], [21, 'done', 'string'],
+			\ [22, 'qq{', 'string'], [22, 'quoted', 'string'],
+			\ [22, 'text', 'string'], [22, '\n', 'string'],
+			\ [23, '0-9', 'plain'], [23, '\d', 'plain'],
+			\ [23, 'print', 'keyword'], [24, '2.5', 'number'],
+			\ [24, '.1', 'number'], [25, 'print', 'plain'],
+			\ [25, '42', 'plain'], [26, '{2}', 'plain'],
+			\ [26, 'print', 'keyword'], [26, 'done', 'string'],
+			\ [27, 'if', 'keyword'], [28, 'nested', 'string'],
+			\ [28, 'print', 'keyword'], [28, 'quoted', 'string'],
+			\ [29, 'if', 'keyword'], [30, 'if', 'keyword'],
+			\ [30, '0xff', 'number'], [30, '1_000', 'number'],
+			\ [30, 'sin', 'keyword'], [31, 'print', 'plain'],
+			\ [31, 'sleep', 'string'], [32, 'print', 'plain'],
+			\ [32, 'sleep', 'string'], [33, 'if', 'string'],
+			\ [33, 'sin', 'string'], [33, 'value', 'string'],
+			\ [34, 'caféif()', 'plain'], [35, 'qr-print-', 'plain'],
+			\ [35, 'q-text-', 'string'], [36, '1.2.3', 'string'],
+			\ [36, 'v1.2.3', 'string'], [37, 'outside', 'plain'],
+			\ [38, 'if', 'keyword'], [39, 'outside', 'plain'],
+			\ [40, 'if', 'keyword'], [41, '12', 'plain'],
+			\ [42, 'comment', 'comment'], [43, 'b', 'plain'],
+			\ [44, 'comment', 'comment'], [45, 'b', 'plain'],
+			\ [46, 'comment', 'comment'], [47, 'b', 'plain'],
+			\ [48, 'print', 'keyword'], [48, 'ok', 'string'],
+			\ [49, 'print', 'keyword'], [49, 'ok', 'string'],
+			\ [50, '2;', 'number', 1], [51, '$a', 'plain'],
+			\ [51, 'key', 'string'], [51, 'after', 'string'],
+			\ [52, 'outside', 'plain'],
+			\ [53, 'if', 'keyword'], [54, 'outside', 'plain'],
+			\ [55, 'if', 'keyword'], [56, 'outside', 'plain'],
+			\ [57, 'if', 'keyword'], [58, 'print', 'plain'],
+			\ [59, 'print', 'plain'], [60, 'print', 'plain'],
+			\ [61, 'outside', 'plain'], [62, 'if', 'keyword'],
+			\ [66, 'outside', 'plain'], [67, 'if', 'keyword'],
+			\ [71, 'outside', 'plain'], [72, 'if', 'keyword'],
+			\ [73, 'Foo::print', 'plain'], [73, 'Foo::sin', 'plain'],
+			\ [73, 'print "after"', 'keyword', 5],
+			\ [74, 'print:', 'plain'], [74, 'print "ok"', 'keyword', 5]]],
 		\ ['go', [
 			\ 'package main',
 			\ 'func main() {',
@@ -203,35 +388,70 @@ for s:bg in ['dark', 'light', 'dark']
 			\ 'my $pattern = qr{hello[0-9]+};',
 			\ 'if ($message) { print $single; }',
 			\ '# TODO: "comment"',
-			\ 'BEGIN { }'], [
+			\ 'BEGIN { }',
+			\ 'my $regex = qr{(?:hello|\x{41})[[:space:]]+}i;',
+			\ '$message =~ s{hello\d+}{replacement\n};',
+			\ 'my $quoted = qq{nested (text) \x{41}};',
+			\ 'my %hash = (if => "value", sin => "value");',
+			\ 'my $p = qr-print-; print q-text-;',
+			\ 'use utf8; sub caféif {}; caféif();',
+			\ 'print 1.2.3, v1.2.3;',
+			\ 'print "${$a{key}}"; print "after";',
+			\ 'Foo::print("ok"); Foo::sin(2); print "after";',
+			\ 'print: print "ok";'], [
 			\ [1, 'use', 'keyword'], [2, 'my', 'keyword'],
 			\ [2, '$message', 'plain'], [2, '"', 'string'],
 			\ [2, 'hello', 'string'], [2, '\n', 'string'],
 			\ [3, "single'", 'string'], [4, 'qw(', 'string'],
 			\ [4, 'one', 'string'], [5, 'qq{', 'string'],
 			\ [5, 'hello', 'string'], [5, '$message', 'plain'],
-			\ [6, 'qr{', 'string'], [6, '[0-9]', 'string'],
+			\ [6, 'qr{', 'plain'], [6, '[0-9]', 'plain'],
 			\ [7, 'if', 'keyword'], [7, 'print', 'keyword'],
 			\ [8, 'TODO', 'comment'], [8, '"', 'comment'],
-			\ [9, 'BEGIN', 'keyword']]],
+			\ [9, 'BEGIN', 'keyword'],
+			\ [10, 'qr{', 'plain'], [10, 'hello', 'plain'],
+			\ [10, '\x{41}', 'plain'], [10, '[:space:]', 'plain'],
+			\ [10, '+', 'plain'], [10, '}i', 'plain'],
+			\ [11, 'hello', 'plain'], [11, '\d', 'plain'],
+			\ [11, 'replacement', 'string'], [11, '\n', 'string'],
+			\ [12, 'nested', 'string'], [12, 'text', 'string'],
+			\ [12, '\x{41}', 'string'], [13, 'if', 'string'],
+			\ [13, 'sin', 'string'], [13, 'value', 'string'],
+			\ [14, 'qr-print-', 'plain'], [14, 'q-text-', 'string'],
+			\ [15, 'caféif()', 'plain'], [16, '1.2.3', 'string'],
+			\ [16, 'v1.2.3', 'string'], [17, '$a', 'plain'],
+			\ [17, 'key', 'string'], [17, 'after', 'string'],
+			\ [18, 'Foo::print', 'plain'], [18, 'Foo::sin', 'plain'],
+			\ [18, 'print "after"', 'keyword', 5],
+			\ [19, 'print:', 'plain'], [19, 'print "ok"', 'keyword', 5]]],
 		\ ['awk', [
 			\ 'BEGIN { count = 12; print "hello\n"; printf "%s", count }',
-			\ '$1 ~ /hello[0-9]+/ { if (count > 2) print $1 }',
+			\ '$1 ~ /^hello[0-9]+[[:space:]]\t\/\x41\101.*$/ { if (count > 2) print $1 }',
 			\ '# TODO: "comment"',
 			\ 'function f(value) { return value + 1 }'], [
 			\ [1, 'BEGIN', 'keyword'], [1, 'count', 'plain'],
 			\ [1, '12', 'number'], [1, 'print', 'keyword'],
 			\ [1, '"', 'string'], [1, 'hello', 'string'],
 			\ [1, '\n', 'string'], [1, '%s', 'string'],
-			\ [2, '$1', 'plain'], [2, 'hello', 'string'],
-			\ [2, '0-9', 'string'], [2, 'if', 'keyword'],
+			\ [2, '$1', 'plain'], [2, '/', 'plain'],
+			\ [2, '^', 'plain'], [2, 'hello', 'plain'],
+			\ [2, '0-9', 'plain'], [2, '+', 'plain'],
+			\ [2, '[:space:]', 'plain'], [2, '\t', 'plain'],
+			\ [2, '\/', 'plain'], [2, '\x41', 'plain'],
+			\ [2, '\101', 'plain'], [2, '.*', 'plain'],
+			\ [2, '$/', 'plain'], [2, 'if', 'keyword'],
 			\ [3, 'TODO', 'comment'], [3, '"', 'comment'],
 			\ [4, 'function', 'keyword'], [4, 'return', 'keyword'],
 			\ [4, '+', 'plain']]]]
 		enew
 		call setline(1, s:fixture[1])
 		execute 'setfiletype' s:fixture[0]
-		for s:reload in range(2)
+		let s:native_syntax = b:current_syntax
+		for s:reload in range(3)
+			if s:reload == 2
+				execute 'set syntax=' . s:fixture[0]
+				call assert_equal(s:native_syntax, b:current_syntax)
+			endif
 			if s:reload
 				colorscheme basic
 			endif
@@ -239,8 +459,11 @@ for s:bg in ['dark', 'light', 'dark']
 			for s:case in s:fixture[2]
 				let s:col = stridx(getline(s:case[0]), s:case[1]) + 1
 				call assert_true(s:col > 0, string(s:case))
-				call assert_equal(s:styles[s:case[2]], s:Style(synID(s:case[0], s:col, 1)),
-					\ s:bg . ' ' . s:fixture[0] . ' ' . string(s:case))
+				" A fourth field limits the width when trailing text only locates a token.
+				for s:offset in range(get(s:case, 3, strlen(s:case[1])))
+					call assert_equal(s:styles[s:case[2]], s:Style(synID(s:case[0], s:col + s:offset, 1)),
+						\ s:bg . ' ' . s:fixture[0] . ' ' . string(s:case))
+				endfor
 			endfor
 		endfor
 		bwipeout!
@@ -273,6 +496,33 @@ for s:bg in ['dark', 'light', 'dark']
 		endfor
 	endfor
 	bwipeout!
+	execute 'edit' fnameescape(s:root . '/acme/afmt')
+	call assert_equal('sh', &filetype)
+	let s:shell_syntax = b:current_syntax
+	for s:reload in range(2)
+		if s:reload
+			set syntax=sh
+			colorscheme basic
+		endif
+		call assert_equal(s:shell_syntax, b:current_syntax)
+		for s:case in [
+			\ ['cur="\$(\zsperl', 'plain'],
+			\ ['^\s*\zsopen \$pipe', 'keyword'],
+			\ ['"\zs|-', 'string'],
+			\ ['"\zsecho addr=dot', 'string'],
+			\ ['^\s*\zsclose \$pipe', 'keyword'],
+			\ [';''\zs --', 'plain'],
+			\ ['awk ''{ \zsprintf', 'keyword'],
+			\ ['awk ''{ printf "\zs#%d', 'string'],
+			\ ['^\zsprintf ,', 'plain']]
+			call cursor(1, 1)
+			let s:pos = searchpos(s:case[0], 'cnW')
+			call assert_true(s:pos[0] > 0, string(s:case))
+			call assert_equal(s:styles[s:case[1]], s:Style(synID(s:pos[0], s:pos[1], 1)),
+				\ s:bg . ' afmt ' . string(s:case))
+		endfor
+	endfor
+	bwipeout!
 endfor
 
 " A cold syntax lookup inside a long AWK program keeps the enclosing region.
@@ -287,6 +537,19 @@ call assert_equal(s:number, s:Style(synID(453, 21, 1)))
 call assert_equal(s:keyword, s:Style(synID(455, 1, 1)))
 bwipeout!
 call delete(s:awk_file)
+
+" Native Perl synchronization must not escape a long shell-embedded program.
+let s:perl_file = tempname() . '.sh'
+call writefile(['#!/bin/sh', "perl -e '"] + repeat(['my $value = 1;'], 450) +
+	\ ['my $pattern = qr{a{2}}; print "done", 2;', "'", 'if true; then :; fi'], s:perl_file)
+execute 'edit' fnameescape(s:perl_file)
+call assert_equal('sh', &filetype)
+call assert_equal(s:keyword, s:Style(synID(453, stridx(getline(453), 'print') + 1, 1)))
+call assert_equal(s:string, s:Style(synID(453, stridx(getline(453), 'done') + 1, 1)))
+call assert_equal(s:number, s:Style(synID(453, strridx(getline(453), '2') + 1, 1)))
+call assert_equal(s:keyword, s:Style(synID(455, 1, 1)))
+bwipeout!
+call delete(s:perl_file)
 
 " Terminal mappings trigger view navigation
 let s:tj = maparg('<c-j>', 't', 0, 1)

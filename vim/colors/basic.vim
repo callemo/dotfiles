@@ -2,26 +2,43 @@
 " Keep identifiers, operators, types, and shell commands plain.
 " Comments are gray; constants and numbers are greenish teal.
 " Keywords are muted purple and bold; colored strings are rose-magenta.
+" Normal, keywords, strings, and numbers have similar reference xterm contrast.
 " Python, Perl, and AWK strings use LiteralString, separate from numeric constants.
-" Perl and AWK patterns share the string accent; other languages keep strings plain.
+" Perl and AWK regexes stay plain; other languages keep strings plain.
 " TODO follows comments rather than adding a separate warning color.
 "
 " Preserve the existing UI colors for bars, search, selection, and diagnostics.
 " Do not replace those definitions with aliases that change GUI attributes.
-" Normal uses the terminal's colors; contrast depends on its palette.
+" Normal has a neutral foreground; the background remains the terminal's default.
+" Exact contrast still depends on the terminal's palette and background.
+" Tests use reference black/white backgrounds: at least 4.5:1 contrast,
+" with no more than a 20% spread among the four primary text roles.
 " Native syntax files decide which tokens match; this file only changes styling.
 " Forced links prevent inherited syntax colors or bold attributes from leaking.
+" vim/after/syntax/awk.vim separates regex escapes from the shared string-escape group.
+" vim/after/syntax/perl.vim separates regex escapes, nested delimiters, and qr quotes.
+" The shell extension defers those replacements until after including native Perl.
+" Clears are ignored inside syntax includes; redefining there duplicates nesting rules.
 "
 " vim/after/syntax/sh/awk.vim embeds native AWK syntax without changing shell filetypes.
 " It handles single-quoted programs immediately after awk, gawk, mawk, or nawk.
 " Options before the program and concatenated shell quotes are outside this rule.
 " The extension preserves shell keyword characters and the native shell syntax marker.
 " Its numeric rule fixes subtraction boundaries.
-" Synchronization starts at the file's beginning to keep long AWK blocks correct.
+" vim/after/syntax/sh/perl.vim embeds single-quoted perl -e and -E programs.
+" Combined short flags and preceding unquoted option words work, including -ne and -I.
+" Options with separate arguments and concatenated shell quotes are outside this rule.
+" Both embeddings preserve the shell syntax marker and keyword characters.
+" The Perl extension also handles quote-like operators immediately after the shell quote.
+" Escapes, nested strings, interpolation, and POD stop before the closing shell quote.
+" Native keyword and number matches avoid the shell's '-' boundaries.
+" Keywords retain Perl's ':' boundaries for qualified names and labels.
+" Those boundary overrides mirror the native Perl rules and need review after runtime updates.
+" Synchronization starts at the file's beginning to keep long embedded blocks correct.
 " This trades more parsing in large shell files for correct highlighting.
 " dot.vimrc adds vim/after to the runtime path after the standard syntax files.
 " Restart Vim after changing the runtime path.
-" tests/vim.vim covers language roles, both backgrounds, reloads, and bin/fivenum.
+" tests/vim.vim covers language roles, backgrounds, reloads, bin/fivenum, and acme/afmt.
 " Run from the repository root:
 " DOTFILES="$PWD" vim -Nu NONE -n -i NONE -es -S tests/vim.vim
 
@@ -31,8 +48,6 @@ if exists('syntax_on')
 endif
 
 let g:colors_name = 'basic'
-
-hi Normal cterm=NONE ctermfg=NONE ctermbg=NONE
 
 " Color 16 stays black when bold text promotes ANSI black to bright black.
 hi StatusLine   cterm=bold ctermfg=16 ctermbg=4
@@ -52,15 +67,17 @@ hi! link Operator Normal
 hi! link Label Normal
 
 if &background ==# 'dark'
+	hi Normal        cterm=NONE ctermfg=251 ctermbg=NONE
 	hi Comment       cterm=NONE ctermfg=246 ctermbg=NONE
-	hi Constant      cterm=NONE ctermfg=109 ctermbg=NONE
-	hi Statement     cterm=bold ctermfg=139 ctermbg=NONE
-	hi LiteralString cterm=NONE ctermfg=175 ctermbg=NONE
+	hi Constant      cterm=NONE ctermfg=115 ctermbg=NONE
+	hi Statement     cterm=bold ctermfg=183 ctermbg=NONE
+	hi LiteralString cterm=NONE ctermfg=218 ctermbg=NONE
 else
+	hi Normal        cterm=NONE ctermfg=239 ctermbg=NONE
 	hi Comment       cterm=NONE ctermfg=240 ctermbg=NONE
 	hi Constant      cterm=NONE ctermfg=23 ctermbg=NONE
-	hi Statement     cterm=bold ctermfg=60 ctermbg=NONE
-	hi LiteralString cterm=NONE ctermfg=89 ctermbg=NONE
+	hi Statement     cterm=bold ctermfg=91 ctermbg=NONE
+	hi LiteralString cterm=NONE ctermfg=125 ctermbg=NONE
 endif
 hi! link Number Constant
 hi! link Float Number
@@ -88,17 +105,20 @@ hi! link perlString LiteralString
 hi! link perlStringStartEnd perlString
 hi! link perlSpecialString perlString
 hi! link perlSpecialStringU perlString
-hi! link perlSpecialMatch perlString
-hi! link perlMatchStartEnd perlString
+hi! link perlSpecialMatch Normal
+hi! link perlMatchStartEnd Normal
+hi! link perlMatch Normal
+hi! link perlQR Normal
+hi! link perlQRModifiers Normal
 hi! link perlInclude Statement
 hi! link perlControl Statement
 
 hi! link awkString LiteralString
-hi! link awkSearch awkString
+hi! link awkSearch Normal
 hi! link awkSpecialPrintf awkString
 hi! link awkSpecialCharacter awkString
-hi! link awkRegExp awkString
-hi! link awkNestRegExp awkString
+hi! link awkRegExp Normal
+hi! link awkNestRegExp Normal
 hi! link awkPatterns Statement
 
 " UI
