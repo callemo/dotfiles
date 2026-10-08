@@ -3,8 +3,10 @@
 " Comments are gray; constants and numbers are greenish teal.
 " Keywords are muted purple and bold; colored strings are rose-magenta.
 " Normal, keywords, strings, and numbers have similar reference xterm contrast.
-" Python, Perl, and AWK strings use LiteralString, separate from numeric constants.
-" Perl and AWK regexes stay plain; other languages keep strings plain.
+" Python, Perl, AWK, Go, C, and JavaScript strings use LiteralString, separate from numbers.
+" Go runes and C characters use the same string accent, including their escapes.
+" JavaScript templates share the string accent; interpolated expressions keep native roles.
+" Perl, AWK, and JavaScript regexes stay plain; unlisted languages keep strings plain.
 " TODO follows comments rather than adding a separate warning color.
 "
 " Preserve the existing UI colors for bars, search, selection, and diagnostics.
@@ -120,6 +122,21 @@ hi! link awkSpecialCharacter awkString
 hi! link awkRegExp Normal
 hi! link awkNestRegExp Normal
 hi! link awkPatterns Statement
+
+hi! link goString LiteralString
+hi! link goRawString goString
+hi! link goImportString goString
+hi! link goSpecialString goString
+hi! link goCharacter goString
+
+hi! link cString LiteralString
+hi! link cSpecial cString
+hi! link cCharacter cString
+
+hi! link javaScriptStringS LiteralString
+hi! link javaScriptStringD LiteralString
+hi! link javaScriptStringT LiteralString
+hi! link javaScriptSpecial LiteralString
 
 " UI
 if &background ==# 'dark'
