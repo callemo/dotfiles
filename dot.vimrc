@@ -3,7 +3,7 @@ vim9script
 
 var root = exists('$DOTFILES') ? $DOTFILES : isdirectory(expand('~/dotfiles')) ? expand('~/dotfiles') : ''
 if root != ''
-	&rtp ..= ',' .. root .. '/vim'
+	&rtp ..= ',' .. root .. '/vim,' .. root .. '/vim/after'
 	$PATH = root .. '/acme:' .. $PATH
 endif
 

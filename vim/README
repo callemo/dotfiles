@@ -177,6 +177,10 @@ KEYS             The leader key is space.
                  yos              spell
                  yow              wrap
 
+COLORS           basic keeps the terminal's normal foreground and background.
+                 yob selects the dark or light background mode.
+                 See colors/basic.vim for the palette and syntax rules.
+
 FILES            getcwd()/vim.dump
                       The default session file for :Dump and :Load
 

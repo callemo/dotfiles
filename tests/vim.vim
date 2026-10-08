@@ -25,6 +25,269 @@ runtime autoload/view.vim
 runtime autoload/plugins.vim
 runtime autoload/text.vim
 
+function! s:Style(id) abort
+	let id = synIDtrans(a:id)
+	return map(['fg', 'bg', 'bold', 'italic', 'underline', 'reverse'],
+		\ {_, attr -> synIDattr(id, attr, 'cterm')})
+endfunction
+
+" Basic keeps ordinary syntax plain after loading syntax and reloading colors.
+let s:last_number = ''
+for s:bg in ['dark', 'light', 'dark']
+	execute 'set background=' . s:bg
+	let s:plain = s:Style(hlID('Normal'))
+	let s:keyword = s:Style(hlID('Statement'))
+	let s:number = s:Style(hlID('Number'))
+	let s:comment = s:Style(hlID('Comment'))
+	let s:constant = s:Style(hlID('Constant'))
+	let s:string = s:Style(hlID('LiteralString'))
+	call assert_notequal(s:plain[0], s:number[0])
+	call assert_notequal(s:plain[0], s:comment[0])
+	call assert_notequal(s:plain[0], s:constant[0])
+	call assert_notequal(s:plain[0], s:keyword[0])
+	call assert_notequal(s:constant[0], s:keyword[0])
+	call assert_notequal(s:plain[0], s:string[0])
+	call assert_notequal(s:constant[0], s:string[0])
+	call assert_notequal(s:keyword[0], s:string[0])
+	call assert_equal('1', s:keyword[2])
+	call assert_equal(s:plain[1], s:keyword[1])
+	call assert_equal(s:plain[3:], s:keyword[3:])
+	call assert_notequal(s:last_number, s:number[0])
+	call assert_equal(s:plain[1:], s:number[1:])
+	call assert_equal(s:plain[1:], s:comment[1:])
+	call assert_equal(s:plain[1:], s:constant[1:])
+	call assert_equal(s:plain[1:], s:string[1:])
+	let s:last_number = s:number[0]
+	let s:styles = {'plain': s:plain, 'keyword': s:keyword, 'number': s:number,
+		\ 'comment': s:comment, 'constant': s:constant, 'string': s:string}
+	for s:fixture in [
+		\ ['sh', [
+			\ '#!/bin/bash',
+			\ 'count=12',
+			\ 'if [ "$count" -gt 10 ]; then',
+			\ '  printf "%s\n" "${count:-0}" > output',
+			\ 'fi',
+			\ 'for item in a b; do',
+			\ '  echo "$item"',
+			\ 'done',
+			\ 'case "$item" in',
+			\ '  (a|b) echo value ;;',
+			\ 'esac',
+			\ '# TODO: 99',
+			\ 'name() { echo value; }',
+			\ 'cat <<EOF',
+			\ 'for 45 literal',
+			\ 'EOF',
+			\ 'while test "$count" -gt 2; do',
+			\ '  count=3',
+			\ 'done',
+			\ 'function other { return 4; }'], [
+			\ [1, '#!', 'comment'], [2, 'count', 'plain'], [2, '12', 'number'],
+			\ [3, 'if', 'keyword'], [3, '"', 'plain'],
+			\ [3, '$count', 'plain'], [3, '-gt', 'plain'],
+			\ [3, '10', 'number'], [3, ']', 'plain'],
+			\ [3, ';', 'plain'], [3, 'then', 'keyword'],
+			\ [4, 'printf', 'plain'], [4, '%s', 'plain'],
+			\ [4, '\n', 'plain'], [4, ':-', 'plain'], [4, '>', 'plain'],
+			\ [5, 'fi', 'keyword'], [6, 'for', 'keyword'],
+			\ [6, 'item', 'plain'], [6, 'in', 'keyword'],
+			\ [6, 'do', 'keyword'], [7, 'echo', 'plain'],
+			\ [8, 'done', 'keyword'], [9, 'case', 'keyword'],
+			\ [9, 'in', 'keyword'], [10, '(', 'plain'],
+			\ [10, '|', 'plain'], [10, ')', 'plain'], [10, ';;', 'plain'],
+			\ [11, 'esac', 'keyword'], [12, 'TODO', 'comment'],
+			\ [12, '99', 'comment'], [13, 'name', 'plain'],
+			\ [14, '<<', 'plain'], [15, 'for', 'plain'],
+			\ [15, '45', 'plain'], [16, 'EOF', 'plain'],
+			\ [17, 'while', 'keyword'], [17, 'test', 'plain'],
+			\ [17, '"', 'plain'], [17, '-gt', 'plain'],
+			\ [18, '3', 'number'], [20, 'function', 'keyword'],
+			\ [20, 'other', 'plain'], [20, 'return', 'plain']]],
+		\ ['sh', [
+			\ '#!/bin/sh',
+			\ 'n=7',
+			\ 'if [ "$n" -gt 2 ]; then printf "%s\n" "$n" > output; fi'], [
+			\ [2, 'n', 'plain'], [2, '7', 'number'],
+			\ [3, 'if', 'keyword'], [3, '"', 'plain'],
+			\ [3, '-gt', 'plain'], [3, 'then', 'keyword'],
+			\ [3, 'printf', 'plain'], [3, '\n', 'plain'],
+			\ [3, '>', 'plain'], [3, 'fi', 'keyword']]],
+		\ ['sh', [
+			\ '#!/bin/sh',
+			\ 'if true; then',
+			\ "  result=$(awk 'BEGIN { print \"hello\\n\", 12 }')",
+			\ "  awk '",
+			\ '    function f(x) { if (x > 2) return x }',
+			\ '    # TODO: "comment"',
+			\ '    $1 ~ /hello[0-9]+/ { print $1 }',
+			\ '    END { print "done" }',
+			\ "  '",
+			\ '  printf "%s\n" "$result"',
+			\ 'fi',
+			\ "gawk 'BEGIN { print 3 }'",
+			\ "mawk 'BEGIN { print 4 }'",
+			\ "nawk 'BEGIN { print 5 }'",
+			\ "echo 'awk BEGIN 42'",
+			\ "# awk 'BEGIN 42'",
+			\ "notawk 'BEGIN 42'",
+			\ "awk 'BEGIN { print \"hello\" } # tail' ; echo 'plain 99'",
+			\ "echo \"awk 'BEGIN 42'\"",
+			\ 'echo word-if',
+			\ 'word-if',
+			\ "awk 'BEGIN { print x-2 }'",
+			\ "awk 'BEGIN { print x-2.5, x-2e-3 }'"], [
+			\ [2, 'if', 'keyword'], [3, 'awk', 'plain'],
+			\ [3, 'BEGIN', 'keyword'], [3, 'print', 'keyword'],
+			\ [3, 'hello', 'string'], [3, '\n', 'string'],
+			\ [3, '12', 'number'], [5, 'function', 'keyword'],
+			\ [5, 'f(x)', 'plain'], [5, 'if', 'keyword'],
+			\ [5, '2', 'number'], [5, 'return', 'keyword'],
+			\ [6, 'TODO', 'comment'], [6, '"', 'comment'],
+			\ [7, '$1', 'plain'], [7, 'hello', 'string'],
+			\ [7, '0-9', 'string'], [8, 'END', 'keyword'],
+			\ [8, 'done', 'string'], [10, 'printf', 'plain'],
+			\ [10, '\n', 'plain'], [11, 'fi', 'keyword'],
+			\ [12, 'BEGIN', 'keyword'], [13, 'BEGIN', 'keyword'],
+			\ [14, 'BEGIN', 'keyword'], [15, 'BEGIN', 'plain'],
+			\ [15, '42', 'plain'], [16, 'BEGIN', 'comment'],
+			\ [17, 'BEGIN', 'plain'], [17, '42', 'plain'],
+			\ [18, 'tail', 'comment'], [18, 'echo', 'plain'],
+			\ [18, '99', 'plain'], [19, 'BEGIN', 'plain'],
+			\ [19, '42', 'plain'], [20, 'if', 'plain'],
+			\ [21, 'if', 'plain'], [22, '2', 'number'],
+			\ [23, '2.5', 'number'], [23, '.5', 'number'],
+			\ [23, '2e-3', 'number'], [23, 'e-3', 'number'],
+			\ [23, '3 }', 'number']]],
+		\ ['go', [
+			\ 'package main',
+			\ 'func main() {',
+			\ '  var count = 42',
+			\ '  if count > 2 { println("hello", true) }',
+			\ '  var scale = 4.5',
+			\ '  var pointer = nil',
+			\ '}'], [
+			\ [1, 'package', 'keyword'], [2, 'func', 'keyword'],
+			\ [2, 'main', 'plain'], [3, 'var', 'keyword'],
+			\ [3, '42', 'number'], [4, 'if', 'keyword'],
+			\ [4, 'println', 'plain'], [4, 'hello', 'plain'],
+			\ [4, 'true', 'constant'], [5, '4.5', 'number'],
+			\ [6, 'nil', 'constant']]],
+		\ ['python', [
+			\ 'def f():',
+			\ '  if count > 12:',
+			\ '    return "hello"',
+			\ "  text = 'single'",
+			\ '  raw = r"\w+"',
+			\ '  escaped = "line\n"',
+			\ '  multi = """two',
+			\ 'lines"""',
+			\ 'from os import path',
+			\ 'if ready and value: pass',
+			\ '# TODO: "comment"'], [
+			\ [1, 'def', 'keyword'], [1, 'f()', 'plain'],
+			\ [2, 'if', 'keyword'], [2, '12', 'number'],
+			\ [3, 'return', 'keyword'], [3, '"', 'string'],
+			\ [3, 'hello', 'string'], [4, 'single', 'string'],
+			\ [5, 'r"', 'string'], [5, '\w', 'string'],
+			\ [6, '\n', 'string'], [7, '"""', 'string'],
+			\ [7, 'two', 'string'], [8, 'lines', 'string'],
+			\ [9, 'from', 'keyword'], [9, 'import', 'keyword'],
+			\ [9, 'os', 'plain'], [10, 'and', 'keyword'],
+			\ [11, 'TODO', 'comment'], [11, '"', 'comment']]],
+		\ ['perl', [
+			\ 'use strict;',
+			\ 'my $message = "hello\n";',
+			\ "my $single = 'single';",
+			\ 'my @words = qw(one two);',
+			\ 'my $copy = qq{hello $message};',
+			\ 'my $pattern = qr{hello[0-9]+};',
+			\ 'if ($message) { print $single; }',
+			\ '# TODO: "comment"',
+			\ 'BEGIN { }'], [
+			\ [1, 'use', 'keyword'], [2, 'my', 'keyword'],
+			\ [2, '$message', 'plain'], [2, '"', 'string'],
+			\ [2, 'hello', 'string'], [2, '\n', 'string'],
+			\ [3, "single'", 'string'], [4, 'qw(', 'string'],
+			\ [4, 'one', 'string'], [5, 'qq{', 'string'],
+			\ [5, 'hello', 'string'], [5, '$message', 'plain'],
+			\ [6, 'qr{', 'string'], [6, '[0-9]', 'string'],
+			\ [7, 'if', 'keyword'], [7, 'print', 'keyword'],
+			\ [8, 'TODO', 'comment'], [8, '"', 'comment'],
+			\ [9, 'BEGIN', 'keyword']]],
+		\ ['awk', [
+			\ 'BEGIN { count = 12; print "hello\n"; printf "%s", count }',
+			\ '$1 ~ /hello[0-9]+/ { if (count > 2) print $1 }',
+			\ '# TODO: "comment"',
+			\ 'function f(value) { return value + 1 }'], [
+			\ [1, 'BEGIN', 'keyword'], [1, 'count', 'plain'],
+			\ [1, '12', 'number'], [1, 'print', 'keyword'],
+			\ [1, '"', 'string'], [1, 'hello', 'string'],
+			\ [1, '\n', 'string'], [1, '%s', 'string'],
+			\ [2, '$1', 'plain'], [2, 'hello', 'string'],
+			\ [2, '0-9', 'string'], [2, 'if', 'keyword'],
+			\ [3, 'TODO', 'comment'], [3, '"', 'comment'],
+			\ [4, 'function', 'keyword'], [4, 'return', 'keyword'],
+			\ [4, '+', 'plain']]]]
+		enew
+		call setline(1, s:fixture[1])
+		execute 'setfiletype' s:fixture[0]
+		for s:reload in range(2)
+			if s:reload
+				colorscheme basic
+			endif
+			syntax sync fromstart
+			for s:case in s:fixture[2]
+				let s:col = stridx(getline(s:case[0]), s:case[1]) + 1
+				call assert_true(s:col > 0, string(s:case))
+				call assert_equal(s:styles[s:case[2]], s:Style(synID(s:case[0], s:col, 1)),
+					\ s:bg . ' ' . s:fixture[0] . ' ' . string(s:case))
+			endfor
+		endfor
+		bwipeout!
+	endfor
+	execute 'edit' fnameescape(s:root . '/bin/fivenum')
+	call assert_equal('sh', &filetype)
+	let s:shell_syntax = b:current_syntax
+	call assert_match('^\%(sh\|bash\|ksh\|posix\)$', s:shell_syntax)
+	for s:reload in range(2)
+		if s:reload
+			set syntax=sh
+			colorscheme basic
+		endif
+		call assert_equal(s:shell_syntax, b:current_syntax)
+		syntax sync fromstart
+		for s:case in [
+			\ ['^cat', 'plain'],
+			\ ['^function', 'keyword'],
+			\ ['^function \zsmedian', 'plain'],
+			\ ['^\s*\zsif', 'keyword'],
+			\ ['len % \zs2', 'number'],
+			\ ['# \zsodd length', 'comment'],
+			\ ['^END', 'keyword'],
+			\ ['x\[NR\] = \zs\$1', 'plain']]
+			call cursor(1, 1)
+			let s:pos = searchpos(s:case[0], 'cnW')
+			call assert_true(s:pos[0] > 0, string(s:case))
+			call assert_equal(s:styles[s:case[1]], s:Style(synID(s:pos[0], s:pos[1], 1)),
+				\ s:bg . ' fivenum ' . string(s:case))
+		endfor
+	endfor
+	bwipeout!
+endfor
+
+" A cold syntax lookup inside a long AWK program keeps the enclosing region.
+let s:awk_file = tempname() . '.sh'
+call writefile(['#!/bin/sh', "awk '"] + repeat(['{ value = $1 }'], 450) +
+	\ ['END { print "done", 1 }', "'", 'if true; then :; fi'], s:awk_file)
+execute 'edit' fnameescape(s:awk_file)
+call assert_equal('sh', &filetype)
+call assert_equal(s:keyword, s:Style(synID(453, 1, 1)))
+call assert_equal(s:string, s:Style(synID(453, 14, 1)))
+call assert_equal(s:number, s:Style(synID(453, 21, 1)))
+call assert_equal(s:keyword, s:Style(synID(455, 1, 1)))
+bwipeout!
+call delete(s:awk_file)
+
 " Terminal mappings trigger view navigation
 let s:tj = maparg('<c-j>', 't', 0, 1)
 let s:tk = maparg('<c-k>', 't', 0, 1)
