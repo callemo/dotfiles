@@ -3,7 +3,7 @@ vim9script
 
 var root = exists('$DOTFILES') ? $DOTFILES : isdirectory(expand('~/dotfiles')) ? expand('~/dotfiles') : ''
 if root != ''
-	&rtp ..= ',' .. root .. '/vim,' .. root .. '/vim/after'
+	&rtp = root .. '/vim,' .. &rtp
 	$PATH = root .. '/acme:' .. $PATH
 endif
 
@@ -134,8 +134,8 @@ augroup filetypes
 	autocmd FileType perl                 setl et keywordprg=:terminal\ perldoc\ -f
 	autocmd FileType python               setl keywordprg=:terminal\ pydoc3
 	autocmd FileType sh                   setl noet sw=0 sts=0
-	autocmd FileType typescript           setl sw=4 sts=4 et syn=javascript  # too buggy
-	autocmd FileType yaml                 setl ts=2 sw=2 sts=2 et syn=conf   # too buggy
+	autocmd FileType typescript           setl sw=4 sts=4 et
+	autocmd FileType yaml                 setl ts=2 sw=2 sts=2 et
 augroup END
 
 # ── Commands ─────────────────────────────────────────────

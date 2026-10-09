@@ -177,9 +177,40 @@ KEYS             The leader key is space.
                  yos              spell
                  yow              wrap
 
-COLORS           basic keeps the terminal's normal foreground and background.
+COLORS           basic balances foreground contrast and keeps the terminal's
+                 background.
                  yob selects the dark or light background mode.
                  See colors/basic.vim for the palette and syntax rules.
+
+SYNTAX           syntax/ contains small standalone lexers for JavaScript,
+                 TypeScript, JSON, YAML, HTML, CSS, AWK, Perl, sh, and Markdown.
+                 String values are magenta; keys and regexes remain plain.
+                 These lexers cover common constructs, not complete grammars.
+
+                 HTML embeds CSS and JavaScript. sh embeds immediate
+                 single-quoted AWK programs and Perl -e/-E programs, including
+                 combined flags. Separate option arguments and concatenated
+                 shell quotes are not parsed. Perl quote operators are line-local.
+
+                 Markdown titles include their # markers and are bold in all
+                 six levels. Italic emphasis uses terminal italics; in titles
+                 it retains the bold heading accent. The dark/light palettes
+                 balance contrast without adding bright title colors.
+                 Links, wikilinks, and their #anchor fragments are blue and
+                 underlined, including link targets and reference definitions.
+                 Single-backtick code content is bold; backtick markers are
+                 plain, including in titles. Longer inline delimiters retain
+                 their existing body styling. Fences embed JavaScript,
+                 TypeScript, JSON, YAML, HTML, CSS, AWK, Perl, and sh by default;
+                 js, ts, yml, and bash are aliases. No vimrc setting is needed.
+                 Named groups cover headings, emphasis, links, and code.
+                 The fence language list is fixed; braced labels are supported.
+                 Unknown fences are plain. g:markdown_syntax_conceal controls
+                 emphasis and recognized fence delimiters; g:markdown_yaml_head
+                 (or its buffer-local equivalent) controls YAML frontmatter.
+                 Markdown scans from the start to recognize long fences.
+                 An explicit g:markdown_minlines selects bounded synchronization
+                 instead, trading cold-jump speed for long-region accuracy.
 
 FILES            getcwd()/vim.dump
                       The default session file for :Dump and :Load

@@ -36,16 +36,18 @@ function! s:Style(id) abort
 endfunction
 
 " Reference xterm colors; the terminal still controls the actual background.
-function! s:Luminance(color) abort
+function! s:RGB(color) abort
 	let color = str2nr(a:color)
 	if color >= 232
-		let rgb = repeat([8 + 10 * (color - 232)], 3)
-	else
-		let cube = [0, 95, 135, 175, 215, 255]
-		let color -= 16
-		let rgb = [cube[color / 36], cube[color / 6 % 6], cube[color % 6]]
+		return repeat([8 + 10 * (color - 232)], 3)
 	endif
-	let linear = map(rgb, {_, c -> c <= 10 ? c / 3294.6 : pow((c / 255.0 + 0.055) / 1.055, 2.4)})
+	let cube = [0, 95, 135, 175, 215, 255]
+	let color -= 16
+	return [cube[color / 36], cube[color / 6 % 6], cube[color % 6]]
+endfunction
+
+function! s:Luminance(color) abort
+	let linear = map(s:RGB(a:color), {_, c -> c <= 10 ? c / 3294.6 : pow((c / 255.0 + 0.055) / 1.055, 2.4)})
 	return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
 endfunction
 
@@ -59,8 +61,9 @@ for s:bg in ['dark', 'light', 'dark']
 	let s:comment = s:Style(hlID('Comment'))
 	let s:constant = s:Style(hlID('Constant'))
 	let s:string = s:Style(hlID('LiteralString'))
+	let s:link = s:Style(hlID('markdownLinkText'))
 	let s:contrasts = []
-	for s:role in [s:plain, s:keyword, s:string, s:number]
+	for s:role in [s:plain, s:keyword, s:string, s:number, s:link]
 		call assert_match('^\d\+$', s:role[0], s:bg . ' foreground')
 		let s:color = str2nr(s:role[0])
 		call assert_inrange(16, 255, s:color)
@@ -71,8 +74,8 @@ for s:bg in ['dark', 'light', 'dark']
 			call add(s:contrasts, s:contrast)
 		endif
 	endfor
-	call assert_equal(4, len(s:contrasts))
-	if len(s:contrasts) == 4
+	call assert_equal(5, len(s:contrasts))
+	if len(s:contrasts) == 5
 		let s:least = s:contrasts[0]
 		let s:most = s:least
 		for s:contrast in s:contrasts
@@ -89,6 +92,10 @@ for s:bg in ['dark', 'light', 'dark']
 	call assert_notequal(s:plain[0], s:string[0])
 	call assert_notequal(s:constant[0], s:string[0])
 	call assert_notequal(s:keyword[0], s:string[0])
+	let s:link_rgb = s:RGB(s:link[0])
+	call assert_true(s:link_rgb[2] > s:link_rgb[1] && s:link_rgb[1] >= s:link_rgb[0],
+		\ s:bg . ' links must be blue, not neutral or purple')
+	call assert_equal('1', s:link[4], s:bg . ' links must be underlined')
 	call assert_equal('1', s:keyword[2])
 	call assert_equal(s:plain[1], s:keyword[1])
 	call assert_equal(s:plain[3:], s:keyword[3:])
@@ -100,6 +107,19 @@ for s:bg in ['dark', 'light', 'dark']
 	let s:last_number = s:number[0]
 	let s:styles = {'plain': s:plain, 'keyword': s:keyword, 'number': s:number,
 		\ 'comment': s:comment, 'constant': s:constant, 'string': s:string}
+	let s:styles.bold = copy(s:plain)
+	let s:styles.bold[2] = '1'
+	let s:styles.italic = copy(s:plain)
+	let s:styles.italic[3] = '1'
+	let s:styles.link = s:link
+	let s:styles.linkBold = copy(s:link)
+	let s:styles.linkBold[2] = '1'
+	let s:styles.linkItalic = copy(s:link)
+	let s:styles.linkItalic[3] = '1'
+	let s:styles.linkBoldItalic = copy(s:styles.linkBold)
+	let s:styles.linkBoldItalic[3] = '1'
+	let s:styles.headingItalic = copy(s:keyword)
+	let s:styles.headingItalic[3] = '1'
 	for s:fixture in [
 		\ ['sh', [
 			\ '#!/bin/bash',
@@ -292,7 +312,7 @@ for s:bg in ['dark', 'light', 'dark']
 			\ [11, '42', 'plain'], [12, 'print', 'comment'],
 			\ [13, 'print', 'plain'], [13, '42', 'plain'],
 			\ [14, 'tail', 'comment'], [14, 'echo', 'plain'],
-			\ [14, '99', 'plain'], [15, 'unfinished', 'string'],
+			\ [14, '99', 'plain'], [15, 'unfinished', 'plain'],
 			\ [15, 'echo', 'plain'], [15, '98', 'plain'],
 			\ [16, 'if', 'plain'], [17, 'if', 'plain'],
 			\ [18, 'qr{', 'plain'], [18, 'hello', 'plain'],
@@ -426,6 +446,371 @@ for s:bg in ['dark', 'light', 'dark']
 			\ [10, 'hello', 'plain'], [10, '\d', 'plain'],
 			\ [11, '"not a string"', 'comment'],
 			\ [12, '`also a comment`', 'comment']]],
+		\ ['javascript', [
+			\ 'const object = {"name": "value", if: 42, true: false};',
+			\ 'object.if = 3; object.return = 4;',
+			\ 'const numbers = [0xff, 0b101, 0o52, 1_000, .5, 1.2e-3, 42n];',
+			\ 'const division = value / 2 / 3;',
+			\ 'function match(value) { return /["''42/]+\d/gi.test(value); }',
+			\ 'const nested = `outer ${flag ? `inner ${42}` : "fallback"} end`;',
+			\ 'const braces = `object=${({name: "inner", value: 2}).name} done`;',
+			\ 'const escaped = `literal \${notCode} \` ${null}`;',
+			\ 'const dollars$const = 5; const $if = 6;',
+			\ 'const condition = flag ? "yes" : "no";',
+			\ 'const continued = "first\',
+			\ 'second";'], [
+			\ [1, 'const', 'keyword'], [1, '"name"', 'plain'],
+			\ [1, '"value"', 'string'], [1, 'if', 'plain'],
+			\ [1, '42', 'number'], [1, 'true', 'plain'],
+			\ [1, 'false', 'constant'], [2, 'object.if', 'plain'],
+			\ [2, 'object.return', 'plain'], [2, '3', 'number'],
+			\ [3, '0xff', 'number'], [3, '0b101', 'number'],
+			\ [3, '0o52', 'number'], [3, '1_000', 'number'],
+			\ [3, '.5', 'number'], [3, '1.2e-3', 'number'],
+			\ [3, '42n', 'number'], [4, '/', 'plain'],
+			\ [4, '2', 'number'], [4, '3', 'number'],
+			\ [5, 'function', 'keyword'], [5, 'return', 'keyword'],
+			\ [5, '/["''42/]+\d/gi', 'plain'],
+			\ [6, 'outer', 'string'], [6, 'flag', 'plain'],
+			\ [6, 'inner', 'string'], [6, '42', 'number'],
+			\ [6, '"fallback"', 'string'], [6, 'end', 'string'],
+			\ [7, 'object=', 'string'], [7, 'name:', 'plain'],
+			\ [7, '"inner"', 'string'], [7, '2', 'number'],
+			\ [7, 'done', 'string'], [8, '\${notCode}', 'string'],
+			\ [8, '\`', 'string'], [8, 'null', 'constant'],
+			\ [9, 'dollars$const', 'plain'], [9, '$if', 'plain'],
+			\ [10, '"yes"', 'string'], [10, '"no"', 'string'],
+			\ [11, '"first\', 'plain'], [12, 'second"', 'plain']]],
+		\ ['javascript', [
+			\ '#!/usr/bin/env node',
+			\ 'const broken = `unfinished ${value',
+			\ 'const safe = 42;',
+			\ 'console.log("done");'], [
+			\ [1, '#!/usr/bin/env node', 'comment'],
+			\ [3, 'const', 'keyword'], [3, '42', 'number'],
+			\ [4, '"done"', 'string']]],
+		\ ['javascript', [
+			\ 'const result = flag ? true : false;',
+			\ 'switch (value) { case 42: break; case true: break; }',
+			\ 'const object = {42: true, false: null};',
+			\ 'const 𐐀if = 7;'], [
+			\ [1, 'true', 'constant'], [1, 'false', 'constant'],
+			\ [2, '42', 'number'], [2, 'true', 'constant'],
+			\ [3, '42', 'plain'], [3, 'true', 'constant'],
+			\ [3, 'false', 'plain'], [3, 'null', 'constant'],
+			\ [4, '𐐀if', 'plain'], [4, '7', 'number']]],
+		\ ['typescript', [
+			\ 'export interface Entry { readonly name: string; count: number; }',
+			\ 'type Result<T> = { value: T; ok: boolean };',
+			\ 'async function render(value: number): Promise<string> {',
+			\ '  const title: string = "hello";',
+			\ '  if (value > 2) return `value=${value + 42}`;',
+			\ '  return title;',
+			\ '}',
+			\ 'const entry = {"name": "value", count: 42} satisfies Entry;',
+			\ 'const pattern: RegExp = /hello[0-9]+\d/;',
+			\ '// TODO: "not a string"'], [
+			\ [1, 'export', 'keyword'], [1, 'interface', 'keyword'],
+			\ [1, 'Entry', 'plain'], [1, 'readonly', 'keyword'],
+			\ [1, 'name', 'plain'], [1, 'string', 'plain'],
+			\ [1, 'count', 'plain'], [1, 'number', 'plain'],
+			\ [2, 'type', 'keyword'], [2, 'Result', 'plain'],
+			\ [2, 'value', 'plain'], [2, 'boolean', 'plain'],
+			\ [3, 'async', 'keyword'], [3, 'function', 'keyword'],
+			\ [3, 'Promise', 'plain'], [4, 'const', 'keyword'],
+			\ [4, '"hello"', 'string'], [5, 'if', 'keyword'],
+			\ [5, 'return', 'keyword'], [5, 'value=', 'string'],
+			\ [5, 'value +', 'plain'], [5, '42', 'number'],
+			\ [8, '"name"', 'plain'], [8, '"value"', 'string'],
+			\ [8, '42', 'number'], [8, 'satisfies', 'keyword'],
+			\ [9, 'RegExp', 'plain'], [9, 'hello', 'plain'],
+			\ [9, '\d', 'plain'], [10, '"not a string"', 'comment']]],
+		\ ['html', [
+			\ '<div class="card" data-label=''hello &amp; world'' tabindex=2>',
+			\ '  Ordinary text &amp; more text.',
+			\ '  <input title="" value="42">',
+			\ '  <!-- TODO: "not a string" -->',
+			\ '</div>'], [
+			\ [1, 'div', 'keyword'], [1, 'class', 'plain'],
+			\ [1, '"card"', 'string'], [1, 'data-label', 'plain'],
+			\ [1, "'hello &amp; world'", 'string'],
+			\ [1, 'tabindex', 'plain'], [1, '2>', 'string', 1],
+			\ [2, 'Ordinary text &amp; more text.', 'plain'],
+			\ [3, 'title', 'plain'], [3, '""', 'string'],
+			\ [3, '"42"', 'string'], [4, 'TODO', 'comment'],
+			\ [4, '"not a string"', 'comment']]],
+		\ ['html', [
+			\ '<STYLE>',
+			\ '.card { content: "hello"; margin: 12px; }',
+			\ '</STYLE>',
+			\ '<script>',
+			\ 'const count = value-2;',
+			\ 'if (count) console.log("yes", true);',
+			\ '</script>',
+			\ '<div title="after">plain after</div>'], [
+			\ [1, 'STYLE', 'keyword'], [2, '.card', 'plain'],
+			\ [2, 'content', 'plain'], [2, '"hello"', 'string'],
+			\ [2, '12px', 'number'], [3, 'STYLE', 'keyword'],
+			\ [4, 'script', 'keyword'], [5, 'const', 'keyword'],
+			\ [5, 'value', 'plain'], [5, '2', 'number'],
+			\ [6, 'if', 'keyword'], [6, 'console', 'plain'],
+			\ [6, '"yes"', 'string'], [6, 'true', 'constant'],
+			\ [7, 'script', 'keyword'], [8, 'title', 'plain'],
+			\ [8, '"after"', 'string'], [8, 'plain after', 'plain']]],
+		\ ['html', [
+			\ '<script>',
+			\ 'if (a<b && c>2) console.log("yes");',
+			\ '</script>'], [
+			\ [1, 'script', 'keyword'], [2, 'if', 'keyword'],
+			\ [2, 'b', 'plain'], [2, 'c>2', 'plain', 1],
+			\ [2, '2', 'number'], [2, '"yes"', 'string'],
+			\ [3, 'script', 'keyword']]],
+		\ ['markdown', [
+			\ '<div style="content: ''hello''; margin: 12px; color: #aabbcc;">text</div>',
+			\ '<style>.card { content: "after"; }</style>'], [
+			\ [1, 'style', 'plain'],
+			\ [1, '"content: ''hello''; margin: 12px; color: #aabbcc;"', 'string'],
+			\ [2, '"after"', 'string']]],
+		\ ['markdown', [
+			\ '# Heading',
+			\ '## Smaller heading',
+			\ 'Text with **bold** and *italic* and [link](https://example.com).',
+			\ 'Use `if true 42` and ``a ` b``; escaped \* is plain.',
+			\ 'snake_case stays plain.',
+			\ '- list item',
+			\ '> quoted text',
+			\ '```unknown',
+			\ '# not a heading; **not bold** <div title="plain">42</div> [[Hidden#Anchor]] [hidden](#hidden)',
+			\ '````',
+			\ '# After fence'], [
+			\ [1, '# Heading', 'keyword'], [2, '## Smaller heading', 'keyword'],
+			\ [3, 'bold', 'bold'], [3, 'italic', 'italic'], [3, 'link', 'link'],
+			\ [3, 'https://example.com', 'link'],
+			\ [4, 'if true 42', 'bold'], [4, '`if true 42`', 'plain', 1],
+			\ [4, '` and', 'plain', 1], [4, 'a ` b', 'plain'], [4, '\*', 'plain'],
+			\ [5, 'snake_case', 'plain'], [6, '-', 'keyword'], [7, '>', 'comment'],
+			\ [9, '# not a heading; **not bold** <div title="plain">42</div>', 'plain'],
+			\ [9, '[[Hidden#Anchor]]', 'plain'], [9, '[hidden](#hidden)', 'plain'],
+			\ [11, '# After fence', 'keyword']]],
+		\ ['markdown', [
+			\ '---',
+			\ 'title: hello world',
+			\ '"key": "value"',
+			\ 'count: 42',
+			\ '---',
+			\ 'Ordinary prose with 42 and true.'], [
+			\ [2, 'title', 'plain'], [2, 'hello world', 'string'],
+			\ [3, '"key"', 'plain'], [3, '"value"', 'string'],
+			\ [4, 'count', 'plain'], [4, '42', 'number'],
+			\ [6, '42', 'plain'], [6, 'true', 'plain']]],
+		\ ['markdown', [
+			\ '# First title',
+			\ '## Second title',
+			\ '### Third title with *italic* and **bold**',
+			\ '#### Fourth title',
+			\ '##### Fifth title',
+			\ '###### Sixth title',
+			\ 'Ordinary *italic* and _italic_ text.'], [
+			\ [1, '# First title', 'keyword'], [2, '## Second title', 'keyword'],
+			\ [3, '### Third title with', 'keyword'], [3, 'italic', 'headingItalic'],
+			\ [3, 'bold', 'keyword'], [4, '#### Fourth title', 'keyword'],
+			\ [5, '##### Fifth title', 'keyword'], [6, '###### Sixth title', 'keyword'],
+			\ [7, '*italic*', 'italic'], [7, '_italic_', 'italic']]],
+		\ ['markdown', [
+			\ '# Literal \*stars\* text',
+			\ 'Ordinary prose',
+			\ '# Literal `*code*` text',
+			\ '# Unfinished *title',
+			\ 'Prose after unfinished title'], [
+			\ [1, '# Literal \*stars\* text', 'keyword'], [2, 'Ordinary prose', 'plain'],
+			\ [3, '# Literal', 'keyword'], [3, '*code*', 'keyword'],
+			\ [3, '`*code*`', 'plain', 1], [3, '` text', 'plain', 1],
+			\ [5, 'Prose after unfinished title', 'plain']]],
+		\ ['markdown', [
+			\ '[site](https://example.com/#section) and [local](#local-anchor).',
+			\ '[[Page#Section|label]] and [[#Local anchor]].',
+			\ '<https://example.com/#auto>',
+			\ 'Use `if true 42` and ``a ` b``.',
+			\ '### [Heading](#heading) and [[Page#Title|wiki]] and `code` and [*italic*](#italic)',
+			\ '[**bold** *italic* `code`](#format)',
+			\ '[ref]: https://example.com/#reference',
+			\ '[reference][ref]'], [
+			\ [1, 'site', 'link'], [1, 'https://example.com/#section', 'link'],
+			\ [1, 'local', 'link'], [1, '#local-anchor', 'link'],
+			\ [2, 'Page#Section|label', 'link'], [2, '#Local anchor', 'link'],
+			\ [2, '[[Page', 'plain', 2], [2, ']] and', 'plain', 2],
+			\ [3, 'https://example.com/#auto', 'link'],
+			\ [4, 'if true 42', 'bold'], [4, '`if true 42`', 'plain', 1],
+			\ [4, '` and', 'plain', 1], [4, '``a ` b``', 'plain'],
+			\ [5, '###', 'keyword'], [5, 'Heading', 'linkBold'],
+			\ [5, '#heading', 'linkBold'], [5, 'Page#Title|wiki', 'linkBold'],
+			\ [5, 'code', 'keyword'], [5, '`code`', 'plain', 1],
+			\ [5, '` and', 'plain', 1], [5, 'italic', 'linkBoldItalic'],
+			\ [6, 'bold', 'linkBold'], [6, 'italic', 'linkItalic'],
+			\ [6, 'code', 'linkBold'], [6, '`code`', 'plain', 1],
+			\ [6, '`]', 'plain', 1], [6, '#format', 'link'],
+			\ [7, 'ref', 'link'], [7, 'https://example.com/#reference', 'link'],
+			\ [8, 'reference', 'link'], [8, 'ref]', 'link', 3]]],
+		\ ['markdown', [
+			\ '    **four spaces**',
+			\ '        **eight spaces**',
+			\ "\t**tab indent**",
+			\ '   Ordinary **bold** prose'], [
+			\ [1, '**four spaces**', 'plain'], [2, '**eight spaces**', 'plain'],
+			\ [3, '**tab indent**', 'plain'], [4, 'Ordinary', 'plain'],
+			\ [4, 'bold', 'bold']]],
+		\ ['awk', [
+			\ '$1 ~ /foo/ && /if 42/ { print $1 }',
+			\ '$1 ~ /foo/ || /while 7/ { print $1 }',
+			\ '{ print value / 2 }'], [
+			\ [1, '/if 42/', 'plain'], [1, 'print', 'keyword'],
+			\ [2, '/while 7/', 'plain'], [3, 'print', 'keyword'],
+			\ [3, '2', 'number']]],
+		\ ['perl', [
+			\ '$line =~ /foo/ && /if 42/;',
+			\ '$line =~ /foo/ || /while 7/;',
+			\ 'print $value / 2;'], [
+			\ [1, '/if 42/', 'plain'], [2, '/while 7/', 'plain'],
+			\ [3, 'print', 'keyword'], [3, '2', 'number']]],
+		\ ['css', [
+			\ '.card[data-label="hello"] {',
+			\ '  content: "hello\000026 world\"";',
+			\ "  font-family: 'Demo Font';",
+			\ '  margin: 12px; opacity: 0.5;',
+			\ '  color: #aabbcc; display: block;',
+			\ '  background-image: url("image.svg");',
+			\ '  /* TODO: "not a string" */',
+			\ '}',
+			\ '.na\6de { content: "done"; }'], [
+			\ [1, '.card', 'plain'], [1, 'data-label', 'plain'],
+			\ [1, '"hello"', 'string'], [2, 'content', 'plain'],
+			\ [2, '"hello', 'string'], [2, '\000026', 'string'],
+			\ [2, 'world\""', 'string'], [3, 'font-family', 'plain'],
+			\ [3, "'Demo Font'", 'string'], [4, 'margin', 'plain'],
+			\ [4, '12px', 'number'], [4, '0.5', 'number'],
+			\ [5, 'color', 'plain'], [5, '#aabbcc', 'constant'],
+			\ [5, 'block', 'constant'], [6, 'background-image', 'plain'],
+			\ [6, '"image.svg"', 'string'], [7, 'TODO', 'comment'],
+			\ [7, '"not a string"', 'comment'],
+			\ [9, '.na\6de', 'plain'], [9, '"done"', 'string']]],
+		\ ['css', [
+			\ '.card { content: "}"; color: red; }',
+			\ '@media (min-width: 400px) { .card { padding: 2em; } }',
+			\ '.other { content: "after"; }'], [
+			\ [1, '"}"', 'string'], [1, 'color', 'plain'],
+			\ [1, 'red', 'constant'], [2, 'padding', 'plain'],
+			\ [2, '2em', 'number'], [3, '"after"', 'string']]],
+		\ ['json', [
+			\ '{',
+			\ '  "name": "hello",',
+			\ '  "escaped\"key": "line\n\u0041",',
+			\ '  "empty": "",',
+			\ '  "": "empty key",',
+			\ '  "count": 42, "scale": -2.5e3,',
+			\ '  "enabled": true, "nothing": null,',
+			\ '  "items": ["one", "", {"nested": "two"}]',
+			\ '}'], [
+			\ [2, '"name"', 'plain'], [2, '"hello"', 'string'],
+			\ [3, '"escaped\"key"', 'plain'], [3, '"line\n\u0041"', 'string'],
+			\ [4, '"empty"', 'plain'], [4, '""', 'string'],
+			\ [5, '""', 'plain'], [5, '"empty key"', 'string'],
+			\ [6, '"count"', 'plain'], [6, '42', 'number'],
+			\ [6, '"scale"', 'plain'], [6, '-2.5e3', 'number'],
+			\ [7, '"enabled"', 'plain'], [7, 'true', 'constant'],
+			\ [7, '"nothing"', 'plain'], [7, 'null', 'constant'],
+			\ [8, '"items"', 'plain'], [8, '"one"', 'string'],
+			\ [8, '""', 'string'], [8, '"nested"', 'plain'],
+			\ [8, '"two"', 'string']]],
+		\ ['yaml', [
+			\ 'plain: hello world',
+			\ 'double: "line\n\u0041"',
+			\ "single: 'it''s text'",
+			\ '"quoted key": "value"',
+			\ '"escaped\"key": text',
+			\ 'count: 42',
+			\ 'enabled: true',
+			\ 'nothing: null',
+			\ 'flow: {name: "hello", "quoted": plain, count: 2}',
+			\ 'items: ["one", two, 3]',
+			\ 'sequence:',
+			\ '  - name: item',
+			\ '  - "quoted": "text"',
+			\ 'literal: | # header comment',
+			\ '  text: "not a key"',
+			\ '  # literal text, not a comment',
+			\ '  42 true',
+			\ 'after: done',
+			\ 'folded: >-',
+			\ '  hello',
+			\ '  world',
+			\ 'last: end',
+			\ 'true: value',
+			\ '"123": "true"',
+			\ 'jsonstyle: {"key":"value"}',
+			\ '# TODO: "not a string"'], [
+			\ [1, 'plain', 'plain'], [1, 'hello', 'string'],
+			\ [1, 'world', 'string'],
+			\ [2, 'double', 'plain'], [2, '"line\n\u0041"', 'string'],
+			\ [3, 'single', 'plain'], [3, "'it''s text'", 'string'],
+			\ [4, '"quoted key"', 'plain'], [4, '"value"', 'string'],
+			\ [5, '"escaped\"key"', 'plain'], [5, 'text', 'string'],
+			\ [6, 'count', 'plain'], [6, '42', 'number'],
+			\ [7, 'enabled', 'plain'], [7, 'true', 'constant'],
+			\ [8, 'nothing', 'plain'], [8, 'null', 'constant'],
+			\ [9, 'name', 'plain'], [9, '"hello"', 'string'],
+			\ [9, '"quoted"', 'plain'], [9, 'plain', 'string'],
+			\ [9, 'count', 'plain'], [9, '2', 'number'],
+			\ [10, 'items', 'plain'], [10, '"one"', 'string'],
+			\ [10, 'two', 'string'], [10, '3', 'number'],
+			\ [12, 'name', 'plain'], [12, 'item', 'string'],
+			\ [13, '"quoted"', 'plain'], [13, '"text"', 'string'],
+			\ [14, 'literal', 'plain'], [14, 'header comment', 'comment'],
+			\ [15, 'text: "not a key"', 'string'],
+			\ [16, '# literal text, not a comment', 'string'],
+			\ [17, '42 true', 'string'], [18, 'after', 'plain'],
+			\ [18, 'done', 'string'], [20, 'hello', 'string'],
+			\ [21, 'world', 'string'], [22, 'last', 'plain'],
+			\ [22, 'end', 'string'], [23, 'true', 'plain'],
+			\ [24, '"123"', 'plain'], [24, '"true"', 'string'],
+			\ [25, '"key"', 'plain'], [25, '"value"', 'string'],
+			\ [26, 'TODO', 'comment'], [26, '"not a string"', 'comment']]],
+		\ ['yaml', [
+			\ 'empty: ""',
+			\ '"": "empty key"',
+			\ 'url: https://example.com/path#fragment',
+			\ 'phrase: hello 42 true',
+			\ 'numbers: [-2.5e3, 0x2a, 0o52, .inf]',
+			\ 'flags: [false, null, ~]',
+			\ 'nested: [{name: "one"}, {name: two}]',
+			\ '- "list value"',
+			\ '- bare text',
+			\ 'root value',
+			\ '  block: |+',
+			\ '    hello',
+			\ '',
+			\ '    # block text',
+			\ '  next: done',
+			\ 'tail: value # inline comment'], [
+			\ [1, 'empty', 'plain'], [1, '""', 'string'],
+			\ [2, '""', 'plain'], [2, '"empty key"', 'string'],
+			\ [3, 'url', 'plain'], [3, 'https://example.com/path#fragment', 'string'],
+			\ [4, 'hello 42 true', 'string'],
+			\ [5, '-2.5e3', 'number'], [5, '0x2a', 'number'],
+			\ [5, '0o52', 'number'], [5, '.inf', 'number'],
+			\ [6, 'false', 'constant'], [6, 'null', 'constant'],
+			\ [6, '~', 'constant'], [7, 'name', 'plain'],
+			\ [7, '"one"', 'string'], [7, 'two', 'string'],
+			\ [8, '"list value"', 'string'], [9, 'bare text', 'string'],
+			\ [10, 'root value', 'string'], [12, 'hello', 'string'],
+			\ [14, '# block text', 'string'], [15, 'next', 'plain'],
+			\ [15, 'done', 'string'], [16, 'value', 'string'],
+			\ [16, 'inline comment', 'comment']]],
+		\ ['conf', [
+			\ 'name = "plain string"',
+			\ "other = 'plain too'",
+			\ '# TODO: "not a string"'], [
+			\ [1, 'name', 'plain'], [1, '"plain string"', 'plain'],
+			\ [2, "'plain too'", 'plain'], [3, 'TODO', 'comment']]],
 		\ ['python', [
 			\ 'def f():',
 			\ '  if count > 12:',
@@ -493,6 +878,15 @@ for s:bg in ['dark', 'light', 'dark']
 			\ [18, 'Foo::print', 'plain'], [18, 'Foo::sin', 'plain'],
 			\ [18, 'print "after"', 'keyword', 5],
 			\ [19, 'print:', 'plain'], [19, 'print "ok"', 'keyword', 5]]],
+		\ ['perl', [
+			\ 'my $broken = "unfinished',
+			\ 'print "done", 42;',
+			\ 'my $broken = qq{unfinished',
+			\ 'print "after", 2;'], [
+			\ [1, 'unfinished', 'plain'], [2, 'print', 'keyword'],
+			\ [2, '"done"', 'string'], [2, '42', 'number'],
+			\ [3, 'unfinished', 'plain'], [4, 'print', 'keyword'],
+			\ [4, '"after"', 'string'], [4, '2', 'number']]],
 		\ ['awk', [
 			\ 'BEGIN { count = 12; print "hello\n"; printf "%s", count }',
 			\ '$1 ~ /^hello[0-9]+[[:space:]]\t\/\x41\101.*$/ { if (count > 2) print $1 }',
@@ -515,16 +909,48 @@ for s:bg in ['dark', 'light', 'dark']
 		enew
 		call setline(1, s:fixture[1])
 		execute 'setfiletype' s:fixture[0]
+		if s:fixture[0] ==# 'yaml'
+			call assert_equal('yaml', &syntax, 'YAML uses our standalone lexer')
+		endif
+		if index(['javascript', 'typescript'], s:fixture[0]) >= 0
+			call assert_equal(s:fixture[0], &syntax)
+			call assert_notmatch('\n\%(javaScriptNumber\|typescriptNumber\)\s',
+				\ execute('syntax list'), 'Bundled JS/TS grammar must not be loaded')
+		endif
+		if index(['json', 'yaml'], s:fixture[0]) >= 0
+			call assert_notmatch('\n\%(jsonNoQuotesError\|yamlFloat\)\s',
+				\ execute('syntax list'), 'Bundled data grammar must not be loaded')
+		endif
+		if index(['html', 'css'], s:fixture[0]) >= 0
+			call assert_notmatch('\n\%(htmlTagError\|cssTagName\)\s',
+				\ execute('syntax list'), 'Bundled markup grammar must not be loaded')
+		endif
+		if index(['awk', 'perl', 'sh'], s:fixture[0]) >= 0
+			call assert_notmatch('\n\%(awkOperator\|perlStatementInclude\|shFunctionTwo\)\s',
+				\ execute('syntax list'), 'Bundled filter/shell grammar must not be loaded')
+		endif
+		if s:fixture[0] ==# 'markdown'
+			call assert_notmatch('\n\%(markdownError\|markdownValid\)\s',
+				\ execute('syntax list'), 'Bundled Markdown grammar must not be loaded')
+		endif
 		let s:native_syntax = b:current_syntax
+		let s:syntax = &syntax
 		for s:reload in range(3)
 			if s:reload == 2
-				execute 'set syntax=' . s:fixture[0]
+				execute 'set syntax=' . s:syntax
 				call assert_equal(s:native_syntax, b:current_syntax)
 			endif
 			if s:reload
 				colorscheme basic
 			endif
 			syntax sync fromstart
+			if s:fixture[0] ==# 'markdown'
+				for s:line in range(1, line('$'))
+					if getline(s:line) =~# '^#\{1,6} '
+						call assert_equal(0, synconcealed(s:line, 1)[0], 'Title markers must stay visible')
+					endif
+				endfor
+			endif
 			for s:case in s:fixture[2]
 				let s:col = stridx(getline(s:case[0]), s:case[1]) + 1
 				call assert_true(s:col > 0, string(s:case))
@@ -607,7 +1033,7 @@ call assert_equal(s:keyword, s:Style(synID(455, 1, 1)))
 bwipeout!
 call delete(s:awk_file)
 
-" Native Perl synchronization must not escape a long shell-embedded program.
+" Perl synchronization must not escape a long shell-embedded program.
 let s:perl_file = tempname() . '.sh'
 call writefile(['#!/bin/sh', "perl -e '"] + repeat(['my $value = 1;'], 450) +
 	\ ['my $pattern = qr{a{2}}; print "done", 2;', "'", 'if true; then :; fi'], s:perl_file)
@@ -619,6 +1045,83 @@ call assert_equal(s:number, s:Style(synID(453, strridx(getline(453), '2') + 1, 1
 call assert_equal(s:keyword, s:Style(synID(455, 1, 1)))
 bwipeout!
 call delete(s:perl_file)
+
+" Owned code fences work together without a test-specific language list.
+let s:fences = [
+	\ ['sh', 'if true; then echo "hello" 42; fi', [['if', 'keyword'], ['42', 'number']]],
+	\ ['bash', 'if true; then echo "hello" 42; fi', [['if', 'keyword'], ['42', 'number']]],
+	\ ['javascript', 'const type = 42;', [['const', 'keyword'], ['type', 'plain'], ['42', 'number']]],
+	\ ['js', 'const value = 42;', [['const', 'keyword'], ['42', 'number']]],
+	\ ['typescript', 'type Value = number;', [['type', 'keyword']]],
+	\ ['ts', 'type Value = number;', [['type', 'keyword']]],
+	\ ['json', '{"value": "text", "count": 42}', [['value', 'plain'], ['text', 'string'], ['42', 'number']]],
+	\ ['yaml', 'value: "text"', [['value', 'plain'], ['text', 'string']]],
+	\ ['yml', 'value: "text"', [['value', 'plain'], ['text', 'string']]],
+	\ ['html', '<div title="text">hello</div>', [['text', 'string']]],
+	\ ['css', 'body { width: 42px; }', [['42', 'number']]],
+	\ ['awk', 'BEGIN { print "text", 42 }', [['BEGIN', 'keyword'], ['text', 'string'], ['42', 'number']]],
+	\ ['perl', 'my $count = 42; print "text";', [['my', 'keyword'], ['42', 'number'], ['text', 'string']]]]
+let s:fence_lines = []
+for s:fence in s:fences
+	call extend(s:fence_lines, ['```' . s:fence[0], s:fence[1], '```', 'if true'])
+endfor
+enew
+call setline(1, s:fence_lines)
+setfiletype markdown
+for s:i in range(len(s:fences))
+	let s:fence = s:fences[s:i]
+	let s:line = 4 * s:i + 2
+	for s:case in s:fence[2]
+		call assert_equal(s:styles[s:case[1]], s:Style(synID(s:line, stridx(getline(s:line), s:case[0]) + 1, 1)),
+			\ s:fence[0] . ' default fence ' . s:case[0])
+	endfor
+	call assert_equal(s:plain, s:Style(synID(s:line + 2, 1, 1)),
+		\ s:fence[0] . ' fence syntax stays out of prose')
+endfor
+bwipeout!
+unlet s:fences s:fence_lines
+
+" Markdown aliases share lexers without changing another language's boundaries.
+enew
+call setline(1, ['```js', 'const count = value-2;', '```',
+	\ '~~~bash', 'if true; then echo "$count"; fi', '~~~',
+	\ '```{.js}', 'const title = "hello";', '```',
+	\ '```md', '# plain', '```',
+	\ '```js', 'const type = 42; const text = `${value as name}`;', '```',
+	\ '```ts', 'const text = `${value as Name}`;', '```',
+	\ '```json', '{"count": 42}', '```'])
+let v:errmsg = ''
+setfiletype markdown
+call assert_equal('', v:errmsg, 'Markdown syntax imports must load without errors')
+call assert_equal(s:keyword, s:Style(synID(2, 1, 1)))
+call assert_equal(s:number, s:Style(synID(2, stridx(getline(2), '2') + 1, 1)))
+call assert_equal(s:keyword, s:Style(synID(5, 1, 1)))
+call assert_equal(s:string, s:Style(synID(8, stridx(getline(8), '"hello"') + 1, 1)))
+call assert_equal(s:plain, s:Style(synID(11, 1, 1)))
+call assert_equal(s:plain, s:Style(synID(14, stridx(getline(14), 'type') + 1, 1)))
+call assert_equal(s:plain, s:Style(synID(14, stridx(getline(14), 'as name') + 1, 1)))
+call assert_equal(s:keyword, s:Style(synID(17, stridx(getline(17), 'as Name') + 1, 1)))
+call assert_equal(s:number, s:Style(synID(20, stridx(getline(20), '42') + 1, 1)))
+call assert_notmatch('\n\%(typescriptNumber\|typescriptAliasKeyword\)\s',
+	\ execute('syntax list'), 'TypeScript fences must not load the bundled grammar')
+bwipeout!
+
+" A long fence must work on the first query near the file's end.
+let s:markdown_file = tempname() . '.md'
+call writefile(['```javascript'] + repeat(['// filler'], 450) +
+	\ ['const title = "done";', '```', '# After fence'], s:markdown_file)
+execute 'edit' fnameescape(s:markdown_file)
+call assert_equal(s:string, s:Style(synID(452, stridx(getline(452), '"done"') + 1, 1)))
+call assert_equal(s:keyword, s:Style(synID(454, 1, 1)))
+bwipeout!
+call delete(s:markdown_file)
+
+enew
+let b:markdown_yaml_head = 0
+call setline(1, ['---', 'title: hello', '...'])
+setfiletype markdown
+call assert_equal(s:plain, s:Style(synID(2, stridx(getline(2), 'hello') + 1, 1)))
+bwipeout!
 
 " Terminal mappings trigger view navigation
 let s:tj = maparg('<c-j>', 't', 0, 1)

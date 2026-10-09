@@ -2,11 +2,12 @@
 " Keep identifiers, operators, types, and shell commands plain.
 " Comments are gray; constants and numbers are greenish teal.
 " Keywords are muted purple and bold; colored strings are rose-magenta.
-" Normal, keywords, strings, and numbers have similar reference xterm contrast.
-" Python, Perl, AWK, Go, C, and JavaScript strings use LiteralString, separate from numbers.
-" Go runes and C characters use the same string accent, including their escapes.
-" JavaScript templates share the string accent; interpolated expressions keep native roles.
-" Perl, AWK, and JavaScript regexes stay plain; unlisted languages keep strings plain.
+" Normal, keywords, strings, numbers, and links have similar reference xterm contrast.
+" String values in Python, Go, C, and our lexers use LiteralString.
+" Keys stay plain, including quoted JSON/YAML keys; regexes stay plain.
+" JavaScript templates share the string accent; expressions keep their own roles.
+" Markdown headings use the keyword accent; links are blue and inline code bold.
+" Unlisted languages keep strings plain.
 " TODO follows comments rather than adding a separate warning color.
 "
 " Preserve the existing UI colors for bars, search, selection, and diagnostics.
@@ -14,33 +15,23 @@
 " Normal has a neutral foreground; the background remains the terminal's default.
 " Exact contrast still depends on the terminal's palette and background.
 " Tests use reference black/white backgrounds: at least 4.5:1 contrast,
-" with no more than a 20% spread among the four primary text roles.
-" Native syntax files decide which tokens match; this file only changes styling.
+" with no more than a 20% spread among the five primary text roles.
+" vim/syntax owns small lexers for JavaScript, TypeScript, JSON, YAML, HTML,
+" CSS, AWK, Perl, sh, and Markdown. Other languages use their existing syntax.
+" These are practical lexers, not full grammars; unsupported constructs stay plain.
 " Forced links prevent inherited syntax colors or bold attributes from leaking.
-" vim/after/syntax/awk.vim separates regex escapes from the shared string-escape group.
-" vim/after/syntax/perl.vim separates regex escapes, nested delimiters, and qr quotes.
-" The shell extension defers those replacements until after including native Perl.
-" Clears are ignored inside syntax includes; redefining there duplicates nesting rules.
-"
-" vim/after/syntax/sh/awk.vim embeds native AWK syntax without changing shell filetypes.
-" It handles single-quoted programs immediately after awk, gawk, mawk, or nawk.
-" Options before the program and concatenated shell quotes are outside this rule.
-" The extension preserves shell keyword characters and the native shell syntax marker.
-" Its numeric rule fixes subtraction boundaries.
-" vim/after/syntax/sh/perl.vim embeds single-quoted perl -e and -E programs.
-" Combined short flags and preceding unquoted option words work, including -ne and -I.
-" Options with separate arguments and concatenated shell quotes are outside this rule.
-" Both embeddings preserve the shell syntax marker and keyword characters.
-" The Perl extension also handles quote-like operators immediately after the shell quote.
-" Escapes, nested strings, interpolation, and POD stop before the closing shell quote.
-" Native keyword and number matches avoid the shell's '-' boundaries.
-" Keywords retain Perl's ':' boundaries for qualified names and labels.
-" Those boundary overrides mirror the native Perl rules and need review after runtime updates.
-" Synchronization starts at the file's beginning to keep long embedded blocks correct.
-" This trades more parsing in large shell files for correct highlighting.
-" dot.vimrc adds vim/after to the runtime path after the standard syntax files.
-" Restart Vim after changing the runtime path.
-" tests/vim.vim covers language roles, backgrounds, reloads, bin/fivenum, and acme/afmt.
+" HTML embeds our CSS and JavaScript; Markdown reuses those imports.
+" YAML replaces the old conf fallback without loading the heavy bundled grammar.
+" JSON preserves g:vim_json_conceal; Markdown uses fixed fence-language defaults.
+" sh embeds single-quoted awk/gawk/mawk/nawk programs immediately after the command,
+" and perl -e/-E programs, including combined short flags such as -ne.
+" Separate option arguments and concatenated shell quotes are outside these rules.
+" Perl quote-like operators stay on one line; shell quotes bound embedded programs.
+" JS/TS, Perl, sh, and Markdown synchronize from the start for long regions.
+" Cold jumps can cost more than bounded synchronization; subsequent queries are cached.
+" dot.vimrc puts vim/ before the standard runtime, with vim/after last.
+" Restart Vim after changing syntax files to discard already-loaded definitions.
+" tests/vim.vim covers language roles, backgrounds, reloads, and embedded programs.
 " Run from the repository root:
 " DOTFILES="$PWD" vim -Nu NONE -n -i NONE -es -S tests/vim.vim
 
@@ -74,12 +65,16 @@ if &background ==# 'dark'
 	hi Constant      cterm=NONE ctermfg=115 ctermbg=NONE
 	hi Statement     cterm=bold ctermfg=183 ctermbg=NONE
 	hi LiteralString cterm=NONE ctermfg=218 ctermbg=NONE
+	hi markdownHeadingItalic cterm=bold,italic ctermfg=183 ctermbg=NONE gui=bold,italic
+	let s:link_color = 117
 else
 	hi Normal        cterm=NONE ctermfg=239 ctermbg=NONE
 	hi Comment       cterm=NONE ctermfg=240 ctermbg=NONE
 	hi Constant      cterm=NONE ctermfg=23 ctermbg=NONE
 	hi Statement     cterm=bold ctermfg=91 ctermbg=NONE
 	hi LiteralString cterm=NONE ctermfg=125 ctermbg=NONE
+	hi markdownHeadingItalic cterm=bold,italic ctermfg=91 ctermbg=NONE gui=bold,italic
+	let s:link_color = 24
 endif
 hi! link Number Constant
 hi! link Float Number
@@ -137,6 +132,62 @@ hi! link javaScriptStringS LiteralString
 hi! link javaScriptStringD LiteralString
 hi! link javaScriptStringT LiteralString
 hi! link javaScriptSpecial LiteralString
+hi! link jsString LiteralString
+hi! link jsTemplate jsString
+
+hi! link htmlString LiteralString
+hi! link htmlValue htmlString
+
+hi! link cssStringQ LiteralString
+hi! link cssStringQQ LiteralString
+hi! link cssSpecialCharQ cssStringQ
+hi! link cssSpecialCharQQ cssStringQQ
+
+hi! link jsonString LiteralString
+hi! link jsonEscape jsonString
+hi! link jsonKeyword Normal
+hi! link jsonQuote Normal
+hi! link jsonNull Constant
+
+hi! link yamlString LiteralString
+hi! link yamlPlainScalar yamlString
+hi! link yamlEscape yamlString
+hi! link yamlSingleEscape yamlString
+hi! link yamlQuotedKey Normal
+hi! link yamlKey Normal
+hi! link yamlSequence Normal
+hi! link yamlNumber Number
+hi! link yamlConstant Constant
+hi! link yamlBlockScalar yamlString
+
+" Markdown keeps titles bold and blue links distinct without bright contrast jumps.
+for s:level in range(1, 6)
+	execute 'hi! link markdownH' . s:level . ' Statement'
+endfor
+unlet s:level
+hi markdownBold       term=bold cterm=bold gui=bold
+hi markdownItalic     term=italic cterm=italic gui=italic
+hi markdownBoldItalic term=bold,italic cterm=bold,italic gui=bold,italic
+hi markdownStrike     term=strikethrough cterm=strikethrough gui=strikethrough
+for [s:group, s:attributes] in [
+	\ ['markdownLinkText', 'underline'], ['markdownLinkBold', 'bold,underline'],
+	\ ['markdownLinkItalic', 'italic,underline'], ['markdownLinkBoldItalic', 'bold,italic,underline']]
+	execute 'hi ' . s:group . ' term=' . s:attributes . ' cterm=' . s:attributes .
+		\ ' ctermfg=' . s:link_color . ' ctermbg=NONE gui=' . s:attributes
+endfor
+unlet s:group s:attributes s:link_color
+hi! link markdownUrl markdownLinkText
+hi! link markdownAutomaticLink markdownLinkText
+hi! link markdownId markdownLinkText
+hi! link markdownIdDeclaration markdownLinkText
+hi! link markdownWikiLink markdownLinkText
+hi! link markdownHeadingLinkText markdownLinkBold
+hi! link markdownHeadingWikiLink markdownLinkBold
+hi! link markdownHeadingAutomaticLink markdownLinkBold
+hi! link markdownHeadingUrl markdownLinkBold
+hi! link markdownHeadingId markdownLinkBold
+hi! link markdownCode markdownBold
+hi! link markdownCodeDelimiter Normal
 
 " UI
 if &background ==# 'dark'

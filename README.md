@@ -82,6 +82,11 @@ Vim is the main editor here. I aim to keep its configuration readable.
 `dot.vimrc` contains Vim declarations. Autoload files define behavior.
 Vim loads plugins only when needed.
 
+Ten compact lexers in `vim/syntax/` replace bundled grammars for JavaScript,
+TypeScript, JSON, YAML, HTML, CSS, AWK, Perl, shell, and Markdown. They keep string
+values distinct from keys and embed our lexers in HTML, shell programs, and
+Markdown fences by default. See `vim/README` for options and intentional limits.
+
 Acme scripts live in `acme/`. They communicate with Acme through 9p to format
 code, jump to definitions, find uses, rename symbols, indent text, and reload windows.
 
