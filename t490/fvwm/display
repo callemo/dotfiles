@@ -32,6 +32,10 @@ restart=${3:-auto}
 int='eDP-1'
 root=${DOTFILES:-$HOME/dotfiles}
 fvwmroot=$root/t490/fvwm
+PATH="$root/bin:$PATH"
+export PATH
+. "$fvwmroot/profile" || exit 1
+. "$root/lib/install" || exit 1
 
 [ "$(uname)" = OpenBSD ] || die 'not running openbsd'
 
@@ -99,18 +103,37 @@ kick() {
 	try kill -USR1 $pids && log "restart fvwm pid=$pids"
 }
 
+gtkfont() {
+	config=${XDG_CONFIG_HOME:-$HOME/.config}
+	for version in 3 4; do
+		settings=$config/gtk-$version.0/settings.ini
+		mkdir -p "${settings%/*}" || return 1
+		[ -f "$settings" ] || printf '[Settings]\n' >"$settings" || return 1
+		fileline '^gtk-font-name=' "gtk-font-name=$gtkfont" "$settings" || return
+	done
+	fileline '^gtk-font-name=' "gtk-font-name=\"$gtkfont\"" "$HOME/.gtkrc-2.0"
+}
+
 scale() {
-	dpi=$1 cursor=$2
 	cat <<EOF | xrdb -merge
 Xft.dpi: $dpi
 Xcursor.size: $cursor
+XTerm*faceName: Spleen:pixelsize=$pixels:antialias=false,DejaVu Sans Mono:pixelsize=$pixels:antialias=false
+XTerm*font: spleen-$((pixels / 2))x$pixels
+ToolStatus*font: spleen-$((pixels / 2))x$pixels
+ToolStatus*internalBorder: $padding
 EOF
+	gtkfont || die 'setting GTK font failed'
 	try xrandr --dpi "$dpi"
 	XCURSOR_SIZE=$cursor xsetroot -cursor_name left_ptr 2>/dev/null || true
-	fvwm "SetEnv XCURSOR_SIZE $cursor"
-	fvwm 'SetEnv QT_FONT_DPI 96'
-	fvwm 'SetEnv QT_SCALE_FACTOR 1.6'
-	log "scale: dpi=$dpi cursor=$cursor"
+	fvwm "SetEnv XCURSOR_SIZE $cursor" \
+		'SetEnv QT_FONT_DPI 96' \
+		"SetEnv QT_SCALE_FACTOR $qt" \
+		"DefaultFont \"$fvwmfont\"" \
+		"MenuStyle * Font \"$menufont\"" \
+		"*FvwmPagerFont $fvwmfont" \
+		"*FvwmPagerGeometry $((barheight * 6))x$barheight+0+0"
+	log "scale: dpi=$dpi cursor=$cursor qt=$qt xterm=$pixels"
 }
 
 wallpaper() {
@@ -141,13 +164,15 @@ stale() {
 
 setext() {
 	[ -n "$active" ] && try xrandr --output "$active" --primary
-	scale 138 30
+	profile external
+	scale
 	wallpaper
 	mouse
 }
 
 setint() {
-	scale 144 32
+	profile internal
+	scale
 	wallpaper
 	mouse
 }

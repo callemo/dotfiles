@@ -1,0 +1,14 @@
+#!/bin/sh
+# FvwmForm must read fonts before measuring labels, inputs, and buttons.
+
+root=${DOTFILES:-$HOME/dotfiles}
+. "$root/t490/fvwm/profile" || exit 1
+profile || exit 1
+
+cat <<EOF
+*LogOutFont $formfont
+*LogOutButtonFont $formfont
+*RunCmdFont $formfont
+*RunCmdButtonFont $formfont
+*RunCmdInputFont $inputfont
+EOF

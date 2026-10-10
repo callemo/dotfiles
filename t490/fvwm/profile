@@ -1,0 +1,41 @@
+# Shared display sizes. Source this file before calling profile.
+
+profile() {
+	case ${1:-auto} in
+	auto)
+		output=$(xrandr --current | awk '
+			$2 != "connected" || $1 == "eDP-1" { next }
+			{
+				for (i = 3; i <= NF; i++)
+					if ($i ~ /^[0-9]+x[0-9]+\+[0-9]+\+[0-9]+$/) {
+						print "external"
+						exit
+					}
+			}
+		')
+		set -- "${output:-internal}"
+		;;
+	esac
+
+	case $1 in
+	external)
+		dpi=156 cursor=30 qt=2.0 pixels=32 padding=8
+		gtkfont='DejaVu Sans 12'
+		fvwmfont=spleen-16x32 menufont=spleen-16x32
+		formfont='-adobe-helvetica-medium-r-normal--26-*-100-100-p-*-iso10646-1'
+		inputfont='-adobe-courier-bold-r-normal--32-*-100-100-m-*-iso10646-1'
+		chromescale=1.75
+		;;
+	internal)
+		dpi=144 cursor=32 qt=1.6 pixels=24 padding=3
+		gtkfont='Sans 10'
+		fvwmfont='-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1'
+		menufont=spleen-12x24
+		formfont=$fvwmfont
+		inputfont='-adobe-courier-bold-r-normal--25-180-100-100-m-150-iso10646-1'
+		chromescale=1.5
+		;;
+	*) return 1 ;;
+	esac
+	barheight=$((pixels + 2 * padding))
+}

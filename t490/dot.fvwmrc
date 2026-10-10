@@ -95,7 +95,7 @@ Key K      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 0 -10'
 Key L      A       S4        PipeRead '$HOME/dotfiles/t490/fvwm/resize $w 10 0'
 Key H      A       C4        Move 0 w+0 Warp
 Key J      A       C4        Move w+0 -0 Warp
-Key K      A       C4        Move w+0 30p Warp
+Key K      A       C4        PipeRead '$HOME/dotfiles/t490/fvwm/bar-top $w'
 Key L      A       C4        Move -0 w+0 Warp
 
 # Focus
@@ -244,7 +244,7 @@ AddToFunc Btop
 # }}}
 # Modules {{{
 # ToolBar {{{
-PipeRead '$HOME/dotfiles/t490/fvwm/bar 30'
+PipeRead '$HOME/dotfiles/t490/fvwm/bar'
 # }}}
 # Pager {{{
 *FvwmPagerFont "-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1"
@@ -263,6 +263,7 @@ PipeRead '$HOME/dotfiles/t490/fvwm/bar 30'
 Style "FvwmPager"   NoHandles, BorderWidth 0
 # }}}
 # Form {{{
+PipeRead '$HOME/dotfiles/t490/fvwm/form-fonts'
 # LogOut {{{
 *LogOutGrabServer
 *LogOutWarpPointer
@@ -270,8 +271,6 @@ Style "FvwmPager"   NoHandles, BorderWidth 0
 *LogOutBack       #000000
 *LogOutItemFore   #f9f5d7
 *LogOutItemBack   #282828
-*LogOutFont       -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
-*LogOutButtonFont -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
 *LogOutCommand    Beep
 *LogOutLine       left
 *LogOutText       "Are you sure you want to quit all applications"
@@ -290,9 +289,6 @@ Style "LogOut" NoTitle, NoHandles
 *RunCmdBack       #000000
 *RunCmdItemFore   #f9f5d7
 *RunCmdItemBack   #282828
-*RunCmdFont       -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
-*RunCmdButtonFont -adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1
-*RunCmdInputFont  -adobe-courier-bold-r-normal--25-180-100-100-m-150-iso10646-1
 *RunCmdLine       center
 *RunCmdText       "Run"
 *RunCmdLine       left

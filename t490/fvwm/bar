@@ -3,11 +3,12 @@
 
 root=${DOTFILES:-$HOME/dotfiles}
 fvwmroot=$root/t490/fvwm
-bar=${1:-30}
-status=180
-# unquoted: FvwmButtons takes the rest of the line verbatim, so
-# quotes would become part of the font name
-font='-adobe-helvetica-medium-r-normal--20-140-100-100-p-100-iso10646-1'
+. "$fvwmroot/profile" || exit 1
+profile
+# FvwmButtons columns are two pixels wide.
+pager=$((barheight * 3))
+cellwidth=$((pixels / 2))
+status=$(((29 * cellwidth + 2 * padding + 1) / 2))
 
 dims=$(xdpyinfo | awk '/dimensions:/{print $2; exit}')
 w=${dims%x*}; w=${w:-1920}
@@ -16,14 +17,14 @@ cols=$((w / 2))
 cat <<EOF
 *ToolBarBack #282828
 *ToolBarFore #f9f5d7
-*ToolBarFont $font
-*ToolBarGeometry ${w}x${bar}+0+0
+*ToolBarFont $fvwmfont
+*ToolBarGeometry ${w}x${barheight}+0+0
 *ToolBarRows 1
 *ToolBarColumns $cols
 *ToolBarBoxSize fixed
 *ToolBarFrame 0
 *ToolBarPadding 0 0
-*ToolBar(90x1+0+0, Frame 0, Padding 0 0, Swallow(NoHints) "FvwmPager" \
+*ToolBar(${pager}x1+0+0, Frame 0, Padding 0 0, Swallow(NoHints) "FvwmPager" \
 	"FvwmPager 0 4")
 *ToolBar(${status}x1-0+0, Frame 0, Padding 0 0, \
 	Swallow(NoHints) "ToolStatus" \

@@ -199,6 +199,12 @@ thunar() (
 	log 'Thunar: shortcuts sidebar enabled'
 )
 
+browser() (
+	mkdir -p "$HOME/bin" || return 1
+	ln -sf "$root/bin/chrome" "$HOME/bin/chrome" || return 1
+	log 'Chromium: display-aware launcher installed'
+)
+
 dependencies() (
 	command -v xsel >/dev/null 2>&1 \
 		|| log 'xsel missing; tmux and Vim copy disabled (pkg_add xsel)'
@@ -218,5 +224,6 @@ filechooser || status=1
 mupdf || status=1
 viewers || status=1
 thunar || status=1
+browser || status=1
 dependencies || status=1
 exit "$status"

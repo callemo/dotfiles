@@ -1,0 +1,9 @@
+#!/bin/sh
+# Move a window below the toolbar.
+
+id=$1
+case $id in 0x[0-9a-fA-F]*) ;; *) exit 1 ;; esac
+bar=$(LC_ALL=C xwininfo -name ToolBar -stats 2>/dev/null |
+	awk '$1 == "Height:" { print $2; exit }')
+case $bar in ''|*[!0-9]*) exit 1 ;; esac
+printf 'WindowId %s Move w+0 %sp Warp\n' "$id" "$bar"

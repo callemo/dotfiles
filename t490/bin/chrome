@@ -1,0 +1,8 @@
+#!/bin/sh
+# Scale Chromium for the active display without changing browser preferences.
+
+root=${DOTFILES:-$HOME/dotfiles}
+. "$root/t490/fvwm/profile" || exit 1
+profile || exit 1
+
+exec /usr/local/bin/chrome --force-device-scale-factor="$chromescale" "$@"

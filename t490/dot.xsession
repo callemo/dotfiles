@@ -23,10 +23,6 @@ fi
 	xset fp rehash
 }
 
-# keep qt fonts native; scale the ui explicitly
-export QT_FONT_DPI=96
-export QT_SCALE_FACTOR=1.6
-
 # x resources: hidpi dpi and colours for gtk/chromium
 xrdb -merge "$HOME/.Xdefaults"
 xsetroot -cursor_name left_ptr
@@ -35,6 +31,12 @@ setxkbmap -model pc105 -layout us -variant altgr-intl \
 	-option '' -option compose:rctrl -option ctrl:nocaps
 xinput set-prop /dev/wsmouse 'Device Accel Constant Deceleration' 1
 "$HOME/dotfiles/t490/fvwm/display" sync
+
+# Use the active profile for applications started before FVWM.
+. "$HOME/dotfiles/t490/fvwm/profile"
+profile
+export QT_FONT_DPI=96
+export QT_SCALE_FACTOR=$qt
 
 # screen saver: blank and lock at 10m, dpms off 10s later
 lock=/usr/X11R6/bin/xlock
