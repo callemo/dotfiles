@@ -209,6 +209,8 @@ nnoremap <c-p> <cmd>FZF<CR>
 nnoremap <silent> + <ScriptCmd>execute('resize ' .. (winheight(0) + max([5, winheight(0) / 2])))<CR>
 nnoremap <down> <c-e>
 nnoremap <up> <c-y>
+nnoremap <S-Left> zH
+nnoremap <S-Right> zL
 
 # ── Visual ───────────────────────────────────────────────
 xnoremap <silent> <leader>! <ScriptCmd>exec.Cmd(text.Selection(), 0, 0, 0)<CR><Esc>
