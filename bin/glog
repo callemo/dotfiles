@@ -3,17 +3,17 @@
 # Display git log in a formatted table.
 #
 # Options:
-#   -n NUM    Number of commits to show (default: 21)
+#   -n NUM    Number of commits to show (default: 10)
 #   -v        Verbose mode with graph and stats
 #
 # Examples:
-#   glog           Show last 21 commits
+#   glog           Show last 10 commits
 #   glog -n 5      Show last 5 commits
 #   glog -v        Verbose git log with graph
 
 usage() { sed -En '2,/^[^#]/ s/^# //p' "$0" >&2; }
 
-n=21
+n=10
 v=0
 while [ $# -gt 0 ]
 do
