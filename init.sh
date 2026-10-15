@@ -54,10 +54,25 @@ OpenBSD) VISUAL=vi ;;
 esac
 export VISUAL
 
-case "${SHELL##*/}" in
-ksh)
+pathfront '/usr/local/node/bin'
+pathfront '/usr/local/go/bin'
+pathfront "$HOME/go/bin"
+pathfront "$HOME/.local/bin"
+pathfront "$HOME/dotfiles/bin"
+pathfront "$HOME/bin"
+export PATH
+unset pathfront
+
+if [ "${SHELL##*/}" = ksh ]; then
 	ENV="$HOME/.kshrc"; export ENV
-	;;
+fi
+
+if [ "${TERM:-}" = dumb ]; then
+	PS1='$ '
+	return
+fi
+
+case "${SHELL##*/}" in
 zsh)
 	: "${HISTFILE:=$HOME/.zsh_history}"
 	: "${SAVEHIST:=$HISTSIZE}"; export SAVEHIST
@@ -86,12 +101,3 @@ bash)
 	fi
 	;;
 esac
-
-pathfront '/usr/local/node/bin'
-pathfront '/usr/local/go/bin'
-pathfront "$HOME/go/bin"
-pathfront "$HOME/.local/bin"
-pathfront "$HOME/dotfiles/bin"
-pathfront "$HOME/bin"
-export PATH
-unset pathfront

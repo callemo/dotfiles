@@ -1,8 +1,14 @@
+if [ "${TERM:-}" = dumb ]; then
+	PS1='$ '
+	return
+fi
+
 # /etc/ksh.kshrc and PS1 escapes are OpenBSD ksh features;
 # NetBSD ksh expands only parameters in PS1
 case $(uname) in
 OpenBSD)
 	. /etc/ksh.kshrc
+	[ -t 0 ] && stty status '^T'
 	;;
 esac
 

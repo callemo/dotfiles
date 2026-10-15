@@ -17,11 +17,11 @@ plan9=${PLAN9:-/usr/local/plan9}
 fonts=$("$plan9/bin/fontsrv" -p . 2>/dev/null) || fonts=''
 if [ "${VARFONT+x}" != x ] &&
 	printf '%s\n' "$fonts" | grep -Fxq 'GoRegular/'; then
-	VARFONT=/mnt/font/GoRegular/15a/font
+	VARFONT=/mnt/font/GoRegular/16a/font
 fi
 if [ "${FIXFONT+x}" != x ] &&
 	printf '%s\n' "$fonts" | grep -Fxq 'GoMono/'; then
-	FIXFONT=/mnt/font/GoMono/15a/font
+	FIXFONT=/mnt/font/GoMono/16a/font
 fi
 
 name=''
