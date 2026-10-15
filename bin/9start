@@ -4,42 +4,60 @@ export SHELL=/bin/sh
 export PS1='\$ '
 export ENV="$DOTFILES/9.sh"
 export EDITOR=E
+export VISUAL=E
 export PAGER=nobs
+export MANPAGER=nobs
+export NO_COLOR=1
 export PATH="$DOTFILES/acme:$PATH"
 export acmeshell="$SHELL"
 export home="$HOME"
 export user="$USER"
 
-: "${VARFONT=/mnt/font/GoRegular/14a/font}"
-: "${FIXFONT=/mnt/font/GoMono/14a/font}"
+plan9=${PLAN9:-/usr/local/plan9}
+fonts=$("$plan9/bin/fontsrv" -p . 2>/dev/null) || fonts=''
+if [ "${VARFONT+x}" != x ] &&
+	printf '%s\n' "$fonts" | grep -Fxq 'GoRegular/'; then
+	VARFONT=/mnt/font/GoRegular/15a/font
+fi
+if [ "${FIXFONT+x}" != x ] &&
+	printf '%s\n' "$fonts" | grep -Fxq 'GoMono/'; then
+	FIXFONT=/mnt/font/GoMono/15a/font
+fi
 
 name=''
 argc=$#
 while [ "$argc" -gt 0 ]; do
-	arg=$1; shift; argc=$((argc - 1))
+	arg=$1
+	shift
+	argc=$((argc - 1))
 	if [ "$arg" = '-n' ]; then
 		if [ "$argc" -eq 0 ]; then
 			echo "9start: -n requires a name" >&2
 			exit 1
 		fi
-		name=$1; shift; argc=$((argc - 1))
+		name=$1
+		shift
+		argc=$((argc - 1))
 	else
 		set -- "$@" "$arg"
 	fi
 done
 
 if [ -n "$name" ]; then
-	NAMESPACE="$(${PLAN9:-/usr/local/plan9}/bin/namespace).$name"
+	NAMESPACE=$("$plan9/bin/namespace") || exit 1
+	NAMESPACE=$NAMESPACE.$name
 	export NAMESPACE
-	mkdir -p "$NAMESPACE"
-	if [ ! -S "$NAMESPACE/plumb" ] || ! pgrep -x plumber > /dev/null 2>&1; then
-		${PLAN9:-/usr/local/plan9}/bin/plumber &
-	fi
-else
-	pgrep -x plumber > /dev/null 2>&1 || plumber &
+	(
+		umask 077
+		mkdir -p "$NAMESPACE"
+	) || exit 1
+fi
+
+if ! "$plan9/bin/9p" stat plumb/rules >/dev/null 2>&1; then
+	"$plan9/bin/plumber" || exit 1
 fi
 
 set -- -a "$@"
 [ -n "$VARFONT" ] && set -- "$@" -f "$VARFONT"
 [ -n "$FIXFONT" ] && set -- "$@" -F "$FIXFONT"
-exec "${PLAN9:-/usr/local/plan9}/bin/acme" "$@"
+exec "$plan9/bin/acme" "$@"

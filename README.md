@@ -69,6 +69,8 @@ I use these tools every day:
 - `tabfmt`, `tabmd`, and `csvtab` format tabular text.
 - `md` processes Markdown with Pikchr diagrams.
 - `pp` preprocesses plain text with small `#pp:` directives.
+- `clip` copies piped input to the X11 clipboard with `xsel`.
+  Run `clip` from a terminal to print the clipboard.
 
 I keep the other tools small enough to read before use.
 
@@ -89,6 +91,16 @@ Markdown fences by default. See `vim/README` for options and intentional limits.
 
 Acme scripts live in `acme/`. They communicate with Acme through 9p to format
 code, jump to definitions, find uses, rename symbols, indent text, and reload windows.
+
+`9start` uses Go Regular and Go Mono at `15a`, with a 24-pixel line height
+that matches XTerm's Spleen 12×24. Each font falls back to Acme's built-in
+default when unavailable. `VARFONT` and `FIXFONT` override these choices.
+An empty value keeps the corresponding built-in font.
+
+Inside Acme, `9start` sets `EDITOR` and `VISUAL` to `E`, both pagers to
+`nobs`, and `NO_COLOR=1`. It checks `plumb/rules` in the selected namespace
+before starting a plumber. `9start -n name` selects a named namespace.
+Without `-n`, it uses the inherited or default namespace.
 
 ## Tests
 

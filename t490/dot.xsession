@@ -1,9 +1,7 @@
 . "$HOME/dotfiles/init.sh"
 
-# locale and default fonts
+# locale
 export LC_CTYPE=en_US.UTF-8
-export VARFONT=/mnt/font/GoRegular/13a/font
-export FIXFONT=/mnt/font/GoMono/12a/font
 
 # scalable cursors; size comes from the display profile
 export XCURSOR_THEME=Adwaita
