@@ -1536,7 +1536,7 @@ exe 'bwipeout!' s:errbnr
 " Cmd(): multi-line output preserved
 call exec#Cmd('printf "line1\nline2\nline3"', 0, 0, 0)
 let s:errbnr = bufnr(getcwd() . '/+Errors')
-call s:WaitFor({-> len(getbufline(s:errbnr, 1, '$')) >= 3})
+call s:WaitFor({-> join(getbufline(s:errbnr, 1, '$'), "\n") =~ 'line3'})
 let s:errtxt = join(getbufline(s:errbnr, 1, '$'), "\n")
 call assert_match('line1', s:errtxt)
 call assert_match('line3', s:errtxt)
@@ -1605,6 +1605,46 @@ call assert_notmatch('unnamed-bbb', join(getbufline(s:errnr1, 1, '$'), "\n"))
 exe 'bwipeout!' s:errnr1
 exe 'bwipeout!' s:errnr2
 silent! only!
+
+" CmdComplete: a program at command position, files in the buffer's directory.
+silent! only!
+let s:comp_bin = tempname()
+let s:comp_dir = tempname()
+call mkdir(s:comp_bin, 'p')
+call mkdir(s:comp_dir . '/sub', 'p')
+call writefile(['#!/bin/sh'], s:comp_bin . '/cmdcomplete-probe')
+call setfperm(s:comp_bin . '/cmdcomplete-probe', 'rwxr-xr-x')
+call writefile([], s:comp_dir . '/plain.txt')
+call writefile([], s:comp_dir . '/semi;colon.txt')
+call writefile([], s:comp_dir . '/skipme.skip')
+exe 'edit' fnameescape(s:comp_dir . '/plain.txt')
+let s:save_path = $PATH
+let s:save_wig = &wildignore
+let $PATH = s:comp_bin . ':' . $PATH
+let $DOTFILES_COMPDIR = s:comp_dir
+set wildignore+=*.skip
+" A program completes at command position, including after a range or modifier.
+call assert_true(index(getcompletion('Cmd cmdcomplete-pro', 'cmdline'), 'cmdcomplete-probe') >= 0)
+call assert_true(index(getcompletion(':%Cmd cmdcomplete-pro', 'cmdline'), 'cmdcomplete-probe') >= 0)
+call assert_true(index(getcompletion(':2,4Cmd cmdcomplete-pro', 'cmdline'), 'cmdcomplete-probe') >= 0)
+call assert_true(index(getcompletion('silent Cmd cmdcomplete-pro', 'cmdline'), 'cmdcomplete-probe') >= 0)
+" Arguments complete as files in the buffer's directory, not Vim's cwd.
+call assert_equal(['plain.txt'], getcompletion('Cmd grep pla', 'cmdline'))
+call assert_equal(['semi\;colon.txt'], getcompletion('Cmd grep semi', 'cmdline'))
+call assert_equal(['sub/'], getcompletion('Cmd grep sub', 'cmdline'))
+" A later word is a file, not another program.
+call assert_equal([], getcompletion('Cmd grep cmdcomplete-pro', 'cmdline'))
+" 'wildignore' still filters file matches.
+call assert_equal([], getcompletion('Cmd grep skip', 'cmdline'))
+" Absolute and environment leads resolve on their own, not from the buffer dir.
+call assert_equal([s:comp_dir . '/plain.txt'], getcompletion('Cmd grep ' . s:comp_dir . '/pla', 'cmdline'))
+call assert_equal([s:comp_dir . '/plain.txt'], getcompletion('Cmd grep $DOTFILES_COMPDIR/pla', 'cmdline'))
+let $PATH = s:save_path
+let &wildignore = s:save_wig
+unlet $DOTFILES_COMPDIR
+bwipeout!
+call delete(s:comp_bin, 'rf')
+call delete(s:comp_dir, 'rf')
 
 " DblClick/Expand: mappings are wired up
 let s:expand_map = maparg('<Space><Space>', 'n', 0, 1)

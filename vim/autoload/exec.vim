@@ -14,11 +14,15 @@ export def Jobs(): string
 enddef
 
 # CmdClose fires after all out_cb/err_cb calls complete: show +Errors if needed.
+# The scratch may be wiped while the job runs; bail out then.
 def CmdClose(ch: channel, name: string, bnr: number, wrote: list<bool>)
 	var j = ch_getjob(ch)
 	var code = job_info(j).exitval
 	filter(running, (_, r) => r != j)
 	redrawtabline
+	if !bufexists(bnr)
+		return
+	endif
 	if wrote[0] || code > 0
 		# trim leading blank line left by bufload seed
 		if getbufline(bnr, 1) == ['']
@@ -52,6 +56,9 @@ export def Cmd(cmd: string, addr: number, line1: number, line2: number, Done: fu
 	bufload(bnr)
 	var wrote = [false]  # list to allow mutation from lambda (vim9 captures by value)
 	var Append = (ch: channel, data: string) => {
+		if !bufexists(bnr)
+			return
+		endif
 		wrote[0] = true
 		appendbufline(bnr, '$', split(data, "\n", 1))
 	}
@@ -78,6 +85,41 @@ export def Cmd(cmd: string, addr: number, line1: number, line2: number, Done: fu
 	endif
 	add(running, job_start(prog, opts))
 	redrawtabline
+enddef
+
+# CmdComplete completes :Cmd's command line. A word at command position (the
+# start of the line, or just after a shell separator) names a program and
+# completes against $PATH; every other word is an argument and completes as a
+# file. A word with a slash, tilde or leading $ is always a file.
+#
+# Cmd runs the shell in the buffer's directory, so file completion must too.
+# getcompletion() resolves against Vim's cwd instead, so prefix relative leads
+# with the buffer directory and strip it from the results. Matches honor
+# 'wildignore' and are escaped for /bin/sh.
+export def CmdComplete(arglead: string, cmdline: string, cursorpos: number): list<string>
+	var before = strpart(cmdline, 0, cursorpos - len(arglead))
+	# Command position is after a shell separator, or right after the :Cmd name
+	# (which may carry an Ex range or modifier prefix, e.g. %Cmd, 2,4Cmd,
+	# silent Cmd). A longer word ending in Cmd is an argument, not the command.
+	var seg = matchstr(before, '[^|&;]*$')
+	var atcmd = empty(trim(seg)) ||
+		(seg =~# 'Cmd\s*$' && seg !~# '[A-Za-z_]Cmd\s*$')
+	if atcmd && arglead !~# '[/~]' && arglead !~# '^\$'
+		return sort(getcompletion(arglead, 'shellcmd'))
+	endif
+	var lead = substitute(arglead, '\\ ', ' ', 'g')
+	var dir = expand('%:p:h')
+	var base = dir[-1] ==# '/' ? dir : dir .. '/'
+	# getcompletion() resolves against Vim's cwd; prefix relative leads with the
+	# buffer's directory, where Cmd runs the shell, and strip it back off. Leads
+	# starting with /, ~ or $ the shell resolves on its own.
+	var relative = lead !~# '^[/~$]'
+	var matches = getcompletion(relative ? base .. lead : lead, 'file', 1)
+	if relative
+		matches = map(matches, (_, v) =>
+			strpart(v, 0, len(base)) ==# base ? strpart(v, len(base)) : v)
+	endif
+	return map(matches, (_, v) => escape(v, ' \''"`$&;|<>()*?[]{}!'))
 enddef
 
 # Yank copies through a host command when configured, otherwise through OSC 52.

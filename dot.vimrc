@@ -139,7 +139,7 @@ augroup filetypes
 augroup END
 
 # ── Commands ─────────────────────────────────────────────
-command! -nargs=? -complete=file -range
+command! -nargs=* -complete=customlist,exec.CmdComplete -range
 	\ Cmd call exec.Cmd(<q-args>, <range>, <line1>, <line2>)
 
 command! -nargs=? Lint call exec.Lint(<f-args>)
