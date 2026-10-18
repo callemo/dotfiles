@@ -6,7 +6,6 @@ ModulePath /usr/X11R6/lib/X11/fvwm
 ColormapFocus  FollowsMouse
 SnapAttraction 10 Windows
 OpaqueMoveSize 100
-GlobalOpts MouseFocusClickRaises
 
 DeskTopSize    1x1
 EdgeThickness 0
@@ -161,7 +160,7 @@ AddToMenu KeyBindingsMenu "Key Bindings" Title
 + "Move window 10 pixels	Win-H/J/K/L" Nop
 + "Resize window 10 pixels	Shift-Win-H/J/K/L" Nop
 + "Move to edge	Ctrl-Win-H/J/K/L" Nop
-+ "Raise window	Left Click" Nop
++ "Raise window	Win-Left Click" Nop
 + "Move window	Win-Left Drag" Nop
 + "Window menu	Alt-Space / Right Click border" Menu WinOps Nop
 + "Lower window	Win-Right Click / Win-Double-Left Click" Nop
